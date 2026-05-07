@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = __dirname;
+const { buildLiveState } = require('./lib/capital-radar-live.cjs');
 const port = Number(process.env.PORT || 8830);
 const types = {
   '.html': 'text/html; charset=utf-8',
@@ -23,7 +24,18 @@ function safePath(urlPath) {
   return resolved;
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
+  if ((req.url || '').startsWith('/api/capital-radar')) {
+    try {
+      const state = await buildLiveState();
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+      res.end(JSON.stringify(state));
+    } catch (error) {
+      res.writeHead(500, { 'content-type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
   let filePath = safePath(req.url || '/');
   if (!filePath) {
     res.writeHead(403);

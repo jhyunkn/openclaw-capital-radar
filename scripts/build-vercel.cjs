@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'public');

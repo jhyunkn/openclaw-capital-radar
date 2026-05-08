@@ -1,4 +1,4 @@
-﻿const { buildLiveState } = require('../lib/capital-radar-live.cjs');
+const { buildLiveState } = require('../lib/capital-radar-live.cjs');
 
 module.exports = async function handler(req, res) {
   try {

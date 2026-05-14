@@ -89,6 +89,24 @@ const rules = {
     invalidation: 'Range thesis invalidates if CONL loses lower support while COIN/BTC confirm weakness; 2x daily leverage makes waiting expensive.',
     review: 'Review daily while held; time stop after 2–5 trading days if the bounce does not arrive.'
   },
+  DOGE: {
+    posture: 'Speculative crypto risk bucket',
+    holdUntil: 'Hold only while crypto risk appetite is supportive and the position remains a small, explicitly speculative bucket.',
+    addWhen: 'Add only after BTC/crypto breadth confirms strength and DOGE is not merely spiking on meme momentum; never add if it would crowd out core holdings.',
+    trimWhen: 'Trim into sharp meme/liquidity rallies, if position weight grows beyond comfort, or if BTC/crypto market structure weakens.',
+    exitWhen: 'Exit/reduce if DOGE breaks down with BTC weakness, if liquidity/risk appetite fades, or if you cannot state the near-term catalyst.',
+    invalidation: 'Invalidation: meme/liquidity thesis fails and DOGE becomes dead capital with high drawdown risk.',
+    review: 'Review during crypto/risk-on moves; otherwise weekly as a speculative bucket.'
+  },
+  'VOYG-35C-2027': {
+    posture: 'Long-dated call option / convex speculation',
+    holdUntil: 'Hold only while the VOYG thesis and catalyst path justify option risk before 1/15/2027 expiration.',
+    addWhen: 'Do not add until underlying VOYG thesis, liquidity/spread, IV, and catalyst timing are verified; option adds need stricter evidence than shares.',
+    trimWhen: 'Trim if the option spikes sharply, spread/liquidity worsens, implied volatility inflates without fundamental confirmation, or position value grows too large for a speculative bucket.',
+    exitWhen: 'Exit/reduce if underlying thesis fails, catalyst timing slips too close to expiration, option liquidity is poor, or loss reaches the pre-set max-risk tolerance.',
+    invalidation: 'Invalidation: no clear underlying catalyst plus time decay/IV risk makes the option an uncontrolled lottery ticket.',
+    review: 'Review weekly and after any VOYG news; track underlying price, option bid/ask, IV, and days-to-expiration.'
+  },
   TSLT: {
     posture: 'Tactical leveraged TSLA product',
     holdUntil: 'Hold only with explicit short-term TSLA thesis; not a passive investment holding.',

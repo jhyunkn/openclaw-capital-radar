@@ -37,22 +37,34 @@ function roundPrice(x){
   if (x < 100) return +x.toFixed(2);
   return +x.toFixed(0);
 }
-function numericLevels(ticker, price){
+function numericLevels(ticker, price, tech={}){
   ticker=String(ticker||'').toUpperCase(); price=Number(price||0);
   if (overrides[ticker]) return {...overrides[ticker], current:roundPrice(price), basis:'fixed tactical levels'};
   const p = profiles[profileFor(ticker)];
+  const atr = Number(tech?.atr || 0);
+  const smaPrice = pct => Number.isFinite(Number(pct)) ? price / (1 + Number(pct)/100) : null;
+  const s20 = smaPrice(tech?.sma20), s50 = smaPrice(tech?.sma50), s200 = smaPrice(tech?.sma200);
+  const support = [s20,s50].filter(Number.isFinite).sort((a,b)=>a-b)[0];
+  const targetPrice = Number(tech?.targetPrice || 0);
+  if (atr > 0 && support) {
+    const entryHigh = Math.min(price - atr*0.35, support + atr*0.3);
+    const entryLow = entryHigh - atr*1.0;
+    return {
+      current: roundPrice(price),
+      entryLow: roundPrice(entryLow),
+      entryHigh: roundPrice(entryHigh),
+      addBelow: profileFor(ticker)==='spec' ? null : roundPrice(entryLow),
+      trimLow: roundPrice(price + atr*1.5),
+      trimHigh: roundPrice(targetPrice && targetPrice < price + atr*4 ? targetPrice : price + atr*3),
+      stop: roundPrice(Math.min(s50 || price-atr*2, price-atr*2)),
+      hardExit: roundPrice(s200 ? Math.min(s200, price-atr*3) : price-atr*3),
+      target: roundPrice(targetPrice || price + atr*3),
+      horizon: p.horizon,
+      basis: 'Finviz ATR + moving-average band'
+    };
+  }
   return {
-    current: roundPrice(price),
-    entryLow: roundPrice(price*(1+p.entry[0])),
-    entryHigh: roundPrice(price*(1+p.entry[1])),
-    addBelow: p.add == null ? null : roundPrice(price*(1+p.add)),
-    trimLow: roundPrice(price*(1+p.trim[0])),
-    trimHigh: roundPrice(price*(1+p.trim[1])),
-    stop: roundPrice(price*(1+p.stop)),
-    hardExit: roundPrice(price*(1+p.hard)),
-    target: roundPrice(price*(1+p.target)),
-    horizon: p.horizon,
-    basis: `${profileFor(ticker)} dynamic band from current price`
+    current: roundPrice(price), entryLow: roundPrice(price*(1+p.entry[0])), entryHigh: roundPrice(price*(1+p.entry[1])), addBelow: p.add == null ? null : roundPrice(price*(1+p.add)), trimLow: roundPrice(price*(1+p.trim[0])), trimHigh: roundPrice(price*(1+p.trim[1])), stop: roundPrice(price*(1+p.stop)), hardExit: roundPrice(price*(1+p.hard)), target: roundPrice(price*(1+p.target)), horizon: p.horizon, basis: `${profileFor(ticker)} dynamic band from current price`
   };
 }
 function strategyFor(ticker) {

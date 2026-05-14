@@ -13,6 +13,7 @@ fs.mkdirSync(outDir, { recursive: true });
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = n => typeof n === 'number' ? n.toLocaleString(undefined, { maximumFractionDigits: 2 }) : 'n/a';
 const pct = n => typeof n === 'number' ? `${n >= 0 ? '+' : ''}${n.toFixed(2)}%` : 'n/a';
+const money = n => typeof n === 'number' ? `${n >= 0 ? '+' : '-'}$${Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'n/a';
 const tone = n => typeof n !== 'number' ? '' : n >= 0 ? 'good' : 'bad';
 const signalTone = s => String(s || '').includes('EXIT') || String(s || '').includes('TRIM') ? 'bad' : String(s || '').includes('WATCH') || String(s || '').includes('INVEST') ? 'warn' : 'good';
 
@@ -45,9 +46,9 @@ function pageFor(h) {
       <article class="metric"><span>Price</span><strong>$${fmt(h.livePrice)}</strong></article>
       <article class="metric"><span>Day / 1M</span><strong><span class="${tone(h.dayChangePct)}">${pct(h.dayChangePct)}</span> / <span class="${tone(h.perf1mPct)}">${pct(h.perf1mPct)}</span></strong></article>
       <article class="metric"><span>Weight</span><strong>${fmt(h.portfolioWeightPct)}%</strong></article>
-      <article class="metric"><span>Signal</span><strong class="${signalTone(signal)}">${esc(signal)}</strong></article>
+      <article class="metric"><span>Total return</span><strong class="${tone(h.totalReturnUsd)}">${money(h.totalReturnUsd)} / ${pct(h.totalReturnPct)}</strong></article>
     </section>
-    <section class="panel"><p class="eyebrow">Price context</p><h2>Recent movement</h2>${spark(h.sparkline)}<p class="source">${esc(dataSupport.join(' · '))}</p></section>
+    <section class="panel"><p class="eyebrow">Price + entry context</p><h2>Recent movement and total return</h2>${spark(h.sparkline)}<p>Total return: <b class="${tone(h.totalReturnUsd)}">${money(h.totalReturnUsd)} / ${pct(h.totalReturnPct)}</b>. This separates current company/market quality from your actual entry quality.</p><p class="source">${esc(dataSupport.join(' · '))}${h.totalReturnSource ? ` · Total return source: ${esc(h.totalReturnSource)}` : ''}</p></section>
     <section class="panel"><p class="eyebrow">Commitment strategy</p><h2>What to do, and when</h2><div class="strategy-grid">
       <article class="strategy-card"><strong>Hold until</strong><p>${esc(rule.holdUntil)}</p></article>
       <article class="strategy-card"><strong>Add / buy more when</strong><p>${esc(rule.addWhen)}</p></article>

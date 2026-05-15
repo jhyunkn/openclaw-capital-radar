@@ -55,6 +55,8 @@ Dashboard/report standard: action-first, numeric, chart-led, probabilistic, and 
 
 Standing source registry: `../../openclaw-state/capital-radar-source-registry.json`.
 
+Analytic learning protocol: `../../openclaw-state/capital-radar-analytic-learning-protocol.md`.
+
 Jun explicitly added these YouTube channels to the Capital Radar research engine:
 - https://www.youtube.com/@Jungernaut
 - https://www.youtube.com/@mijooeun
@@ -64,6 +66,8 @@ Jun explicitly added these YouTube channels to the Capital Radar research engine
 - https://www.youtube.com/@futuresnow
 
 Use them for market information, stock-analysis methods, and hypothesis generation. Validate before action posture changes.
+
+They must also feed analytic skill improvement: extract methods, not just ticker calls. Capture reusable chart/volume/risk/sizing/macro lessons and archive material changes in `runs/capital-radar/YYYY-MM-DD/analytic-learning.md`.
 
 ## Required analytics layers
 

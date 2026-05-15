@@ -51,6 +51,20 @@ Dashboard/report standard: action-first, numeric, chart-led, probabilistic, and 
    - Rebalance Pressure
    - Final Judgment
 
+## Named research sources
+
+Standing source registry: `../../openclaw-state/capital-radar-source-registry.json`.
+
+Jun explicitly added these YouTube channels to the Capital Radar research engine:
+- https://www.youtube.com/@Jungernaut
+- https://www.youtube.com/@mijooeun
+- https://www.youtube.com/@JUTOPIA
+- https://www.youtube.com/@GrahamStephan
+- https://www.youtube.com/@kimsstock
+- https://www.youtube.com/@futuresnow
+
+Use them for market information, stock-analysis methods, and hypothesis generation. Validate before action posture changes.
+
 ## Required analytics layers
 
 For holdings and candidates, include when available:

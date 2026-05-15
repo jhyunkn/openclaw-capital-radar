@@ -150,6 +150,8 @@ The dashboard should always include adversarial thinking:
 
 ## V2 next
 
+Implementation benchmark/spec: `CAPITAL_RADAR_V2_BENCHMARK_SPEC.md`.
+
 - SEC fundamentals adapter
 - Valuation fields
 - News/filing materiality scanner
@@ -157,6 +159,9 @@ The dashboard should always include adversarial thinking:
 - Force-to-holding impact matrix
 - Historical regime archive
 - Daily morning market headquarters snapshot
+- Precedent-driven visual language grounded in OpenClaw UI/UX research, not generic dashboard styling
+- Unified radar / force-network graphic system across command center, holdings, market map, opportunities, and detail pages
+- Explicit clarity + beauty quality bar: function-first, scannable, evidence-backed, calm, institutional, and visually memorable
 
 ## V3 later
 

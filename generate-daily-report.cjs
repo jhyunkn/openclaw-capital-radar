@@ -80,7 +80,13 @@ function render(){
   out += line(bullets(state.opportunityScout.requiredScreens));
   out += line();
   out += line('**Current candidates:**');
-  for (const c of state.opportunityScout.candidates) out += line('- **' + c.ticker + ' - ' + c.signal + ':** ' + c.reason);
+  const candidates = state.strategy?.opportunityScout || state.opportunityScout.candidates || [];
+  for (const c of candidates) {
+    out += line('- **' + c.ticker + ' - ' + c.signal + ':** ' + (c.thesis || c.reason || c.whyNow));
+    if (c.dataSupport?.length) out += line('  - Data support: ' + c.dataSupport.join(' | '));
+    if (c.confirmBeforeAdd?.length) out += line('  - Confirm before add: ' + c.confirmBeforeAdd.join('; '));
+    if (c.keyRisks?.length) out += line('  - Key risks: ' + c.keyRisks.join('; '));
+  }
   out += line();
   out += line('## 9. Risk Officer Review');
   out += line('- **Highest-risk position:** ' + state.riskOfficer.highestRiskPosition);

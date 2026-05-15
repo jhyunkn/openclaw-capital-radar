@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const input = process.argv[2] || path.join(__dirname, 'data', 'report-state.sample.json');
 const state = JSON.parse(fs.readFileSync(input, 'utf8'));
-const allowedSignals = ["HOLD","HOLD / WATCH","ADD WATCH","ADD CANDIDATE","TRIM WATCH","TRIM CANDIDATE","EXIT REVIEW","INVESTIGATE"];
+const allowedSignals = ["HOLD","HOLD / WATCH","ADD WATCH","ADD CANDIDATE","TRIM WATCH","TRIM CANDIDATE","EXIT REVIEW","INVESTIGATE","TACTICAL WATCH","SPECULATIVE REVIEW"];
 const requiredSections = ['marketRegime','kostolanyCycle','holdings','newsMonitoring','valuationExpectation','rebalance','opportunityScout','riskOfficer','finalOutput'];
 const errors = [];
 for (const key of requiredSections) if (!state[key]) errors.push('missing ' + key);
-if (!Array.isArray(state.holdings) || state.holdings.length !== 11) errors.push('expected 11 holdings');
+if (!Array.isArray(state.holdings) || state.holdings.length < 11) errors.push('expected at least 11 holdings');
 for (const h of state.holdings || []) {
   if (!allowedSignals.includes(h.signal)) errors.push('invalid holding signal for ' + h.ticker + ': ' + h.signal);
   for (const key of ['ticker','shares','role','signal','health','thesis','watch','actionRationale']) if (h[key] === undefined || h[key] === '') errors.push('holding ' + (h.ticker || '?') + ' missing ' + key);

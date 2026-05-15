@@ -57,6 +57,8 @@ Standing source registry: `../../openclaw-state/capital-radar-source-registry.js
 
 Analytic learning protocol: `../../openclaw-state/capital-radar-analytic-learning-protocol.md`.
 
+Continuous market cognition extension: `../../openclaw-state/capital-radar-continuous-market-cognition-extension.md`.
+
 Jun explicitly added these YouTube channels to the Capital Radar research engine:
 - https://www.youtube.com/@Jungernaut
 - https://www.youtube.com/@mijooeun
@@ -68,6 +70,8 @@ Jun explicitly added these YouTube channels to the Capital Radar research engine
 Use them for market information, stock-analysis methods, and hypothesis generation. Validate before action posture changes.
 
 They must also feed analytic skill improvement: extract methods, not just ticker calls. Capture reusable chart/volume/risk/sizing/macro lessons and archive material changes in `runs/capital-radar/YYYY-MM-DD/analytic-learning.md`.
+
+Continuous cognition requirement: preserve state transitions where possible — previous state, current state, likely next state, confidence/probability shift, evidence trigger, and reaction implication. The dashboard should compress what changed / what matters / what can be ignored / what action is allowed or forbidden.
 
 ## Required analytics layers
 

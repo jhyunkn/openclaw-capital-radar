@@ -123,9 +123,49 @@
 
     <footer class="footer">Research and education only. No brokerage connection. Generated from local OpenClaw data pipeline.</footer>
   </main>
-  <script src="assets/capital-radar.js"></script>
-  <script src="assets/chart-integration.js"></script>
-  <script src="assets/search-enhancement.js"></script>
-  <script src="assets/market-section-md.js"></script>
+  <script src="assets/capital-radar.js" defer></script>
+  <script src="assets/chart-integration.js" defer></script>
+  <script src="assets/search-enhancement.js" defer></script>
+  <script src="assets/market-section-md.js" defer></script>
+  <script>
+    (function(){
+      function node(id){return document.getElementById(id)}
+      function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+      function pct(n){return typeof n==='number'?(n>=0?'+':'')+n.toFixed(2)+'%':'n/a'}
+      function fmt(n){return typeof n==='number'?n.toLocaleString(undefined,{maximumFractionDigits:2}):'n/a'}
+      function renderEmergency(state, source){
+        if (node('generated')) node('generated').textContent = (state.meta && state.meta.generatedAt ? new Date(state.meta.generatedAt).toLocaleString() : 'Loaded') + ' · ' + source;
+        if (node('status')) node('status').textContent = state.meta && state.meta.dataStatus || 'STATIC_DATA';
+        if (node('confidence')) node('confidence').textContent = state.marketRegime && state.marketRegime.confidence || 'Loaded from static JSON';
+        if (node('final-judgment')) node('final-judgment').textContent = state.marketRegime && state.marketRegime.mostImportantMacroSignal || 'Static data loaded.';
+        if (node('posture')) node('posture').textContent = state.marketRegime && state.marketRegime.posture || '—';
+        if (node('risk')) node('risk').textContent = state.marketRegime && state.marketRegime.riskLevel || '—';
+        if (node('macro')) node('macro').textContent = state.marketRegime && state.marketRegime.mostImportantMacroSignal || '—';
+        if (node('strategy')) node('strategy').textContent = state.strategy && state.strategy.strategyPosture || state.rebalance && state.rebalance.rationale || '—';
+        var holdings = Array.isArray(state.holdings) ? state.holdings : [];
+        if (node('strongest')) node('strongest').textContent = state.strategy && state.strategy.strongestHolding || holdings[0] && holdings[0].ticker || '—';
+        if (node('weakest')) node('weakest').textContent = state.strategy && state.strategy.weakestHolding || '—';
+        if (node('highest-risk')) node('highest-risk').textContent = state.strategy && state.strategy.highestRiskPosition || '—';
+        if (node('holdings')) node('holdings').innerHTML = holdings.map(function(h){return '<article class="card"><div class="ticker"><div><b>'+esc(h.ticker)+'</b><br><small>'+esc(h.exposureBucket||'Holding')+'</small></div><div style="text-align:right"><b>$'+fmt(h.livePrice)+'</b><br><small>'+pct(h.dayChangePct)+'</small></div></div><span class="signal">'+esc(h.computedSignal||h.signal||'Review')+'</span><div class="rows"><div class="row"><span>Health score</span><b>'+esc(h.healthScore||'n/a')+'</b></div><div class="row"><span>Weight</span><b>'+fmt(h.portfolioWeightPct)+'%</b></div><div class="row"><span>Market value</span><b>$'+fmt(h.marketValue)+'</b></div><div class="row"><span>1M / 3M</span><b>'+pct(h.perf1mPct)+' / '+pct(h.perf3mPct)+'</b></div></div><p style="margin-top:12px">'+esc(h.actionRationale||'')+'</p><a class="detail-link" href="pages/'+esc(String(h.ticker||'').toLowerCase())+'.html">Open '+esc(h.ticker)+' rating + chart →</a></article>'}).join('') || '<p class="muted">No holdings loaded.</p>';
+        if (node('brief-list')) node('brief-list').innerHTML = '<article class="brief-item"><span>Data source</span><b>'+esc(source)+'</b></article><article class="brief-item"><span>Holdings</span><b>'+holdings.length+'</b></article>';
+        if (node('risk-list')) node('risk-list').innerHTML = ((state.riskOfficer && state.riskOfficer.keyRisks) || []).map(function(r){return '<li>'+esc(r)+'</li>'}).join('') || '<li>No risk notes loaded.</li>';
+        if (node('human-review')) node('human-review').innerHTML = '<b>Human review required:</b><br>'+(((state.riskOfficer && state.riskOfficer.humanReviewRequired)||[]).map(esc).join('<br>') || 'No review flags loaded.');
+        if (node('triggers')) node('triggers').innerHTML = (((state.strategy && state.strategy.watchTriggers)||[]).map(function(t){return '<li>'+esc(t)+'</li>'}).join('') || '<li>No triggers loaded.</li>');
+      }
+      setTimeout(function(){
+        var stillLoading = node('generated') && /Loading/.test(node('generated').textContent || '');
+        if (!stillLoading) return;
+        var sources=['/data/report-state.live.json','data/report-state.live.json','/data/report-state.sample.json','data/report-state.sample.json'];
+        (async function(){
+          var errors=[];
+          for (var i=0;i<sources.length;i++){
+            try{var r=await fetch(sources[i],{cache:'no-store'}); if(!r.ok) throw new Error(r.status+' '+r.statusText); var j=await r.json(); renderEmergency(j,sources[i]); return;}catch(e){errors.push(sources[i]+': '+e.message)}
+          }
+          if (node('generated')) node('generated').textContent='Data load failed';
+          if (node('final-judgment')) node('final-judgment').innerHTML='Could not load static JSON.<br><pre>'+esc(errors.join('\n'))+'</pre>';
+        })();
+      }, 1200);
+    })();
+  </script>
 </body>
 </html>

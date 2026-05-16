@@ -38,6 +38,26 @@ function parseMarkdownTable(block) {
   }).filter(row => Object.values(row).some(Boolean));
 }
 
+function archiveLiveReport() {
+  const mdPath = path.join(root, 'outputs', 'live-capital-radar.md');
+  if (!fs.existsSync(mdPath)) return;
+  const markdown = fs.readFileSync(mdPath, 'utf8');
+  const dateMatch = markdown.match(/\*\*Date:\*\*\s*(\d{4}-\d{2}-\d{2})/);
+  const date = dateMatch ? dateMatch[1] : new Date().toISOString().slice(0, 10);
+  const archiveDir = path.join(root, 'outputs', 'archive');
+  fs.mkdirSync(archiveDir, { recursive: true });
+  const archiveFile = path.join(archiveDir, `${date}-capital-radar.md`);
+  fs.writeFileSync(archiveFile, markdown);
+
+  const files = fs.readdirSync(archiveDir)
+    .filter(file => /^\d{4}-\d{2}-\d{2}-capital-radar\.md$/.test(file))
+    .sort()
+    .reverse();
+  const links = files.map(file => `- [${file.replace('-capital-radar.md', '')}](./${file})`).join('\n');
+  fs.writeFileSync(path.join(archiveDir, 'index.md'), `# OpenClaw Capital Radar Archive\n\n${links}\n`);
+  fs.writeFileSync(path.join(archiveDir, 'index.html'), `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Capital Radar Archive</title><link rel="stylesheet" href="../../assets/capital-radar.css"></head><body><main class="shell"><section class="panel"><div class="section-head"><div><p class="eyebrow">Archive</p><h1>Capital Radar Archive</h1></div><a class="button" href="../live-capital-radar.md">Live report</a></div><div class="source-grid">${files.map(file => `<article class="source"><h3>${file.replace('-capital-radar.md', '')}</h3><p class="muted">Daily archived markdown report.</p><a class="detail-link" href="./${file}">Open report →</a></article>`).join('') || '<p class="muted">No archived reports yet.</p>'}</div></section></main></body></html>`);
+}
+
 function normalizeLiveState() {
   const statePath = path.join(root, 'data', 'report-state.live.json');
   const mdPath = path.join(root, 'outputs', 'live-capital-radar.md');
@@ -77,6 +97,7 @@ function normalizeLiveState() {
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
+archiveLiveReport();
 normalizeLiveState();
 rm(out);
 fs.mkdirSync(out, { recursive: true });

@@ -69,12 +69,12 @@ function renderForces(state){
 
 function renderMarketBoard(state){
   const bySymbol = Object.fromEntries(list(state.liveMarket).map(x => [x.symbol, x]));
-  const byRate = Object.fromEntries(list(state.liveRatesCredit).map(x => [x.id, x]));
+  const byRate = Object.fromEntries(list(state.liveRatesCredit).map(x => [x.id || x.Series, x]));
   const cards = [
     { label: 'Volatility', value: bySymbol['^VIX']?.price, read: state.marketRegime?.riskLevel, watch: 'Above 22 = reduce speculative/levered risk review threshold.' },
-    { label: '10Y Treasury', value: byRate.DGS10?.value != null ? `${byRate.DGS10.value}%` : null, read: byRate.DGS10?.latestDate, watch: 'Higher long-end rates pressure AI/cloud multiples and valuation tolerance.' },
-    { label: 'Credit spread', value: byRate.BAMLH0A0HYM2?.value, read: 'HY OAS', watch: 'Widening spreads while equities rise = fragile risk appetite.' },
-    { label: 'Inflation expectation', value: byRate.T10YIE?.value != null ? `${byRate.T10YIE.value}%` : null, read: '10Y breakeven', watch: 'Re-acceleration can lift rates and pressure consumer/long-duration holdings.' },
+    { label: '10Y Treasury', value: byRate.DGS10?.value != null ? `${byRate.DGS10.value}%` : byRate.DGS10?.Value, read: byRate.DGS10?.latestDate || byRate.DGS10?.['Latest date'], watch: 'Higher long-end rates pressure AI/cloud multiples and valuation tolerance.' },
+    { label: 'Credit spread', value: byRate.BAMLH0A0HYM2?.value || byRate.BAMLH0A0HYM2?.Value, read: 'HY OAS', watch: 'Widening spreads while equities rise = fragile risk appetite.' },
+    { label: 'Inflation expectation', value: byRate.T10YIE?.value != null ? `${byRate.T10YIE.value}%` : byRate.T10YIE?.Value, read: '10Y breakeven', watch: 'Re-acceleration can lift rates and pressure consumer/long-duration holdings.' },
     { label: 'QQQ trend', value: pct(bySymbol.QQQ?.perf5dPct), read: '5D performance', watch: 'Confirms or rejects risk-on appetite for tech-heavy exposure.' },
     { label: 'Bitcoin liquidity beta', value: pct(bySymbol['BTC-USD']?.perf1mPct), read: 'BTC 1M', watch: 'Important for CONL/crypto-beta risk; positive trend still needs drawdown control.' }
   ];
@@ -116,14 +116,38 @@ function renderHoldings(state){
   </article>`).join('') || '<p class="muted">No holdings loaded.</p>';
 }
 
+function marketRegimeValue(regime, key) {
+  return regime?.[key] || regime?.[key.replace(/([A-Z])/g, ' $1').toLowerCase()] || '—';
+}
+
+function renderMarketRegime(state){
+  const regime = state.marketRegime || {};
+  const cycle = state.kostolanyCycle || {};
+  const keys = [
+    ['Posture', regime.posture],
+    ['Growth', regime.growth],
+    ['Inflation', regime.inflation],
+    ['Policy', regime.policy],
+    ['Liquidity', regime.liquidity],
+    ['Risk appetite', regime.riskAppetite],
+    ['Most important macro signal', regime.mostImportantMacroSignal],
+    ['Confidence', regime.confidence]
+  ];
+  $('market').innerHTML = `<div class="market-md-stack"><section class="market-md-block"><div class="section-head compact"><div><p class="eyebrow">Regime</p><h3>Market Regime</h3></div></div><div class="market-regime-strip">${keys.map(([label, value]) => `<article class="market-pill"><span>${esc(label)}</span><b>${esc(value || '—')}</b></article>`).join('')}</div></section><section class="market-md-block"><article class="kostolany-callout"><span>Kostolany cycle position</span><h3>${esc(cycle.phase || 'Phase not available')}</h3><p>${esc(cycle.evidence ? list(cycle.evidence).join(' · ') : cycle.interpretation || 'Evidence not available.')}</p></article></section></div>`;
+}
+
 function renderMarket(state){
-  const rows = list(state.liveMarket).map(m => `<tr><td>${esc(m.symbol)}</td><td>$${fmt(m.price)}</td><td class="${tone(m.changePct)}">${pct(m.changePct)}</td><td class="${tone(m.perf5dPct)}">${pct(m.perf5dPct)}</td><td class="${tone(m.perf1mPct)}">${pct(m.perf1mPct)}</td><td class="${tone(m.perf3mPct)}">${pct(m.perf3mPct)}</td></tr>`).join('');
-  $('market-table').innerHTML = `<table class="table"><thead><tr><th>Symbol</th><th>Price</th><th>Day</th><th>5D</th><th>1M</th><th>3M</th></tr></thead><tbody>${rows || '<tr><td colspan="6">No market tape loaded.</td></tr>'}</tbody></table>`;
+  renderMarketRegime(state);
+  const rows = list(state.liveMarket);
+  $('market-table').innerHTML = `<div class="section-head compact"><div><p class="eyebrow">Evidence Appendix</p><h3>Market Tape</h3></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Symbol</th><th>Price</th><th>Day%</th><th>5D%</th><th>1M%</th><th>3M%</th><th>As of</th></tr></thead><tbody>${rows.map(m => `<tr><td>${esc(m.symbol)}</td><td>$${fmt(m.price)}</td><td class="${tone(m.changePct)}">${pct(m.changePct)}</td><td>${pct(m.perf5dPct)}</td><td>${pct(m.perf1mPct)}</td><td>${pct(m.perf3mPct)}</td><td>${esc(m.priceAsOf || m.asOf || m.as_of || '—')}</td></tr>`).join('') || '<tr><td colspan="7">No market tape loaded.</td></tr>'}</tbody></table></div>`;
 }
 
 function renderRates(state){
-  const rows = list(state.liveRatesCredit).map(r=>`<tr><td>${esc(r.id)}</td><td>${esc(r.name)}</td><td>${fmt(r.value)}</td><td>${esc(r.latestDate)}</td></tr>`).join('');
-  $('rates-table').innerHTML = `<table class="table"><thead><tr><th>Series</th><th>Name</th><th>Value</th><th>Date</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No rates data loaded.</td></tr>'}</tbody></table>`;
+  const desired = ['DGS2', 'DGS10', 'DGS30', 'T10YIE', 'BAMLH0A0HYM2', 'BAMLC0A0CM', 'FEDFUNDS'];
+  const rates = list(state.liveRatesCredit);
+  const filtered = desired.map(id => rates.find(row => row.id === id || row.Series === id)).filter(Boolean);
+  const useRows = filtered.length ? filtered : rates;
+  $('rates-table').innerHTML = `<div class="section-head compact"><div><p class="eyebrow">Rates / Credit / Liquidity</p><h3>Macro pressure strip</h3></div></div><div class="rates-strip">${useRows.map(r => `<article class="rate-card"><span>${esc(r.id || r.Series || '—')}</span><b>${esc(r.value ?? r.Value ?? '—')}</b><small>${esc(r.name || r.Name || '')}<br>${esc(r.latestDate || r['Latest date'] || '')}</small></article>`).join('') || '<p class="muted">No rates data loaded.</p>'}</div>`;
 }
 
 function renderSources(state){

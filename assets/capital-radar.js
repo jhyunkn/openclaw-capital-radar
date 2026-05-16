@@ -1,6 +1,12 @@
-const api = '/api/capital-radar';
-const fallback = 'data/report-state.live.json';
-const $ = id => document.getElementById(id);
+const dataSources = [
+  '/api/capital-radar',
+  '/data/report-state.live.json',
+  'data/report-state.live.json',
+  '/data/report-state.sample.json',
+  'data/report-state.sample.json'
+];
+const noopNode = { set textContent(v) {}, get textContent(){ return ''; }, set innerHTML(v) {}, get innerHTML(){ return ''; } };
+const $ = id => document.getElementById(id) || noopNode;
 const fmt = n => typeof n === 'number' ? n.toLocaleString(undefined,{maximumFractionDigits:2}) : 'n/a';
 const pct = n => typeof n === 'number' ? `${n >= 0 ? '+' : ''}${n.toFixed(2)}%` : 'n/a';
 const tone = n => typeof n !== 'number' ? '' : n >= 0 ? 'good' : 'bad';
@@ -12,6 +18,22 @@ function spark(values){
   const min = Math.min(...values), max = Math.max(...values), span = max - min || 1;
   const pts = values.map((v,i)=>`${(i/(values.length-1 || 1))*100},${46-((v-min)/span)*40+3}`).join(' ');
   return `<svg class="spark" viewBox="0 0 100 52" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="#d7a84c" stroke-width="2" vector-effect="non-scaling-stroke"/><line x1="0" y1="48" x2="100" y2="48" stroke="#312b20"/></svg>`;
+}
+
+async function loadState(){
+  const errors = [];
+  for (const url of dataSources) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const json = await res.json();
+      json.__loadedFrom = url;
+      return json;
+    } catch (error) {
+      errors.push(`${url}: ${error.message}`);
+    }
+  }
+  throw new Error(errors.join('\n'));
 }
 
 function renderBrief(state){
@@ -112,7 +134,7 @@ function render(state){
   const marketRegime = state.marketRegime || {};
   const strategy = state.strategy || {};
   $('status').textContent = state.meta?.dataStatus || 'Unknown';
-  $('generated').textContent = state.meta?.generatedAt ? new Date(state.meta.generatedAt).toLocaleString() : 'Generated time unavailable';
+  $('generated').textContent = state.meta?.generatedAt ? `${new Date(state.meta.generatedAt).toLocaleString()} · ${state.__loadedFrom || 'data source unknown'}` : `Generated time unavailable · ${state.__loadedFrom || 'data source unknown'}`;
   $('confidence').textContent = marketRegime.confidence || 'Confidence unavailable';
   $('posture').textContent = marketRegime.posture || '-';
   $('risk').textContent = marketRegime.riskLevel || '-';
@@ -126,4 +148,6 @@ function render(state){
   $('notice').textContent = `Sources: ${list(state.meta?.liveDataSources).join(' · ') || 'source list unavailable'}. Public-data research system; not an automatic broker.`;
 }
 
-fetch(api).then(r => r.ok ? r.json() : Promise.reject()).catch(()=>fetch(fallback).then(r=>r.json())).then(render).catch(err=>{document.body.innerHTML='<main class="shell"><div class="panel"><h1>Capital Radar</h1><p>Could not load live data.</p><pre>'+esc(err)+'</pre></div></main>'});
+loadState().then(render).catch(err=>{
+  document.body.innerHTML='<main class="shell"><div class="panel"><h1>Capital Radar</h1><p>Could not load data from any source.</p><pre>'+esc(err.message || err)+'</pre></div></main>';
+});

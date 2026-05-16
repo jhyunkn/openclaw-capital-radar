@@ -38,6 +38,84 @@ function parseMarkdownTable(block) {
   }).filter(row => Object.values(row).some(Boolean));
 }
 
+function parseNumericMetric(raw) {
+  if (raw == null) return null;
+  const match = String(raw).replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : null;
+}
+
+function normalizeDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : null;
+}
+
+function firstValue(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return null;
+}
+
+function metricSource(holding, fieldName, value) {
+  if (value == null) return { source: null, sourceAsOf: null, confidence: 'missing' };
+  const hasFinviz = holding?.finviz && JSON.stringify(holding.finviz).includes(String(value));
+  return {
+    source: hasFinviz ? 'finviz-derived holding metadata' : 'holding JSON field',
+    sourceAsOf: holding?.finviz?.asOf || holding?.priceAsOf || holding?.asOf || null,
+    confidence: hasFinviz ? 'medium' : 'low'
+  };
+}
+
+function holdingDataContract(holding) {
+  const metrics = holding?.finviz?.metrics || {};
+  const forwardPE = parseNumericMetric(firstValue(
+    holding.forwardPE,
+    holding.forwardPe,
+    metrics['Forward P/E'],
+    metrics['Forward PE']
+  ));
+  const directFcfYield = parseNumericMetric(firstValue(
+    holding.fcfYield,
+    holding.freeCashFlowYield,
+    metrics['FCF Yield'],
+    metrics['Free Cash Flow Yield']
+  ));
+  const pfcf = parseNumericMetric(metrics['P/FCF']);
+  const fcfYield = Number.isFinite(directFcfYield)
+    ? directFcfYield
+    : Number.isFinite(pfcf) && pfcf > 0 ? 100 / pfcf : null;
+  const nextEarningsDate = normalizeDate(firstValue(
+    holding.nextEarningsDate,
+    holding.earningsDate,
+    metrics.Earnings,
+    metrics['Earnings Date']
+  ));
+
+  return {
+    requiredFields: ['forwardPE', 'fcfYield', 'nextEarningsDate', 'source', 'sourceAsOf', 'confidence'],
+    forwardPE,
+    fcfYield,
+    nextEarningsDate,
+    source: {
+      forwardPE: metricSource(holding, 'forwardPE', forwardPE).source,
+      fcfYield: metricSource(holding, 'fcfYield', fcfYield).source,
+      nextEarningsDate: nextEarningsDate ? 'earnings metadata field' : null
+    },
+    sourceAsOf: {
+      forwardPE: metricSource(holding, 'forwardPE', forwardPE).sourceAsOf,
+      fcfYield: metricSource(holding, 'fcfYield', fcfYield).sourceAsOf,
+      nextEarningsDate: nextEarningsDate ? (holding?.finviz?.asOf || holding?.priceAsOf || holding?.asOf || null) : null
+    },
+    confidence: {
+      forwardPE: metricSource(holding, 'forwardPE', forwardPE).confidence,
+      fcfYield: metricSource(holding, 'fcfYield', fcfYield).confidence,
+      nextEarningsDate: nextEarningsDate ? 'low' : 'missing'
+    },
+    normalizedAtBuild: true
+  };
+}
+
 function archiveLiveReport() {
   const mdPath = path.join(root, 'outputs', 'live-capital-radar.md');
   if (!fs.existsSync(mdPath)) return;
@@ -92,7 +170,16 @@ function normalizeLiveState() {
       normalizedAtBuild: true
     })).filter(row => row.symbol);
   }
+  state.holdings = Array.isArray(state.holdings) ? state.holdings.map(holding => ({
+    ...holding,
+    dataContract: holdingDataContract(holding)
+  })) : state.holdings;
   state.meta = state.meta || {};
+  state.meta.holdingDataContract = {
+    requiredFields: ['forwardPE', 'fcfYield', 'nextEarningsDate', 'source', 'sourceAsOf', 'confidence'],
+    normalizedAtBuild: new Date().toISOString(),
+    policy: 'Missing values are explicit nulls with confidence=missing; no synthetic fundamentals or earnings dates are invented.'
+  };
   state.meta.normalizedAtBuild = new Date().toISOString();
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }

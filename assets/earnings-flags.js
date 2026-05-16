@@ -18,11 +18,19 @@
 
   function nextEarningsDate(holding) {
     return parseDate(
+      holding?.dataContract?.nextEarningsDate ||
       holding?.nextEarningsDate ||
       holding?.earningsDate ||
       holding?.finviz?.metrics?.['Earnings'] ||
       holding?.finviz?.metrics?.['Earnings Date']
     );
+  }
+
+  function earningsSource(holding) {
+    const source = text(holding?.dataContract?.source?.nextEarningsDate);
+    const asOf = text(holding?.dataContract?.sourceAsOf?.nextEarningsDate);
+    const confidence = text(holding?.dataContract?.confidence?.nextEarningsDate || 'low');
+    return `${confidence}${source ? ` · ${source}` : ''}${asOf ? ` · ${asOf}` : ''}`;
   }
 
   function tradingDaysUntil(target) {
@@ -64,6 +72,7 @@
       const flag = document.createElement('span');
       flag.className = 'earnings-flag';
       flag.dataset.earningsFlag = 'true';
+      flag.title = earningsSource(holding);
       flag.textContent = `⚠ Earnings in ${days} trading day${days === 1 ? '' : 's'}`;
       const signal = card.querySelector('.signal');
       if (signal) signal.insertAdjacentElement('afterend', flag);

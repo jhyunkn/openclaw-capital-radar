@@ -113,10 +113,10 @@
       marketTable.innerHTML = '<div class="section-head compact"><div><p class="eyebrow">Evidence Appendix</p><h3>Market Tape</h3></div></div>' + renderTable(marketTape, [
         { key: 'Symbol', label: 'Symbol' },
         { key: 'Price', label: 'Price' },
-        { key: 'Day%', label: 'Day%', tone: true },
-        { key: '5D%', label: '5D%' },
-        { key: '1M%', label: '1M%' },
-        { key: '3M%', label: '3M%' },
+        { key: 'Day %', label: 'Day%', tone: true },
+        { key: '5D %', label: '5D%' },
+        { key: '1M %', label: '1M%' },
+        { key: '3M %', label: '3M%' },
         { key: 'As of', label: 'As of' }
       ]);
 

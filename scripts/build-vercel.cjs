@@ -18,6 +18,66 @@ function copy(src, dest) {
   }
 }
 
+function extractMarkdownSubsection(markdown, heading) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp('^###\\s+' + escaped + '\\s*$', 'mi');
+  const match = markdown.match(pattern);
+  if (!match || match.index == null) return '';
+  const rest = markdown.slice(match.index + match[0].length);
+  const next = rest.search(/^###\s+|^##\s+/m);
+  return next >= 0 ? rest.slice(0, next) : rest;
+}
+
+function parseMarkdownTable(block) {
+  const lines = block.split('\n').map(line => line.trim()).filter(line => line.startsWith('|'));
+  if (lines.length < 2) return [];
+  const header = lines[0].split('|').slice(1, -1).map(cell => cell.trim());
+  return lines.slice(2).map(line => {
+    const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+    return Object.fromEntries(header.map((h, i) => [h, cells[i] ?? '']));
+  }).filter(row => Object.values(row).some(Boolean));
+}
+
+function normalizeLiveState() {
+  const statePath = path.join(root, 'data', 'report-state.live.json');
+  const mdPath = path.join(root, 'outputs', 'live-capital-radar.md');
+  if (!fs.existsSync(statePath)) return;
+  const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+  const hasRates = Array.isArray(state.liveRatesCredit) && state.liveRatesCredit.length;
+  if (!hasRates && fs.existsSync(mdPath)) {
+    const markdown = fs.readFileSync(mdPath, 'utf8');
+    const rows = parseMarkdownTable(extractMarkdownSubsection(markdown, 'Rates / credit / liquidity'));
+    state.liveRatesCredit = rows.map(row => ({
+      id: row.Series,
+      name: row.Name,
+      value: Number.isFinite(Number(row.Value)) ? Number(row.Value) : row.Value,
+      latestDate: row['Latest date'],
+      source: 'outputs/live-capital-radar.md Evidence Appendix',
+      normalizedAtBuild: true
+    })).filter(row => row.id);
+  }
+  const hasMarket = Array.isArray(state.liveMarket) && state.liveMarket.length;
+  if (!hasMarket && fs.existsSync(mdPath)) {
+    const markdown = fs.readFileSync(mdPath, 'utf8');
+    const rows = parseMarkdownTable(extractMarkdownSubsection(markdown, 'Market tape'));
+    state.liveMarket = rows.map(row => ({
+      symbol: row.Symbol,
+      price: Number(row.Price),
+      changePct: Number(row['Day %']),
+      perf5dPct: Number(row['5D %']),
+      perf1mPct: Number(row['1M %']),
+      perf3mPct: Number(row['3M %']),
+      asOf: row['As of'],
+      source: 'outputs/live-capital-radar.md Evidence Appendix',
+      normalizedAtBuild: true
+    })).filter(row => row.symbol);
+  }
+  state.meta = state.meta || {};
+  state.meta.normalizedAtBuild = new Date().toISOString();
+  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+}
+
+normalizeLiveState();
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {

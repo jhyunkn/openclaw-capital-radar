@@ -1,5 +1,5 @@
 (function () {
-  const chartUrl = ticker => `outputs/chart-cognition.html${ticker ? `?symbol=${encodeURIComponent(ticker)}` : ''}`;
+  const workspaceUrl = ticker => ticker ? `pages/${String(ticker).toLowerCase()}.html` : 'outputs/capital-radar-current.html#holdings';
   const makeLink = (href, text, className = 'button') => {
     const a = document.createElement('a');
     a.href = href;
@@ -10,26 +10,26 @@
 
   function integrateGlobalEntry() {
     const nav = document.querySelector('.nav');
-    if (nav && !nav.querySelector('[data-chart-cognition-link]')) {
-      const a = makeLink(chartUrl('SPY'), 'Chart cognition', '');
-      a.dataset.chartCognitionLink = 'true';
+    if (nav && !nav.querySelector('[data-ticker-workspace-link]')) {
+      const a = makeLink(workspaceUrl(), 'Ticker workspaces', '');
+      a.dataset.tickerWorkspaceLink = 'true';
       nav.appendChild(a);
     }
 
     const lens = document.querySelector('.lens-strip');
-    if (lens && !lens.querySelector('[data-chart-cognition-link]')) {
+    if (lens && !lens.querySelector('[data-ticker-workspace-link]')) {
       const span = document.createElement('span');
-      const a = makeLink(chartUrl('SPY'), 'Chart cognition', '');
-      a.dataset.chartCognitionLink = 'true';
+      const a = makeLink(workspaceUrl(), 'Ticker workspaces', '');
+      a.dataset.tickerWorkspaceLink = 'true';
       span.appendChild(a);
       lens.appendChild(span);
     }
 
     const decisionHead = document.querySelector('.section-head');
-    if (decisionHead && !decisionHead.querySelector('[data-chart-cognition-button]')) {
+    if (decisionHead && !decisionHead.querySelector('[data-ticker-workspace-button]')) {
       const wrap = decisionHead.querySelector('div[style]') || decisionHead;
-      const a = makeLink(chartUrl('SPY'), 'Chart cognition', 'button');
-      a.dataset.chartCognitionButton = 'true';
+      const a = makeLink(workspaceUrl(), 'Ticker workspaces', 'button');
+      a.dataset.tickerWorkspaceButton = 'true';
       wrap.appendChild(a);
     }
   }
@@ -46,11 +46,17 @@
 
   function integrateHoldingCards() {
     document.querySelectorAll('#holdings .card').forEach(card => {
-      if (card.querySelector('[data-live-chart-link]')) return;
       const ticker = extractTicker(card);
       if (!ticker) return;
-      const a = makeLink(chartUrl(ticker), 'Open live chart →', 'detail-link');
-      a.dataset.liveChartLink = 'true';
+      const existingDetail = card.querySelector('a.detail-link[href^="pages/"]');
+      if (existingDetail) {
+        existingDetail.textContent = `Open ${ticker} rating + chart →`;
+        existingDetail.dataset.tickerWorkspaceCardLink = 'true';
+        return;
+      }
+      if (card.querySelector('[data-ticker-workspace-card-link]')) return;
+      const a = makeLink(workspaceUrl(ticker), `Open ${ticker} rating + chart →`, 'detail-link');
+      a.dataset.tickerWorkspaceCardLink = 'true';
       card.appendChild(a);
     });
   }

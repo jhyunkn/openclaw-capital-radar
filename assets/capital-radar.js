@@ -90,7 +90,7 @@ function renderHoldings(state){
       <div class="row"><span>1M / 3M</span><b class="${tone(h.perf1mPct)}">${pct(h.perf1mPct)}</b> <b class="${tone(h.perf3mPct)}">${pct(h.perf3mPct)}</b></div>
     </div>
     <p style="margin-top:12px">${esc(h.actionRationale)}</p>
-    <a class="detail-link" href="pages/${esc(String(h.ticker || '').toLowerCase())}.html">Open rating page →</a>
+    <a class="detail-link" data-ticker-workspace-card-link="true" href="pages/${esc(String(h.ticker || '').toLowerCase())}.html">Open ${esc(h.ticker)} rating + chart →</a>
   </article>`).join('') || '<p class="muted">No holdings loaded.</p>';
 }
 

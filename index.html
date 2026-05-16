@@ -152,19 +152,27 @@
         if (node('human-review')) node('human-review').innerHTML = '<b>Human review required:</b><br>'+(((state.riskOfficer && state.riskOfficer.humanReviewRequired)||[]).map(esc).join('<br>') || 'No review flags loaded.');
         if (node('triggers')) node('triggers').innerHTML = (((state.strategy && state.strategy.watchTriggers)||[]).map(function(t){return '<li>'+esc(t)+'</li>'}).join('') || '<li>No triggers loaded.</li>');
       }
-      setTimeout(function(){
-        var stillLoading = node('generated') && /Loading/.test(node('generated').textContent || '');
-        if (!stillLoading) return;
+      async function emergencyLoad(){
         var sources=['/data/report-state.live.json','data/report-state.live.json','/data/report-state.sample.json','data/report-state.sample.json'];
-        (async function(){
-          var errors=[];
-          for (var i=0;i<sources.length;i++){
-            try{var r=await fetch(sources[i],{cache:'no-store'}); if(!r.ok) throw new Error(r.status+' '+r.statusText); var j=await r.json(); renderEmergency(j,sources[i]); return;}catch(e){errors.push(sources[i]+': '+e.message)}
-          }
-          if (node('generated')) node('generated').textContent='Data load failed';
-          if (node('final-judgment')) node('final-judgment').innerHTML='Could not load static JSON.<br><pre>'+esc(errors.join('\n'))+'</pre>';
-        })();
+        var errors=[];
+        for (var i=0;i<sources.length;i++){
+          try{var r=await fetch(sources[i],{cache:'no-store'}); if(!r.ok) throw new Error(r.status+' '+r.statusText); var j=await r.json(); renderEmergency(j,sources[i]); return true;}catch(e){errors.push(sources[i]+': '+e.message)}
+        }
+        if (node('generated')) node('generated').textContent='Data load failed';
+        if (node('status')) node('status').textContent='Failed';
+        if (node('final-judgment')) node('final-judgment').innerHTML='Could not load static JSON.<br><pre>'+esc(errors.join('\n'))+'</pre>';
+        return false;
+      }
+      setTimeout(function(){
+        var generatedLoading = node('generated') && /Loading/i.test(node('generated').textContent || '');
+        var statusLoading = node('status') && /Loading/i.test(node('status').textContent || '');
+        var judgmentLoading = node('final-judgment') && /Loading/i.test(node('final-judgment').textContent || '');
+        if (generatedLoading || statusLoading || judgmentLoading) emergencyLoad();
       }, 1200);
+      setTimeout(function(){
+        var statusLoading = node('status') && /Loading/i.test(node('status').textContent || '');
+        if (statusLoading) emergencyLoad();
+      }, 3000);
     })();
   </script>
 </body>

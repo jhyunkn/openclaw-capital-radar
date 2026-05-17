@@ -18,4 +18,5 @@ index = index.replace('</head>', `${css}</head>`);
 if (index.includes('<section id="portfolio-exposure"')) index = index.replace('<section id="portfolio-exposure"', `${html}<section id="portfolio-exposure"`);
 else if (index.includes('<section id="strategy-command"')) index = index.replace('<section id="strategy-command"', `${html}<section id="strategy-command"`);
 else index = index.replace('</main>', `${html}</main>`);
-fs.writeFileSync(index, index);
+fs.writeFileSync(indexPath, index);
+console.log(`injected system quality score ${data.overall}/10`);

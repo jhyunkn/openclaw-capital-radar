@@ -1,0 +1,53 @@
+name: Build Gate
+
+on:
+  push:
+    branches:
+      - stability-audit-may16
+      - preflight/**
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  production-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run production build
+        run: npm run build:prod
+      - name: Upload build outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-outputs
+          path: |
+            outputs/build-manifest.json
+            public/index.html
+            public/build-health.html
+          if-no-files-found: ignore
+
+  thesis-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run thesis preflight
+        run: npm run preflight:thesis
+      - name: Upload thesis preflight report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-preflight-report
+          path: outputs/thesis-preflight-report.json
+          if-no-files-found: warn

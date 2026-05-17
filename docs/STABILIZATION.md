@@ -77,6 +77,8 @@ Status:
 - conceptually valuable
 - currently unstable in Vercel production build
 - must be debugged outside production build
+- direct production graduation attempt failed at commit `14ecbabab1a1c4eb96b08ebed15cc3da27262bd7`
+- do not re-add `generate-thesis-dossiers.cjs` to `build:prod` until the script is proven through a non-production preflight or Vercel build logs identify and resolve the failure
 
 ### Research Evidence Engine
 
@@ -96,6 +98,12 @@ Status:
 - conceptually valuable
 - depends on thesis and derived strategy outputs
 - not production-wired until thesis path is stable
+
+## Known failed graduation attempts
+
+| Commit | Module | Result | Interpretation |
+|---|---|---|---|
+| `14ecbabab1a1c4eb96b08ebed15cc3da27262bd7` | Thesis Dossier JSON generation in `build:prod` | Vercel failure | The generator itself is not production-safe or has an environment/runtime assumption that fails on Vercel. |
 
 ## Stabilization principles
 

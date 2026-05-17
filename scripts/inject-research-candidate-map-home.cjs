@@ -1,0 +1,24 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const indexPath = path.join(root, 'index.html');
+const mapPath = path.join(root, 'outputs', 'research-candidate-map.json');
+if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
+if (!fs.existsSync(mapPath)) throw new Error('research-candidate-map.json missing');
+const data = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = value => typeof value === 'number' ? `${value >= 0 ? '+' : ''}${value.toFixed(2)}%` : '—';
+function card(c, scoreKey){ return `<article class="research-card"><div><b>${esc(c.ticker)}</b><span>${esc(c.signal || 'INVESTIGATE')}</span></div><p class="research-price">${esc(c.price ?? '—')} · ${pct(c.dayChangePct)} · score ${esc(c[scoreKey])}</p><p>${esc(c.thesis)}</p><small>${esc(c.portfolioFit)}</small></article>`; }
+const moment = Array.isArray(data.tickerOfMoment) ? data.tickerOfMoment : [];
+const long = Array.isArray(data.longTermMacroFit) ? data.longTermMacroFit : [];
+const html = `<section id="research-candidate-map" class="panel research-candidate-map"><div class="section-head"><div><p class="eyebrow">Research Candidate Map</p><h2>Opportunity Scout, split by strategic use</h2></div><a class="button" href="outputs/research-candidate-map.json">Open research JSON</a></div><div class="research-columns"><section><p class="eyebrow">Ticker of the moment</p><h3>Near-term explosive setups</h3><div class="research-list">${moment.map(c => card(c, 'nearTermScore')).join('') || '<p class="muted">No near-term candidate mapped.</p>'}</div></section><section><p class="eyebrow">Ticker of long term</p><h3>Macro / portfolio-balance candidates</h3><div class="research-list">${long.map(c => card(c, 'longTermScore')).join('') || '<p class="muted">No long-term candidate mapped.</p>'}</div></section></div></section>`;
+const css = `<style>.research-candidate-map{background:rgba(251,250,246,.1)}.research-columns{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule);border-left:1px solid var(--rule)}.research-columns>section{padding:18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.14)}.research-columns h3{font-size:24px;line-height:1.05;letter-spacing:-.04em;margin:0 0 16px}.research-list{display:grid;gap:10px}.research-card{border:1px solid var(--rule);padding:14px;background:rgba(251,250,246,.2)}.research-card div{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.research-card b{font-size:28px;line-height:1;letter-spacing:-.05em}.research-card span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.research-card p{font-size:13px;line-height:1.4;margin-top:10px}.research-card .research-price{font-variant-numeric:tabular-nums;color:var(--muted)}.research-card small{display:block;margin-top:10px;color:var(--muted);line-height:1.35}@media(max-width:900px){.research-columns{grid-template-columns:1fr}}</style>`;
+let index = fs.readFileSync(indexPath, 'utf8');
+index = index.replace(/<style>\.research-candidate-map[\s\S]*?<\/style>/, '');
+index = index.replace(/<section id="research-candidate-map"[\s\S]*?(?=<section|<footer|<\/main>)/, '');
+index = index.replace('</head>', `${css}</head>`);
+if (index.includes('<section id="opportunity-section"')) index = index.replace('<section id="opportunity-section"', `${html}<section id="opportunity-section"`);
+else if (index.includes('<section id="portfolio-exposure"')) index = index.replace('<section id="portfolio-exposure"', `${html}<section id="portfolio-exposure"`);
+else index = index.replace('</main>', `${html}</main>`);
+fs.writeFileSync(indexPath, index);
+console.log(`injected research candidate map: ${moment.length} moment / ${long.length} long-term`);

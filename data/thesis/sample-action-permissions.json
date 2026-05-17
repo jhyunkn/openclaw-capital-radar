@@ -1,0 +1,51 @@
+[
+  {
+    "permission": "monitor",
+    "definition": "No action required; continue observing with fresh data and intact thesis.",
+    "allowedWhen": ["data is fresh", "thesis is intact", "no major contradiction", "no action threshold nearby"],
+    "blockedWhen": ["data is stale", "thesis is missing", "contradiction unresolved"],
+    "requiresHumanReview": false
+  },
+  {
+    "permission": "research",
+    "definition": "Research required before action; evidence is insufficient for decision readiness.",
+    "allowedWhen": ["interesting signal exists", "claim needs source support", "watchlist candidate needs dossier"],
+    "blockedWhen": ["source coverage failed", "data-health is blocked"],
+    "requiresHumanReview": false
+  },
+  {
+    "permission": "review",
+    "definition": "Human review recommended because evidence, price, macro, or exposure state changed.",
+    "allowedWhen": ["new evidence affects thesis", "price moved near threshold", "portfolio exposure shifted", "contradiction appeared"],
+    "blockedWhen": ["no thesis context exists"],
+    "requiresHumanReview": true
+  },
+  {
+    "permission": "prepare_add",
+    "definition": "Prepare add candidate; human decision required before execution.",
+    "allowedWhen": ["thesis remains intact", "evidence strengthened", "valuation approaches predefined add zone", "risk concentration acceptable"],
+    "blockedWhen": ["unsupported recommendation", "humanReviewRequired is false", "contradiction unresolved"],
+    "requiresHumanReview": true
+  },
+  {
+    "permission": "prepare_trim",
+    "definition": "Prepare trim candidate; human decision required before execution.",
+    "allowedWhen": ["risk concentration increased", "evidence weakened", "price action outran evidence", "macro regime worsened"],
+    "blockedWhen": ["unsupported recommendation", "humanReviewRequired is false"],
+    "requiresHumanReview": true
+  },
+  {
+    "permission": "prepare_exit",
+    "definition": "Prepare exit candidate; human decision required before execution.",
+    "allowedWhen": ["core thesis is contradicted", "invalidation trigger is hit", "risk/reward no longer fits portfolio role"],
+    "blockedWhen": ["unsupported recommendation", "humanReviewRequired is false"],
+    "requiresHumanReview": true
+  },
+  {
+    "permission": "human_decision_required",
+    "definition": "Machine analysis is insufficient for action; human judgment is explicitly required.",
+    "allowedWhen": ["high materiality", "critical contradiction", "speculative exposure", "insufficient evidence"],
+    "blockedWhen": [],
+    "requiresHumanReview": true
+  }
+]

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { writeDataHealthFromFile } = require('../lib/data-health.cjs');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'public');
 const copyEntries = ['index.html', 'assets', 'data', 'outputs', 'pages'];
@@ -182,6 +183,7 @@ function normalizeLiveState() {
   };
   state.meta.normalizedAtBuild = new Date().toISOString();
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+  writeDataHealthFromFile(statePath, path.join(root, 'outputs', 'data-health.json'));
 }
 
 archiveLiveReport();

@@ -1,0 +1,10 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const indexPath = path.join(root, 'index.html');
+if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
+let html = fs.readFileSync(indexPath, 'utf8');
+html = html.replace(/<style>\.quality-score[\s\S]*?<\/style>/, '');
+html = html.replace(/<section id="quality-score"[\s\S]*?(?=<section id="portfolio-exposure"|<section id="strategy-command"|<section id="brief"|<\/main>)/, '');
+fs.writeFileSync(indexPath, html);
+console.log('removed public System Quality section from homepage; internal JSON remains available in outputs/system-quality-score.json');

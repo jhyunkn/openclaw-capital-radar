@@ -20,7 +20,5 @@ for (const label of ['Architecture','Visual direction','Data integrity','Analyti
 assert(Array.isArray(data.nextLevers) && data.nextLevers.length >= 3, 'nextLevers missing');
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
-assert(html.includes('System Quality'), 'homepage missing System Quality section');
-assert(html.includes('Path to overall 8'), 'homepage missing Path to overall 8');
-assert(html.includes('outputs/system-quality-score.json'), 'homepage missing quality JSON link');
-console.log(`system quality score validated: ${data.overall}/10`);
+assert(!html.includes('id="quality-score"'), 'homepage should not expose internal quality score section');
+console.log(`internal system quality score validated: ${data.overall}/10`);

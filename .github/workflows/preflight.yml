@@ -1,0 +1,26 @@
+name: Preflight Diagnostics
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  thesis-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run thesis preflight
+        run: npm run preflight:thesis
+      - name: Upload thesis preflight report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-preflight-report
+          path: outputs/thesis-preflight-report.json
+          if-no-files-found: warn

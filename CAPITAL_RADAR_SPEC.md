@@ -73,6 +73,8 @@ They must also feed analytic skill improvement: extract methods, not just ticker
 
 Continuous cognition requirement: preserve state transitions where possible — previous state, current state, likely next state, confidence/probability shift, evidence trigger, and reaction implication. The dashboard should compress what changed / what matters / what can be ignored / what action is allowed or forbidden.
 
+Fractal market value protocol: `../../openclaw-state/capital-radar-fractal-market-value-protocol.md`. Every meaningful run should progressively assess broad markets, holdings, candidates, and themes across nested time scales: immediate tape, daily/tactical trend, weekly positioning cycle, quarterly earnings/expectation cycle, and multi-year structural value. Outputs should state which layers agree/conflict, what future is priced in, what behavior is allowed/forbidden, and what trigger changes posture.
+
 ## Required analytics layers
 
 For holdings and candidates, include when available:
@@ -90,3 +92,5 @@ For holdings and candidates, include when available:
 
 ## Boundary
 Separate from `projects/morning-brief`; Morning Brief remains 6:00 AM America/New_York.
+
+Recurring Capital Radar reports and research findings must be written only to Capital Radar surfaces: dashboard/data files, archive files, holding pages, and Mission Control status. Do not post Capital Radar report content to Discord unless Jun explicitly asks for a visible Discord reply or a true operational blocker needs escalation.

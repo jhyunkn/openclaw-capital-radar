@@ -79,48 +79,100 @@
 
     <section class="grid two">
       <article class="panel">
-        <p class="eyebrow">Portfolio exposure map</p>
-        <h2>Where the portfolio is concentrated</h2>
-        <div id="exposure"></div>
+        <div class="section-head compact"><div><p class="eyebrow">Portfolio</p><h2>Allocation pressure</h2></div></div>
+        <div class="bar-list" id="allocation-bars"></div>
+        <div id="exposure" class="bar-list"></div>
       </article>
       <article class="panel">
-        <p class="eyebrow">Market force map</p>
-        <h2>What is moving through the portfolio</h2>
-        <div id="forces" class="force-list"></div>
+        <div class="section-head compact"><div><p class="eyebrow">Future holdings</p><h2>Opportunity queue</h2></div></div>
+        <div id="future-list" class="card-list"></div>
       </article>
-    </section>
-
-    <section class="panel market-board-panel">
-      <div class="section-head">
-        <div><p class="eyebrow">Market critical information board</p><h2>What we should watch now</h2></div>
-      </div>
-      <div id="market-board" class="market-board"></div>
-    </section>
-
-    <section id="holdings-section" class="panel">
-      <div class="section-head"><div><p class="eyebrow">Holding health cards</p><h2>Current holdings strategy surface</h2></div></div>
-      <div id="holdings" class="holdings"></div>
-    </section>
-
-    <section id="opportunities-section" class="panel">
-      <div class="section-head"><div><p class="eyebrow">Opportunity scout</p><h2>Future holdings research queue</h2></div></div>
-      <div id="opportunities" class="opportunity-grid"></div>
-    </section>
-
-    <section id="market-section" class="grid two">
-      <article class="panel"><p class="eyebrow">Market tape</p><h2>Live market movement</h2><div id="market-table" class="table-wrap"></div></article>
-      <article class="panel"><p class="eyebrow">Rates / credit / liquidity</p><h2>Macro plumbing</h2><div id="rates-table" class="table-wrap"></div></article>
     </section>
 
     <section class="panel">
-      <p class="eyebrow">Global institution metadata layer</p>
-      <h2>Report intelligence sources</h2>
-      <p>This layer is the roadmap for reading the world: central banks, BIS, IMF, World Bank, Treasury, filings, and institutional outlooks. Active sources are live; roadmap sources become ingestion adapters.</p>
-      <div id="sources" class="source-list" style="margin-top:16px"></div>
+      <div class="section-head"><div><p class="eyebrow">Market forces</p><h2>Pressure map</h2></div></div>
+      <div id="forces" class="force-grid"></div>
+      <div id="market-board" class="market-grid" style="margin-top:16px"></div>
     </section>
 
-    <footer class="footer" id="notice">Loading source notice…</footer>
+    <section id="holdings-section" class="panel">
+      <div class="section-head">
+        <div><p class="eyebrow">Holdings</p><h2>Position-level map</h2></div>
+        <span class="note">Open each detail page for thesis, risk, and triggers.</span>
+      </div>
+      <div id="holdings" class="holdings-grid"></div>
+    </section>
+
+    <section id="opportunities-section" class="panel">
+      <div class="section-head"><div><p class="eyebrow">Potential additions</p><h2>Watchlist and triggers</h2></div></div>
+      <div id="opportunities" class="opportunity-grid"></div>
+    </section>
+
+    <section id="market-section" class="panel">
+      <div class="section-head"><div><p class="eyebrow">Market tape</p><h2>External pressure map</h2></div></div>
+      <div id="market" class="market-grid"></div>
+      <div id="market-table"></div>
+      <div id="rates-table" style="margin-top:16px"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head"><div><p class="eyebrow">Sources</p><h2>Research source map</h2></div></div>
+      <div id="sources" class="source-grid"></div>
+      <p id="notice" class="note"></p>
+    </section>
+
+    <footer class="footer">Research and education only. No brokerage connection. Generated from local OpenClaw data pipeline.</footer>
   </main>
-  <script src="assets/capital-radar.js"></script>
+  <script src="assets/capital-radar.js" defer></script>
+  <script src="assets/chart-integration.js" defer></script>
+  <script src="assets/search-enhancement.js" defer></script>
+  <script>
+    (function(){
+      function node(id){return document.getElementById(id)}
+      function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+      function pct(n){return typeof n==='number'?(n>=0?'+':'')+n.toFixed(2)+'%':'n/a'}
+      function fmt(n){return typeof n==='number'?n.toLocaleString(undefined,{maximumFractionDigits:2}):'n/a'}
+      function renderEmergency(state, source){
+        if (node('generated')) node('generated').textContent = (state.meta && state.meta.generatedAt ? new Date(state.meta.generatedAt).toLocaleString() : 'Loaded') + ' · ' + source;
+        if (node('status')) node('status').textContent = state.meta && state.meta.dataStatus || 'STATIC_DATA';
+        if (node('confidence')) node('confidence').textContent = state.marketRegime && state.marketRegime.confidence || 'Loaded from static JSON';
+        if (node('final-judgment')) node('final-judgment').textContent = state.marketRegime && state.marketRegime.mostImportantMacroSignal || 'Static data loaded.';
+        if (node('posture')) node('posture').textContent = state.marketRegime && state.marketRegime.posture || '—';
+        if (node('risk')) node('risk').textContent = state.marketRegime && state.marketRegime.riskLevel || '—';
+        if (node('macro')) node('macro').textContent = state.marketRegime && state.marketRegime.mostImportantMacroSignal || '—';
+        if (node('strategy')) node('strategy').textContent = state.strategy && state.strategy.strategyPosture || state.rebalance && state.rebalance.rationale || '—';
+        var holdings = Array.isArray(state.holdings) ? state.holdings : [];
+        if (node('strongest')) node('strongest').textContent = state.strategy && state.strategy.strongestHolding || holdings[0] && holdings[0].ticker || '—';
+        if (node('weakest')) node('weakest').textContent = state.strategy && state.strategy.weakestHolding || '—';
+        if (node('highest-risk')) node('highest-risk').textContent = state.strategy && state.strategy.highestRiskPosition || '—';
+        if (node('holdings')) node('holdings').innerHTML = holdings.map(function(h){return '<article class="card"><div class="ticker"><div><b>'+esc(h.ticker)+'</b><br><small>'+esc(h.exposureBucket||'Holding')+'</small></div><div style="text-align:right"><b>$'+fmt(h.livePrice)+'</b><br><small>'+pct(h.dayChangePct)+'</small></div></div><span class="signal">'+esc(h.computedSignal||h.signal||'Review')+'</span><div class="rows"><div class="row"><span>Health score</span><b>'+esc(h.healthScore||'n/a')+'</b></div><div class="row"><span>Weight</span><b>'+fmt(h.portfolioWeightPct)+'%</b></div><div class="row"><span>Market value</span><b>$'+fmt(h.marketValue)+'</b></div><div class="row"><span>1M / 3M</span><b>'+pct(h.perf1mPct)+' / '+pct(h.perf3mPct)+'</b></div></div><p style="margin-top:12px">'+esc(h.actionRationale||'')+'</p><a class="detail-link" href="pages/'+esc(String(h.ticker||'').toLowerCase())+'.html">Open '+esc(h.ticker)+' rating + chart →</a></article>'}).join('') || '<p class="muted">No holdings loaded.</p>';
+        if (node('brief-list')) node('brief-list').innerHTML = '<article class="brief-item"><span>Data source</span><b>'+esc(source)+'</b></article><article class="brief-item"><span>Holdings</span><b>'+holdings.length+'</b></article>';
+        if (node('risk-list')) node('risk-list').innerHTML = ((state.riskOfficer && state.riskOfficer.keyRisks) || []).map(function(r){return '<li>'+esc(r)+'</li>'}).join('') || '<li>No risk notes loaded.</li>';
+        if (node('human-review')) node('human-review').innerHTML = '<b>Human review required:</b><br>'+(((state.riskOfficer && state.riskOfficer.humanReviewRequired)||[]).map(esc).join('<br>') || 'No review flags loaded.');
+        if (node('triggers')) node('triggers').innerHTML = (((state.strategy && state.strategy.watchTriggers)||[]).map(function(t){return '<li>'+esc(t)+'</li>'}).join('') || '<li>No triggers loaded.</li>');
+      }
+      async function emergencyLoad(){
+        var sources=['/data/report-state.live.json','data/report-state.live.json','/data/report-state.sample.json','data/report-state.sample.json'];
+        var errors=[];
+        for (var i=0;i<sources.length;i++){
+          try{var r=await fetch(sources[i],{cache:'no-store'}); if(!r.ok) throw new Error(r.status+' '+r.statusText); var j=await r.json(); renderEmergency(j,sources[i]); return true;}catch(e){errors.push(sources[i]+': '+e.message)}
+        }
+        if (node('generated')) node('generated').textContent='Data load failed';
+        if (node('status')) node('status').textContent='Failed';
+        if (node('final-judgment')) node('final-judgment').innerHTML='Could not load static JSON.<br><pre>'+esc(errors.join('\n'))+'</pre>';
+        return false;
+      }
+      setTimeout(function(){
+        var generatedLoading = node('generated') && /Loading/i.test(node('generated').textContent || '');
+        var statusLoading = node('status') && /Loading/i.test(node('status').textContent || '');
+        var judgmentLoading = node('final-judgment') && /Loading/i.test(node('final-judgment').textContent || '');
+        if (generatedLoading || statusLoading || judgmentLoading) emergencyLoad();
+      }, 1200);
+      setTimeout(function(){
+        var statusLoading = node('status') && /Loading/i.test(node('status').textContent || '');
+        if (statusLoading) emergencyLoad();
+      }, 3000);
+    })();
+  </script>
 </body>
 </html>

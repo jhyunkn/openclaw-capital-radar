@@ -18,7 +18,17 @@ let html = fs.readFileSync(home, 'utf8');
 html = html.replace(/<style id="home-authority-css">[\s\S]*?<\/style>/, '');
 html = html.replace(/<section id="authoritative-action-home"[\s\S]*?<\/section>/, '');
 html = html.replace('</head>', `${css}</head>`);
-const anchor = html.includes('<section id="live-reaction-panel"') ? '<section id="live-reaction-panel"' : '<main class="page">';
-if (anchor.startsWith('<section')) html = html.replace(anchor, `${block}${anchor}`); else html = html.replace(anchor, `${anchor}${block}`);
+const anchors = ['<section id="live-reaction-panel"', '<section id="information-hierarchy"', '<section id="brief"', '<main class="shell">', '<main class="page">'];
+let inserted = false;
+for (const anchor of anchors) {
+  const idx = html.indexOf(anchor);
+  if (idx >= 0) {
+    if (anchor.startsWith('<section')) html = html.slice(0, idx) + block + html.slice(idx);
+    else html = html.slice(0, idx + anchor.length) + block + html.slice(idx + anchor.length);
+    inserted = true;
+    break;
+  }
+}
+if (!inserted) throw new Error('No stable homepage anchor found for authoritative action layer');
 fs.writeFileSync(home, html);
 console.log('injected homepage authoritative action layer');

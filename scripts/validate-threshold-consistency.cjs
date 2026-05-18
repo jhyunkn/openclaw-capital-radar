@@ -1,0 +1,40 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const statePath = fs.existsSync(path.join(root, 'data', 'report-state.live.json')) ? path.join(root, 'data', 'report-state.live.json') : path.join(root, 'data', 'report-state.sample.json');
+const thresholdsPath = path.join(root, 'outputs', 'signal-thresholds.json');
+const interpPath = path.join(root, 'outputs', 'strategy-interpretations.json');
+const indexPath = path.join(root, 'index.html');
+function stop(message){ console.error(`THRESHOLD CONSISTENCY CHECK FAILED: ${message}`); process.exit(1); }
+function ok(condition, message){ if(!condition) stop(message); }
+ok(fs.existsSync(statePath), 'state file missing');
+ok(fs.existsSync(thresholdsPath), 'threshold file missing');
+ok(fs.existsSync(interpPath), 'interpretation file missing');
+ok(fs.existsSync(indexPath), 'homepage missing');
+const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+const thresholds = JSON.parse(fs.readFileSync(thresholdsPath, 'utf8'));
+const interp = JSON.parse(fs.readFileSync(interpPath, 'utf8'));
+const html = fs.readFileSync(indexPath, 'utf8');
+const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+const rows = Array.isArray(thresholds.thresholds) ? thresholds.thresholds : [];
+ok(rows.length >= holdings.length, `missing threshold rows ${rows.length}/${holdings.length}`);
+for (const h of holdings) ok(h.signalThresholds && typeof h.signalThresholds.addPct === 'number' && typeof h.signalThresholds.trimPct === 'number' && typeof h.signalThresholds.riskReviewPct === 'number', `${h.ticker} missing signalThresholds`);
+const uniqueAdd = new Set(rows.map(r => Number(r.addPct).toFixed(2)));
+const uniqueTrim = new Set(rows.map(r => Number(r.trimPct).toFixed(2)));
+const uniqueReview = new Set(rows.map(r => Number(r.riskReviewPct).toFixed(2)));
+ok(uniqueAdd.size >= 4, `add bands too uniform: ${[...uniqueAdd].join(', ')}`);
+ok(uniqueTrim.size >= 4, `trim bands too uniform: ${[...uniqueTrim].join(', ')}`);
+ok(uniqueReview.size >= 4, `review bands too uniform: ${[...uniqueReview].join(', ')}`);
+function row(t){ return rows.find(r => r.ticker === t); }
+for (const t of ['CONL','TSLT','BMNR','SPY','MSFT','MA']) ok(row(t), `${t} row missing`);
+const wideAvg = ['CONL','TSLT','BMNR'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
+const tightAvg = ['SPY','MSFT','MA'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
+ok(wideAvg > tightAvg * 2, `wide bands not wider enough: ${wideAvg}/${tightAvg}`);
+ok(Array.isArray(interp.interpretations), 'interpretations missing');
+for (const item of interp.interpretations) ok(item.thresholdPolicy && /volatility_adjusted|signalThresholds/i.test(item.thresholdPolicy), `${item.ticker} not using threshold policy`);
+ok(html.includes('Closest holdings to volatility-adjusted strategy bands'), 'homepage heading not updated');
+ok(html.includes('outputs/signal-thresholds.json'), 'homepage threshold link missing');
+ok(!html.includes('Near add zone (-2.00%)'), 'legacy near-add phrase still visible');
+ok(!html.includes('sample'), 'sample text visible');
+ok(!html.includes('TBD-1') && !html.includes('TBD-2') && !html.includes('TBD-3'), 'TBD placeholder visible');
+console.log(`threshold consistency validated: ${rows.length} rows; wide ${wideAvg.toFixed(2)} / tight ${tightAvg.toFixed(2)}`);

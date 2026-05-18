@@ -23,24 +23,20 @@ function exposureType(h) {
 }
 function riskCap(h) { const type = exposureType(h); return type === 'levered' || type === 'crypto' ? 5 : 15; }
 function distance(current, target) { return current > 0 && target > 0 ? ((target - current) / current) * 100 : null; }
-function nearest(current, values) {
-  const nums = list(values).filter(v => typeof v === 'number' && Number.isFinite(v));
-  if (!nums.length || !(current > 0)) return null;
-  return nums.map(v => ({ value: v, distancePct: distance(current, v) })).sort((a, b) => Math.abs(a.distancePct) - Math.abs(b.distancePct))[0];
-}
-function nearestBoundary(h, note) {
+function thresholdCandidates(h) {
+  const t = h.signalThresholds || {};
   const current = n(h.livePrice);
-  const map = note?.technicalMap || {};
-  const candidates = [
-    ['add zone', nearest(current, map.buyZone), 'positive'],
-    ['support', nearest(current, map.supportLevels), 'positive'],
-    ['trim zone', nearest(current, map.trimZone), 'caution'],
-    ['resistance', nearest(current, map.resistanceLevels), 'caution'],
-    ['review line', nearest(current, map.stopZone), 'danger']
-  ].filter(([, item]) => item && Number.isFinite(item.distancePct));
+  return [
+    ['vol-adjusted add zone', t.addPrice, t.addPct, 'positive'],
+    ['vol-adjusted trim zone', t.trimPrice, t.trimPct, 'caution'],
+    ['vol-adjusted risk review', t.riskReviewPrice, t.riskReviewPct, 'danger']
+  ].map(([label, value, pct, tone]) => ({ label, value: n(value), thresholdPct: n(pct), tone, distancePct: Number.isFinite(n(value)) ? distance(current, n(value)) : null, source: 'signalThresholds' }))
+    .filter(x => Number.isFinite(x.value) && Number.isFinite(x.distancePct));
+}
+function nearestBoundary(h) {
+  const candidates = thresholdCandidates(h);
   if (!candidates.length) return null;
-  const [label, item, tone] = candidates.sort((a, b) => Math.abs(a[1].distancePct) - Math.abs(b[1].distancePct))[0];
-  return { label, tone, value: item.value, distancePct: item.distancePct };
+  return candidates.sort((a, b) => Math.abs(a.distancePct) - Math.abs(b.distancePct))[0];
 }
 function thesisStatus(h, note) {
   const signal = String(h.computedSignal || h.signal || '').toUpperCase();
@@ -54,8 +50,10 @@ function thesisStatus(h, note) {
 }
 function dataConfidence(h) {
   const conf = h.dataContract?.confidence || {};
+  const na = h.dataContract?.notApplicable === true;
   const fields = ['forwardPE', 'fcfYield', 'nextEarningsDate'];
-  const missing = fields.filter(f => !h.dataContract || conf[f] === 'missing' || h.dataContract[f] == null);
+  const missing = fields.filter(f => !na && (!h.dataContract || conf[f] === 'missing' || h.dataContract[f] == null));
+  if (na) return { status: 'Not applicable', tone: 'positive', missing: [], reason: h.dataContract?.reason || 'Operating fundamentals are not applicable to this instrument.' };
   if (missing.length >= 2) return { status: 'Weak data', tone: 'danger', missing, reason: `Missing ${missing.join(', ')}.` };
   if (missing.length === 1) return { status: 'Partial data', tone: 'caution', missing, reason: `Missing ${missing[0]}.` };
   return { status: 'Usable data', tone: 'positive', missing, reason: 'Core valuation/event fields are available.' };
@@ -96,15 +94,15 @@ function portfolioConflict(h) {
   if (ticker === 'AMZN' && n(h.portfolioWeightPct) >= 13) return { status: 'Single-name concentration', tone: 'caution', reason: 'AMZN is near the single-name concentration limit.' };
   return { status: 'No major conflict', tone: 'positive', reason: 'No dominant portfolio conflict detected from current tags.' };
 }
-function actionPermission(h, note, pressure, thesis, data) {
+function actionPermission(h, pressure, thesis, data) {
   const signal = String(h.computedSignal || h.signal || '').toUpperCase();
-  const boundary = nearestBoundary(h, note);
+  const boundary = nearestBoundary(h);
   if (signal.includes('EXIT')) return { status: 'No add / exit review', tone: 'danger', reason: 'Exit review overrides price proximity.' };
   if (signal.includes('TRIM')) return { status: 'No add / trim watch', tone: 'danger', reason: 'Trim watch overrides add-zone proximity.' };
   if (signal.includes('INVESTIGATE')) return { status: 'No action until verified', tone: 'caution', reason: 'Investigate means resolve thesis/data before capital movement.' };
   if (pressure.tone !== 'positive') return { status: 'Hold only', tone: 'caution', reason: `Position is ${pressure.status.toLowerCase()}; adding is blocked by risk budget.` };
   if (data.tone === 'danger') return { status: 'Hold / verify data', tone: 'caution', reason: 'Data confidence is too weak for an add decision.' };
-  if (boundary?.label === 'add zone' && Math.abs(boundary.distancePct) <= 4 && thesis.tone !== 'danger') return { status: 'Add review allowed', tone: 'positive', reason: 'Price is near add zone and no risk-budget block is detected.' };
+  if (boundary?.label === 'vol-adjusted add zone' && Math.abs(boundary.distancePct) <= 4 && thesis.tone !== 'danger') return { status: 'Add review allowed', tone: 'positive', reason: 'Price is near volatility-adjusted add zone and no risk-budget block is detected.' };
   return { status: 'Hold / monitor', tone: 'positive', reason: 'No immediate action condition is fully satisfied.' };
 }
 function urgency(h, boundary, pressure, data, trend, action) {
@@ -118,25 +116,22 @@ function urgency(h, boundary, pressure, data, trend, action) {
 }
 function newInformation(h, boundary, pressure, data, trend, conflict) {
   const items = [];
-  if (boundary && Math.abs(boundary.distancePct) <= 4) items.push(`Near ${boundary.label} (${boundary.distancePct >= 0 ? '+' : ''}${boundary.distancePct.toFixed(2)}%).`);
+  if (boundary && Math.abs(boundary.distancePct) <= 4) items.push(`Near ${boundary.label} (${boundary.distancePct >= 0 ? '+' : ''}${boundary.distancePct.toFixed(2)}%; ${boundary.thresholdPct >= 0 ? '+' : ''}${boundary.thresholdPct.toFixed(2)}% threshold).`);
   if (pressure.tone !== 'positive') items.push(pressure.reason);
   if (data.tone !== 'positive') items.push(data.reason);
   if (trend.tone !== 'positive') items.push(trend.reason);
   if (conflict.tone !== 'positive') items.push(conflict.reason);
   return items.length ? items.slice(0, 3) : ['No material new pressure detected from current processed data.'];
 }
-function signalChangeConditions(h, note, boundary, pressure, data) {
-  const map = note?.technicalMap || {};
-  const add = nearest(n(h.livePrice), map.buyZone);
-  const trim = nearest(n(h.livePrice), map.trimZone);
-  const stop = nearest(n(h.livePrice), map.stopZone);
+function signalChangeConditions(h, boundary, pressure, data) {
+  const t = h.signalThresholds || {};
   const conditions = [];
-  if (add) conditions.push(`Potential add only if price holds near ${add.value.toFixed(2)} and risk/data gates are clear.`);
-  if (trim) conditions.push(`Trim/rebalance review near ${trim.value.toFixed(2)} or if weight exceeds cap.`);
-  if (stop) conditions.push(`Exit/review if price breaks ${stop.value.toFixed(2)} or thesis invalidation triggers.`);
-  if (data.tone !== 'positive') conditions.push('Signal confidence improves only after missing data is resolved.');
+  if (Number.isFinite(n(t.addPrice))) conditions.push(`Add review only near $${n(t.addPrice).toFixed(2)} (${n(t.addPct).toFixed(2)}% vol-adjusted band) with thesis/data gates clear.`);
+  if (Number.isFinite(n(t.trimPrice))) conditions.push(`Trim/rebalance review near $${n(t.trimPrice).toFixed(2)} (+${n(t.trimPct).toFixed(2)}% vol-adjusted band) or if weight exceeds cap.`);
+  if (Number.isFinite(n(t.riskReviewPrice))) conditions.push(`Risk/exit review if price breaks $${n(t.riskReviewPrice).toFixed(2)} (${n(t.riskReviewPct).toFixed(2)}% vol-adjusted band) or thesis invalidation triggers.`);
+  if (data.tone === 'danger') conditions.push('Signal confidence improves only after missing data is resolved.');
   if (pressure.tone !== 'positive') conditions.push('Adding remains blocked until position pressure is reduced.');
-  return conditions.slice(0, 4);
+  return conditions.slice(0, 5);
 }
 function decisionConfidence(thesis, data, trend, pressure, conflict) {
   const tones = [thesis.tone, data.tone, trend.tone, pressure.tone, conflict.tone];
@@ -147,33 +142,16 @@ function decisionConfidence(thesis, data, trend, pressure, conflict) {
 }
 function interpret(h) {
   const note = readNote(h.ticker);
-  const boundary = nearestBoundary(h, note);
+  const boundary = nearestBoundary(h);
   const thesis = thesisStatus(h, note);
   const data = dataConfidence(h);
   const pressure = positionPressure(h);
   const trend = trendRead(h);
   const conflict = portfolioConflict(h);
-  const action = actionPermission(h, note, pressure, thesis, data);
+  const action = actionPermission(h, pressure, thesis, data);
   const urgent = urgency(h, boundary, pressure, data, trend, action);
   const confidence = decisionConfidence(thesis, data, trend, pressure, conflict);
-  return {
-    ticker: h.ticker,
-    signal: h.computedSignal || h.signal || 'Review',
-    role: role(h),
-    exposureType: exposureType(h),
-    riskCap: riskCap(h),
-    thesisStatus: thesis,
-    actionPermission: action,
-    urgency: urgent,
-    newInformation: newInformation(h, boundary, pressure, data, trend, conflict),
-    nearestDecisionBoundary: boundary,
-    positionPressure: pressure,
-    trendRead: trend,
-    dataConfidence: data,
-    portfolioConflict: conflict,
-    decisionConfidence: confidence,
-    signalChangeConditions: signalChangeConditions(h, note, boundary, pressure, data)
-  };
+  return { ticker: h.ticker, signal: h.computedSignal || h.signal || 'Review', role: role(h), exposureType: exposureType(h), riskCap: riskCap(h), thresholdPolicy: h.signalThresholds?.formula || 'missing_signal_thresholds', thesisStatus: thesis, actionPermission: action, urgency: urgent, newInformation: newInformation(h, boundary, pressure, data, trend, conflict), nearestDecisionBoundary: boundary, positionPressure: pressure, trendRead: trend, dataConfidence: data, portfolioConflict: conflict, decisionConfidence: confidence, signalChangeConditions: signalChangeConditions(h, boundary, pressure, data) };
 }
 const interpretations = holdings.map(interpret);
 const homepage = {
@@ -185,5 +163,5 @@ const homepage = {
   highConfidence: interpretations.filter(x => x.decisionConfidence.level === 'High')
 };
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
-fs.writeFileSync(outPath, JSON.stringify({ generatedAt: new Date().toISOString(), homepage, interpretations }, null, 2) + '\n');
-console.log(`generated strategy interpretations for ${interpretations.length} holdings`);
+fs.writeFileSync(outPath, JSON.stringify({ generatedAt: new Date().toISOString(), policy: 'Strategy Interpreter uses h.signalThresholds as the authoritative signal-change source.', homepage, interpretations }, null, 2) + '\n');
+console.log(`generated strategy interpretations for ${interpretations.length} holdings using volatility-adjusted thresholds`);

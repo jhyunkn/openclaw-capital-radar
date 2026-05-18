@@ -1,0 +1,154 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const statePath = fs.existsSync(path.join(root, 'data', 'report-state.live.json')) ? path.join(root, 'data', 'report-state.live.json') : path.join(root, 'data', 'report-state.sample.json');
+const interpPath = path.join(root, 'outputs', 'strategy-interpretations.json');
+const exposurePath = path.join(root, 'outputs', 'portfolio-exposure-map.json');
+const dossierPath = path.join(root, 'data', 'thesis', 'sample-thesis-dossiers.json');
+const evidencePath = path.join(root, 'data', 'research', 'sample-evidence-packets.json');
+const outPath = path.join(root, 'outputs', 'portfolio-thesis-coverage-map.json');
+const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+const interpretations = fs.existsSync(interpPath) ? JSON.parse(fs.readFileSync(interpPath, 'utf8')).interpretations || [] : [];
+const exposure = fs.existsSync(exposurePath) ? JSON.parse(fs.readFileSync(exposurePath, 'utf8')) : { buckets: [] };
+const dossiers = fs.existsSync(dossierPath) ? JSON.parse(fs.readFileSync(dossierPath, 'utf8')) : [];
+const evidence = fs.existsSync(evidencePath) ? JSON.parse(fs.readFileSync(evidencePath, 'utf8')) : [];
+const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+const n = v => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+const text = v => String(v || '').trim();
+const dossierByTicker = new Map(dossiers.map(d => [String(d.ticker || '').toUpperCase(), d]));
+const interpByTicker = new Map(interpretations.map(i => [String(i.ticker || '').toUpperCase(), i]));
+const evidenceByTicker = new Map();
+for (const item of evidence) {
+  const ticker = String(item.ticker || '').toUpperCase();
+  if (!evidenceByTicker.has(ticker)) evidenceByTicker.set(ticker, []);
+  evidenceByTicker.get(ticker).push(item);
+}
+function bucketFor(ticker) {
+  for (const bucket of exposure.buckets || []) {
+    if ((bucket.members || []).some(m => String(m.ticker || '').toUpperCase() === ticker)) return bucket;
+  }
+  return null;
+}
+function classifyRole(h, bucket) {
+  const ticker = String(h.ticker || '').toUpperCase();
+  if (['TSLT','CONL'].includes(ticker)) return 'levered_tactical';
+  if (ticker === 'BMNR') return 'speculative';
+  if (ticker === 'SPY') return 'index_core';
+  return bucket?.id || 'single_name';
+}
+function scoreBool(ok, points) { return ok ? points : 0; }
+function evaluate(h) {
+  const ticker = String(h.ticker || '').toUpperCase();
+  const d = dossierByTicker.get(ticker);
+  const interp = interpByTicker.get(ticker);
+  const ev = evidenceByTicker.get(ticker) || [];
+  const bucket = bucketFor(ticker);
+  const thesisText = text(d?.coreThesis || h.thesis || h.actionRationale);
+  const invalidation = d?.invalidationTriggers || (h.watch ? [h.watch] : []);
+  const fundamentals = h.dataContract || {};
+  const thresholds = h.signalThresholds || {};
+  const role = classifyRole(h, bucket);
+  const speculative = ['BMNR','TSNF','TSLT','CONL'].includes(ticker) || /speculative|levered|crypto/i.test(`${role} ${bucket?.label || ''}`);
+  const categories = {
+    businessModel: {
+      score: scoreBool(thesisText.length >= 35, 12),
+      max: 12,
+      status: thesisText.length >= 35 ? 'covered' : 'missing',
+      finding: thesisText.length >= 35 ? 'Business/thesis text exists.' : 'Business model thesis is too thin.'
+    },
+    valuation: {
+      score: scoreBool(fundamentals.notApplicable || fundamentals.forwardPE != null || fundamentals.fcfYield != null, 12),
+      max: 12,
+      status: fundamentals.notApplicable ? 'not_applicable' : (fundamentals.forwardPE != null || fundamentals.fcfYield != null ? 'covered' : 'missing'),
+      finding: fundamentals.notApplicable ? fundamentals.reason || 'Operating fundamentals not applicable.' : `Forward PE ${fundamentals.forwardPE ?? 'missing'}; FCF yield ${fundamentals.fcfYield ?? 'missing'}.`
+    },
+    catalyst: {
+      score: scoreBool(fundamentals.nextEarningsDate || /catalyst|earnings|guidance|capex|cycle|review|watch/i.test(`${h.watch || ''} ${interp?.newInformation?.join(' ') || ''}`), 10),
+      max: 10,
+      status: fundamentals.nextEarningsDate || /catalyst|earnings|guidance|capex|cycle|review|watch/i.test(`${h.watch || ''} ${interp?.newInformation?.join(' ') || ''}`) ? 'covered' : 'missing',
+      finding: fundamentals.nextEarningsDate ? `Next event date: ${fundamentals.nextEarningsDate}.` : 'Catalyst/event trigger needs definition.'
+    },
+    riskInvalidation: {
+      score: scoreBool(Array.isArray(invalidation) && invalidation.length > 0 && text(invalidation.join(' ')).length >= 25, 16),
+      max: 16,
+      status: Array.isArray(invalidation) && invalidation.length > 0 && text(invalidation.join(' ')).length >= 25 ? 'covered' : 'missing',
+      finding: Array.isArray(invalidation) && invalidation.length > 0 ? invalidation.slice(0,2).join(' · ') : 'No invalidation trigger.'
+    },
+    positionSizing: {
+      score: scoreBool(h.portfolioWeightPct != null && bucket && typeof bucket.capPct === 'number', 12),
+      max: 12,
+      status: h.portfolioWeightPct != null && bucket ? 'covered' : 'missing',
+      finding: bucket ? `${n(h.portfolioWeightPct).toFixed(2)}% in ${bucket.label}; review cap ${bucket.capPct}%.` : 'No exposure bucket mapped.'
+    },
+    macroSensitivity: {
+      score: scoreBool(interp?.portfolioConflict || bucket, 10),
+      max: 10,
+      status: interp?.portfolioConflict || bucket ? 'covered' : 'missing',
+      finding: interp?.portfolioConflict?.reason || bucket?.interpretation || 'Macro/exposure sensitivity not mapped.'
+    },
+    dataFreshness: {
+      score: scoreBool(state.meta?.generatedAt && h.priceAsOf, 10),
+      max: 10,
+      status: state.meta?.generatedAt && h.priceAsOf ? 'covered' : 'missing',
+      finding: state.meta?.generatedAt && h.priceAsOf ? `Report ${state.meta.generatedAt}; price ${h.priceAsOf}.` : 'Freshness metadata incomplete.'
+    },
+    sourceEvidence: {
+      score: scoreBool(ev.length > 0, 18),
+      max: 18,
+      status: ev.length > 0 ? 'covered' : 'missing',
+      finding: ev.length ? `${ev.length} evidence packet(s) attached.` : 'No source evidence packet attached.'
+    }
+  };
+  const total = Object.values(categories).reduce((sum, c) => sum + c.score, 0);
+  const max = Object.values(categories).reduce((sum, c) => sum + c.max, 0);
+  const score = Math.round((total / max) * 100);
+  const missing = Object.entries(categories).filter(([, c]) => c.status === 'missing').map(([k, c]) => ({ category: k, finding: c.finding }));
+  const actionPermission = interp?.actionPermission?.status || (speculative ? 'Human review required' : 'Research required');
+  const minimumRequired = speculative ? 75 : ticker === 'SPY' ? 55 : 65;
+  const coverageState = score >= minimumRequired && missing.length <= (speculative ? 1 : 2) ? 'underwritten' : score >= 45 ? 'partial' : 'thin';
+  const blocked = speculative && score < minimumRequired;
+  return {
+    ticker,
+    role,
+    positionStatus: d?.positionStatus || 'holding',
+    signal: h.computedSignal || h.signal || 'Review',
+    actionPermission,
+    thesisCoverageScore: score,
+    minimumRequired,
+    coverageState,
+    blockedForAction: blocked || /No action|No add|exit review|trim watch/i.test(actionPermission),
+    humanReviewRequired: speculative || d?.humanReviewRequired === true || /INVESTIGATE|EXIT|TRIM/i.test(String(h.computedSignal || h.signal || '')),
+    categories,
+    missingEvidence: missing,
+    thesisChain: {
+      thesis: thesisText || 'Missing thesis.',
+      signal: h.computedSignal || h.signal || 'Review',
+      nearestThreshold: interp?.nearestDecisionBoundary || null,
+      actionPermission,
+      invalidation: Array.isArray(invalidation) ? invalidation : [String(invalidation || '')].filter(Boolean)
+    },
+    nextStep: missing.length ? `Attach/define: ${missing.slice(0,3).map(m => m.category).join(', ')}.` : 'Coverage is sufficient for monitoring; still requires human decision for capital action.'
+  };
+}
+const holdingsCoverage = holdings.map(evaluate);
+const summary = {
+  totalHoldings: holdingsCoverage.length,
+  underwritten: holdingsCoverage.filter(x => x.coverageState === 'underwritten').length,
+  partial: holdingsCoverage.filter(x => x.coverageState === 'partial').length,
+  thin: holdingsCoverage.filter(x => x.coverageState === 'thin').length,
+  humanReviewRequired: holdingsCoverage.filter(x => x.humanReviewRequired).length,
+  blockedForAction: holdingsCoverage.filter(x => x.blockedForAction).length,
+  averageCoverageScore: Math.round(holdingsCoverage.reduce((s, x) => s + x.thesisCoverageScore, 0) / Math.max(1, holdingsCoverage.length)),
+  weakestCoverage: holdingsCoverage.slice().sort((a,b) => a.thesisCoverageScore - b.thesisCoverageScore).slice(0, 5).map(x => ({ ticker: x.ticker, score: x.thesisCoverageScore, missing: x.missingEvidence.map(m => m.category) }))
+};
+const result = {
+  generatedAt: new Date().toISOString(),
+  layer: 'portfolio-thesis-coverage-map',
+  policy: 'Coverage map distinguishes underwritten holdings from tracked holdings. It does not authorize autonomous trades.',
+  summary,
+  holdings: holdingsCoverage,
+  recommendedNextMove: 'Attach primary evidence packets and expand thesis dossiers for every partial/thin holding before M2 signal-performance attribution.'
+};
+fs.mkdirSync(path.dirname(outPath), { recursive: true });
+fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n');
+console.log(`generated portfolio thesis coverage map: ${summary.underwritten} underwritten / ${summary.partial} partial / ${summary.thin} thin`);

@@ -1,6 +1,6 @@
 # VRT Opportunity Dossier
 
-Generated: 2026-05-18T21:35:25.678Z
+Generated: 2026-05-18T21:45:19.095Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 73
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 339.2
+- Current price: 339.72
 - Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 
 ## Why Now
 
-- VRT down -8.56% in watched basket.
+- VRT down -8.42% in watched basket.
 - VRT: Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 ## Action Framework
 
 Observation:
-VRT down -8.56% in watched basket.
+VRT down -8.42% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

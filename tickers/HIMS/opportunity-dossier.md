@@ -1,6 +1,6 @@
 # HIMS Opportunity Dossier
 
-Generated: 2026-05-18T21:35:25.678Z
+Generated: 2026-05-18T21:45:19.095Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 70
 - Portfolio role: non-correlated health/medical infrastructure lane
-- Current price: 22.27
+- Current price: 22.38
 - Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 
 ## Why Now
 
-- HIMS down -11.10% in watched basket.
+- HIMS down -10.64% in watched basket.
 
 ## Evidence Refs
 
@@ -60,7 +60,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 ## Action Framework
 
 Observation:
-HIMS down -11.10% in watched basket.
+HIMS down -10.64% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

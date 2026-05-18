@@ -1,0 +1,64 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const now = new Date().toISOString();
+const goggles = [
+  {
+    goggleId: 'stock_research_default',
+    name: 'Default stock research',
+    purpose: 'General ticker due diligence and candidate promotion gating.',
+    boost: ['sec.gov', 'investor relations', 'earnings call', '10-K', '10-Q', '8-K', 'FRED', 'Treasury', 'sector ETF', 'company presentation'],
+    demote: ['content farm', 'auto-generated stock blog', 'unsourced influencer summary', 'stale quote page', 'low-liquidity pump newsletter'],
+    require: ['source_url', 'published_or_retrieved_date', 'claim_type', 'ticker_or_theme', 'source_tier'],
+    outputClaims: ['business_quality', 'financial_condition', 'catalyst', 'risk', 'valuation_context', 'market_reaction', 'action_relevance']
+  },
+  {
+    goggleId: 'dilution_risk',
+    name: 'Dilution and financing risk',
+    purpose: 'Detect share issuance, convertibles, warrants, ATM programs, going-concern warnings, and balance sheet stress.',
+    boost: ['S-3', 'ATM offering', 'warrants', 'convertible note', 'shelf registration', 'going concern', 'share-based compensation', 'cash runway', 'common stock outstanding'],
+    demote: ['bullish narrative without share-count check', 'price target without capital structure', 'social squeeze thesis without financing analysis'],
+    require: ['filing_date', 'filing_type', 'share_count_or_security_terms', 'cash/debt context'],
+    outputClaims: ['dilution_risk', 'financing_need', 'capital_structure', 'position_size_constraint', 'promotion_blocker']
+  },
+  {
+    goggleId: 'bitcoin_treasury_company',
+    name: 'Bitcoin treasury / crypto beta company',
+    purpose: 'Analyze BTC treasury companies, NAV premium risk, issuance, leverage, custody, and path-dependent crypto exposure.',
+    boost: ['BTC holdings', 'NAV premium', 'mNAV', 'convertible debt', 'ATM issuance', 'treasury strategy', 'custody', 'impairment', 'Bitcoin per share'],
+    demote: ['crypto hype without treasury math', 'leveraged beta without decay/risk budget', 'social momentum without balance sheet'],
+    require: ['BTC holdings', 'share count', 'debt/issuance terms', 'BTC price sensitivity', 'NAV/premium estimate'],
+    outputClaims: ['crypto_beta_quality', 'treasury_premium_risk', 'substitution_candidate', 'drawdown_risk', 'invalidation']
+  },
+  {
+    goggleId: 'ai_infrastructure',
+    name: 'AI infrastructure and power stack',
+    purpose: 'Map AI opportunities across compute, networking, power, cooling, grid, nuclear, and services instead of only mega-cap platforms.',
+    boost: ['AI capex', 'data center', 'power demand', 'cooling', 'grid interconnect', 'GPU', 'ASIC', 'networking', 'nuclear', 'uranium', 'backlog'],
+    demote: ['AI mention without revenue exposure', 'theme crowding without orders/backlog', 'multiple expansion without cash-flow support'],
+    require: ['revenue exposure', 'orders/backlog or capex evidence', 'margin/valuation context', 'crowding risk'],
+    outputClaims: ['theme_fit', 'bottleneck_exposure', 'crowding_risk', 'valuation_gap', 'portfolio_overlap']
+  },
+  {
+    goggleId: 'small_cap_squeeze_optional',
+    name: 'Small-cap asymmetric optionality',
+    purpose: 'Find speculative upside while forcing liquidity, dilution, and invalidation discipline.',
+    boost: ['short interest', 'float', 'cash runway', 'insider ownership', 'contract award', 'regulatory milestone', 'backlog', 'technical reclaim'],
+    demote: ['low-float pump', 'no filing evidence', 'no liquidity', 'unbounded downside', 'message-board only thesis'],
+    require: ['liquidity', 'cash runway', 'share count trend', 'hard invalidation', 'max loss budget'],
+    outputClaims: ['asymmetric_upside', 'liquidity_risk', 'dilution_risk', 'position_cap', 'trigger']
+  },
+  {
+    goggleId: 'macro_liquidity',
+    name: 'Macro liquidity and regime',
+    purpose: 'Translate rates, credit, VIX, BTC, and index breadth into portfolio posture and opportunity timing.',
+    boost: ['10Y Treasury', '2Y Treasury', 'HY OAS', 'VIX', 'Fed Funds', 'breakevens', 'dollar index', 'SPY', 'QQQ', 'IWM', 'BTC'],
+    demote: ['single-indicator market story', 'unsupported crash call', 'headline without breadth confirmation'],
+    require: ['timestamp', 'series/source', 'direction', 'portfolio implication'],
+    outputClaims: ['regime', 'risk_budget', 'opportunity_timing', 'what_not_to_touch', 'review_trigger']
+  }
+];
+for (const rel of ['data/research/finance-goggles.json', 'public/data/research/finance-goggles.json']) {
+  const p = path.join(root, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify({ generatedAt: now, status: 'ACTIVE', goggles }, null, 2));
+}
+console.log(JSON.stringify({ wrote: 'data/research/finance-goggles.json', goggles: goggles.length }, null, 2));

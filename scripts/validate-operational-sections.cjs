@@ -11,6 +11,8 @@ const candidates = readJson('outputs/research-candidate-map.json');
 const score = readJson('outputs/operational-readiness-score.json');
 const nativeEvents = fs.existsSync(path.join(root, 'outputs', 'native-events.json')) ? readJson('outputs/native-events.json') : null;
 const nativeAudit = fs.existsSync(path.join(root, 'outputs', 'native-research-engine-audit.json')) ? readJson('outputs/native-research-engine-audit.json') : null;
+const opportunityPackets = fs.existsSync(path.join(root, 'outputs', 'opportunity-evidence-packets.json')) ? readJson('outputs/opportunity-evidence-packets.json') : null;
+const opportunityAudit = fs.existsSync(path.join(root, 'outputs', 'opportunity-evidence-engine-audit.json')) ? readJson('outputs/opportunity-evidence-engine-audit.json') : null;
 const list = v => Array.isArray(v) ? v : [];
 const unique = rows => [...new Set(rows.filter(Boolean))];
 function pass(label, ok, evidence, blocker = null) { return { label, status: ok ? 'PASS' : 'FAIL', evidence, blocker }; }
@@ -28,7 +30,8 @@ const checks = [
   pass('Opportunity Scout lane data', list(candidates.tickerOfMoment).length > 0 && list(candidates.longTermMacroFit).length > 0 && !hasSection('research-candidate-map'), `${list(candidates.tickerOfMoment).length} tactical and ${list(candidates.longTermMacroFit).length} long-term lane entries inside the single Opportunity Scout section; ${candidateTickers.length} unique candidates.`),
   pass('Market tape / regime', hasSection('market-section') && list(state.liveMarket).length > 0 && list(state.liveRatesCredit).length > 0, `${list(state.liveMarket).length} tape rows; ${list(state.liveRatesCredit).length} rates/credit rows from local snapshot.`),
   pass('Native Research Engine', hasSection('native-research-engine') && nativeEvents?.status === 'ACTIVE' && list(nativeEvents?.events).length >= 8 && nativeEvents?.operationalGates?.canClaimFreshNewsCausality === false, `${list(nativeEvents?.events).length} local events; immediate queue ${list(nativeEvents?.immediateResearchQueue).length}; audit ${nativeAudit?.status || 'not-run'}.`),
-  pass('Public static sync', publicHtml.includes('live-reaction-state') && publicHtml.includes('opportunities-section') && publicHtml.includes('Intake / discovery') && publicHtml.includes('native-research-engine') && !publicHtml.includes('id="research-candidate-map"'), 'public/index.html includes live reaction, Native Research Engine, and unified Opportunity Scout sections.'),
+  pass('Opportunity Evidence Engine', hasSection('opportunity-evidence-engine') && opportunityPackets?.status === 'ACTIVE' && list(opportunityPackets?.packets).length >= 8 && list(opportunityPackets?.priorityQueue).length >= 3, `${list(opportunityPackets?.packets).length} research-only packets; priority queue ${list(opportunityPackets?.priorityQueue).length}; audit ${opportunityAudit?.status || 'not-run'}.`),
+  pass('Public static sync', publicHtml.includes('live-reaction-state') && publicHtml.includes('opportunities-section') && publicHtml.includes('Intake / discovery') && publicHtml.includes('native-research-engine') && publicHtml.includes('opportunity-evidence-engine') && !publicHtml.includes('id="research-candidate-map"'), 'public/index.html includes live reaction, Native Research Engine, Opportunity Evidence Engine, and unified Opportunity Scout sections.'),
   pass('Operational score threshold', score.score >= score.target && score.target >= 80, `CROS ${score.score}/${score.target}; stage ${score.stage}.`),
   pass('No empty operational placeholders', hasNoEmpty(['No opportunity queue loaded', 'No research candidates today', 'No live reaction state loaded', 'No holdings loaded']), 'No critical section is rendering an empty-state placeholder.')
 ];

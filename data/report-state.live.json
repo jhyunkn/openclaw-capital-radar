@@ -13,12 +13,27 @@
       "World Bank/JPMorgan/BlackRock: report-native chartbook and committee framing",
       "Visual Capitalist/OWID: explanatory visual/narrative synthesis"
     ],
-    "generatedAt": "2026-05-18T12:28:26.239Z",
+    "generatedAt": "2026-05-18T16:30:51.953Z",
     "liveDataSources": [
       "Yahoo Finance chart API public/unofficial endpoint",
       "FRED public CSV endpoint",
       "SEC submissions JSON public endpoint"
-    ]
+    ],
+    "operationalAuditMode": "DEGRADED_LOCAL_AUDIT_NO_WEB_SEARCH",
+    "operationalAuditNote": "web_search unavailable for this run; dashboard was audited from local/public-data snapshot and must not claim fresh external/news research.",
+    "holdingDataContract": {
+      "requiredFields": [
+        "forwardPE",
+        "fcfYield",
+        "nextEarningsDate",
+        "source",
+        "sourceAsOf",
+        "confidence"
+      ],
+      "normalizedAtBuild": "2026-05-18T17:42:56.597Z",
+      "policy": "Missing values are explicit nulls with confidence=missing; no synthetic fundamentals or earnings dates are invented."
+    },
+    "normalizedAtBuild": "2026-05-18T17:42:56.597Z"
   },
   "marketRegime": {
     "posture": "HOLD / WATCH",
@@ -26,8 +41,8 @@
     "growth": "Live proxy: equity trend mixed/weak",
     "inflation": "Live proxy: breakeven/rates check required; see FRED T10YIE",
     "policy": "Live: 10Y Treasury 4.47% (rate pressure present)",
-    "liquidity": "Live: HY OAS 2.76",
-    "riskAppetite": "Live: VIX 18.54; risk watch",
+    "liquidity": "Live: HY OAS 2.8",
+    "riskAppetite": "Live: VIX 18.41; risk watch",
     "mostImportantMacroSignal": "2Y/10Y curve is 0.47 pts; watch rate pressure and cycle signal.",
     "confidence": "Medium for prices/rates; low for fundamentals/news until adapters are added.",
     "evidence": [
@@ -53,14 +68,13 @@
       "thesis": "Enterprise cloud + AI infrastructure durability.",
       "watch": "AI capex efficiency, antitrust, valuation compression.",
       "actionRationale": "Keep as core unless earnings revisions or valuation expectations materially deteriorate.",
-      "livePrice": 421.92,
-      "priceAsOf": "2026-05-15T20:00:01.000Z",
-      "dayChangePct": 3.05,
-      "perf5dPct": 1.64,
-      "perf1mPct": 0.39,
-      "perf3mPct": 4.34,
+      "livePrice": 418.22,
+      "priceAsOf": "2026-05-18T16:30:48.000Z",
+      "dayChangePct": -0.88,
+      "perf5dPct": 1.35,
+      "perf1mPct": -1.08,
+      "perf3mPct": 4.08,
       "sparkline": [
-        397.23,
         384.47,
         389,
         400.6,
@@ -119,10 +133,11 @@
         407.77,
         405.21,
         409.43,
-        421.92
+        421.92,
+        418.22
       ],
-      "marketValue": 1265.76,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 1254.66,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
       "portfolioWeightPct": 2.09,
       "healthScore": 78,
@@ -143,54 +158,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 421.92,
+        "current": 418.22,
         "zones": {
           "buy": {
-            "low": 379.73,
-            "high": 405.04,
-            "label": "value / entry zone"
+            "low": 385,
+            "high": 401,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 472.55,
-            "high": 506.3,
-            "label": "trim / protect zone"
+            "low": 468,
+            "high": 502,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 362.85,
+            "value": 360,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 345.97,
+            "value": 343,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 493,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "core dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "1.35%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-1.08%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "16.17%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "6.42%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 28.4,
-        "fcfYield": 2.7,
-        "nextEarningsDate": "2026-07-28",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "MSFT",
-        "exposureType": "low_vol_quality",
-        "realizedVol20Pct": 29.78,
-        "addPct": -1.77,
-        "trimPct": 9.4,
-        "riskReviewPct": -6.98,
-        "addPrice": 414.47,
-        "trimPrice": 461.6,
-        "riskReviewPrice": 392.48
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -202,14 +248,13 @@
       "thesis": "AWS + ads + retail margin discipline.",
       "watch": "Consumer slowdown, AWS competition, fulfillment costs.",
       "actionRationale": "Core hold; monitor whether AWS acceleration offsets consumer softness.",
-      "livePrice": 264.14,
-      "priceAsOf": "2026-05-15T20:00:01.000Z",
-      "dayChangePct": -1.15,
-      "perf5dPct": -3.13,
-      "perf1mPct": 5.78,
-      "perf3mPct": 29.43,
+      "livePrice": 264.29,
+      "priceAsOf": "2026-05-18T16:30:47.000Z",
+      "dayChangePct": 0.05,
+      "perf5dPct": -1.75,
+      "perf1mPct": 5.48,
+      "perf3mPct": 32.41,
       "sparkline": [
-        210.11,
         205.27,
         208.56,
         210.64,
@@ -268,12 +313,13 @@
         265.82,
         270.13,
         267.22,
-        264.14
+        264.14,
+        264.29
       ],
-      "marketValue": 8798.5,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 8803.5,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 14.49,
+      "portfolioWeightPct": 14.68,
       "healthScore": 70,
       "computedSignal": "HOLD",
       "ratingBreakdown": [
@@ -287,54 +333,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 264.14,
+        "current": 264.29,
         "zones": {
           "buy": {
-            "low": 237.73,
-            "high": 253.57,
-            "label": "value / entry zone"
+            "low": 243,
+            "high": 254,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 295.84,
-            "high": 316.97,
-            "label": "trim / protect zone"
+            "low": 296,
+            "high": 317,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 227.16,
+            "value": 227,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 216.59,
+            "value": 217,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 312,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "core dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "-1.75%"
+          },
+          {
+            "label": "1M trend",
+            "value": "5.48%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "16.43%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "6.35%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 34.8,
-        "fcfYield": 2.1,
-        "nextEarningsDate": "2026-07-30",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "AMZN",
-        "exposureType": "standard_equity",
-        "realizedVol20Pct": 21.44,
-        "addPct": -2.19,
-        "trimPct": 13.25,
-        "riskReviewPct": -10.5,
-        "addPrice": 258.36,
-        "trimPrice": 299.14,
-        "riskReviewPrice": 236.41
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -346,14 +423,13 @@
       "thesis": "Nuclear scarcity + data-center electricity demand.",
       "watch": "Crowded AI-power narrative, regulation, valuation stretch.",
       "actionRationale": "Keep but watch expectation risk; do not add blindly into narrative heat.",
-      "livePrice": 267.2,
-      "priceAsOf": "2026-05-15T20:00:01.000Z",
-      "dayChangePct": -2.93,
-      "perf5dPct": -12,
-      "perf1mPct": -10.68,
-      "perf3mPct": -3.49,
+      "livePrice": 260.16,
+      "priceAsOf": "2026-05-18T16:30:48.000Z",
+      "dayChangePct": -2.63,
+      "perf5dPct": -13.19,
+      "perf1mPct": -12.17,
+      "perf3mPct": -5.78,
       "sparkline": [
-        294.84,
         293.8,
         312.64,
         325.84,
@@ -412,12 +488,13 @@
         293.6,
         274.89,
         275.26,
-        267.2
+        267.2,
+        260.16
       ],
-      "marketValue": 801.6,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 780.48,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 1.32,
+      "portfolioWeightPct": 1.3,
       "healthScore": 60,
       "computedSignal": "HOLD / WATCH",
       "ratingBreakdown": [
@@ -441,54 +518,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 267.2,
+        "current": 260.16,
         "zones": {
           "buy": {
-            "low": 240.48,
-            "high": 256.51,
-            "label": "value / entry zone"
+            "low": 234,
+            "high": 245,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 299.26,
-            "high": 320.64,
-            "label": "trim / protect zone"
+            "low": 286,
+            "high": 302,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 229.79,
+            "value": 229,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 219.1,
+            "value": 219,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 299,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "watch dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "-13.19%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-12.17%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "13.61%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "8.63%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 27.6,
-        "fcfYield": 1.4,
-        "nextEarningsDate": "2026-08-06",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "CEG",
-        "exposureType": "standard_equity",
-        "realizedVol20Pct": 54.21,
-        "addPct": -3.19,
-        "trimPct": 18.84,
-        "riskReviewPct": -15.29,
-        "addPrice": 258.69,
-        "trimPrice": 317.55,
-        "riskReviewPrice": 226.34
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -500,14 +608,13 @@
       "thesis": "Ad engine resilience + AI engagement + operating leverage.",
       "watch": "AI capex, regulation, metaverse spend creep.",
       "actionRationale": "Core hold while ad momentum and margins support thesis.",
-      "livePrice": 614.23,
-      "priceAsOf": "2026-05-15T20:00:01.000Z",
-      "dayChangePct": -0.68,
-      "perf5dPct": 0.75,
-      "perf1mPct": -9.25,
-      "perf3mPct": -8.14,
+      "livePrice": 607.61,
+      "priceAsOf": "2026-05-18T16:30:48.000Z",
+      "dayChangePct": -1.08,
+      "perf5dPct": 1.46,
+      "perf1mPct": -11.76,
+      "perf3mPct": -6.49,
       "sparkline": [
-        655.66,
         637.25,
         639.3,
         653.69,
@@ -566,12 +673,13 @@
         603,
         616.63,
         618.43,
-        614.23
+        614.23,
+        607.61
       ],
-      "marketValue": 5116.54,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 5061.39,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 8.43,
+      "portfolioWeightPct": 8.44,
       "healthScore": 64,
       "computedSignal": "HOLD / WATCH",
       "ratingBreakdown": [
@@ -590,54 +698,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 614.23,
+        "current": 607.61,
         "zones": {
           "buy": {
-            "low": 552.81,
-            "high": 589.66,
-            "label": "value / entry zone"
+            "low": 559,
+            "high": 583,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 687.94,
-            "high": 737.08,
-            "label": "trim / protect zone"
+            "low": 681,
+            "high": 729,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 528.24,
+            "value": 523,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 503.67,
+            "value": 498,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 717,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "core dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "1.46%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-11.76%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "16.18%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "6.41%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 21.7,
-        "fcfYield": 4.1,
-        "nextEarningsDate": "2026-07-29",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "META",
-        "exposureType": "standard_equity",
-        "realizedVol20Pct": 37.75,
-        "addPct": -2.6,
-        "trimPct": 15.55,
-        "riskReviewPct": -12.47,
-        "addPrice": 598.27,
-        "trimPrice": 709.74,
-        "riskReviewPrice": 537.63
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -649,14 +788,13 @@
       "thesis": "Tactical volatility income only.",
       "watch": "Decay, path dependency, TSLA volatility, misunderstood yield.",
       "actionRationale": "Treat as risk product, not investment compounder; trim if portfolio risk budget tightens.",
-      "livePrice": 20.99,
-      "priceAsOf": "2026-05-15T20:00:00.000Z",
-      "dayChangePct": -9.6,
-      "perf5dPct": -3.67,
-      "perf1mPct": 14.89,
-      "perf3mPct": -10.3,
+      "livePrice": 19.7,
+      "priceAsOf": "2026-05-18T16:30:35.000Z",
+      "dayChangePct": -6.15,
+      "perf5dPct": -16.13,
+      "perf1mPct": 1.76,
+      "perf3mPct": -11.22,
       "sparkline": [
-        21.53,
         20.26,
         21.22,
         22.04,
@@ -715,13 +853,14 @@
         22.18,
         23.44,
         23.22,
-        20.99
+        20.99,
+        19.7
       ],
-      "marketValue": 314.85,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 295.5,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Levered / decay product",
-      "portfolioWeightPct": 0.52,
-      "healthScore": 57,
+      "portfolioWeightPct": 0.49,
+      "healthScore": 48,
       "computedSignal": "TRIM WATCH",
       "ratingBreakdown": [
         {
@@ -735,64 +874,94 @@
           "note": "Levered or path-dependent products receive a structural risk penalty."
         },
         {
-          "label": "1M momentum",
-          "impact": 5,
-          "note": "Recent one-month price action is constructive."
+          "label": "5D stress",
+          "impact": -4,
+          "note": "Sharp five-day weakness triggers short-term review."
         }
       ],
       "analysisChart": {
         "status": "active",
         "profile": "tactical_risk",
         "bias": "protect_capital",
-        "current": 20.99,
+        "current": 19.7,
         "zones": {
           "buy": {
-            "low": 19.1,
-            "high": 20.36,
-            "label": "value / entry zone"
+            "low": 20.5,
+            "high": 22,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 22.67,
-            "high": 24.77,
-            "label": "trim / protect zone"
+            "low": 26,
+            "high": 28.5,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 18.89,
+            "value": 19,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 17.84,
+            "value": 18.25,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 28,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "fixed tactical levels"
+          },
+          {
+            "label": "5D trend",
+            "value": "-16.13%"
+          },
+          {
+            "label": "1M trend",
+            "value": "1.76%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "3.68%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "-7.29%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Use strength to reduce fragility; do not average down below invalidation.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
         "forwardPE": null,
         "fcfYield": null,
-        "nextEarningsDate": "N/A",
-        "notApplicable": true,
-        "reason": "Levered ETF; operating fundamentals not applicable.",
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "not_applicable",
-          "fcfYield": "not_applicable",
-          "nextEarningsDate": "not_applicable"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "TSLT",
-        "exposureType": "levered",
-        "realizedVol20Pct": 79.24,
-        "addPct": -8.66,
-        "trimPct": 30.11,
-        "riskReviewPct": -30.11,
-        "addPrice": 19.17,
-        "trimPrice": 27.31,
-        "riskReviewPrice": 14.67
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -804,14 +973,13 @@
       "thesis": "Crypto liquidity upside via Coinbase beta.",
       "watch": "Leverage decay, crypto drawdowns, correlated risk.",
       "actionRationale": "Requires explicit reason to keep; hidden correlation and decay make it a review priority.",
-      "livePrice": 8.15,
-      "priceAsOf": "2026-05-15T20:00:01.000Z",
-      "dayChangePct": -15.63,
-      "perf5dPct": -7.6,
-      "perf1mPct": -9.44,
-      "perf3mPct": 32.74,
+      "livePrice": 7.33,
+      "priceAsOf": "2026-05-18T16:30:45.000Z",
+      "dayChangePct": -10.1,
+      "perf5dPct": -27.75,
+      "perf1mPct": -23.6,
+      "perf3mPct": 42.26,
       "sparkline": [
-        7.4,
         6.44,
         6.57,
         8.36,
@@ -870,13 +1038,14 @@
         9.32,
         8.8,
         9.66,
-        8.15
+        8.15,
+        7.33
       ],
-      "marketValue": 326,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 293.2,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Levered / decay product",
-      "portfolioWeightPct": 0.54,
-      "healthScore": 46,
+      "portfolioWeightPct": 0.49,
+      "healthScore": 42,
       "computedSignal": "EXIT REVIEW",
       "ratingBreakdown": [
         {
@@ -893,61 +1062,96 @@
           "label": "1M drawdown",
           "impact": -6,
           "note": "One-month weakness pressures the rating."
+        },
+        {
+          "label": "5D stress",
+          "impact": -4,
+          "note": "Sharp five-day weakness triggers short-term review."
         }
       ],
       "analysisChart": {
         "status": "active",
         "profile": "tactical_risk",
-        "bias": "risk_reduction",
-        "current": 8.15,
+        "bias": "hard_exit_review",
+        "current": 7.33,
         "zones": {
           "buy": {
-            "low": 7.417,
-            "high": 7.905,
-            "label": "value / entry zone"
+            "low": 8.2,
+            "high": 8.6,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 8.802,
-            "high": 9.617,
-            "label": "trim / protect zone"
+            "low": 9.4,
+            "high": 10,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 7.335,
+            "value": 7.8,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 6.928,
+            "value": 7.7,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 10,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "fixed tactical levels"
+          },
+          {
+            "label": "5D trend",
+            "value": "-27.75%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-23.6%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "-6.03%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "-12.74%"
+          }
+        ],
+        "operationalRead": "Below hard-exit level: do not treat as bargain; escalate exit/review.",
         "narrative": "Use strength to reduce fragility; do not average down below invalidation.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
         "forwardPE": null,
         "fcfYield": null,
-        "nextEarningsDate": "N/A",
-        "notApplicable": true,
-        "reason": "Levered ETF; operating fundamentals not applicable.",
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "not_applicable",
-          "fcfYield": "not_applicable",
-          "nextEarningsDate": "not_applicable"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "CONL",
-        "exposureType": "levered",
-        "realizedVol20Pct": 147.58,
-        "addPct": -9.88,
-        "trimPct": 34,
-        "riskReviewPct": -34,
-        "addPrice": 7.35,
-        "trimPrice": 10.92,
-        "riskReviewPrice": 5.38
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -959,14 +1163,13 @@
       "thesis": "Benchmark and opportunity-cost anchor.",
       "watch": "Index concentration and broad market drawdown.",
       "actionRationale": "Keep as baseline unless portfolio strategy changes.",
-      "livePrice": 739.17,
-      "priceAsOf": "2026-05-15T20:00:00.000Z",
-      "dayChangePct": -1.2,
-      "perf5dPct": 0.21,
-      "perf1mPct": 5.35,
-      "perf3mPct": 6.82,
+      "livePrice": 734.33,
+      "priceAsOf": "2026-05-18T16:30:47.000Z",
+      "dayChangePct": -0.66,
+      "perf5dPct": -0.67,
+      "perf1mPct": 3.41,
+      "perf3mPct": 7.79,
       "sparkline": [
-        689.43,
         682.39,
         687.35,
         693.15,
@@ -1025,12 +1228,13 @@
         738.18,
         742.31,
         748.17,
-        739.17
+        739.17,
+        734.33
       ],
-      "marketValue": 31954.32,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 31745.09,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Index anchor",
-      "portfolioWeightPct": 52.64,
+      "portfolioWeightPct": 52.94,
       "healthScore": 78,
       "computedSignal": "HOLD",
       "ratingBreakdown": [
@@ -1049,54 +1253,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 739.17,
+        "current": 734.33,
         "zones": {
           "buy": {
-            "low": 665.25,
-            "high": 709.6,
-            "label": "value / entry zone"
+            "low": 676,
+            "high": 705,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 827.87,
-            "high": 887,
-            "label": "trim / protect zone"
+            "low": 822,
+            "high": 881,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 635.69,
+            "value": 632,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 606.12,
+            "value": 602,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 867,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "core dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "-0.67%"
+          },
+          {
+            "label": "1M trend",
+            "value": "3.41%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "16.19%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "6.35%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 22.1,
-        "fcfYield": 3.3,
-        "nextEarningsDate": "N/A",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "SPY",
-        "exposureType": "low_vol_quality",
-        "realizedVol20Pct": 10.73,
-        "addPct": -1.68,
-        "trimPct": 9,
-        "riskReviewPct": -6.63,
-        "addPrice": 726.79,
-        "trimPrice": 805.7,
-        "riskReviewPrice": 690.2
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -1108,14 +1343,13 @@
       "thesis": "Secular payments, pricing power, high-margin network.",
       "watch": "Consumer stress, regulation, valuation.",
       "actionRationale": "Core quality compounder; compare against SPY opportunity cost.",
-      "livePrice": 494.2,
-      "priceAsOf": "2026-05-15T20:00:03.000Z",
-      "dayChangePct": 0.87,
-      "perf5dPct": -0.26,
-      "perf1mPct": -4.69,
-      "perf3mPct": -8.05,
+      "livePrice": 501.81,
+      "priceAsOf": "2026-05-18T16:30:42.000Z",
+      "dayChangePct": 1.54,
+      "perf5dPct": 0.8,
+      "perf1mPct": -3.74,
+      "perf3mPct": -4.86,
       "sparkline": [
-        526.41,
         496.03,
         498,
         509.39,
@@ -1174,12 +1408,13 @@
         499.81,
         490.64,
         489.94,
-        494.2
+        494.2,
+        501.81
       ],
-      "marketValue": 1981.74,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 2012.26,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Core compounder",
-      "portfolioWeightPct": 3.26,
+      "portfolioWeightPct": 3.36,
       "healthScore": 78,
       "computedSignal": "HOLD",
       "ratingBreakdown": [
@@ -1198,54 +1433,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 494.2,
+        "current": 501.81,
         "zones": {
           "buy": {
-            "low": 444.78,
-            "high": 474.43,
-            "label": "value / entry zone"
+            "low": 462,
+            "high": 482,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 553.5,
-            "high": 593.04,
-            "label": "trim / protect zone"
+            "low": 562,
+            "high": 602,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 425.01,
+            "value": 432,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 405.24,
+            "value": 411,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 592,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "core dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "0.8%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-3.74%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "16.16%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "6.32%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 28.9,
-        "fcfYield": 2.6,
-        "nextEarningsDate": "2026-07-30",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "MA",
-        "exposureType": "low_vol_quality",
-        "realizedVol20Pct": 26.24,
-        "addPct": -1.68,
-        "trimPct": 9,
-        "riskReviewPct": -6.63,
-        "addPrice": 485.92,
-        "trimPrice": 538.68,
-        "riskReviewPrice": 461.46
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -1257,14 +1523,13 @@
       "thesis": "Potential asymmetry if thesis is real.",
       "watch": "Information quality, liquidity, thesis uncertainty.",
       "actionRationale": "No action until thesis, filings, liquidity, and downside case are verified.",
-      "livePrice": 19.87,
-      "priceAsOf": "2026-05-15T20:00:03.000Z",
-      "dayChangePct": -9.68,
-      "perf5dPct": -10.37,
-      "perf1mPct": -11.45,
-      "perf3mPct": 2.05,
+      "livePrice": 18.51,
+      "priceAsOf": "2026-05-18T16:30:47.000Z",
+      "dayChangePct": -6.84,
+      "perf5dPct": -19.59,
+      "perf1mPct": -19.35,
+      "perf3mPct": -6.23,
       "sparkline": [
-        20.13,
         19.22,
         19.44,
         21.5,
@@ -1323,12 +1588,13 @@
         21.67,
         21.18,
         22,
-        19.87
+        19.87,
+        18.52
       ],
-      "marketValue": 6755.8,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 6293.4,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Speculative / thesis verification",
-      "portfolioWeightPct": 11.13,
+      "portfolioWeightPct": 10.5,
       "healthScore": 44,
       "computedSignal": "INVESTIGATE",
       "ratingBreakdown": [
@@ -1357,54 +1623,85 @@
         "status": "active",
         "profile": "speculative_verification",
         "bias": "freeze_until_verified",
-        "current": 19.87,
+        "current": 18.51,
         "zones": {
           "buy": {
-            "low": 17.49,
-            "high": 18.68,
-            "label": "value / entry zone"
+            "low": 16.29,
+            "high": 17.21,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 21.46,
-            "high": 22.85,
-            "label": "trim / protect zone"
+            "low": 19.99,
+            "high": 21.29,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 17.88,
+            "value": 16.66,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 16.69,
+            "value": 15.73,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 21.1,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "spec dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "-19.59%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-19.35%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "11.1%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "10.51%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Chart can guide timing, but action is frozen until thesis/liquidity/downside are verified.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
         "forwardPE": null,
-        "fcfYield": -8.5,
-        "nextEarningsDate": "2026-08-12",
-        "notApplicable": false,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
           "forwardPE": "missing",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "BMNR",
-        "exposureType": "high_vol_speculative",
-        "realizedVol20Pct": 67.27,
-        "addPct": -6.84,
-        "trimPct": 25.45,
-        "riskReviewPct": -25.38,
-        "addPrice": 18.51,
-        "trimPrice": 24.93,
-        "riskReviewPrice": 14.83
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -1416,14 +1713,13 @@
       "thesis": "Potential asymmetry if thesis is real.",
       "watch": "Information quality, liquidity, thesis uncertainty.",
       "actionRationale": "No action until thesis, filings, liquidity, and downside case are verified.",
-      "livePrice": 30.27,
-      "priceAsOf": "2026-05-15T19:55:22.000Z",
-      "dayChangePct": -2.9,
-      "perf5dPct": -0.61,
-      "perf1mPct": 9.6,
-      "perf3mPct": 20.39,
+      "livePrice": 29.83,
+      "priceAsOf": "2026-05-18T15:48:12.000Z",
+      "dayChangePct": -1.44,
+      "perf5dPct": -3.9,
+      "perf1mPct": 5.74,
+      "perf3mPct": 21.01,
       "sparkline": [
-        24.98,
         24.66,
         25.15,
         25.34,
@@ -1482,13 +1778,14 @@
         30.58,
         30.89,
         31.17,
-        30.26
+        30.26,
+        29.83
       ],
-      "marketValue": 1210.8,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 1193.2,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Speculative / thesis verification",
       "portfolioWeightPct": 1.99,
-      "healthScore": 59,
+      "healthScore": 54,
       "computedSignal": "INVESTIGATE",
       "ratingBreakdown": [
         {
@@ -1500,65 +1797,91 @@
           "label": "Thesis uncertainty",
           "impact": -16,
           "note": "Speculative or unknown-health positions need more evidence before confidence rises."
-        },
-        {
-          "label": "1M momentum",
-          "impact": 5,
-          "note": "Recent one-month price action is constructive."
         }
       ],
       "analysisChart": {
         "status": "active",
         "profile": "speculative_verification",
         "bias": "freeze_until_verified",
-        "current": 30.27,
+        "current": 29.83,
         "zones": {
           "buy": {
-            "low": 26.64,
-            "high": 28.45,
-            "label": "value / entry zone"
+            "low": 26.25,
+            "high": 27.74,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 32.69,
-            "high": 34.81,
-            "label": "trim / protect zone"
+            "low": 32.22,
+            "high": 34.3,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 27.24,
+            "value": 26.85,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 25.43,
+            "value": 25.36,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 34.01,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "spec dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "-3.9%"
+          },
+          {
+            "label": "1M trend",
+            "value": "5.74%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "11.1%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "10.5%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Chart can guide timing, but action is frozen until thesis/liquidity/downside are verified.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 18.5,
-        "fcfYield": 3.8,
-        "nextEarningsDate": "2026-08-08",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "TSNF",
-        "exposureType": "standard_equity",
-        "realizedVol20Pct": 30.86,
-        "addPct": -2.35,
-        "trimPct": 14.17,
-        "riskReviewPct": -11.29,
-        "addPrice": 29.56,
-        "trimPrice": 34.56,
-        "riskReviewPrice": 26.85
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     },
     {
@@ -1570,14 +1893,13 @@
       "thesis": "Pricing power, ad tier, content scale.",
       "watch": "Expectation reset, competition, consumer fatigue.",
       "actionRationale": "Hold but watch valuation versus subscriber/ads expectations.",
-      "livePrice": 87.02,
-      "priceAsOf": "2026-05-15T20:00:00.000Z",
-      "dayChangePct": 0.09,
-      "perf5dPct": -0.54,
-      "perf1mPct": -19.27,
-      "perf3mPct": 9.29,
+      "livePrice": 89.16,
+      "priceAsOf": "2026-05-18T16:30:47.000Z",
+      "dayChangePct": 2.46,
+      "perf5dPct": 4.34,
+      "perf1mPct": -8.38,
+      "perf3mPct": 17.53,
       "sparkline": [
-        78.67,
         76.02,
         78.04,
         82.7,
@@ -1636,12 +1958,13 @@
         87.66,
         87.56,
         86.94,
-        87.02
+        87.02,
+        89.16
       ],
-      "marketValue": 2175.5,
-      "liveDataSource": "Yahoo Finance chart API (public/unofficial)",
+      "marketValue": 2229,
+      "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Other exposure",
-      "portfolioWeightPct": 3.58,
+      "portfolioWeightPct": 3.72,
       "healthScore": 64,
       "computedSignal": "HOLD / WATCH",
       "ratingBreakdown": [
@@ -1660,54 +1983,85 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 87.02,
+        "current": 89.16,
         "zones": {
           "buy": {
-            "low": 78.32,
-            "high": 83.54,
-            "label": "value / entry zone"
+            "low": 80.24,
+            "high": 83.81,
+            "label": "entry watch"
           },
           "trim": {
-            "low": 97.46,
-            "high": 104.42,
-            "label": "trim / protect zone"
+            "low": 98.08,
+            "high": 103,
+            "label": "trim / protect"
           },
           "stop": {
-            "value": 74.84,
+            "value": 78.46,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 71.36,
+            "value": 74.89,
             "label": "hard exit review"
+          },
+          "target": {
+            "value": 103,
+            "label": "target / resistance"
           }
         },
+        "indicators": [
+          {
+            "label": "basis",
+            "value": "watch dynamic band from current price"
+          },
+          {
+            "label": "5D trend",
+            "value": "4.34%"
+          },
+          {
+            "label": "1M trend",
+            "value": "-8.38%"
+          },
+          {
+            "label": "distance to stop",
+            "value": "13.64%"
+          },
+          {
+            "label": "distance to entry mid",
+            "value": "8.7%"
+          }
+        ],
+        "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
-        "caveat": "Public-data dynamic zone; refine with cost basis, ATR/options/fundamentals as adapters improve."
+        "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
       },
       "dataContract": {
-        "source": "manual_free_fundamentals_seed_v1",
-        "asOf": "2026-05-18",
-        "forwardPE": 24.2,
-        "fcfYield": 3.6,
-        "nextEarningsDate": "2026-07-17",
-        "notApplicable": false,
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
         "confidence": {
-          "forwardPE": "seeded_public_fundamental",
-          "fcfYield": "seeded_public_fundamental",
-          "nextEarningsDate": "seeded_public_fundamental"
-        }
-      },
-      "signalThresholds": {
-        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "ticker": "NFLX",
-        "exposureType": "standard_equity",
-        "realizedVol20Pct": 23.56,
-        "addPct": -2.19,
-        "trimPct": 13.25,
-        "riskReviewPct": -10.5,
-        "addPrice": 85.12,
-        "trimPrice": 98.55,
-        "riskReviewPrice": 77.88
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
       }
     }
   ],
@@ -1779,22 +2133,143 @@
     ]
   },
   "opportunityScout": {
-    "method": "Generate 10 candidates from active market force fields, then promote top 3 for deeper research only when evidence supports material asymmetry.",
+    "method": "Generated from active market force fields and local public-data snapshot; candidates remain research-only until evidence gates pass.",
     "candidates": [
       {
-        "ticker": "TBD-1",
-        "reason": "Live screen required",
+        "ticker": "NVDA",
+        "name": "NVIDIA",
+        "theme": "AI compute leader",
+        "candidateType": "single-name equity",
+        "thesis": "Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.",
+        "whyNow": "AI infrastructure remains an active force in the current report; candidate should be watched for pullbacks or earnings-confirmed demand durability.",
+        "dataSupport": [
+          "Price $219.79; day -2.46%; 1M 8.98%; 3M 17.57%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:48.000Z",
+          "10Y Treasury 4.47% as of 2026-05-14",
+          "10Y breakeven inflation 2.49% as of 2026-05-15",
+          "HY OAS 2.8 as of 2026-05-15"
+        ],
+        "confirmBeforeAdd": [
+          "Forward revenue/gross-margin durability remains intact",
+          "Valuation reset or earnings growth justifies multiple",
+          "Customer concentration and export-control risks are understood"
+        ],
+        "keyRisks": [
+          "Crowding and multiple compression",
+          "Export controls / supply chain limits",
+          "AI capex digestion cycle"
+        ],
+        "score": 82,
         "signal": "ADD WATCH"
       },
       {
-        "ticker": "TBD-2",
-        "reason": "Live screen required",
+        "ticker": "AVGO",
+        "name": "Broadcom",
+        "theme": "AI networking / custom silicon",
+        "candidateType": "single-name equity",
+        "thesis": "Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.",
+        "whyNow": "If AI capex stays strong but mega-cap platform exposure is already high, Broadcom gives a different layer of the same force field.",
+        "dataSupport": [
+          "Price $415.35; day -2.31%; 1M 2.17%; 3M 25.42%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:46.000Z",
+          "10Y Treasury 4.47% as of 2026-05-14",
+          "10Y breakeven inflation 2.49% as of 2026-05-15",
+          "HY OAS 2.8 as of 2026-05-15"
+        ],
+        "confirmBeforeAdd": [
+          "AI semiconductor growth offsets cyclicality",
+          "Debt/software integration risk remains controlled",
+          "Price action is not purely multiple expansion"
+        ],
+        "keyRisks": [
+          "Semiconductor cycle",
+          "Acquisition/integration execution",
+          "Valuation crowding"
+        ],
+        "score": 79,
         "signal": "ADD WATCH"
       },
       {
-        "ticker": "TBD-3",
-        "reason": "Live screen required",
+        "ticker": "VRT",
+        "name": "Vertiv",
+        "theme": "Data-center power and thermal infrastructure",
+        "candidateType": "single-name equity",
+        "thesis": "Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.",
+        "whyNow": "The portfolio already has cloud and power exposure; VRT tests whether physical bottlenecks deserve a dedicated research lane.",
+        "dataSupport": [
+          "Price $334.19; day -9.91%; 1M 8.74%; 3M 41.3%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:46.000Z",
+          "10Y Treasury 4.47% as of 2026-05-14",
+          "10Y breakeven inflation 2.49% as of 2026-05-15",
+          "HY OAS 2.8 as of 2026-05-15"
+        ],
+        "confirmBeforeAdd": [
+          "Backlog/order growth supports the AI infrastructure thesis",
+          "Margins remain resilient as capacity scales",
+          "Entry price compensates for crowded theme risk"
+        ],
+        "keyRisks": [
+          "Theme crowding",
+          "Execution and margin pressure",
+          "Industrial cyclicality if capex slows"
+        ],
+        "score": 76,
         "signal": "ADD WATCH"
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Alphabet",
+        "theme": "Quality compounder / AI platform laggard candidate",
+        "candidateType": "single-name equity",
+        "thesis": "Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.",
+        "whyNow": "Useful comparison against existing MSFT/AMZN/META exposure before adding more platform concentration.",
+        "dataSupport": [
+          "Price $399.7; day 0.74%; 1M 16.98%; 3M 29.35%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:46.000Z",
+          "10Y Treasury 4.47% as of 2026-05-14",
+          "10Y breakeven inflation 2.49% as of 2026-05-15",
+          "HY OAS 2.8 as of 2026-05-15"
+        ],
+        "confirmBeforeAdd": [
+          "Cloud and AI monetization progress is visible",
+          "Regulatory/search risks are priced in",
+          "Relative valuation is attractive versus existing platform holdings"
+        ],
+        "keyRisks": [
+          "Antitrust/regulatory pressure",
+          "Search disruption narrative",
+          "AI capex margin drag"
+        ],
+        "score": 72,
+        "signal": "INVESTIGATE"
+      },
+      {
+        "ticker": "IBIT",
+        "name": "iShares Bitcoin Trust",
+        "theme": "Cleaner crypto beta replacement",
+        "candidateType": "ETF / risk substitution",
+        "thesis": "A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.",
+        "whyNow": "CONL-style levered decay is already flagged as a risk-control focus; substitute vehicles should be compared before adding or holding levered beta.",
+        "dataSupport": [
+          "Price $43.12; day -3.79%; 1M -1.87%; 3M 16.38%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:45.000Z",
+          "BTC-USD 1M -1.53%; 3M 6.97%",
+          "10Y Treasury 4.47% as of 2026-05-14",
+          "10Y breakeven inflation 2.49% as of 2026-05-15",
+          "HY OAS 2.8 as of 2026-05-15"
+        ],
+        "confirmBeforeAdd": [
+          "Explicit risk budget for crypto beta",
+          "Liquidity regime supports risk assets",
+          "Expense, tracking, and drawdown profile beat levered alternatives"
+        ],
+        "keyRisks": [
+          "Bitcoin drawdown risk",
+          "Liquidity/regulatory shocks",
+          "No cash flow valuation anchor"
+        ],
+        "score": 66,
+        "signal": "INVESTIGATE"
       }
     ],
     "requiredScreens": [
@@ -1803,7 +2278,9 @@
       "cash-flow durable cyclicals",
       "revision inflections",
       "special situations with clear downside"
-    ]
+    ],
+    "promotionRule": "Promote only with source evidence, add zone, invalidation, portfolio role, and risk budget.",
+    "runMode": "DEGRADED_LOCAL_AUDIT_NO_WEB_SEARCH"
   },
   "riskOfficer": {
     "highestRiskPosition": "CONL",
@@ -1822,7 +2299,7 @@
     ]
   },
   "finalOutput": {
-    "marketPosture": "HOLD / WATCH: do not add broad risk above extension; use exact pullback/reclaim zones.",
+    "marketPosture": "HOLD / WATCH",
     "mostImportantHoldingUpdate": "CONL and TSLT remain the risk-control focus in the sample state.",
     "topAddWatch": "NVDA / AVGO / VRT",
     "topTrimWatch": "CONL / TSLT sample",
@@ -1831,35 +2308,35 @@
       "AVGO",
       "VRT"
     ],
-    "finalJudgment": "Preserve core; freeze speculative adds; require VIX <17 / SPY hold 730-739 / benign credit before risk upgrade, or use predefined support zones only.",
+    "finalJudgment": "Live public market/rates/SEC filing metadata are active. Next layer: SEC companyfacts fundamentals, valuation estimates, news/community ingestion, and alert/state transition automation.",
     "strongestCurrentHolding": "MSFT",
-    "weakestCurrentHolding": "BMNR"
+    "weakestCurrentHolding": "CONL"
   },
   "strategy": {
     "exposureMap": [
       {
         "bucket": "Index anchor",
-        "weightPct": 52.64
+        "weightPct": 52.94
       },
       {
         "bucket": "AI / infrastructure compounder",
-        "weightPct": 26.33
+        "weightPct": 26.51
       },
       {
         "bucket": "Speculative / thesis verification",
-        "weightPct": 13.12
+        "weightPct": 12.49
       },
       {
         "bucket": "Other exposure",
-        "weightPct": 3.58
+        "weightPct": 3.72
       },
       {
         "bucket": "Core compounder",
-        "weightPct": 3.26
+        "weightPct": 3.36
       },
       {
         "bucket": "Levered / decay product",
-        "weightPct": 1.06
+        "weightPct": 0.98
       }
     ],
     "marketForces": [
@@ -1883,7 +2360,7 @@
       {
         "name": "Risk appetite",
         "direction": "mixed / risk watch",
-        "intensity": 1,
+        "intensity": 2,
         "affected": [
           "SPY",
           "QQQ",
@@ -1893,9 +2370,9 @@
         ],
         "interpretation": "Index and volatility behavior sets the risk budget for speculative and levered exposure.",
         "evidence": [
-          "SPY 5D 0.21%",
-          "QQQ 5D -0.32%",
-          "VIX 18.54"
+          "SPY 5D -0.67%",
+          "QQQ 5D -1.91%",
+          "VIX 18.41"
         ]
       },
       {
@@ -1910,9 +2387,9 @@
         ],
         "interpretation": "AI capex, cloud demand, power scarcity, and data-center buildout remain a portfolio force but need crowding checks.",
         "evidence": [
-          "CEG 1M -10.68%",
-          "MSFT 1M 0.39%",
-          "AMZN 1M 5.78%"
+          "CEG 1M -12.17%",
+          "MSFT 1M -1.08%",
+          "AMZN 1M 5.48%"
         ]
       },
       {
@@ -1927,8 +2404,8 @@
         ],
         "interpretation": "Crypto beta can amplify upside but is highly liquidity-sensitive and path-dependent through levered products.",
         "evidence": [
-          "BTC 1M -0.09%",
-          "COIN 1M -2.2%"
+          "BTC 1M -1.53%",
+          "COIN 1M -9.99%"
         ]
       },
       {
@@ -1943,7 +2420,7 @@
         ],
         "interpretation": "Credit spreads are a plumbing check: if they widen while equities rise, risk appetite may be less durable.",
         "evidence": [
-          "HY OAS 2.76 as of 2026-05-14"
+          "HY OAS 2.8 as of 2026-05-15"
         ]
       },
       {
@@ -1971,11 +2448,11 @@
         "thesis": "Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.",
         "whyNow": "AI infrastructure remains an active force in the current report; candidate should be watched for pullbacks or earnings-confirmed demand durability.",
         "dataSupport": [
-          "Price $225.32; day -4.42%; 1M 13.6%; 3M 18.56%",
-          "Source: Yahoo Finance chart API (public/unofficial); as of 2026-05-15T20:00:00.000Z",
+          "Price $219.79; day -2.46%; 1M 8.98%; 3M 17.57%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:48.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
-          "HY OAS 2.76 as of 2026-05-14"
+          "HY OAS 2.8 as of 2026-05-15"
         ],
         "confirmBeforeAdd": [
           "Forward revenue/gross-margin durability remains intact",
@@ -1998,11 +2475,11 @@
         "thesis": "Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.",
         "whyNow": "If AI capex stays strong but mega-cap platform exposure is already high, Broadcom gives a different layer of the same force field.",
         "dataSupport": [
-          "Price $425.19; day -3.32%; 1M 6.71%; 3M 24.05%",
-          "Source: Yahoo Finance chart API (public/unofficial); as of 2026-05-15T20:00:01.000Z",
+          "Price $415.35; day -2.31%; 1M 2.17%; 3M 25.42%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:46.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
-          "HY OAS 2.76 as of 2026-05-14"
+          "HY OAS 2.8 as of 2026-05-15"
         ],
         "confirmBeforeAdd": [
           "AI semiconductor growth offsets cyclicality",
@@ -2025,11 +2502,11 @@
         "thesis": "Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.",
         "whyNow": "The portfolio already has cloud and power exposure; VRT tests whether physical bottlenecks deserve a dedicated research lane.",
         "dataSupport": [
-          "Price $370.94; day -1.41%; 1M 26.11%; 3M 49.27%",
-          "Source: Yahoo Finance chart API (public/unofficial); as of 2026-05-15T20:00:02.000Z",
+          "Price $334.19; day -9.91%; 1M 8.74%; 3M 41.3%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:46.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
-          "HY OAS 2.76 as of 2026-05-14"
+          "HY OAS 2.8 as of 2026-05-15"
         ],
         "confirmBeforeAdd": [
           "Backlog/order growth supports the AI infrastructure thesis",
@@ -2052,11 +2529,11 @@
         "thesis": "Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.",
         "whyNow": "Useful comparison against existing MSFT/AMZN/META exposure before adding more platform concentration.",
         "dataSupport": [
-          "Price $396.78; day -1.07%; 1M 18.08%; 3M 27.6%",
-          "Source: Yahoo Finance chart API (public/unofficial); as of 2026-05-15T20:00:01.000Z",
+          "Price $399.7; day 0.74%; 1M 16.98%; 3M 29.35%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:46.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
-          "HY OAS 2.76 as of 2026-05-14"
+          "HY OAS 2.8 as of 2026-05-15"
         ],
         "confirmBeforeAdd": [
           "Cloud and AI monetization progress is visible",
@@ -2079,12 +2556,12 @@
         "thesis": "A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.",
         "whyNow": "CONL-style levered decay is already flagged as a risk-control focus; substitute vehicles should be compared before adding or holding levered beta.",
         "dataSupport": [
-          "Price $44.82; day -2.92%; 1M 4.89%; 3M 17.05%",
-          "Source: Yahoo Finance chart API (public/unofficial); as of 2026-05-15T20:00:01.000Z",
-          "BTC-USD 1M -0.09%; 3M 8.55%",
+          "Price $43.12; day -3.79%; 1M -1.87%; 3M 16.38%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T16:30:45.000Z",
+          "BTC-USD 1M -1.53%; 3M 6.97%",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
-          "HY OAS 2.76 as of 2026-05-14"
+          "HY OAS 2.8 as of 2026-05-15"
         ],
         "confirmBeforeAdd": [
           "Explicit risk budget for crypto beta",
@@ -2101,8 +2578,8 @@
       }
     ],
     "strongestHolding": "MSFT",
-    "weakestHolding": "BMNR",
-    "highestRiskPosition": "BMNR",
+    "weakestHolding": "CONL",
+    "highestRiskPosition": "CONL",
     "watchTriggers": [
       "If VIX moves above 22, reduce speculative/levered risk review threshold.",
       "If 10Y Treasury continues rising, pressure-test high-duration AI/cloud multiples.",
@@ -2126,27 +2603,27 @@
       "broadIndices": [
         {
           "symbol": "SPY",
-          "price": 739.17,
-          "oneMonth": 5.35,
-          "read": "strength / valuation discipline required"
+          "price": 734.33,
+          "oneMonth": 3.41,
+          "read": "mixed / no broad chase"
         },
         {
           "symbol": "QQQ",
-          "price": 708.93,
-          "oneMonth": 10.69,
+          "price": 699.65,
+          "oneMonth": 7.83,
           "read": "strength / valuation discipline required"
         },
         {
           "symbol": "IWM",
-          "price": 277.6,
-          "oneMonth": 2.83,
+          "price": 274.97,
+          "oneMonth": -0.29,
           "read": "mixed / no broad chase"
         }
       ],
       "volatilityLiquidity": {
-        "vix": 18.54,
-        "riskAppetite": "Live: VIX 18.54; risk watch",
-        "credit": "Live: HY OAS 2.76",
+        "vix": 18.41,
+        "riskAppetite": "Live: VIX 18.41; risk watch",
+        "credit": "Live: HY OAS 2.8",
         "rates": "Live: 10Y Treasury 4.47% (rate pressure present)"
       },
       "holdings": [
@@ -2154,7 +2631,7 @@
           "ticker": "MSFT",
           "signal": "HOLD",
           "weightPct": 2.09,
-          "livePrice": 421.92,
+          "livePrice": 418.22,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2167,8 +2644,8 @@
         {
           "ticker": "AMZN",
           "signal": "HOLD",
-          "weightPct": 14.49,
-          "livePrice": 264.14,
+          "weightPct": 14.68,
+          "livePrice": 264.29,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "constructive 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2181,8 +2658,8 @@
         {
           "ticker": "CEG",
           "signal": "HOLD / WATCH",
-          "weightPct": 1.32,
-          "livePrice": 267.2,
+          "weightPct": 1.3,
+          "livePrice": 260.16,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2195,8 +2672,8 @@
         {
           "ticker": "META",
           "signal": "HOLD",
-          "weightPct": 8.43,
-          "livePrice": 614.23,
+          "weightPct": 8.44,
+          "livePrice": 607.61,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2209,12 +2686,12 @@
         {
           "ticker": "TSLT",
           "signal": "TRIM WATCH",
-          "weightPct": 0.52,
-          "livePrice": 20.99,
-          "tacticalLayer": "neutral tape",
-          "mediumLayer": "constructive 1M/3M price layer",
+          "weightPct": 0.49,
+          "livePrice": 19.7,
+          "tacticalLayer": "short-term stress",
+          "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structurally fragile",
-          "agreement": "mixed / conflicted",
+          "agreement": "mixed",
           "allowedBehavior": "hold/watch; no chase without trigger",
           "forbiddenBehavior": "do not chase single-layer moves",
           "nextTrigger": "multi-layer alignment: price zone + thesis confirmation + portfolio fit",
@@ -2223,8 +2700,8 @@
         {
           "ticker": "CONL",
           "signal": "EXIT REVIEW",
-          "weightPct": 0.54,
-          "livePrice": 8.15,
+          "weightPct": 0.49,
+          "livePrice": 7.33,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structurally fragile",
@@ -2237,12 +2714,12 @@
         {
           "ticker": "SPY",
           "signal": "HOLD",
-          "weightPct": 52.64,
-          "livePrice": 739.17,
+          "weightPct": 52.94,
+          "livePrice": 734.33,
           "tacticalLayer": "neutral tape",
-          "mediumLayer": "constructive 1M/3M price layer",
+          "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
-          "agreement": "partially aligned",
+          "agreement": "mixed",
           "allowedBehavior": "hold/watch; no chase without trigger",
           "forbiddenBehavior": "do not chase single-layer moves",
           "nextTrigger": "multi-layer alignment: price zone + thesis confirmation + portfolio fit",
@@ -2251,8 +2728,8 @@
         {
           "ticker": "MA",
           "signal": "HOLD",
-          "weightPct": 3.26,
-          "livePrice": 494.2,
+          "weightPct": 3.36,
+          "livePrice": 501.81,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2265,8 +2742,8 @@
         {
           "ticker": "BMNR",
           "signal": "INVESTIGATE",
-          "weightPct": 11.13,
-          "livePrice": 19.87,
+          "weightPct": 10.5,
+          "livePrice": 18.51,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis incomplete",
@@ -2280,7 +2757,7 @@
           "ticker": "TSNF",
           "signal": "INVESTIGATE",
           "weightPct": 1.99,
-          "livePrice": 30.27,
+          "livePrice": 29.83,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "constructive 1M/3M price layer",
           "structuralLayer": "structural thesis incomplete",
@@ -2293,9 +2770,9 @@
         {
           "ticker": "NFLX",
           "signal": "HOLD / WATCH",
-          "weightPct": 3.58,
-          "livePrice": 87.02,
-          "tacticalLayer": "neutral tape",
+          "weightPct": 3.72,
+          "livePrice": 89.16,
+          "tacticalLayer": "short-term strength",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
           "agreement": "mixed / conflicted",
@@ -2317,7 +2794,7 @@
       {
         "id": "core",
         "label": "Protected core",
-        "weightPct": 82.23,
+        "weightPct": 82.81,
         "tickers": [
           "MSFT",
           "AMZN",
@@ -2332,7 +2809,7 @@
       {
         "id": "tactical",
         "label": "Tactical risk",
-        "weightPct": 1.06,
+        "weightPct": 0.98,
         "tickers": [
           "TSLT",
           "CONL"
@@ -2343,7 +2820,7 @@
       {
         "id": "speculative",
         "label": "Unknown thesis",
-        "weightPct": 13.12,
+        "weightPct": 12.49,
         "tickers": [
           "BMNR",
           "TSNF"
@@ -2354,7 +2831,7 @@
       {
         "id": "other",
         "label": "Other exposure",
-        "weightPct": 3.58,
+        "weightPct": 3.72,
         "tickers": [
           "NFLX"
         ],
@@ -2365,30 +2842,36 @@
     "largestPositions": [
       {
         "ticker": "SPY",
-        "weightPct": 52.64,
+        "weightPct": 52.94,
         "signal": "HOLD",
         "role": "Index anchor"
       },
       {
         "ticker": "AMZN",
-        "weightPct": 14.49,
+        "weightPct": 14.68,
         "signal": "HOLD",
         "role": "AI / infrastructure compounder"
       },
       {
         "ticker": "BMNR",
-        "weightPct": 11.13,
+        "weightPct": 10.5,
         "signal": "INVESTIGATE",
         "role": "Speculative / thesis verification"
       },
       {
         "ticker": "META",
-        "weightPct": 8.43,
+        "weightPct": 8.44,
         "signal": "HOLD / WATCH",
         "role": "AI / infrastructure compounder"
       }
     ],
     "riskQueue": [
+      {
+        "ticker": "CONL",
+        "healthScore": 42,
+        "signal": "EXIT REVIEW",
+        "rule": "Use strength to reduce fragility; do not average down below invalidation."
+      },
       {
         "ticker": "BMNR",
         "healthScore": 44,
@@ -2396,20 +2879,14 @@
         "rule": "Chart can guide timing, but action is frozen until thesis/liquidity/downside are verified."
       },
       {
-        "ticker": "CONL",
-        "healthScore": 46,
-        "signal": "EXIT REVIEW",
-        "rule": "Use strength to reduce fragility; do not average down below invalidation."
-      },
-      {
         "ticker": "TSLT",
-        "healthScore": 57,
+        "healthScore": 48,
         "signal": "TRIM WATCH",
         "rule": "Use strength to reduce fragility; do not average down below invalidation."
       },
       {
         "ticker": "TSNF",
-        "healthScore": 59,
+        "healthScore": 54,
         "signal": "INVESTIGATE",
         "rule": "Chart can guide timing, but action is frozen until thesis/liquidity/downside are verified."
       }
@@ -2783,6 +3260,12 @@
       "recentMaterialFilings": [
         {
           "form": "8-K",
+          "filingDate": "2026-05-18",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226024088/form8-k.htm"
+        },
+        {
+          "form": "8-K",
           "filingDate": "2026-05-11",
           "document": "form8-k.htm",
           "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226022150/form8-k.htm"
@@ -2822,12 +3305,6 @@
           "filingDate": "2026-04-14",
           "document": "form10-q.htm",
           "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226016560/form10-q.htm"
-        },
-        {
-          "form": "8-K",
-          "filingDate": "2026-04-13",
-          "document": "form8-k.htm",
-          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226016296/form8-k.htm"
         }
       ]
     },
@@ -3299,19 +3776,18 @@
   "liveMarket": [
     {
       "symbol": "MSFT",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MSFT?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MSFT?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:48.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 421.92,
-      "previousClose": 409.43,
-      "changePct": 3.05,
-      "perf5dPct": 1.64,
-      "perf1mPct": 0.39,
-      "perf3mPct": 4.34,
+      "price": 418.22,
+      "previousClose": 421.92,
+      "changePct": -0.88,
+      "perf5dPct": 1.35,
+      "perf1mPct": -1.08,
+      "perf3mPct": 4.08,
       "sparkline": [
-        397.23,
         384.47,
         389,
         400.6,
@@ -3370,26 +3846,26 @@
         407.77,
         405.21,
         409.43,
-        421.92
+        421.92,
+        418.22
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "AMZN",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AMZN?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AMZN?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:47.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 264.14,
-      "previousClose": 267.22,
-      "changePct": -1.15,
-      "perf5dPct": -3.13,
-      "perf1mPct": 5.78,
-      "perf3mPct": 29.43,
+      "price": 264.29,
+      "previousClose": 264.14,
+      "changePct": 0.05,
+      "perf5dPct": -1.75,
+      "perf1mPct": 5.48,
+      "perf3mPct": 32.41,
       "sparkline": [
-        210.11,
         205.27,
         208.56,
         210.64,
@@ -3448,26 +3924,26 @@
         265.82,
         270.13,
         267.22,
-        264.14
+        264.14,
+        264.29
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "CEG",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CEG?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CEG?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:48.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 267.2,
-      "previousClose": 275.26,
-      "changePct": -2.93,
-      "perf5dPct": -12,
-      "perf1mPct": -10.68,
-      "perf3mPct": -3.49,
+      "price": 260.16,
+      "previousClose": 267.2,
+      "changePct": -2.63,
+      "perf5dPct": -13.19,
+      "perf1mPct": -12.17,
+      "perf3mPct": -5.78,
       "sparkline": [
-        294.84,
         293.8,
         312.64,
         325.84,
@@ -3526,26 +4002,26 @@
         293.6,
         274.89,
         275.26,
-        267.2
+        267.2,
+        260.16
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "META",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/META?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/META?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:48.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 614.23,
-      "previousClose": 618.43,
-      "changePct": -0.68,
-      "perf5dPct": 0.75,
-      "perf1mPct": -9.25,
-      "perf3mPct": -8.14,
+      "price": 607.61,
+      "previousClose": 614.23,
+      "changePct": -1.08,
+      "perf5dPct": 1.46,
+      "perf1mPct": -11.76,
+      "perf3mPct": -6.49,
       "sparkline": [
-        655.66,
         637.25,
         639.3,
         653.69,
@@ -3604,26 +4080,26 @@
         603,
         616.63,
         618.43,
-        614.23
+        614.23,
+        607.61
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "TSLT",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSLT?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSLT?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:35.000Z",
       "currency": "USD",
       "exchange": "BTS",
-      "price": 20.99,
-      "previousClose": 23.22,
-      "changePct": -9.6,
-      "perf5dPct": -3.67,
-      "perf1mPct": 14.89,
-      "perf3mPct": -10.3,
+      "price": 19.7,
+      "previousClose": 20.99,
+      "changePct": -6.15,
+      "perf5dPct": -16.13,
+      "perf1mPct": 1.76,
+      "perf3mPct": -11.22,
       "sparkline": [
-        21.53,
         20.26,
         21.22,
         22.04,
@@ -3682,26 +4158,26 @@
         22.18,
         23.44,
         23.22,
-        20.99
+        20.99,
+        19.7
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "CONL",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CONL?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CONL?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:45.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 8.15,
-      "previousClose": 9.66,
-      "changePct": -15.63,
-      "perf5dPct": -7.6,
-      "perf1mPct": -9.44,
-      "perf3mPct": 32.74,
+      "price": 7.33,
+      "previousClose": 8.15,
+      "changePct": -10.1,
+      "perf5dPct": -27.75,
+      "perf1mPct": -23.6,
+      "perf3mPct": 42.26,
       "sparkline": [
-        7.4,
         6.44,
         6.57,
         8.36,
@@ -3760,26 +4236,26 @@
         9.32,
         8.8,
         9.66,
-        8.15
+        8.15,
+        7.33
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "SPY",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:47.000Z",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 739.17,
-      "previousClose": 748.17,
-      "changePct": -1.2,
-      "perf5dPct": 0.21,
-      "perf1mPct": 5.35,
-      "perf3mPct": 6.82,
+      "price": 734.33,
+      "previousClose": 739.17,
+      "changePct": -0.66,
+      "perf5dPct": -0.67,
+      "perf1mPct": 3.41,
+      "perf3mPct": 7.79,
       "sparkline": [
-        689.43,
         682.39,
         687.35,
         693.15,
@@ -3838,26 +4314,26 @@
         738.18,
         742.31,
         748.17,
-        739.17
+        739.17,
+        734.33
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "MA",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MA?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:03.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MA?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:42.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 494.2,
-      "previousClose": 489.94,
-      "changePct": 0.87,
-      "perf5dPct": -0.26,
-      "perf1mPct": -4.69,
-      "perf3mPct": -8.05,
+      "price": 501.81,
+      "previousClose": 494.2,
+      "changePct": 1.54,
+      "perf5dPct": 0.8,
+      "perf1mPct": -3.74,
+      "perf3mPct": -4.86,
       "sparkline": [
-        526.41,
         496.03,
         498,
         509.39,
@@ -3916,26 +4392,26 @@
         499.81,
         490.64,
         489.94,
-        494.2
+        494.2,
+        501.81
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "BMNR",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/BMNR?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:03.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/BMNR?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:47.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 19.87,
-      "previousClose": 22,
-      "changePct": -9.68,
-      "perf5dPct": -10.37,
-      "perf1mPct": -11.45,
-      "perf3mPct": 2.05,
+      "price": 18.51,
+      "previousClose": 19.87,
+      "changePct": -6.84,
+      "perf5dPct": -19.59,
+      "perf1mPct": -19.35,
+      "perf3mPct": -6.23,
       "sparkline": [
-        20.13,
         19.22,
         19.44,
         21.5,
@@ -3994,26 +4470,26 @@
         21.67,
         21.18,
         22,
-        19.87
+        19.87,
+        18.52
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "TSNF",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSNF?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T19:55:22.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSNF?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T15:48:12.000Z",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 30.27,
-      "previousClose": 31.17,
-      "changePct": -2.9,
-      "perf5dPct": -0.61,
-      "perf1mPct": 9.6,
-      "perf3mPct": 20.39,
+      "price": 29.83,
+      "previousClose": 30.27,
+      "changePct": -1.44,
+      "perf5dPct": -3.9,
+      "perf1mPct": 5.74,
+      "perf3mPct": 21.01,
       "sparkline": [
-        24.98,
         24.66,
         25.15,
         25.34,
@@ -4072,26 +4548,26 @@
         30.58,
         30.89,
         31.17,
-        30.26
+        30.26,
+        29.83
       ],
-      "dataPoints": 95,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "dataPoints": 96,
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "NFLX",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NFLX?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NFLX?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:47.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 87.02,
-      "previousClose": 86.94,
-      "changePct": 0.09,
-      "perf5dPct": -0.54,
-      "perf1mPct": -19.27,
-      "perf3mPct": 9.29,
+      "price": 89.16,
+      "previousClose": 87.02,
+      "changePct": 2.46,
+      "perf5dPct": 4.34,
+      "perf1mPct": -8.38,
+      "perf3mPct": 17.53,
       "sparkline": [
-        78.67,
         76.02,
         78.04,
         82.7,
@@ -4150,26 +4626,26 @@
         87.66,
         87.56,
         86.94,
-        87.02
+        87.02,
+        89.16
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "QQQ",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:48.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 708.93,
-      "previousClose": 719.79,
-      "changePct": -1.51,
-      "perf5dPct": -0.32,
-      "perf1mPct": 10.69,
-      "perf3mPct": 15.63,
+      "price": 699.65,
+      "previousClose": 708.93,
+      "changePct": -1.31,
+      "perf5dPct": -1.91,
+      "perf1mPct": 7.83,
+      "perf3mPct": 16.48,
       "sparkline": [
-        608.81,
         601.41,
         607.87,
         616.68,
@@ -4228,26 +4704,26 @@
         707.24,
         714.71,
         719.79,
-        708.93
+        708.93,
+        699.65
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "IWM",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/IWM?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/IWM?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:46.000Z",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 277.6,
-      "previousClose": 284.45,
-      "changePct": -2.41,
-      "perf5dPct": -2.31,
-      "perf1mPct": 2.83,
-      "perf3mPct": 4.77,
+      "price": 274.97,
+      "previousClose": 277.6,
+      "changePct": -0.95,
+      "perf5dPct": -3.63,
+      "perf1mPct": -0.29,
+      "perf3mPct": 5.95,
       "sparkline": [
-        264.61,
         260.49,
         263.33,
         264.58,
@@ -4306,24 +4782,25 @@
         282.57,
         282.67,
         284.45,
-        277.6
+        277.6,
+        274.97
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "^VIX",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-18T12:13:16.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:15:46.000Z",
       "currency": "USD",
       "exchange": "CXI",
-      "price": 18.54,
+      "price": 18.41,
       "previousClose": 18.43,
-      "changePct": 0.6,
-      "perf5dPct": 0.87,
-      "perf1mPct": 6.06,
-      "perf3mPct": -10.95,
+      "changePct": -0.11,
+      "perf5dPct": 0.16,
+      "perf1mPct": 5.32,
+      "perf3mPct": -11.58,
       "sparkline": [
         21.01,
         19.55,
@@ -4384,24 +4861,24 @@
         17.87,
         17.26,
         18.43,
-        18.54
+        18.41
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T07:00:00.000Z"
     },
     {
       "symbol": "DX-Y.NYB",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-18T12:18:17.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:20:47.000Z",
       "currency": "USD",
       "exchange": "NYB",
-      "price": 99.09,
-      "previousClose": 99.27,
-      "changePct": -0.18,
-      "perf5dPct": 1.17,
-      "perf1mPct": 1.01,
-      "perf3mPct": 2.23,
+      "price": 98.97,
+      "previousClose": 99.28,
+      "changePct": -0.31,
+      "perf5dPct": 1.06,
+      "perf1mPct": 0.89,
+      "perf3mPct": 2.11,
       "sparkline": [
         97.7,
         97.88,
@@ -4462,24 +4939,24 @@
         98.48,
         98.88,
         99.27,
-        99.09
+        98.97
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T04:00:00.000Z"
     },
     {
       "symbol": "BTC-USD",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-18T12:28:13.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:47.000Z",
       "currency": "USD",
       "exchange": "CCC",
-      "price": 77300.73,
-      "previousClose": 77429.35,
-      "changePct": -0.17,
-      "perf5dPct": -2.49,
-      "perf1mPct": -0.09,
-      "perf3mPct": 8.55,
+      "price": 76180.03,
+      "previousClose": 77414.91,
+      "changePct": -1.6,
+      "perf5dPct": -3.91,
+      "perf1mPct": -1.53,
+      "perf3mPct": 6.97,
       "sparkline": [
         70522.59,
         68711.52,
@@ -4540,24 +5017,24 @@
         79065.68,
         78131.44,
         77429.35,
-        77300.73
+        76180.03
       ],
       "dataPoints": 182,
       "lastTimestamp": "2026-05-18T00:00:00.000Z"
     },
     {
       "symbol": "ETH-USD",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/ETH-USD?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-18T12:28:17.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/ETH-USD?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:46.000Z",
       "currency": "USD",
       "exchange": "CCC",
-      "price": 2144.71,
-      "previousClose": 2127.65,
-      "changePct": 0.8,
-      "perf5dPct": -5,
-      "perf1mPct": -6.88,
-      "perf3mPct": 2.27,
+      "price": 2090.33,
+      "previousClose": 2129.87,
+      "changePct": -1.86,
+      "perf5dPct": -7.41,
+      "perf1mPct": -9.24,
+      "perf3mPct": -0.32,
       "sparkline": [
         2146.5,
         2076.69,
@@ -4618,26 +5095,25 @@
         2223.33,
         2179.75,
         2127.65,
-        2144.71
+        2090.33
       ],
       "dataPoints": 182,
       "lastTimestamp": "2026-05-18T00:00:00.000Z"
     },
     {
       "symbol": "TSLA",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSLA?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSLA?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:48.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 422.24,
-      "previousClose": 443.3,
-      "changePct": -4.75,
-      "perf5dPct": -1.43,
-      "perf1mPct": 8.57,
-      "perf3mPct": -1.41,
+      "price": 408.8,
+      "previousClose": 422.24,
+      "changePct": -3.18,
+      "perf5dPct": -8.14,
+      "perf1mPct": 2.04,
+      "perf3mPct": -1.98,
       "sparkline": [
-        411.82,
         399.83,
         409.38,
         417.4,
@@ -4696,26 +5172,26 @@
         433.45,
         445.27,
         443.3,
-        422.24
+        422.24,
+        408.8
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "COIN",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/COIN?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/COIN?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:47.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 195.43,
-      "previousClose": 212.01,
-      "changePct": -7.82,
-      "perf5dPct": -2.85,
-      "perf1mPct": -2.2,
-      "perf3mPct": 27.57,
+      "price": 185.73,
+      "previousClose": 195.43,
+      "changePct": -4.97,
+      "perf5dPct": -14.25,
+      "perf1mPct": -9.99,
+      "perf3mPct": 31.64,
       "sparkline": [
-        171.35,
         160.24,
         162.03,
         183.94,
@@ -4774,26 +5250,26 @@
         207.64,
         201.8,
         212.01,
-        195.43
+        195.43,
+        185.73
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "NVDA",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:00.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:48.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 225.32,
-      "previousClose": 235.74,
-      "changePct": -4.42,
-      "perf5dPct": 4.7,
-      "perf1mPct": 13.6,
-      "perf3mPct": 18.56,
+      "price": 219.79,
+      "previousClose": 225.32,
+      "changePct": -2.46,
+      "perf5dPct": 0.16,
+      "perf1mPct": 8.98,
+      "perf3mPct": 17.57,
       "sparkline": [
-        189.82,
         191.55,
         192.85,
         195.56,
@@ -4852,26 +5328,26 @@
         220.78,
         225.83,
         235.74,
-        225.32
+        225.32,
+        219.79
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "AVGO",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AVGO?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AVGO?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:46.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 425.19,
-      "previousClose": 439.79,
-      "changePct": -3.32,
-      "perf5dPct": -1.12,
-      "perf1mPct": 6.71,
-      "perf3mPct": 24.05,
+      "price": 415.35,
+      "previousClose": 425.19,
+      "changePct": -2.31,
+      "perf5dPct": -3.05,
+      "perf1mPct": 2.17,
+      "perf3mPct": 25.42,
       "sparkline": [
-        332.65,
         330.34,
         325.49,
         332.31,
@@ -4930,26 +5406,26 @@
         419.3,
         416.79,
         439.79,
-        425.19
+        425.19,
+        415.35
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "VRT",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/VRT?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:02.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/VRT?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:46.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 370.94,
-      "previousClose": 376.23,
-      "changePct": -1.41,
-      "perf5dPct": 9.11,
-      "perf1mPct": 26.11,
-      "perf3mPct": 49.27,
+      "price": 334.19,
+      "previousClose": 370.94,
+      "changePct": -9.91,
+      "perf5dPct": -9.17,
+      "perf1mPct": 8.74,
+      "perf3mPct": 41.3,
       "sparkline": [
-        243.75,
         245.42,
         253.15,
         262.19,
@@ -5008,26 +5484,26 @@
         367.13,
         369.99,
         376.23,
-        370.94
+        370.94,
+        334.19
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "GOOGL",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/GOOGL?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/GOOGL?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:46.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 396.78,
-      "previousClose": 401.07,
-      "changePct": -1.07,
-      "perf5dPct": -1,
-      "perf1mPct": 18.08,
-      "perf3mPct": 27.6,
+      "price": 399.7,
+      "previousClose": 396.78,
+      "changePct": 0.74,
+      "perf5dPct": 2.85,
+      "perf1mPct": 16.98,
+      "perf3mPct": 29.35,
       "sparkline": [
-        314.98,
         311.49,
         310.9,
         312.9,
@@ -5086,26 +5562,26 @@
         387.35,
         402.62,
         401.07,
-        396.78
+        396.78,
+        399.7
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     },
     {
       "symbol": "IBIT",
-      "source": "Yahoo Finance chart API (public/unofficial)",
-      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/IBIT?range=6mo&interval=1d&includePrePost=false&events=div%2Csplits",
-      "asOf": "2026-05-15T20:00:01.000Z",
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
+      "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/IBIT?range=1d&interval=1m&includePrePost=true",
+      "asOf": "2026-05-18T16:30:45.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 44.82,
-      "previousClose": 46.17,
-      "changePct": -2.92,
-      "perf5dPct": -1.39,
-      "perf1mPct": 4.89,
-      "perf3mPct": 17.05,
+      "price": 43.12,
+      "previousClose": 44.82,
+      "changePct": -3.79,
+      "perf5dPct": -7.21,
+      "perf1mPct": -1.87,
+      "perf3mPct": 16.38,
       "sparkline": [
-        38.42,
         36.55,
         36.53,
         39.23,
@@ -5164,10 +5640,11 @@
         45.8,
         45.12,
         46.17,
-        44.82
+        44.82,
+        43.12
       ],
       "dataPoints": 124,
-      "lastTimestamp": "2026-05-15T13:30:00.000Z"
+      "lastTimestamp": "2026-05-18T13:30:00.000Z"
     }
   ],
   "liveRatesCredit": [
@@ -5208,16 +5685,16 @@
       "name": "High yield option-adjusted spread",
       "source": "FRED CSV public endpoint",
       "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2",
-      "latestDate": "2026-05-14",
-      "value": 2.76
+      "latestDate": "2026-05-15",
+      "value": 2.8
     },
     {
       "id": "BAMLC0A0CM",
       "name": "Investment grade corporate OAS",
       "source": "FRED CSV public endpoint",
       "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLC0A0CM",
-      "latestDate": "2026-05-14",
-      "value": 0.76
+      "latestDate": "2026-05-15",
+      "value": 0.75
     },
     {
       "id": "DFF",
@@ -5228,460 +5705,5 @@
       "value": 3.63
     }
   ],
-  "liveDataErrors": [],
-  "premarketDecisionLayer": {
-    "date": "2026-05-18",
-    "runAt": "2026-05-18T08:20:00-04:00",
-    "standard": "institutional active position-management; no brokerage/trade execution",
-    "marketBehavior": "regime transition: index breakout extension with VIX/rates watch and speculative distribution pockets",
-    "macro": {
-      "SPY": {
-        "symbol": "SPY",
-        "price": 739.17,
-        "asOf": "2026-05-15T20:00:00.000Z",
-        "prevClose": 748.17,
-        "dayPct": -1.2,
-        "ma20": 723.8,
-        "ma50": 690.04,
-        "ma200": 676.07,
-        "rsi14": 69.61,
-        "atr14": 7.2,
-        "atrPct": 0.97,
-        "volume": 60290000,
-        "avgVol20": 48194870,
-        "relVol": 1.25,
-        "high20": 749.53,
-        "low20": 702.28,
-        "high60": 749.53,
-        "low60": 629.28,
-        "source": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=1y&interval=1d&includePrePost=true"
-      },
-      "QQQ": {
-        "symbol": "QQQ",
-        "price": 708.93,
-        "asOf": "2026-05-15T20:00:00.000Z",
-        "prevClose": 719.79,
-        "dayPct": -1.51,
-        "ma20": 680.36,
-        "ma50": 631.46,
-        "ma200": 610.95,
-        "rsi14": 73.26,
-        "atr14": 10.65,
-        "atrPct": 1.5,
-        "volume": 51687900,
-        "avgVol20": 39178800,
-        "relVol": 1.32,
-        "high20": 722.03,
-        "low20": 642.21,
-        "high60": 722.03,
-        "low60": 555.6,
-        "source": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?range=1y&interval=1d&includePrePost=true"
-      },
-      "VIX": {
-        "symbol": "^VIX",
-        "price": 18.58,
-        "asOf": "2026-05-18T12:06:31.000Z",
-        "prevClose": 18.43,
-        "dayPct": 0.81,
-        "ma20": 18.04,
-        "ma50": 21.45,
-        "ma200": 18.38,
-        "rsi14": 54.05,
-        "atr14": 1.21,
-        "atrPct": 6.54,
-        "volume": 0,
-        "avgVol20": 0,
-        "relVol": null,
-        "high20": 21.56,
-        "low20": 16.18,
-        "high60": 35.3,
-        "low60": 16.18,
-        "source": "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1y&interval=1d&includePrePost=true"
-      },
-      "BTC": {
-        "symbol": "BTC-USD",
-        "price": 77420.81,
-        "asOf": "2026-05-18T12:21:31.000Z",
-        "prevClose": 77429.35,
-        "dayPct": -0.01,
-        "ma20": 79360.95,
-        "ma50": 75645.3,
-        "ma200": 81435.11,
-        "rsi14": 41.03,
-        "atr14": 1926.03,
-        "atrPct": 2.49,
-        "volume": 29938278400,
-        "avgVol20": 32815775323,
-        "relVol": 0.91,
-        "high20": 82792.21,
-        "low20": 74958.57,
-        "high60": 82792.21,
-        "low60": 64971.71,
-        "source": "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?range=1y&interval=1d&includePrePost=true"
-      },
-      "DGS10": {
-        "id": "DGS10",
-        "name": "US 10Y Treasury yield",
-        "source": "FRED CSV public endpoint",
-        "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10",
-        "latestDate": "2026-05-14",
-        "value": 4.47
-      },
-      "T10YIE": {
-        "id": "T10YIE",
-        "name": "10Y breakeven inflation rate",
-        "source": "FRED CSV public endpoint",
-        "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=T10YIE",
-        "latestDate": "2026-05-15",
-        "value": 2.49
-      },
-      "HY_OAS": {
-        "id": "BAMLH0A0HYM2",
-        "name": "High yield option-adjusted spread",
-        "source": "FRED CSV public endpoint",
-        "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2",
-        "latestDate": "2026-05-14",
-        "value": 2.76
-      }
-    },
-    "decisions": [
-      {
-        "ticker": "MSFT",
-        "signal": "HOLD",
-        "price": 421.92,
-        "asOf": "2026-05-15T20:00:01.000Z",
-        "ma20": 417.41,
-        "ma50": 399.06,
-        "ma200": 463.13,
-        "rsi14": 48.12,
-        "atr14": 11.41,
-        "atrPct": 2.7,
-        "volume": 50310800,
-        "avgVol20": 34516840,
-        "relVol": 1.46,
-        "support": "$398.01-$406.57",
-        "resistance": "$430.85-$433.70",
-        "addZone": "add $396.21-$420.26",
-        "trimZone": "trim $431.99-$442.26",
-        "stopReview": "review close < $394.02",
-        "hardExit": "hard exit < $384 or thesis damage",
-        "sizing": "0-2% only on pullback/reclaim",
-        "confidence": 70,
-        "behavior": "accumulation/recovery",
-        "invalidation": "hard exit < $384 or thesis damage",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "AMZN",
-        "signal": "HOLD",
-        "price": 264.14,
-        "asOf": "2026-05-15T20:00:01.000Z",
-        "ma20": 264.53,
-        "ma50": 236.71,
-        "ma200": 229.42,
-        "rsi14": 53.85,
-        "atr14": 7.19,
-        "atrPct": 2.72,
-        "volume": 40672200,
-        "avgVol20": 45770140,
-        "relVol": 0.89,
-        "support": "$245.37-$250.76",
-        "resistance": "$276.76-$278.56",
-        "addZone": "add $234.91-$266.33",
-        "trimZone": "trim $277.48-$283.95",
-        "stopReview": "review close < $242.85",
-        "hardExit": "hard exit < $236",
-        "sizing": "0-2%; total AMZN <16%",
-        "confidence": 66,
-        "behavior": "breakout digestion",
-        "invalidation": "hard exit < $236",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "CEG",
-        "signal": "HOLD / WATCH",
-        "price": 267.2,
-        "asOf": "2026-05-15T20:00:01.000Z",
-        "ma20": 299.36,
-        "ma50": 297.42,
-        "ma200": 325.82,
-        "rsi14": 28.57,
-        "atr14": 14.35,
-        "atrPct": 5.37,
-        "volume": 3829800,
-        "avgVol20": 3256290,
-        "relVol": 1.18,
-        "support": "$266.57-$277.33",
-        "resistance": "$325.21-$328.80",
-        "addZone": "only after reclaim/hold $266.57-$299.36",
-        "trimZone": "trim $326.65-$339.56",
-        "stopReview": "review close < $261.55",
-        "hardExit": "hard exit < $249",
-        "sizing": "no add until repair",
-        "confidence": 58,
-        "behavior": "distribution/panic-risk transition",
-        "invalidation": "hard exit < $249",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "META",
-        "signal": "HOLD",
-        "price": 614.23,
-        "asOf": "2026-05-15T20:00:01.000Z",
-        "ma20": 634.71,
-        "ma50": 621.87,
-        "ma200": 673.42,
-        "rsi14": 25.34,
-        "atr14": 17.27,
-        "atrPct": 2.81,
-        "volume": 13208700,
-        "avgVol20": 15844755,
-        "relVol": 0.83,
-        "support": "$592.60-$605.55",
-        "resistance": "$679.06-$683.38",
-        "addZone": "only after reclaim/hold $592.60-$634.71",
-        "trimZone": "trim $680.79-$696.33",
-        "stopReview": "review close < $586.56",
-        "hardExit": "hard exit < $575",
-        "sizing": "no add; 0-1% only near support after reclaim",
-        "confidence": 61,
-        "behavior": "distribution but quality intact",
-        "invalidation": "hard exit < $575",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "TSLT",
-        "signal": "TRIM WATCH",
-        "price": 20.99,
-        "asOf": "2026-05-15T20:00:00.000Z",
-        "ma20": 19.28,
-        "ma50": 18.28,
-        "ma200": 22.48,
-        "rsi14": 64.61,
-        "atr14": 1.68,
-        "atrPct": 8,
-        "volume": 2939300,
-        "avgVol20": 3456350,
-        "relVol": 0.85,
-        "support": "$15.89-$17.15",
-        "resistance": "$23.88-$24.30",
-        "addZone": "frozen/no-add",
-        "trimZone": "trim $24.05-$25.56",
-        "stopReview": "review close < $15.30",
-        "hardExit": "hard exit < $18.30 or TSLA < $386",
-        "sizing": "levered bucket <=0.75%",
-        "confidence": 55,
-        "behavior": "euphoric extension risk",
-        "invalidation": "hard exit < $18.30 or TSLA < $386",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "CONL",
-        "signal": "EXIT REVIEW",
-        "price": 8.15,
-        "asOf": "2026-05-15T20:00:01.000Z",
-        "ma20": 8.74,
-        "ma50": 8.4,
-        "ma200": 20.88,
-        "rsi14": 47.74,
-        "atr14": 1.26,
-        "atrPct": 15.43,
-        "volume": 34675200,
-        "avgVol20": 22752995,
-        "relVol": 1.52,
-        "support": "$6.94-$7.89",
-        "resistance": "$10.26-$10.57",
-        "addZone": "frozen/no-add",
-        "trimZone": "trim $10.38-$11.52",
-        "stopReview": "review close < $6.50",
-        "hardExit": "hard exit < $6.94 or COIN/BTC breakdown",
-        "sizing": "levered bucket <=0.75%",
-        "confidence": 54,
-        "behavior": "liquidity squeeze/distribution risk",
-        "invalidation": "hard exit < $6.94 or COIN/BTC breakdown",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "SPY",
-        "signal": "HOLD",
-        "price": 739.17,
-        "asOf": "2026-05-15T20:00:00.000Z",
-        "ma20": 723.8,
-        "ma50": 690.04,
-        "ma200": 676.07,
-        "rsi14": 69.61,
-        "atr14": 7.2,
-        "atrPct": 0.97,
-        "volume": 60290000,
-        "avgVol20": 48194870,
-        "relVol": 1.25,
-        "support": "$702.28-$707.68",
-        "resistance": "$747.73-$749.53",
-        "addZone": "add $720.20-$725.60",
-        "trimZone": "trim $748.45-$754.93",
-        "stopReview": "review close < $699.76",
-        "hardExit": "hard exit < $690",
-        "sizing": "core anchor; rebalance if >55%",
-        "confidence": 72,
-        "behavior": "breakout extension",
-        "invalidation": "hard exit < $690",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "MA",
-        "signal": "HOLD",
-        "price": 494.2,
-        "asOf": "2026-05-15T20:00:03.000Z",
-        "ma20": 502.25,
-        "ma50": 502.93,
-        "ma200": 545.06,
-        "rsi14": 44.1,
-        "atr14": 13.11,
-        "atrPct": 2.65,
-        "volume": 3416000,
-        "avgVol20": 3743085,
-        "relVol": 0.91,
-        "support": "$488.01-$497.84",
-        "resistance": "$530.93-$534.21",
-        "addZone": "only after reclaim/hold $488.01-$502.25",
-        "trimZone": "trim $532.24-$544.04",
-        "stopReview": "review close < $483.42",
-        "hardExit": "hard exit < $480",
-        "sizing": "0-1%; keep <5%",
-        "confidence": 65,
-        "behavior": "recovery/value-quality laggard",
-        "invalidation": "hard exit < $480",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "BMNR",
-        "signal": "INVESTIGATE",
-        "price": 19.87,
-        "asOf": "2026-05-15T20:00:03.000Z",
-        "ma20": 21.97,
-        "ma50": 21.31,
-        "ma200": 34.22,
-        "rsi14": 41.8,
-        "atr14": 1.24,
-        "atrPct": 6.22,
-        "volume": 50172700,
-        "avgVol20": 35710870,
-        "relVol": 1.4,
-        "support": "$19.85-$20.78",
-        "resistance": "$23.16-$23.47",
-        "addZone": "frozen/no-add",
-        "trimZone": "trim $23.28-$24.40",
-        "stopReview": "review close < $19.42",
-        "hardExit": "hard exit < $17.84 or thesis unverified",
-        "sizing": "spec bucket; cap <=10-11%",
-        "confidence": 42,
-        "behavior": "high-volume distribution risk",
-        "invalidation": "hard exit < $17.84 or thesis unverified",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "TSNF",
-        "signal": "INVESTIGATE",
-        "price": 30.27,
-        "asOf": "2026-05-15T19:55:22.000Z",
-        "ma20": 29.11,
-        "ma50": 26.54,
-        "ma200": null,
-        "rsi14": 63.84,
-        "atr14": 0.69,
-        "atrPct": 2.27,
-        "volume": 6700,
-        "avgVol20": 5770,
-        "relVol": 1.16,
-        "support": "$27.02-$27.54",
-        "resistance": "$31.09-$31.26",
-        "addZone": "frozen/no-add",
-        "trimZone": "trim $31.09-$31.78",
-        "stopReview": "review close < $26.78",
-        "hardExit": "hard exit < $26.54",
-        "sizing": "micro/liquidity; cap <=2%",
-        "confidence": 45,
-        "behavior": "low-liquidity extension",
-        "invalidation": "hard exit < $26.54",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      },
-      {
-        "ticker": "NFLX",
-        "signal": "HOLD / WATCH",
-        "price": 87.02,
-        "asOf": "2026-05-15T20:00:00.000Z",
-        "ma20": 90.24,
-        "ma50": 94.45,
-        "ma200": 102.56,
-        "rsi14": 34.97,
-        "atr14": 2.35,
-        "atrPct": 2.71,
-        "volume": 31860700,
-        "avgVol20": 37590405,
-        "relVol": 0.85,
-        "support": "$85.10-$86.86",
-        "resistance": "$97.01-$97.60",
-        "addZone": "only after reclaim/hold $85.10-$90.24",
-        "trimZone": "trim $97.01-$99.36",
-        "stopReview": "review close < $84.28",
-        "hardExit": "hard exit < $75",
-        "sizing": "0-1% only if reclaim confirms",
-        "confidence": 60,
-        "behavior": "oversold recovery below MAs",
-        "invalidation": "hard exit < $75",
-        "nextCatalyst": "opening range/live quote, company news/filings, rates/VIX/credit check"
-      }
-    ],
-    "extraReviewed": [
-      {
-        "ticker": "DOGE-USD",
-        "signal": "HOLD / WATCH",
-        "price": 0.11,
-        "addZone": "frozen until Jun quantity/cost basis known",
-        "trimZone": "review if crypto beta rallies into resistance $0.12+",
-        "stopReview": "review < $0.10",
-        "hardExit": "position-specific hard exit frozen without actual exposure",
-        "sizing": "no add; speculative crypto bucket only",
-        "confidence": 45,
-        "behavior": "crypto beta recovery/fragile"
-      },
-      {
-        "ticker": "VOYG option",
-        "signal": "INVESTIGATE",
-        "price": null,
-        "addZone": "frozen: option chain/underlying unavailable",
-        "trimZone": "frozen: need bid/ask, delta, IV, expiry, strike, underlying",
-        "stopReview": "review if mark stale or underlying quote unavailable",
-        "hardExit": "frozen until option terms verified",
-        "sizing": "no add; option risk budget only after chain verified",
-        "confidence": 20,
-        "behavior": "missing-data freeze"
-      }
-    ],
-    "sourceLimitations": [
-      "web_search provider disabled",
-      "YouTube fetch returned raw/truncated metadata only",
-      "Reddit fetch blocked by verification",
-      "Yahoo equity daily bars mostly prior regular close; crypto/VIX fresher premarket"
-    ],
-    "frozenDecisions": [
-      "VOYG option action frozen until option chain/Greeks/bid-ask are available",
-      "DOGE sizing frozen until actual quantity/cost basis is known",
-      "news/community posture changes frozen until search/RSS adapter works"
-    ],
-    "signalValidation": {
-      "sourcePoolChecked": [
-        "Yahoo chart API",
-        "FRED CSV",
-        "SEC submissions metadata",
-        "Finviz charts/metrics",
-        "YouTube channel pages limited",
-        "Reddit blocked"
-      ],
-      "strongestUsefulClaim": "Price/rates/credit tape supports a rates/volatility watch: 10Y 4.47%, VIX ~18.6, SPY/QQQ extended above 20/50/200d while speculative/levered holdings show high ATR.",
-      "strongestCounterclaim": "HY OAS 2.76 remains benign, so systemic risk-off is not confirmed.",
-      "validationStatus": "validated for price/rates/credit; community/news not validated due provider blockage",
-      "decisionImpact": "No add-risk upgrade; preserve core, freeze speculative adds, use zones/triggers."
-    }
-  }
+  "liveDataErrors": []
 }

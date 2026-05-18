@@ -20,6 +20,45 @@ function spark(values){
   return `<svg class="spark" viewBox="0 0 100 52" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="#d7a84c" stroke-width="2" vector-effect="non-scaling-stroke"/><line x1="0" y1="48" x2="100" y2="48" stroke="#312b20"/></svg>`;
 }
 
+function analysisChart(h){
+  const values = list(h.sparkline).filter(v => typeof v === 'number');
+  const model = h.analysisChart || {};
+  if (!values.length || model.status !== 'active') return spark(values);
+  const zoneVals = [model.zones?.buy?.low, model.zones?.buy?.high, model.zones?.trim?.low, model.zones?.trim?.high, model.zones?.stop?.value, model.zones?.hardExit?.value, model.zones?.target?.value, model.current].filter(v => typeof v === 'number');
+  const min = Math.min(...values, ...zoneVals), max = Math.max(...values, ...zoneVals), span = max - min || 1;
+  const x = i => (i/(values.length-1 || 1))*100;
+  const y = v => 92-((v-min)/span)*78;
+  const pts = values.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+  const band = (a,b,cls,label) => {
+    if (typeof a !== 'number' || typeof b !== 'number') return '';
+    const top = Math.min(y(a), y(b)), height = Math.max(2, Math.abs(y(a)-y(b)));
+    return `<rect class="${cls}" x="0" y="${top}" width="100" height="${height}" rx="1.6"></rect><text x="2" y="${Math.max(7, top-2)}" class="chart-label">${esc(label)} ${fmt(a)}–${fmt(b)}</text>`;
+  };
+  const line = (v,cls,label) => typeof v === 'number' ? `<line class="${cls}" x1="0" x2="100" y1="${y(v)}" y2="${y(v)}"></line><text x="67" y="${Math.max(7,y(v)-2)}" class="chart-label">${esc(label)} ${fmt(v)}</text>` : '';
+  const chips = [
+    ['Now', model.current],
+    ['Entry', `${fmt(model.zones?.buy?.low)}–${fmt(model.zones?.buy?.high)}`],
+    ['Stop', model.zones?.stop?.value],
+    ['Hard exit', model.zones?.hardExit?.value],
+    ['Trim', `${fmt(model.zones?.trim?.low)}–${fmt(model.zones?.trim?.high)}`]
+  ];
+  return `<div class="analysis-chart">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="${esc(h.ticker)} analysis chart">
+      ${band(model.zones?.buy?.low, model.zones?.buy?.high, 'buy-zone', 'entry')}
+      ${band(model.zones?.trim?.low, model.zones?.trim?.high, 'trim-zone', 'trim')}
+      ${line(model.zones?.stop?.value, 'stop-line', 'stop')}
+      ${line(model.zones?.hardExit?.value, 'hard-line', 'hard exit')}
+      ${line(model.zones?.target?.value, 'target-line', 'target')}
+      <polyline points="${pts}" fill="none" class="price-line" vector-effect="non-scaling-stroke"/>
+      <circle cx="100" cy="${y(values.at(-1))}" r="1.7" class="now-dot" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="reaction-chips">${chips.map(([k,v])=>`<span><b>${esc(k)}</b>${esc(v ?? 'n/a')}</span>`).join('')}</div>
+    <div class="indicator-strip">${list(model.indicators).map(i=>`<span><b>${esc(i.label)}</b>${esc(i.value)}</span>`).join('')}</div>
+    <div class="chart-caption"><b>${esc(model.bias || 'hold_with_triggers')}</b><span>${esc(model.narrative || '')}</span></div>
+    <p class="operational-read">${esc(model.operationalRead || model.caveat || '')}</p>
+  </div>`;
+}
+
 async function loadState(){
   const errors = [];
   for (const url of dataSources) {
@@ -81,6 +120,39 @@ function renderMarketBoard(state){
   $('market-board').innerHTML = cards.map(c => `<article class="board-card"><span>${esc(c.label)}</span><strong>${esc(c.value ?? 'n/a')}</strong><p>${esc(c.read || '')}</p><small>${esc(c.watch)}</small></article>`).join('');
 }
 
+function renderPortfolioStory(state){
+  const el = $('portfolio-story');
+  if (!el) return;
+  const story = state.portfolioStory || {};
+  const buckets = list(story.buckets);
+  if (!buckets.length) { el.innerHTML = '<p class="muted">Portfolio story not loaded.</p>'; return; }
+  const max = Math.max(...buckets.map(b => b.weightPct || 0), 1);
+  const bucketHtml = buckets.map((b, i) => {
+    const size = 88 + ((b.weightPct || 0) / max) * 108;
+    return `<article class="story-bucket ${esc(b.tone || '')}" style="--size:${size}px;--delay:${i * 80}ms">
+      <div class="story-orb"><strong>${fmt(b.weightPct)}%</strong><span>${esc(b.label)}</span></div>
+      <p>${esc(b.posture)}</p>
+      <small>${esc(list(b.tickers).join(' · ') || 'No tickers')}</small>
+    </article>`;
+  }).join('');
+  const riskHtml = list(story.riskQueue).map(r => `<li><b>${esc(r.ticker)}</b><span>${esc(r.signal)} · score ${esc(r.healthScore)}</span></li>`).join('');
+  const oppHtml = list(story.opportunityQueue).map(o => `<li><b>${esc(o.ticker)}</b><span>${esc(o.signal)} · ${esc(o.theme || '')}</span></li>`).join('');
+  el.innerHTML = `<div class="story-main">
+    <div class="story-center">
+      <span>Current story</span>
+      <strong>${esc(story.currentStory || 'Portfolio state loading')}</strong>
+      <p>${esc(story.objective || '')}</p>
+    </div>
+    <div class="story-buckets">${bucketHtml}</div>
+  </div>
+  <div class="story-rails">
+    <article><span>Risk queue</span><ul>${riskHtml || '<li>No risk queue loaded.</li>'}</ul></article>
+    <article><span>Opportunity queue</span><ul>${oppHtml || '<li>No opportunity queue loaded.</li>'}</ul></article>
+    <article><span>Allowed now</span><ul>${list(story.allowedNow).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>
+    <article><span>Forbidden now</span><ul>${list(story.forbiddenNow).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>
+  </div>`;
+}
+
 function renderOpportunities(state){
   const opportunities = list(state.strategy?.opportunityScout || state.opportunityScout);
   $('opportunities').innerHTML = opportunities.map(o => `<article class="card opportunity research-card">
@@ -103,7 +175,7 @@ function renderOpportunities(state){
 function renderHoldings(state){
   $('holdings').innerHTML = list(state.holdings).map(h => `<article class="card">
     <div class="ticker"><div><b>${esc(h.ticker)}</b><br><small>${esc(h.exposureBucket)}</small></div><div style="text-align:right"><b>$${fmt(h.livePrice)}</b><br><small class="${tone(h.dayChangePct)}">${pct(h.dayChangePct)}</small></div></div>
-    ${spark(h.sparkline)}
+    ${analysisChart(h)}
     <span class="signal ${h.computedSignal?.includes('EXIT')||h.computedSignal?.includes('TRIM')?'bad':h.computedSignal?.includes('WATCH')||h.computedSignal?.includes('INVEST')?'warn':'good'}">${esc(h.computedSignal || h.signal || 'Review')}</span>
     <div class="rows">
       <div class="row"><span>Health score</span><b>${esc(h.healthScore ?? 'n/a')}</b></div>
@@ -168,7 +240,7 @@ function render(state){
   $('weakest').textContent = strategy.weakestHolding || state.finalOutput?.weakestCurrentHolding || '-';
   $('highest-risk').textContent = strategy.highestRiskPosition || state.riskOfficer?.highestRiskPosition || '-';
   $('triggers').innerHTML = list(strategy.watchTriggers).map(t=>`<li>${esc(t)}</li>`).join('') || '<li>No triggers loaded.</li>';
-  renderBrief(state); renderExposure(state); renderForces(state); renderMarketBoard(state); renderOpportunities(state); renderHoldings(state); renderMarket(state); renderRates(state); renderSources(state);
+  renderBrief(state); renderPortfolioStory(state); renderExposure(state); renderForces(state); renderMarketBoard(state); renderOpportunities(state); renderHoldings(state); renderMarket(state); renderRates(state); renderSources(state);
   $('notice').textContent = `Sources: ${list(state.meta?.liveDataSources).join(' · ') || 'source list unavailable'}. Public-data research system; not an automatic broker.`;
 }
 

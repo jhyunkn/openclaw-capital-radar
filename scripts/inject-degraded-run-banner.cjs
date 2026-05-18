@@ -1,0 +1,16 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const indexPath = path.join(root, 'index.html');
+if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
+const banner = `<section id="run-mode-banner" class="panel run-mode-banner"><div><p class="eyebrow">Run mode</p><h2>Operational audit from local snapshot</h2></div><p>Mission preflight degraded this run: web_search is unavailable. Opportunity Scout and dashboard checks are updated from existing local/public-data state only; no fresh external/news research is claimed here.</p></section>`;
+const css = `<style>.run-mode-banner{display:grid;grid-template-columns:minmax(220px,.7fr) 1.3fr;gap:18px;align-items:center;border-color:rgba(157,59,48,.35);background:rgba(157,59,48,.08)}.run-mode-banner h2{margin:0;font-size:28px;line-height:1;letter-spacing:-.045em}.run-mode-banner p:last-child{margin:0;color:rgba(36,35,31,.78)}@media(max-width:760px){.run-mode-banner{grid-template-columns:1fr}}</style>`;
+let html = fs.readFileSync(indexPath, 'utf8');
+html = html.replace(/<style>\.run-mode-banner[\s\S]*?<\/style>/, '');
+html = html.replace(/<section id="run-mode-banner"[\s\S]*?<\/section>/, '');
+html = html.replace('</head>', `${css}</head>`);
+const anchor = '<div class="topbar"';
+if (html.includes(anchor)) html = html.replace(anchor, `${banner}${anchor}`);
+else html = html.replace(/(<main[^>]*>)/, `$1${banner}`);
+fs.writeFileSync(indexPath, html);
+console.log('injected degraded run banner');

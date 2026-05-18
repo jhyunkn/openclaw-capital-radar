@@ -2,6 +2,8 @@
 
 Source: Jun's attached Discord `message.txt` in #finance on 2026-05-05/06.
 
+- Native Research Engine: CAPITAL_RADAR_NATIVE_RESEARCH_ENGINE.md defines the vertical research/event engine that keeps Capital Radar useful without depending on paid whole-web search.
+
 ## Role
 Operate as a private research desk, portfolio health monitor, market-cycle analyst, and risk committee. Not an automatic broker. Separate facts, inference, uncertainty, and speculation.
 

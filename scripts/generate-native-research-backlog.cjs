@@ -1,0 +1,77 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const backlog = {
+  generatedAt: new Date().toISOString(),
+  mode: 'LOCAL_DESIGN_NO_WEB_SEARCH',
+  thesis: 'Build a Capital Radar-native vertical research engine that is narrower than Brave/Perplexity but more relevant to Jun\'s portfolio, opportunity taste, and action rules.',
+  buildPrinciples: [
+    'Do not crawl the whole internet; index the right evidence.',
+    'Use paid/open web search only as optional external context, not the foundation.',
+    'Convert every source into evidence, events, candidates, implications, and outcomes.',
+    'Detect that something happened even when exact headline causality is unavailable.',
+    'Creative opportunity generation must remain behind evidence and risk gates.'
+  ],
+  phases: [
+    {
+      phase: 1,
+      name: 'Native Event Spine',
+      goal: 'Detect market/source events and convert them into portfolio implications.',
+      tasks: [
+        'Create source-registry schema and initial curated source list.',
+        'Create normalized event schema for filings, source updates, price moves, macro shifts, sector rotations, and watchlist discoveries.',
+        'Generate daily event ledger output under outputs/native-events.json.',
+        'Add dashboard panel for event severity, freshness, affected tickers, and action permission.',
+        'Wire market-stress-brief into event ledger.'
+      ]
+    },
+    {
+      phase: 2,
+      name: 'Research Repository',
+      goal: 'Store searchable evidence without storing the whole web.',
+      tasks: [
+        'Create document/evidence store structure.',
+        'Store URL, fetchedAt, sourceId, extractedText, summary, claims, ticker/theme tags, and reliability tier.',
+        'Keep raw text for primary sources; summarize and discard low-value raw HTML.',
+        'Add source reliability ledger.',
+        'Add local keyword search; add vector index only after schema stabilizes.'
+      ]
+    },
+    {
+      phase: 3,
+      name: 'Creative Opportunity Engine',
+      goal: 'Produce odd/asymmetric ideas from anomalies, themes, and adjacency graphs.',
+      tasks: [
+        'Build bad-day scanner: relative strength, worst pressure pockets, support proximity, and thesis-damage check.',
+        'Build reverse-theme maps for power scarcity, grid, nuclear, space infrastructure, AI operating layer, human data, medical infrastructure, and consumer health.',
+        'Generate supplier/customer/competitor/ETF adjacency lists for candidates.',
+        'Create candidate packet generator with why interesting, why now, invalidation, confirmation, price zone, portfolio role, and risk budget.',
+        'Add lanes: tactical dislocation, structural compounder, speculative optionality, risk-substitution, hedge/protection, theme basket, contrarian repair.'
+      ]
+    },
+    {
+      phase: 4,
+      name: 'Optional External Search Layer',
+      goal: 'Use Brave/Perplexity/Tavily/SearXNG only to augment internal research.',
+      tasks: [
+        'Add provider adapter behind source/evidence gate.',
+        'Require external search claims to cite source and confidence.',
+        'Compare external-search results against native engine detections.',
+        'Track whether external search materially improved decisions in outcome ledger.'
+      ]
+    }
+  ],
+  immediateNextBuild: [
+    'Create source-registry JSON for curated Capital Radar sources.',
+    'Create native event schema + generator.',
+    'Turn market-stress-brief into first native event producer.',
+    'Add a dashboard Native Research Engine status panel.',
+    'Create storage policy and retention rules before collecting large text corpora.'
+  ]
+};
+for (const rel of ['outputs/native-research-engine-backlog.json', 'public/outputs/native-research-engine-backlog.json']) {
+  const p = path.join(root, rel);
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, JSON.stringify(backlog, null, 2));
+}
+console.log(JSON.stringify({ wrote: 'outputs/native-research-engine-backlog.json', phases: backlog.phases.length, next: backlog.immediateNextBuild.length }, null, 2));

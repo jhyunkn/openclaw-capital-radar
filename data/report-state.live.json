@@ -3,7 +3,7 @@
     "reportName": "OpenClaw Capital Radar",
     "reportDate": "2026-05-18",
     "targetTime": "8:30 AM America/New_York",
-    "dataStatus": "PARTIAL_LIVE_PUBLIC_DATA",
+    "dataStatus": "LIVE_PUBLIC_DATA",
     "purpose": "Trading-day market-open financial intelligence report for Jun; not an automatic broker.",
     "sourceSpec": "CAPITAL_RADAR_SPEC.md",
     "precedentBasis": [
@@ -13,12 +13,25 @@
       "World Bank/JPMorgan/BlackRock: report-native chartbook and committee framing",
       "Visual Capitalist/OWID: explanatory visual/narrative synthesis"
     ],
-    "generatedAt": "2026-05-18T18:25:33.742Z",
+    "generatedAt": "2026-05-18T19:55:33.070Z",
     "liveDataSources": [
       "Yahoo Finance chart API public/unofficial endpoint",
       "FRED public CSV endpoint",
       "SEC submissions JSON public endpoint"
-    ]
+    ],
+    "holdingDataContract": {
+      "requiredFields": [
+        "forwardPE",
+        "fcfYield",
+        "nextEarningsDate",
+        "source",
+        "sourceAsOf",
+        "confidence"
+      ],
+      "normalizedAtBuild": "2026-05-18T19:55:37.186Z",
+      "policy": "Missing values are explicit nulls with confidence=missing; no synthetic fundamentals or earnings dates are invented."
+    },
+    "normalizedAtBuild": "2026-05-18T19:55:37.186Z"
   },
   "marketRegime": {
     "posture": "HOLD / WATCH",
@@ -27,7 +40,7 @@
     "inflation": "Live proxy: breakeven/rates check required; see FRED T10YIE",
     "policy": "Live: 10Y Treasury 4.47% (rate pressure present)",
     "liquidity": "Live: HY OAS 2.8",
-    "riskAppetite": "Live: VIX 18.49; risk watch",
+    "riskAppetite": "Live: VIX 18.11; risk watch",
     "mostImportantMacroSignal": "2Y/10Y curve is 0.47 pts; watch rate pressure and cycle signal.",
     "confidence": "Medium for prices/rates; low for fundamentals/news until adapters are added.",
     "evidence": [
@@ -53,12 +66,12 @@
       "thesis": "Enterprise cloud + AI infrastructure durability.",
       "watch": "AI capex efficiency, antitrust, valuation compression.",
       "actionRationale": "Keep as core unless earnings revisions or valuation expectations materially deteriorate.",
-      "livePrice": 423.96,
-      "priceAsOf": "2026-05-18T18:25:29.000Z",
-      "dayChangePct": 0.48,
-      "perf5dPct": 2.74,
-      "perf1mPct": 0.28,
-      "perf3mPct": 5.51,
+      "livePrice": 422.8,
+      "priceAsOf": "2026-05-18T19:55:27.000Z",
+      "dayChangePct": 0.21,
+      "perf5dPct": 2.46,
+      "perf1mPct": 0,
+      "perf3mPct": 5.22,
       "sparkline": [
         384.47,
         389,
@@ -119,12 +132,12 @@
         405.21,
         409.43,
         421.92,
-        423.96
+        422.8
       ],
-      "marketValue": 1271.88,
+      "marketValue": 1268.4,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 2.12,
+      "portfolioWeightPct": 2.1,
       "healthScore": 78,
       "computedSignal": "HOLD",
       "ratingBreakdown": [
@@ -143,28 +156,28 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 423.96,
+        "current": 422.8,
         "zones": {
           "buy": {
-            "low": 390,
-            "high": 407,
+            "low": 389,
+            "high": 406,
             "label": "entry watch"
           },
           "trim": {
-            "low": 475,
-            "high": 509,
+            "low": 474,
+            "high": 507,
             "label": "trim / protect"
           },
           "stop": {
-            "value": 365,
+            "value": 364,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 348,
+            "value": 347,
             "label": "hard exit review"
           },
           "target": {
-            "value": 500,
+            "value": 499,
             "label": "target / resistance"
           }
         },
@@ -175,11 +188,11 @@
           },
           {
             "label": "5D trend",
-            "value": "2.74%"
+            "value": "2.46%"
           },
           {
             "label": "1M trend",
-            "value": "0.28%"
+            "value": "0%"
           },
           {
             "label": "distance to stop",
@@ -187,12 +200,53 @@
           },
           {
             "label": "distance to entry mid",
-            "value": "6.39%"
+            "value": "6.36%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "MSFT",
+        "exposureType": "low_vol_quality",
+        "realizedVol20Pct": 29.5,
+        "addPct": -1.76,
+        "trimPct": 9.37,
+        "riskReviewPct": -6.95,
+        "addPrice": 415.36,
+        "trimPrice": 462.42,
+        "riskReviewPrice": 393.42
       }
     },
     {
@@ -204,12 +258,12 @@
       "thesis": "AWS + ads + retail margin discipline.",
       "watch": "Consumer slowdown, AWS competition, fulfillment costs.",
       "actionRationale": "Core hold; monitor whether AWS acceleration offsets consumer softness.",
-      "livePrice": 263.4,
-      "priceAsOf": "2026-05-18T18:25:28.000Z",
-      "dayChangePct": -0.28,
-      "perf5dPct": -2.08,
-      "perf1mPct": 5.13,
-      "perf3mPct": 31.97,
+      "livePrice": 264.64,
+      "priceAsOf": "2026-05-18T19:55:27.000Z",
+      "dayChangePct": 0.19,
+      "perf5dPct": -1.62,
+      "perf1mPct": 5.62,
+      "perf3mPct": 32.59,
       "sparkline": [
         205.27,
         208.56,
@@ -270,12 +324,12 @@
         270.13,
         267.22,
         264.14,
-        263.4
+        264.63
       ],
-      "marketValue": 8773.85,
+      "marketValue": 8815.16,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 14.63,
+      "portfolioWeightPct": 14.61,
       "healthScore": 70,
       "computedSignal": "HOLD",
       "ratingBreakdown": [
@@ -289,28 +343,28 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 263.4,
+        "current": 264.64,
         "zones": {
           "buy": {
-            "low": 242,
-            "high": 253,
+            "low": 243,
+            "high": 254,
             "label": "entry watch"
           },
           "trim": {
-            "low": 295,
-            "high": 316,
+            "low": 296,
+            "high": 318,
             "label": "trim / protect"
           },
           "stop": {
-            "value": 227,
+            "value": 228,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 216,
+            "value": 217,
             "label": "hard exit review"
           },
           "target": {
-            "value": 311,
+            "value": 312,
             "label": "target / resistance"
           }
         },
@@ -321,24 +375,65 @@
           },
           {
             "label": "5D trend",
-            "value": "-2.08%"
+            "value": "-1.62%"
           },
           {
             "label": "1M trend",
-            "value": "5.13%"
+            "value": "5.62%"
           },
           {
             "label": "distance to stop",
-            "value": "16.04%"
+            "value": "16.07%"
           },
           {
             "label": "distance to entry mid",
-            "value": "6.42%"
+            "value": "6.49%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "AMZN",
+        "exposureType": "standard_equity",
+        "realizedVol20Pct": 20.99,
+        "addPct": -2.19,
+        "trimPct": 13.25,
+        "riskReviewPct": -10.5,
+        "addPrice": 258.85,
+        "trimPrice": 299.7,
+        "riskReviewPrice": 236.85
       }
     },
     {
@@ -350,12 +445,12 @@
       "thesis": "Nuclear scarcity + data-center electricity demand.",
       "watch": "Crowded AI-power narrative, regulation, valuation stretch.",
       "actionRationale": "Keep but watch expectation risk; do not add blindly into narrative heat.",
-      "livePrice": 260.8,
-      "priceAsOf": "2026-05-18T18:25:27.000Z",
-      "dayChangePct": -2.4,
-      "perf5dPct": -12.98,
-      "perf1mPct": -11.95,
-      "perf3mPct": -5.55,
+      "livePrice": 261.86,
+      "priceAsOf": "2026-05-18T19:55:24.000Z",
+      "dayChangePct": -2,
+      "perf5dPct": -12.62,
+      "perf1mPct": -11.6,
+      "perf3mPct": -5.16,
       "sparkline": [
         293.8,
         312.64,
@@ -416,12 +511,12 @@
         274.89,
         275.26,
         267.2,
-        260.8
+        261.86
       ],
-      "marketValue": 782.4,
+      "marketValue": 785.58,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 1.31,
+      "portfolioWeightPct": 1.3,
       "healthScore": 60,
       "computedSignal": "HOLD / WATCH",
       "ratingBreakdown": [
@@ -445,16 +540,16 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 260.8,
+        "current": 261.86,
         "zones": {
           "buy": {
-            "low": 235,
-            "high": 245,
+            "low": 236,
+            "high": 246,
             "label": "entry watch"
           },
           "trim": {
-            "low": 287,
-            "high": 303,
+            "low": 288,
+            "high": 304,
             "label": "trim / protect"
           },
           "stop": {
@@ -462,11 +557,11 @@
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 219,
+            "value": 220,
             "label": "hard exit review"
           },
           "target": {
-            "value": 300,
+            "value": 301,
             "label": "target / resistance"
           }
         },
@@ -477,24 +572,65 @@
           },
           {
             "label": "5D trend",
-            "value": "-12.98%"
+            "value": "-12.62%"
           },
           {
             "label": "1M trend",
-            "value": "-11.95%"
+            "value": "-11.6%"
           },
           {
             "label": "distance to stop",
-            "value": "13.39%"
+            "value": "13.85%"
           },
           {
             "label": "distance to entry mid",
-            "value": "8.67%"
+            "value": "8.66%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "CEG",
+        "exposureType": "standard_equity",
+        "realizedVol20Pct": 53.75,
+        "addPct": -3.17,
+        "trimPct": 18.75,
+        "riskReviewPct": -15.21,
+        "addPrice": 253.56,
+        "trimPrice": 310.96,
+        "riskReviewPrice": 222.02
       }
     },
     {
@@ -506,12 +642,12 @@
       "thesis": "Ad engine resilience + AI engagement + operating leverage.",
       "watch": "AI capex, regulation, metaverse spend creep.",
       "actionRationale": "Core hold while ad momentum and margins support thesis.",
-      "livePrice": 610.97,
-      "priceAsOf": "2026-05-18T18:25:24.000Z",
-      "dayChangePct": -0.53,
-      "perf5dPct": 2.02,
-      "perf1mPct": -11.27,
-      "perf3mPct": -5.98,
+      "livePrice": 610.2,
+      "priceAsOf": "2026-05-18T19:55:28.000Z",
+      "dayChangePct": -0.66,
+      "perf5dPct": 1.89,
+      "perf1mPct": -11.38,
+      "perf3mPct": -6.1,
       "sparkline": [
         637.25,
         639.3,
@@ -572,12 +708,12 @@
         616.63,
         618.43,
         614.23,
-        610.97
+        610.2
       ],
-      "marketValue": 5089.38,
+      "marketValue": 5082.97,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "AI / infrastructure compounder",
-      "portfolioWeightPct": 8.49,
+      "portfolioWeightPct": 8.42,
       "healthScore": 64,
       "computedSignal": "HOLD / WATCH",
       "ratingBreakdown": [
@@ -596,16 +732,16 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 610.97,
+        "current": 610.2,
         "zones": {
           "buy": {
-            "low": 562,
-            "high": 587,
+            "low": 561,
+            "high": 586,
             "label": "entry watch"
           },
           "trim": {
-            "low": 684,
-            "high": 733,
+            "low": 683,
+            "high": 732,
             "label": "trim / protect"
           },
           "stop": {
@@ -613,11 +749,11 @@
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 501,
+            "value": 500,
             "label": "hard exit review"
           },
           "target": {
-            "value": 721,
+            "value": 720,
             "label": "target / resistance"
           }
         },
@@ -628,24 +764,65 @@
           },
           {
             "label": "5D trend",
-            "value": "2.02%"
+            "value": "1.89%"
           },
           {
             "label": "1M trend",
-            "value": "-11.27%"
+            "value": "-11.38%"
           },
           {
             "label": "distance to stop",
-            "value": "16.38%"
+            "value": "16.23%"
           },
           {
             "label": "distance to entry mid",
-            "value": "6.35%"
+            "value": "6.4%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "META",
+        "exposureType": "standard_equity",
+        "realizedVol20Pct": 36.99,
+        "addPct": -2.57,
+        "trimPct": 15.4,
+        "riskReviewPct": -12.34,
+        "addPrice": 594.51,
+        "trimPrice": 704.16,
+        "riskReviewPrice": 534.89
       }
     },
     {
@@ -657,12 +834,12 @@
       "thesis": "Tactical volatility income only.",
       "watch": "Decay, path dependency, TSLA volatility, misunderstood yield.",
       "actionRationale": "Treat as risk product, not investment compounder; trim if portfolio risk budget tightens.",
-      "livePrice": 19.51,
-      "priceAsOf": "2026-05-18T18:25:27.000Z",
-      "dayChangePct": -7.05,
-      "perf5dPct": -16.94,
-      "perf1mPct": 0.77,
-      "perf3mPct": -12.08,
+      "livePrice": 19.7,
+      "priceAsOf": "2026-05-18T19:55:18.000Z",
+      "dayChangePct": -6.12,
+      "perf5dPct": -16.11,
+      "perf1mPct": 1.78,
+      "perf3mPct": -11.2,
       "sparkline": [
         20.26,
         21.22,
@@ -723,9 +900,9 @@
         23.44,
         23.22,
         20.99,
-        19.51
+        19.7
       ],
-      "marketValue": 292.65,
+      "marketValue": 295.5,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Levered / decay product",
       "portfolioWeightPct": 0.49,
@@ -752,7 +929,7 @@
         "status": "active",
         "profile": "tactical_risk",
         "bias": "protect_capital",
-        "current": 19.51,
+        "current": 19.7,
         "zones": {
           "buy": {
             "low": 20.5,
@@ -784,24 +961,65 @@
           },
           {
             "label": "5D trend",
-            "value": "-16.94%"
+            "value": "-16.11%"
           },
           {
             "label": "1M trend",
-            "value": "0.77%"
+            "value": "1.78%"
           },
           {
             "label": "distance to stop",
-            "value": "2.68%"
+            "value": "3.68%"
           },
           {
             "label": "distance to entry mid",
-            "value": "-8.19%"
+            "value": "-7.29%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Use strength to reduce fragility; do not average down below invalidation.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "TSLT",
+        "exposureType": "levered",
+        "realizedVol20Pct": 81.22,
+        "addPct": -8.8,
+        "trimPct": 30.56,
+        "riskReviewPct": -30.56,
+        "addPrice": 17.97,
+        "trimPrice": 25.72,
+        "riskReviewPrice": 13.68
       }
     },
     {
@@ -813,12 +1031,12 @@
       "thesis": "Crypto liquidity upside via Coinbase beta.",
       "watch": "Leverage decay, crypto drawdowns, correlated risk.",
       "actionRationale": "Requires explicit reason to keep; hidden correlation and decay make it a review priority.",
-      "livePrice": 7.28,
-      "priceAsOf": "2026-05-18T18:25:24.000Z",
-      "dayChangePct": -10.67,
-      "perf5dPct": -28.21,
-      "perf1mPct": -24.09,
-      "perf3mPct": 41.36,
+      "livePrice": 7.65,
+      "priceAsOf": "2026-05-18T19:55:27.000Z",
+      "dayChangePct": -6.14,
+      "perf5dPct": -24.56,
+      "perf1mPct": -20.24,
+      "perf3mPct": 48.53,
       "sparkline": [
         6.44,
         6.57,
@@ -879,12 +1097,12 @@
         8.8,
         9.66,
         8.15,
-        7.28
+        7.65
       ],
-      "marketValue": 291.2,
+      "marketValue": 306,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Levered / decay product",
-      "portfolioWeightPct": 0.49,
+      "portfolioWeightPct": 0.51,
       "healthScore": 42,
       "computedSignal": "EXIT REVIEW",
       "ratingBreakdown": [
@@ -913,7 +1131,7 @@
         "status": "active",
         "profile": "tactical_risk",
         "bias": "hard_exit_review",
-        "current": 7.28,
+        "current": 7.65,
         "zones": {
           "buy": {
             "low": 8.2,
@@ -945,24 +1163,65 @@
           },
           {
             "label": "5D trend",
-            "value": "-28.21%"
+            "value": "-24.56%"
           },
           {
             "label": "1M trend",
-            "value": "-24.09%"
+            "value": "-20.24%"
           },
           {
             "label": "distance to stop",
-            "value": "-6.67%"
+            "value": "-1.92%"
           },
           {
             "label": "distance to entry mid",
-            "value": "-13.33%"
+            "value": "-8.93%"
           }
         ],
         "operationalRead": "Below hard-exit level: do not treat as bargain; escalate exit/review.",
         "narrative": "Use strength to reduce fragility; do not average down below invalidation.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "CONL",
+        "exposureType": "levered",
+        "realizedVol20Pct": 147.21,
+        "addPct": -9.88,
+        "trimPct": 34,
+        "riskReviewPct": -34,
+        "addPrice": 6.89,
+        "trimPrice": 10.25,
+        "riskReviewPrice": 5.05
       }
     },
     {
@@ -974,12 +1233,12 @@
       "thesis": "Benchmark and opportunity-cost anchor.",
       "watch": "Index concentration and broad market drawdown.",
       "actionRationale": "Keep as baseline unless portfolio strategy changes.",
-      "livePrice": 734.43,
-      "priceAsOf": "2026-05-18T18:25:29.000Z",
-      "dayChangePct": -0.64,
-      "perf5dPct": -0.66,
-      "perf1mPct": 3.42,
-      "perf3mPct": 7.8,
+      "livePrice": 738.42,
+      "priceAsOf": "2026-05-18T19:55:19.000Z",
+      "dayChangePct": -0.1,
+      "perf5dPct": -0.12,
+      "perf1mPct": 3.98,
+      "perf3mPct": 8.39,
       "sparkline": [
         682.39,
         687.35,
@@ -1040,12 +1299,12 @@
         742.31,
         748.17,
         739.17,
-        734.43
+        738.42
       ],
-      "marketValue": 31749.41,
+      "marketValue": 31921.9,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Index anchor",
-      "portfolioWeightPct": 52.96,
+      "portfolioWeightPct": 52.9,
       "healthScore": 78,
       "computedSignal": "HOLD",
       "ratingBreakdown": [
@@ -1064,28 +1323,28 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 734.43,
+        "current": 738.42,
         "zones": {
           "buy": {
-            "low": 676,
-            "high": 705,
+            "low": 679,
+            "high": 709,
             "label": "entry watch"
           },
           "trim": {
-            "low": 823,
-            "high": 881,
+            "low": 827,
+            "high": 886,
             "label": "trim / protect"
           },
           "stop": {
-            "value": 632,
+            "value": 635,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 602,
+            "value": 606,
             "label": "hard exit review"
           },
           "target": {
-            "value": 867,
+            "value": 871,
             "label": "target / resistance"
           }
         },
@@ -1096,24 +1355,65 @@
           },
           {
             "label": "5D trend",
-            "value": "-0.66%"
+            "value": "-0.12%"
           },
           {
             "label": "1M trend",
-            "value": "3.42%"
+            "value": "3.98%"
           },
           {
             "label": "distance to stop",
-            "value": "16.21%"
+            "value": "16.29%"
           },
           {
             "label": "distance to entry mid",
-            "value": "6.36%"
+            "value": "6.4%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "SPY",
+        "exposureType": "low_vol_quality",
+        "realizedVol20Pct": 10.68,
+        "addPct": -1.68,
+        "trimPct": 9,
+        "riskReviewPct": -6.63,
+        "addPrice": 726.05,
+        "trimPrice": 804.88,
+        "riskReviewPrice": 689.5
       }
     },
     {
@@ -1125,12 +1425,12 @@
       "thesis": "Secular payments, pricing power, high-margin network.",
       "watch": "Consumer stress, regulation, valuation.",
       "actionRationale": "Core quality compounder; compare against SPY opportunity cost.",
-      "livePrice": 502.72,
-      "priceAsOf": "2026-05-18T18:25:27.000Z",
-      "dayChangePct": 1.72,
-      "perf5dPct": 0.99,
-      "perf1mPct": -3.56,
-      "perf3mPct": -4.69,
+      "livePrice": 505.01,
+      "priceAsOf": "2026-05-18T19:55:18.000Z",
+      "dayChangePct": 2.19,
+      "perf5dPct": 1.45,
+      "perf1mPct": -3.13,
+      "perf3mPct": -4.26,
       "sparkline": [
         496.03,
         498,
@@ -1191,9 +1491,9 @@
         490.64,
         489.94,
         494.2,
-        502.72
+        505.01
       ],
-      "marketValue": 2015.91,
+      "marketValue": 2025.09,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Core compounder",
       "portfolioWeightPct": 3.36,
@@ -1215,28 +1515,28 @@
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 502.72,
+        "current": 505.01,
         "zones": {
           "buy": {
-            "low": 463,
-            "high": 483,
+            "low": 465,
+            "high": 485,
             "label": "entry watch"
           },
           "trim": {
-            "low": 563,
-            "high": 603,
+            "low": 566,
+            "high": 606,
             "label": "trim / protect"
           },
           "stop": {
-            "value": 432,
+            "value": 434,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 412,
+            "value": 414,
             "label": "hard exit review"
           },
           "target": {
-            "value": 593,
+            "value": 596,
             "label": "target / resistance"
           }
         },
@@ -1247,24 +1547,65 @@
           },
           {
             "label": "5D trend",
-            "value": "0.99%"
+            "value": "1.45%"
           },
           {
             "label": "1M trend",
-            "value": "-3.56%"
+            "value": "-3.13%"
           },
           {
             "label": "distance to stop",
-            "value": "16.37%"
+            "value": "16.36%"
           },
           {
             "label": "distance to entry mid",
-            "value": "6.28%"
+            "value": "6.32%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "MA",
+        "exposureType": "low_vol_quality",
+        "realizedVol20Pct": 27.49,
+        "addPct": -1.71,
+        "trimPct": 9.14,
+        "riskReviewPct": -6.75,
+        "addPrice": 496.39,
+        "trimPrice": 551.18,
+        "riskReviewPrice": 470.93
       }
     },
     {
@@ -1276,12 +1617,12 @@
       "thesis": "Potential asymmetry if thesis is real.",
       "watch": "Information quality, liquidity, thesis uncertainty.",
       "actionRationale": "No action until thesis, filings, liquidity, and downside case are verified.",
-      "livePrice": 18.41,
-      "priceAsOf": "2026-05-18T18:25:27.000Z",
-      "dayChangePct": -7.34,
-      "perf5dPct": -20.02,
-      "perf1mPct": -19.77,
-      "perf3mPct": -6.73,
+      "livePrice": 18.84,
+      "priceAsOf": "2026-05-18T19:55:18.000Z",
+      "dayChangePct": -5.16,
+      "perf5dPct": -18.14,
+      "perf1mPct": -17.89,
+      "perf3mPct": -4.53,
       "sparkline": [
         19.22,
         19.44,
@@ -1342,12 +1683,12 @@
         21.18,
         22,
         19.87,
-        18.41
+        18.84
       ],
-      "marketValue": 6259.4,
+      "marketValue": 6405.6,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Speculative / thesis verification",
-      "portfolioWeightPct": 10.44,
+      "portfolioWeightPct": 10.62,
       "healthScore": 44,
       "computedSignal": "INVESTIGATE",
       "ratingBreakdown": [
@@ -1376,28 +1717,28 @@
         "status": "active",
         "profile": "speculative_verification",
         "bias": "freeze_until_verified",
-        "current": 18.41,
+        "current": 18.84,
         "zones": {
           "buy": {
-            "low": 16.2,
-            "high": 17.12,
+            "low": 16.58,
+            "high": 17.52,
             "label": "entry watch"
           },
           "trim": {
-            "low": 19.88,
-            "high": 21.17,
+            "low": 20.35,
+            "high": 21.67,
             "label": "trim / protect"
           },
           "stop": {
-            "value": 16.57,
+            "value": 16.96,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 15.65,
+            "value": 16.01,
             "label": "hard exit review"
           },
           "target": {
-            "value": 20.99,
+            "value": 21.48,
             "label": "target / resistance"
           }
         },
@@ -1408,15 +1749,15 @@
           },
           {
             "label": "5D trend",
-            "value": "-20.02%"
+            "value": "-18.14%"
           },
           {
             "label": "1M trend",
-            "value": "-19.77%"
+            "value": "-17.89%"
           },
           {
             "label": "distance to stop",
-            "value": "11.1%"
+            "value": "11.08%"
           },
           {
             "label": "distance to entry mid",
@@ -1426,6 +1767,47 @@
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Chart can guide timing, but action is frozen until thesis/liquidity/downside are verified.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "BMNR",
+        "exposureType": "high_vol_speculative",
+        "realizedVol20Pct": 69.15,
+        "addPct": -6.95,
+        "trimPct": 25.83,
+        "riskReviewPct": -25.81,
+        "addPrice": 17.53,
+        "trimPrice": 23.71,
+        "riskReviewPrice": 13.98
       }
     },
     {
@@ -1508,7 +1890,7 @@
       "marketValue": 1193.2,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Speculative / thesis verification",
-      "portfolioWeightPct": 1.99,
+      "portfolioWeightPct": 1.98,
       "healthScore": 54,
       "computedSignal": "INVESTIGATE",
       "ratingBreakdown": [
@@ -1577,6 +1959,47 @@
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Chart can guide timing, but action is frozen until thesis/liquidity/downside are verified.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "TSNF",
+        "exposureType": "standard_equity",
+        "realizedVol20Pct": 31.45,
+        "addPct": -2.37,
+        "trimPct": 14.29,
+        "riskReviewPct": -11.39,
+        "addPrice": 29.12,
+        "trimPrice": 34.09,
+        "riskReviewPrice": 26.43
       }
     },
     {
@@ -1588,12 +2011,12 @@
       "thesis": "Pricing power, ad tier, content scale.",
       "watch": "Expectation reset, competition, consumer fatigue.",
       "actionRationale": "Hold but watch valuation versus subscriber/ads expectations.",
-      "livePrice": 89.29,
-      "priceAsOf": "2026-05-18T18:25:28.000Z",
-      "dayChangePct": 2.61,
-      "perf5dPct": 4.5,
-      "perf1mPct": -8.24,
-      "perf3mPct": 17.71,
+      "livePrice": 89.64,
+      "priceAsOf": "2026-05-18T19:55:28.000Z",
+      "dayChangePct": 3.01,
+      "perf5dPct": 4.9,
+      "perf1mPct": -7.89,
+      "perf3mPct": 18.16,
       "sparkline": [
         76.02,
         78.04,
@@ -1654,48 +2077,43 @@
         87.56,
         86.94,
         87.02,
-        89.29
+        89.64
       ],
-      "marketValue": 2232.25,
+      "marketValue": 2241,
       "liveDataSource": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "exposureBucket": "Other exposure",
-      "portfolioWeightPct": 3.72,
-      "healthScore": 64,
+      "portfolioWeightPct": 3.71,
+      "healthScore": 70,
       "computedSignal": "HOLD / WATCH",
       "ratingBreakdown": [
         {
           "label": "Base score",
           "impact": 70,
           "note": "Neutral starting point before role, trend, concentration, and risk adjustments."
-        },
-        {
-          "label": "1M drawdown",
-          "impact": -6,
-          "note": "One-month weakness pressures the rating."
         }
       ],
       "analysisChart": {
         "status": "active",
         "profile": "core_or_quality",
         "bias": "hold_with_triggers",
-        "current": 89.29,
+        "current": 89.64,
         "zones": {
           "buy": {
-            "low": 80.36,
-            "high": 83.93,
+            "low": 80.68,
+            "high": 84.26,
             "label": "entry watch"
           },
           "trim": {
-            "low": 98.22,
+            "low": 98.6,
             "high": 104,
             "label": "trim / protect"
           },
           "stop": {
-            "value": 78.58,
+            "value": 78.88,
             "label": "stop / review"
           },
           "hardExit": {
-            "value": 75,
+            "value": 75.3,
             "label": "hard exit review"
           },
           "target": {
@@ -1710,24 +2128,65 @@
           },
           {
             "label": "5D trend",
-            "value": "4.5%"
+            "value": "4.9%"
           },
           {
             "label": "1M trend",
-            "value": "-8.24%"
+            "value": "-7.89%"
           },
           {
             "label": "distance to stop",
-            "value": "13.63%"
+            "value": "13.64%"
           },
           {
             "label": "distance to entry mid",
-            "value": "8.7%"
+            "value": "8.69%"
           }
         ],
         "operationalRead": "Outside entry zone: wait for prepared trigger or stronger evidence.",
         "narrative": "Hold unless price enters a prepared zone or thesis evidence changes.",
         "caveat": "Public-data decision-support levels; not trade instructions. Confirm with live tape, underlying, volume, and risk budget."
+      },
+      "dataContract": {
+        "requiredFields": [
+          "forwardPE",
+          "fcfYield",
+          "nextEarningsDate",
+          "source",
+          "sourceAsOf",
+          "confidence"
+        ],
+        "forwardPE": null,
+        "fcfYield": null,
+        "nextEarningsDate": null,
+        "source": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "sourceAsOf": {
+          "forwardPE": null,
+          "fcfYield": null,
+          "nextEarningsDate": null
+        },
+        "confidence": {
+          "forwardPE": "missing",
+          "fcfYield": "missing",
+          "nextEarningsDate": "missing"
+        },
+        "normalizedAtBuild": true
+      },
+      "signalThresholds": {
+        "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "ticker": "NFLX",
+        "exposureType": "standard_equity",
+        "realizedVol20Pct": 25.4,
+        "addPct": -2.19,
+        "trimPct": 13.25,
+        "riskReviewPct": -10.5,
+        "addPrice": 87.68,
+        "trimPrice": 101.52,
+        "riskReviewPrice": 80.23
       }
     }
   ],
@@ -1810,8 +2269,8 @@
         "thesis": "Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.",
         "whyNow": "AI infrastructure remains an active force in the current report; candidate should be watched for pullbacks or earnings-confirmed demand durability.",
         "dataSupport": [
-          "Price $219.71; day -2.49%; 1M 8.94%; 3M 17.53%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $222.25; day -1.36%; 1M 10.2%; 3M 18.89%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:28.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -1838,8 +2297,8 @@
         "thesis": "Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.",
         "whyNow": "If AI capex stays strong but mega-cap platform exposure is already high, Broadcom gives a different layer of the same force field.",
         "dataSupport": [
-          "Price $416.98; day -1.93%; 1M 2.57%; 3M 25.91%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $421.27; day -0.92%; 1M 3.62%; 3M 27.21%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:27.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -1866,8 +2325,8 @@
         "thesis": "A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.",
         "whyNow": "Bad-market days can expose which physical-infrastructure names are merely crowded versus structurally supported; watch for relative strength or controlled pullback.",
         "dataSupport": [
-          "Price $986.12; day -6.01%; 1M -1.66%; 3M 20.77%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:23.000Z",
+          "Price $1013.94; day -3.36%; 1M 1.12%; 3M 24.17%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -1894,8 +2353,8 @@
         "thesis": "Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.",
         "whyNow": "The portfolio already has cloud and power exposure; VRT tests whether physical bottlenecks deserve a dedicated research lane.",
         "dataSupport": [
-          "Price $331.52; day -10.63%; 1M 7.87%; 3M 40.17%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $340.63; day -8.17%; 1M 10.83%; 3M 44.02%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:18.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -1922,8 +2381,8 @@
         "thesis": "A less flashy but potentially higher-quality way to express the grid/data-center power constraint without owning only the hottest AI names.",
         "whyNow": "If mega-cap AI sells off but electrical infrastructure holds relative support, ETN can be a cleaner compounder candidate.",
         "dataSupport": [
-          "Price $376.24; day -5.81%; 1M -7.38%; 3M -3.61%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $382.2; day -4.32%; 1M -5.91%; 3M -2.08%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -1950,8 +2409,8 @@
         "thesis": "Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.",
         "whyNow": "Useful comparison against existing MSFT/AMZN/META exposure before adding more platform concentration.",
         "dataSupport": [
-          "Price $398.58; day 0.45%; 1M 16.65%; 3M 28.99%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $396.28; day -0.13%; 1M 15.98%; 3M 28.25%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:28.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -1978,8 +2437,8 @@
         "thesis": "A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.",
         "whyNow": "If market weakness is concentrated in high-duration tech, infrastructure services may become a relative-quality watchlist lane.",
         "dataSupport": [
-          "Price $722.68; day -6.14%; 1M 20.07%; 3M 40.09%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:16.000Z",
+          "Price $724.97; day -5.85%; 1M 20.45%; 3M 40.53%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:10.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2006,8 +2465,8 @@
         "thesis": "A creative non-AI software expression of the power scarcity thesis: nuclear fuel exposure if electricity demand and energy security remain structurally important.",
         "whyNow": "If the market punishes crowded AI infrastructure, uranium/nuclear may offer a different supply-constrained power lane.",
         "dataSupport": [
-          "Price $103.94; day -3.32%; 1M -13.86%; 3M -10.7%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $104.87; day -2.46%; 1M -13.09%; 3M -9.9%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:15.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2034,8 +2493,8 @@
         "thesis": "More experimental energy-infrastructure idea: not just AI power demand, but grid-edge hardware and utility-scale solar deployment efficiency.",
         "whyNow": "Bad market tape can create indiscriminate selling in smaller infrastructure names; only interesting if business quality survives the selloff.",
         "dataSupport": [
-          "Price $132.38; day -8.25%; 1M 18.84%; 3M 15.88%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:25.000Z",
+          "Price $134.63; day -6.69%; 1M 20.86%; 3M 17.85%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:26.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2062,8 +2521,8 @@
         "thesis": "A genuinely different growth infrastructure idea: organ transplant logistics and preservation network effects, far from current AI/platform concentration.",
         "whyNow": "Adds a non-correlated healthcare infrastructure lane for research when tech/risk sentiment is weak.",
         "dataSupport": [
-          "Price $67.86; day 7.37%; 1M -41.43%; 3M -47.2%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:18.000Z",
+          "Price $68.22; day 7.94%; 1M -41.12%; 3M -46.92%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:20.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2090,8 +2549,8 @@
         "thesis": "A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.",
         "whyNow": "CONL-style levered decay is already flagged as a risk-control focus; substitute vehicles should be compared before adding or holding levered beta.",
         "dataSupport": [
-          "Price $43.19; day -3.63%; 1M -1.7%; 3M 16.59%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $43.51; day -2.91%; 1M -0.97%; 3M 17.45%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:26.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2118,8 +2577,8 @@
         "thesis": "A controversial but interesting candidate: if AI shifts from model infrastructure to operational deployment, PLTR may be a pure workflow/ontology beneficiary.",
         "whyNow": "Watch whether it holds relative strength during market weakness; if not, valuation risk dominates the thesis.",
         "dataSupport": [
-          "Price $133.56; day -0.32%; 1M -8.76%; 3M 3.43%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $134.97; day 0.73%; 1M -7.8%; 3M 4.52%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:27.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2146,8 +2605,8 @@
         "thesis": "A creative industrial-space candidate: asymmetric if launch cadence, defense/customer demand, and satellite systems compound into infrastructure status.",
         "whyNow": "Risk-off days can separate fragile story stocks from names still building backlog and execution credibility.",
         "dataSupport": [
-          "Price $127.42; day 2.12%; 1M 50.26%; 3M 93.03%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:27.000Z",
+          "Price $131.3; day 5.24%; 1M 54.84%; 3M 98.92%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:27.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2174,8 +2633,8 @@
         "thesis": "Experimental attention/data asset: interesting if human conversation data becomes a scarce AI-training/licensing input and ad monetization keeps improving.",
         "whyNow": "Creative scout lane: not a core buy, but a differentiated data-rights/attention graph candidate to monitor on sharp pullbacks.",
         "dataSupport": [
-          "Price $156.9; day -0.8%; 1M -4.21%; 3M 19.71%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:26.000Z",
+          "Price $159.02; day 0.54%; 1M -2.92%; 3M 21.32%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2202,8 +2661,8 @@
         "thesis": "Experimental consumer-health platform candidate: potentially interesting if direct-to-consumer healthcare keeps taking share and category expansion is disciplined.",
         "whyNow": "A bad market can compress high-growth consumer names; only interesting if unit economics and regulatory/product risks remain controlled.",
         "dataSupport": [
-          "Price $22.6; day -9.78%; 1M -21.58%; 3M 43.04%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $22.37; day -10.71%; 1M -22.39%; 3M 41.57%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2230,8 +2689,8 @@
         "thesis": "Highly experimental asymmetric optionality on advanced nuclear power. This belongs in the creative lab, not the core portfolio, unless evidence improves dramatically.",
         "whyNow": "Useful as a small-watch object for the future power scarcity narrative, especially on broad risk-off days when speculative optionality reprices.",
         "dataSupport": [
-          "Price $57.26; day -8.02%; 1M -14.29%; 3M -10.42%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $58.76; day -5.6%; 1M -12.05%; 3M -8.07%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:18.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2293,19 +2752,19 @@
     "exposureMap": [
       {
         "bucket": "Index anchor",
-        "weightPct": 52.96
+        "weightPct": 52.9
       },
       {
         "bucket": "AI / infrastructure compounder",
-        "weightPct": 26.55
+        "weightPct": 26.43
       },
       {
         "bucket": "Speculative / thesis verification",
-        "weightPct": 12.43
+        "weightPct": 12.6
       },
       {
         "bucket": "Other exposure",
-        "weightPct": 3.72
+        "weightPct": 3.71
       },
       {
         "bucket": "Core compounder",
@@ -2313,7 +2772,7 @@
       },
       {
         "bucket": "Levered / decay product",
-        "weightPct": 0.98
+        "weightPct": 1
       }
     ],
     "marketForces": [
@@ -2337,7 +2796,7 @@
       {
         "name": "Risk appetite",
         "direction": "mixed / risk watch",
-        "intensity": 2,
+        "intensity": 1,
         "affected": [
           "SPY",
           "QQQ",
@@ -2347,9 +2806,9 @@
         ],
         "interpretation": "Index and volatility behavior sets the risk budget for speculative and levered exposure.",
         "evidence": [
-          "SPY 5D -0.66%",
-          "QQQ 5D -1.83%",
-          "VIX 18.49"
+          "SPY 5D -0.12%",
+          "QQQ 5D -1.06%",
+          "VIX 18.11"
         ]
       },
       {
@@ -2364,9 +2823,9 @@
         ],
         "interpretation": "AI capex, cloud demand, power scarcity, and data-center buildout remain a portfolio force but need crowding checks.",
         "evidence": [
-          "CEG 1M -11.95%",
-          "MSFT 1M 0.28%",
-          "AMZN 1M 5.13%"
+          "CEG 1M -11.6%",
+          "MSFT 1M 0%",
+          "AMZN 1M 5.62%"
         ]
       },
       {
@@ -2381,8 +2840,8 @@
         ],
         "interpretation": "Crypto beta can amplify upside but is highly liquidity-sensitive and path-dependent through levered products.",
         "evidence": [
-          "BTC 1M -1.42%",
-          "COIN 1M -10.28%"
+          "BTC 1M -0.67%",
+          "COIN 1M -8.08%"
         ]
       },
       {
@@ -2426,8 +2885,8 @@
         "thesis": "Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.",
         "whyNow": "AI infrastructure remains an active force in the current report; candidate should be watched for pullbacks or earnings-confirmed demand durability.",
         "dataSupport": [
-          "Price $219.71; day -2.49%; 1M 8.94%; 3M 17.53%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $222.25; day -1.36%; 1M 10.2%; 3M 18.89%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:28.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2454,8 +2913,8 @@
         "thesis": "Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.",
         "whyNow": "If AI capex stays strong but mega-cap platform exposure is already high, Broadcom gives a different layer of the same force field.",
         "dataSupport": [
-          "Price $416.98; day -1.93%; 1M 2.57%; 3M 25.91%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $421.27; day -0.92%; 1M 3.62%; 3M 27.21%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:27.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2482,8 +2941,8 @@
         "thesis": "A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.",
         "whyNow": "Bad-market days can expose which physical-infrastructure names are merely crowded versus structurally supported; watch for relative strength or controlled pullback.",
         "dataSupport": [
-          "Price $986.12; day -6.01%; 1M -1.66%; 3M 20.77%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:23.000Z",
+          "Price $1013.94; day -3.36%; 1M 1.12%; 3M 24.17%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2510,8 +2969,8 @@
         "thesis": "Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.",
         "whyNow": "The portfolio already has cloud and power exposure; VRT tests whether physical bottlenecks deserve a dedicated research lane.",
         "dataSupport": [
-          "Price $331.52; day -10.63%; 1M 7.87%; 3M 40.17%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $340.63; day -8.17%; 1M 10.83%; 3M 44.02%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:18.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2538,8 +2997,8 @@
         "thesis": "A less flashy but potentially higher-quality way to express the grid/data-center power constraint without owning only the hottest AI names.",
         "whyNow": "If mega-cap AI sells off but electrical infrastructure holds relative support, ETN can be a cleaner compounder candidate.",
         "dataSupport": [
-          "Price $376.24; day -5.81%; 1M -7.38%; 3M -3.61%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $382.2; day -4.32%; 1M -5.91%; 3M -2.08%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2566,8 +3025,8 @@
         "thesis": "Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.",
         "whyNow": "Useful comparison against existing MSFT/AMZN/META exposure before adding more platform concentration.",
         "dataSupport": [
-          "Price $398.58; day 0.45%; 1M 16.65%; 3M 28.99%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $396.28; day -0.13%; 1M 15.98%; 3M 28.25%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:28.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2594,8 +3053,8 @@
         "thesis": "A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.",
         "whyNow": "If market weakness is concentrated in high-duration tech, infrastructure services may become a relative-quality watchlist lane.",
         "dataSupport": [
-          "Price $722.68; day -6.14%; 1M 20.07%; 3M 40.09%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:16.000Z",
+          "Price $724.97; day -5.85%; 1M 20.45%; 3M 40.53%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:10.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2622,8 +3081,8 @@
         "thesis": "A creative non-AI software expression of the power scarcity thesis: nuclear fuel exposure if electricity demand and energy security remain structurally important.",
         "whyNow": "If the market punishes crowded AI infrastructure, uranium/nuclear may offer a different supply-constrained power lane.",
         "dataSupport": [
-          "Price $103.94; day -3.32%; 1M -13.86%; 3M -10.7%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $104.87; day -2.46%; 1M -13.09%; 3M -9.9%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:15.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2650,8 +3109,8 @@
         "thesis": "More experimental energy-infrastructure idea: not just AI power demand, but grid-edge hardware and utility-scale solar deployment efficiency.",
         "whyNow": "Bad market tape can create indiscriminate selling in smaller infrastructure names; only interesting if business quality survives the selloff.",
         "dataSupport": [
-          "Price $132.38; day -8.25%; 1M 18.84%; 3M 15.88%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:25.000Z",
+          "Price $134.63; day -6.69%; 1M 20.86%; 3M 17.85%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:26.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2678,8 +3137,8 @@
         "thesis": "A genuinely different growth infrastructure idea: organ transplant logistics and preservation network effects, far from current AI/platform concentration.",
         "whyNow": "Adds a non-correlated healthcare infrastructure lane for research when tech/risk sentiment is weak.",
         "dataSupport": [
-          "Price $67.86; day 7.37%; 1M -41.43%; 3M -47.2%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:18.000Z",
+          "Price $68.22; day 7.94%; 1M -41.12%; 3M -46.92%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:20.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2706,8 +3165,8 @@
         "thesis": "A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.",
         "whyNow": "CONL-style levered decay is already flagged as a risk-control focus; substitute vehicles should be compared before adding or holding levered beta.",
         "dataSupport": [
-          "Price $43.19; day -3.63%; 1M -1.7%; 3M 16.59%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $43.51; day -2.91%; 1M -0.97%; 3M 17.45%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:26.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2734,8 +3193,8 @@
         "thesis": "A controversial but interesting candidate: if AI shifts from model infrastructure to operational deployment, PLTR may be a pure workflow/ontology beneficiary.",
         "whyNow": "Watch whether it holds relative strength during market weakness; if not, valuation risk dominates the thesis.",
         "dataSupport": [
-          "Price $133.56; day -0.32%; 1M -8.76%; 3M 3.43%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:29.000Z",
+          "Price $134.97; day 0.73%; 1M -7.8%; 3M 4.52%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:27.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2762,8 +3221,8 @@
         "thesis": "A creative industrial-space candidate: asymmetric if launch cadence, defense/customer demand, and satellite systems compound into infrastructure status.",
         "whyNow": "Risk-off days can separate fragile story stocks from names still building backlog and execution credibility.",
         "dataSupport": [
-          "Price $127.42; day 2.12%; 1M 50.26%; 3M 93.03%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:27.000Z",
+          "Price $131.3; day 5.24%; 1M 54.84%; 3M 98.92%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:27.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2790,8 +3249,8 @@
         "thesis": "Experimental attention/data asset: interesting if human conversation data becomes a scarce AI-training/licensing input and ad monetization keeps improving.",
         "whyNow": "Creative scout lane: not a core buy, but a differentiated data-rights/attention graph candidate to monitor on sharp pullbacks.",
         "dataSupport": [
-          "Price $156.9; day -0.8%; 1M -4.21%; 3M 19.71%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:26.000Z",
+          "Price $159.02; day 0.54%; 1M -2.92%; 3M 21.32%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2818,8 +3277,8 @@
         "thesis": "Experimental consumer-health platform candidate: potentially interesting if direct-to-consumer healthcare keeps taking share and category expansion is disciplined.",
         "whyNow": "A bad market can compress high-growth consumer names; only interesting if unit economics and regulatory/product risks remain controlled.",
         "dataSupport": [
-          "Price $22.6; day -9.78%; 1M -21.58%; 3M 43.04%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $22.37; day -10.71%; 1M -22.39%; 3M 41.57%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:19.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2846,8 +3305,8 @@
         "thesis": "Highly experimental asymmetric optionality on advanced nuclear power. This belongs in the creative lab, not the core portfolio, unless evidence improves dramatically.",
         "whyNow": "Useful as a small-watch object for the future power scarcity narrative, especially on broad risk-off days when speculative optionality reprices.",
         "dataSupport": [
-          "Price $57.26; day -8.02%; 1M -14.29%; 3M -10.42%",
-          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T18:25:28.000Z",
+          "Price $58.76; day -5.6%; 1M -12.05%; 3M -8.07%",
+          "Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T19:55:18.000Z",
           "10Y Treasury 4.47% as of 2026-05-14",
           "10Y breakeven inflation 2.49% as of 2026-05-15",
           "HY OAS 2.8 as of 2026-05-15"
@@ -2892,26 +3351,26 @@
       "broadIndices": [
         {
           "symbol": "SPY",
-          "price": 734.43,
-          "oneMonth": 3.42,
+          "price": 738.42,
+          "oneMonth": 3.98,
           "read": "mixed / no broad chase"
         },
         {
           "symbol": "QQQ",
-          "price": 700.23,
-          "oneMonth": 7.92,
+          "price": 705.72,
+          "oneMonth": 8.76,
           "read": "strength / valuation discipline required"
         },
         {
           "symbol": "IWM",
-          "price": 274.3,
-          "oneMonth": -0.54,
+          "price": 276.16,
+          "oneMonth": 0.14,
           "read": "mixed / no broad chase"
         }
       ],
       "volatilityLiquidity": {
-        "vix": 18.49,
-        "riskAppetite": "Live: VIX 18.49; risk watch",
+        "vix": 18.11,
+        "riskAppetite": "Live: VIX 18.11; risk watch",
         "credit": "Live: HY OAS 2.8",
         "rates": "Live: 10Y Treasury 4.47% (rate pressure present)"
       },
@@ -2919,8 +3378,8 @@
         {
           "ticker": "MSFT",
           "signal": "HOLD",
-          "weightPct": 2.12,
-          "livePrice": 423.96,
+          "weightPct": 2.1,
+          "livePrice": 422.8,
           "tacticalLayer": "short-term strength",
           "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2933,8 +3392,8 @@
         {
           "ticker": "AMZN",
           "signal": "HOLD",
-          "weightPct": 14.63,
-          "livePrice": 263.4,
+          "weightPct": 14.61,
+          "livePrice": 264.64,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "constructive 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2947,8 +3406,8 @@
         {
           "ticker": "CEG",
           "signal": "HOLD / WATCH",
-          "weightPct": 1.31,
-          "livePrice": 260.8,
+          "weightPct": 1.3,
+          "livePrice": 261.86,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -2961,9 +3420,9 @@
         {
           "ticker": "META",
           "signal": "HOLD",
-          "weightPct": 8.49,
-          "livePrice": 610.97,
-          "tacticalLayer": "short-term strength",
+          "weightPct": 8.42,
+          "livePrice": 610.2,
+          "tacticalLayer": "neutral tape",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
           "agreement": "mixed / conflicted",
@@ -2976,7 +3435,7 @@
           "ticker": "TSLT",
           "signal": "TRIM WATCH",
           "weightPct": 0.49,
-          "livePrice": 19.51,
+          "livePrice": 19.7,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structurally fragile",
@@ -2989,8 +3448,8 @@
         {
           "ticker": "CONL",
           "signal": "EXIT REVIEW",
-          "weightPct": 0.49,
-          "livePrice": 7.28,
+          "weightPct": 0.51,
+          "livePrice": 7.65,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structurally fragile",
@@ -3003,8 +3462,8 @@
         {
           "ticker": "SPY",
           "signal": "HOLD",
-          "weightPct": 52.96,
-          "livePrice": 734.43,
+          "weightPct": 52.9,
+          "livePrice": 738.42,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -3018,7 +3477,7 @@
           "ticker": "MA",
           "signal": "HOLD",
           "weightPct": 3.36,
-          "livePrice": 502.72,
+          "livePrice": 505.01,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "mixed 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -3031,8 +3490,8 @@
         {
           "ticker": "BMNR",
           "signal": "INVESTIGATE",
-          "weightPct": 10.44,
-          "livePrice": 18.41,
+          "weightPct": 10.62,
+          "livePrice": 18.84,
           "tacticalLayer": "short-term stress",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis incomplete",
@@ -3045,7 +3504,7 @@
         {
           "ticker": "TSNF",
           "signal": "INVESTIGATE",
-          "weightPct": 1.99,
+          "weightPct": 1.98,
           "livePrice": 29.83,
           "tacticalLayer": "neutral tape",
           "mediumLayer": "constructive 1M/3M price layer",
@@ -3059,8 +3518,8 @@
         {
           "ticker": "NFLX",
           "signal": "HOLD / WATCH",
-          "weightPct": 3.72,
-          "livePrice": 89.29,
+          "weightPct": 3.71,
+          "livePrice": 89.64,
           "tacticalLayer": "short-term strength",
           "mediumLayer": "weak 1M/3M price layer",
           "structuralLayer": "structural thesis intact pending filings/news",
@@ -3083,7 +3542,7 @@
       {
         "id": "core",
         "label": "Protected core",
-        "weightPct": 82.87,
+        "weightPct": 82.69,
         "tickers": [
           "MSFT",
           "AMZN",
@@ -3098,7 +3557,7 @@
       {
         "id": "tactical",
         "label": "Tactical risk",
-        "weightPct": 0.98,
+        "weightPct": 1,
         "tickers": [
           "TSLT",
           "CONL"
@@ -3109,7 +3568,7 @@
       {
         "id": "speculative",
         "label": "Unknown thesis",
-        "weightPct": 12.43,
+        "weightPct": 12.6,
         "tickers": [
           "BMNR",
           "TSNF"
@@ -3120,7 +3579,7 @@
       {
         "id": "other",
         "label": "Other exposure",
-        "weightPct": 3.72,
+        "weightPct": 3.71,
         "tickers": [
           "NFLX"
         ],
@@ -3131,25 +3590,25 @@
     "largestPositions": [
       {
         "ticker": "SPY",
-        "weightPct": 52.96,
+        "weightPct": 52.9,
         "signal": "HOLD",
         "role": "Index anchor"
       },
       {
         "ticker": "AMZN",
-        "weightPct": 14.63,
+        "weightPct": 14.61,
         "signal": "HOLD",
         "role": "AI / infrastructure compounder"
       },
       {
         "ticker": "BMNR",
-        "weightPct": 10.44,
+        "weightPct": 10.62,
         "signal": "INVESTIGATE",
         "role": "Speculative / thesis verification"
       },
       {
         "ticker": "META",
-        "weightPct": 8.49,
+        "weightPct": 8.42,
         "signal": "HOLD / WATCH",
         "role": "AI / infrastructure compounder"
       }
@@ -3225,7 +3684,1530 @@
       "No paid-data assumption unless source is actually connected."
     ]
   },
-  "companyFilingEvidence": [],
+  "companyFilingEvidence": [
+    {
+      "symbol": "MSFT",
+      "cik": "0000789019",
+      "entityName": "MICROSOFT CORP",
+      "sic": "7372",
+      "sicDescription": "Services-Prepackaged Software",
+      "fiscalYearEnd": "0630",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-14",
+          "document": "d125909d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312526224155/d125909d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-29",
+          "document": "msft-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-29",
+          "document": "msft-20260429.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191457/msft-20260429.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-01-28",
+          "document": "msft-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312526027207/msft-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-28",
+          "document": "msft-20260128.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312526027198/msft-20260128.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-12-08",
+          "document": "d34077d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312525311196/d34077d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-29",
+          "document": "msft-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312525256321/msft-20250930.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-10-29",
+          "document": "msft-20251028.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/789019/000119312525256310/msft-20251028.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "cik": "0001018724",
+      "entityName": "AMAZON COM INC",
+      "sic": "5961",
+      "sicDescription": "Retail-Catalog & Mail-Order Houses",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001018724.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-30",
+          "document": "amzn-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-29",
+          "document": "amzn-20260429.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000012/amzn-20260429.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-14",
+          "document": "tm2611746d1_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926042880/tm2611746d1_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-09",
+          "document": "tm263815d2_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926041034/tm263815d2_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-16",
+          "document": "tm266670d9_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926028556/tm266670d9_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-13",
+          "document": "tm266670d8_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926027729/tm266670d8_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-27",
+          "document": "tm267374d1_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926021050/tm267374d1_8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-06",
+          "document": "amzn-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "CEG",
+      "cik": "0001868275",
+      "entityName": "Constellation Energy Corp",
+      "sic": "4911",
+      "sicDescription": "Electric Services",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001868275.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-11",
+          "document": "ceg-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000067/ceg-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-11",
+          "document": "ceg-20260511.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000063/ceg-20260511.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-01",
+          "document": "ceg-20260428.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000050/ceg-20260428.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-31",
+          "document": "ceg-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000045/ceg-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-26",
+          "document": "ceg-20260323.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000041/ceg-20260323.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-20",
+          "document": "ceg-20260320.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000037/ceg-20260320.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-24",
+          "document": "ceg-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000032/ceg-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-24",
+          "document": "ceg-20260224.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1868275/000186827526000029/ceg-20260224.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "META",
+      "cik": "0001326801",
+      "entityName": "Meta Platforms, Inc.",
+      "sic": "7370",
+      "sicDescription": "Services-Computer Programming, Data Processing, Etc.",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001326801.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-04",
+          "document": "d134616d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000119312526204128/d134616d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-30",
+          "document": "meta-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-29",
+          "document": "meta-20260429.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028364/meta-20260429.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-14",
+          "document": "meta-20260408.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026025108/meta-20260408.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-01-29",
+          "document": "meta-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-28",
+          "document": "meta-20260128.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003832/meta-20260128.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-16",
+          "document": "meta-20260112.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026002429/meta-20260112.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-12-19",
+          "document": "meta-20251219.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025058337/meta-20251219.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "cik": "0000884394",
+      "entityName": "SPDR S&P 500 ETF TRUST",
+      "sic": null,
+      "sicDescription": null,
+      "fiscalYearEnd": "0930",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0000884394.json",
+      "recentMaterialFilings": []
+    },
+    {
+      "symbol": "MA",
+      "cik": "0001141391",
+      "entityName": "Mastercard Inc",
+      "sic": "7389",
+      "sicDescription": "Services-Business Services, NEC",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001141391.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-07",
+          "document": "ma-20260505.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000034/ma-20260505.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-30",
+          "document": "ma-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000031/ma-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-30",
+          "document": "ma-20260430.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000029/ma-20260430.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-11",
+          "document": "ma-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000013/ma-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-05",
+          "document": "ma-20260202.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000006/ma-20260202.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-29",
+          "document": "ma-20260129.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139126000003/ma-20260129.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-12",
+          "document": "ma-20251107.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139125000199/ma-20251107.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-10",
+          "document": "ma-20251110.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1141391/000114139125000197/ma-20251110.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "BMNR",
+      "cik": "0001829311",
+      "entityName": "BITMINE IMMERSION TECHNOLOGIES, INC.",
+      "sic": "6199",
+      "sicDescription": "Finance Services",
+      "fiscalYearEnd": "0831",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001829311.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-18",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226024088/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-11",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226022150/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-04",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226021027/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-01",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226020901/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-27",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226019080/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-20",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226018015/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-15",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226016688/form8-k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-14",
+          "document": "form10-q.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1829311/000149315226016560/form10-q.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "NFLX",
+      "cik": "0001065280",
+      "entityName": "NETFLIX INC",
+      "sic": "7841",
+      "sicDescription": "Services-Video Tape Rental",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001065280.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-23",
+          "document": "nflx-20260422.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000139/nflx-20260422.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-17",
+          "document": "nflx-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000138/nflx-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-16",
+          "document": "nflx-20260410.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000137/nflx-20260410.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-27",
+          "document": "d120618d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000119312526082247/d120618d8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-01-23",
+          "document": "nflx-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000034/nflx-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-20",
+          "document": "nflx-20260120.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000033/nflx-20260120.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-20",
+          "document": "d37713d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000119312526015951/d37713d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-12-22",
+          "document": "d82688d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1065280/000119312525327462/d82688d8k.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "TSLA",
+      "cik": "0001318605",
+      "entityName": "Tesla, Inc.",
+      "sic": "3711",
+      "sicDescription": "Motor Vehicles & Passenger Car Bodies",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001318605.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-23",
+          "document": "tsla-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026026673/tsla-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-22",
+          "document": "tsla-20260422.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026026551/tsla-20260422.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-02",
+          "document": "tsla-20260402.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026022956/tsla-20260402.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-01-29",
+          "document": "tsla-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-28",
+          "document": "tsla-20260128.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003837/tsla-20260128.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-02",
+          "document": "tsla-20260102.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026000016/tsla-20260102.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-07",
+          "document": "tm2530590d1_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000110465925108507/tm2530590d1_8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-23",
+          "document": "tsla-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025045968/tsla-20250930.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "COIN",
+      "cik": "0001679788",
+      "entityName": "Coinbase Global, Inc.",
+      "sic": "6199",
+      "sicDescription": "Finance Services",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001679788.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-07",
+          "document": "coin-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000054/coin-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-07",
+          "document": "coin-20260507.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000053/coin-20260507.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-05",
+          "document": "coin-20260505.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000049/coin-20260505.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-10",
+          "document": "coin-20260407.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000035/coin-20260407.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-12",
+          "document": "coin-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000015/coin-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-12",
+          "document": "coin-20260212.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000011/coin-20260212.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-12-16",
+          "document": "coin-20251215.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978825000247/coin-20251215.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-30",
+          "document": "coin-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1679788/000167978825000208/coin-20250930.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "cik": "0001045810",
+      "entityName": "NVIDIA CORP",
+      "sic": "3674",
+      "sicDescription": "Semiconductors & Related Devices",
+      "fiscalYearEnd": "0131",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001045810.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-08",
+          "document": "nvda-20260507.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000028/nvda-20260507.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-27",
+          "document": "nvda-20260424.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000026/nvda-20260424.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-06",
+          "document": "nvda-20260302.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000024/nvda-20260302.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-25",
+          "document": "nvda-20260125.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-25",
+          "document": "nvda-20260225.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000019/nvda-20260225.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-23",
+          "document": "nvda-20260120.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000003/nvda-20260120.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-11-19",
+          "document": "nvda-20251026.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-19",
+          "document": "nvda-20251119.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000228/nvda-20251119.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "AVGO",
+      "cik": "0001730168",
+      "entityName": "Broadcom Inc.",
+      "sic": "3674",
+      "sicDescription": "Semiconductors & Related Devices",
+      "fiscalYearEnd": "1101",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001730168.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-21",
+          "document": "avgo-20260420.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000173016826000039/avgo-20260420.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-06",
+          "document": "d87999d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526144028/d87999d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-02",
+          "document": "d109450d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526140574/d109450d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-03-11",
+          "document": "avgo-20260201.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000173016826000016/avgo-20260201.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-04",
+          "document": "avgo-20260304.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000173016826000011/avgo-20260304.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-02",
+          "document": "d305325d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526085656/d305325d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-13",
+          "document": "d104560d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526011731/d104560d8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2025-12-18",
+          "document": "avgo-20251102.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000121/avgo-20251102.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "VRT",
+      "cik": "0001674101",
+      "entityName": "Vertiv Holdings Co",
+      "sic": "3679",
+      "sicDescription": "Electronic Components, NEC",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001674101.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-27",
+          "document": "vrt-20260427.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026027297/vrt-20260427.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-22",
+          "document": "vrt-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026026556/vrt-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-22",
+          "document": "vrt-20260422.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026026379/vrt-20260422.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-13",
+          "document": "vrt-20260413.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026024824/vrt-20260413.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-24",
+          "document": "d94872d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000119312526120863/d94872d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-06",
+          "document": "vrt-20260306.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000162828026015494/vrt-20260306.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-03",
+          "document": "d105148d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000119312526088484/d105148d8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-13",
+          "document": "vrt-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1674101/000167410126000008/vrt-20251231.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "cik": "0001652044",
+      "entityName": "Alphabet Inc.",
+      "sic": "7370",
+      "sicDescription": "Services-Computer Programming, Data Processing, Etc.",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001652044.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-11",
+          "document": "d109021d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000119312526216986/d109021d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-30",
+          "document": "goog-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000048/goog-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-29",
+          "document": "goog-20260429.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000043/goog-20260429.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-10",
+          "document": "goog-20260407.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000034/goog-20260407.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-02",
+          "document": "goog-20260330.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000031/goog-20260330.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-06",
+          "document": "goog-20260304.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000026/goog-20260304.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-13",
+          "document": "d946885d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000119312526051423/d946885d8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-05",
+          "document": "goog-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "GEV",
+      "cik": "0001996810",
+      "entityName": "GE Vernova Inc.",
+      "sic": "3600",
+      "sicDescription": "Electronic & Other Electrical Equipment (No Computer Equip)",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001996810.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-22",
+          "document": "gev-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000064/gev-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-22",
+          "document": "gev-20260422.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000063/gev-20260422.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-04",
+          "document": "ef20064707_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000114036126003735/ef20064707_8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-01-29",
+          "document": "gev-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000015/gev-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-28",
+          "document": "gev-20260128.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000012/gev-20260128.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-21",
+          "document": "gev-20260121.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681026000004/gev-20260121.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-22",
+          "document": "gev-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681025000160/gev-20250930.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-10-22",
+          "document": "gev-20251022.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1996810/000199681025000159/gev-20251022.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "ETN",
+      "cik": "0001551182",
+      "entityName": "Eaton Corp plc",
+      "sic": "3590",
+      "sicDescription": "Misc Industrial & Commercial Machinery & Equipment",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001551182.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-05",
+          "document": "etn-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000013/etn-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-05",
+          "document": "etn-20260505.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000010/etn-20260505.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-23",
+          "document": "ef20071273_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000114036126016399/ef20071273_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-10",
+          "document": "ef20067414_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000114036126008836/ef20067414_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-02",
+          "document": "ef20066947_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000114036126007362/ef20066947_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-02",
+          "document": "ef20066779_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000114036126007206/ef20066779_8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-26",
+          "document": "etn-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000155118226000007/etn-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-06",
+          "document": "ef20064951_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1551182/000114036126004227/ef20064951_8k.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "PWR",
+      "cik": "0001050915",
+      "entityName": "QUANTA SERVICES, INC.",
+      "sic": "1731",
+      "sicDescription": "Electrical Work",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001050915.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-04-30",
+          "document": "pwr-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000105091526000016/pwr-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-30",
+          "document": "d107542d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000119312526193918/d107542d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-16",
+          "document": "d126144d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000119312526159117/d126144d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-04",
+          "document": "d115375d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000119312526091646/d115375d8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-19",
+          "document": "pwr-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000105091526000006/pwr-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-19",
+          "document": "d101511d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000119312526058069/d101511d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-30",
+          "document": "pwr-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000105091525000111/pwr-20250930.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-10-30",
+          "document": "d851878d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050915/000119312525257378/d851878d8k.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "NXT",
+      "cik": "0001852131",
+      "entityName": "Nextpower Inc.",
+      "sic": "3674",
+      "sicDescription": "Semiconductors & Related Devices",
+      "fiscalYearEnd": "0331",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001852131.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-12",
+          "document": "nxt-20260510.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213126000014/nxt-20260510.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-29",
+          "document": "nxt-20260423.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213126000009/nxt-20260423.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-01-30",
+          "document": "nxt-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213126000006/nxt-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-27",
+          "document": "nxt-20260127.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213126000003/nxt-20260127.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-12",
+          "document": "nxt-20251112.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213125000069/nxt-20251112.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-30",
+          "document": "nxt-20250926.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213125000064/nxt-20250926.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-10-23",
+          "document": "nxt-20251023.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213125000061/nxt-20251023.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-09-08",
+          "document": "nxt-20250908.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1852131/000185213125000057/nxt-20250908.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "CCJ",
+      "cik": "0001009001",
+      "entityName": "CAMECO CORP",
+      "sic": "1090",
+      "sicDescription": "Miscellaneous Metal Ores",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001009001.json",
+      "recentMaterialFilings": []
+    },
+    {
+      "symbol": "OKLO",
+      "cik": "0001849056",
+      "entityName": "Oklo Inc.",
+      "sic": "4911",
+      "sicDescription": "Electric Services",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001849056.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-13",
+          "document": "tm2614461d1_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000110465926060385/tm2614461d1_8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-12",
+          "document": "oklo-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000162828026034095/oklo-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-14",
+          "document": "oklo-20260410.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000184905626000006/oklo-20260410.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-03-17",
+          "document": "oklo-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000162828026018698/oklo-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-12-04",
+          "document": "tm2532691d1_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000110465925118494/tm2532691d1_8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-11-12",
+          "document": "oklo-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000162828025051349/oklo-20250930.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-09-03",
+          "document": "tm2524815d1_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000110465925087034/tm2524815d1_8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-08-11",
+          "document": "oklo-20250630.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1849056/000162828025039571/oklo-20250630.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "SMR",
+      "cik": "0001822966",
+      "entityName": "NUSCALE POWER Corp",
+      "sic": "3443",
+      "sicDescription": "Fabricated Plate Work (Boiler Shops)",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001822966.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-07",
+          "document": "smr-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000054/smr-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-07",
+          "document": "smr-20260507.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000052/smr-20260507.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-08",
+          "document": "smr-20260408.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000038/smr-20260408.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-26",
+          "document": "smr-20260226.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000019/smr-20260226.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-26",
+          "document": "smr-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000018/smr-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-26",
+          "document": "smr-20260226.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000016/smr-20260226.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-27",
+          "document": "smr-20260127.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296626000007/smr-20260127.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-12-17",
+          "document": "smr-20251216.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1822966/000182296625000186/smr-20251216.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "RKLB",
+      "cik": "0001819994",
+      "entityName": "Rocket Lab Corp",
+      "sic": "3760",
+      "sicDescription": "Guided Missiles & Space Vehicles & Parts",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001819994.json",
+      "recentMaterialFilings": [
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-08",
+          "document": "g085715_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000175392626000799/g085715_8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-07",
+          "document": "rklb-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000028/rklb-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-07",
+          "document": "rklb-20260507.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000027/rklb-20260507.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-14",
+          "document": "g085683_8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000175392626000654/g085683_8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-30",
+          "document": "g085462_8k-rocket.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000175392626000568/g085462_8k-rocket.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-17",
+          "document": "rklb-20260317.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000162828026018789/rklb-20260317.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-12",
+          "document": "rklb-20260312.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000016/rklb-20260312.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-26",
+          "document": "rklb-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000013/rklb-20251231.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "PLTR",
+      "cik": "0001321655",
+      "entityName": "Palantir Technologies Inc.",
+      "sic": "7372",
+      "sicDescription": "Services-Prepackaged Software",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001321655.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-05",
+          "document": "pltr-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000028/pltr-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-04",
+          "document": "pltr-20260504.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000026/pltr-20260504.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-17",
+          "document": "pltr-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000011/pltr-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-02",
+          "document": "pltr-20260202.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165526000004/pltr-20260202.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-11-04",
+          "document": "pltr-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165525000131/pltr-20250930.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-03",
+          "document": "pltr-20251103.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165525000130/pltr-20251103.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-08-05",
+          "document": "pltr-20250630.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165525000106/pltr-20250630.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-08-04",
+          "document": "pltr-20250804.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1321655/000132165525000105/pltr-20250804.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "RDDT",
+      "cik": "0001713445",
+      "entityName": "Reddit, Inc.",
+      "sic": "7374",
+      "sicDescription": "Services-Computer Processing & Data Preparation",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001713445.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-01",
+          "document": "rddt-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344526000069/rddt-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-30",
+          "document": "rddt-20260430.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344526000067/rddt-20260430.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-06",
+          "document": "rddt-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344526000022/rddt-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-05",
+          "document": "rddt-20260205.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344526000020/rddt-20260205.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-31",
+          "document": "rddt-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344525000227/rddt-20250930.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-10-30",
+          "document": "rddt-20251030.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344525000225/rddt-20251030.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-08-01",
+          "document": "rddt-20250630.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344525000196/rddt-20250630.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-07-31",
+          "document": "rddt-20250731.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1713445/000171344525000194/rddt-20250731.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "HIMS",
+      "cik": "0001773751",
+      "entityName": "Hims & Hers Health, Inc.",
+      "sic": "8011",
+      "sicDescription": "Services-Offices & Clinics of  Doctors of  Medicine",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001773751.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-11",
+          "document": "hims-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000076/hims-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-11",
+          "document": "hims-20260511.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000074/hims-20260511.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-11",
+          "document": "hims-20260309.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000033/hims-20260309.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-23",
+          "document": "hims-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000022/hims-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-23",
+          "document": "hims-20260223.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000019/hims-20260223.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-19",
+          "document": "hims-20260219.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000010/hims-20260219.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2025-11-17",
+          "document": "hims-20251113.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375125000362/hims-20251113.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-11-03",
+          "document": "hims-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773751/000177375125000354/hims-20250930.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "TMDX",
+      "cik": "0001756262",
+      "entityName": "TransMedics Group, Inc.",
+      "sic": "3845",
+      "sicDescription": "Electromedical & Electrotherapeutic Apparatus",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001756262.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-05",
+          "document": "tmdx-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526206453/tmdx-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-05",
+          "document": "tmdx-20260505.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526206347/tmdx-20260505.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-27",
+          "document": "d80286d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526079392/d80286d8k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-02-24",
+          "document": "tmdx-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526067032/tmdx-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-24",
+          "document": "tmdx-20260224.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526066953/tmdx-20260224.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-04",
+          "document": "d50302d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526037615/d50302d8k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-01-12",
+          "document": "d25695d8k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312526009816/d25695d8k.htm"
+        },
+        {
+          "form": "10-Q",
+          "filingDate": "2025-10-29",
+          "document": "tmdx-20250930.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1756262/000119312525256377/tmdx-20250930.htm"
+        }
+      ]
+    },
+    {
+      "symbol": "ASTS",
+      "cik": "0001780312",
+      "entityName": "AST SpaceMobile, Inc.",
+      "sic": "4899",
+      "sicDescription": "Communications Services, NEC",
+      "fiscalYearEnd": "1231",
+      "source": "SEC submissions JSON public endpoint",
+      "sourceUrl": "https://data.sec.gov/submissions/CIK0001780312.json",
+      "recentMaterialFilings": [
+        {
+          "form": "10-Q",
+          "filingDate": "2026-05-11",
+          "document": "asts-20260331.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000119312526216950/asts-20260331.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-05-11",
+          "document": "asts-20260511.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000119312526216946/asts-20260511.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-04-20",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000149315226018012/form8-k.htm"
+        },
+        {
+          "form": "10-K",
+          "filingDate": "2026-03-02",
+          "document": "asts-20251231.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000178031226000006/asts-20251231.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-03-02",
+          "document": "asts-20260302.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000178031226000005/asts-20260302.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-23",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000149315226007772/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-20",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000149315226007626/form8-k.htm"
+        },
+        {
+          "form": "8-K",
+          "filingDate": "2026-02-17",
+          "document": "form8-k.htm",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1780312/000149315226007126/form8-k.htm"
+        }
+      ]
+    }
+  ],
   "globalInstitutionSources": [
     {
       "institution": "Federal Reserve / FRED",
@@ -3275,15 +5257,15 @@
       "symbol": "MSFT",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MSFT?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:27.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 423.96,
+      "price": 422.8,
       "previousClose": 421.92,
-      "changePct": 0.48,
-      "perf5dPct": 2.74,
-      "perf1mPct": 0.28,
-      "perf3mPct": 5.51,
+      "changePct": 0.21,
+      "perf5dPct": 2.46,
+      "perf1mPct": 0,
+      "perf3mPct": 5.22,
       "sparkline": [
         384.47,
         389,
@@ -3344,7 +5326,7 @@
         405.21,
         409.43,
         421.92,
-        423.96
+        422.8
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3353,15 +5335,15 @@
       "symbol": "AMZN",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AMZN?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:27.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 263.4,
+      "price": 264.64,
       "previousClose": 264.14,
-      "changePct": -0.28,
-      "perf5dPct": -2.08,
-      "perf1mPct": 5.13,
-      "perf3mPct": 31.97,
+      "changePct": 0.19,
+      "perf5dPct": -1.62,
+      "perf1mPct": 5.62,
+      "perf3mPct": 32.59,
       "sparkline": [
         205.27,
         208.56,
@@ -3422,7 +5404,7 @@
         270.13,
         267.22,
         264.14,
-        263.4
+        264.63
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3431,15 +5413,15 @@
       "symbol": "CEG",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CEG?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:27.000Z",
+      "asOf": "2026-05-18T19:55:24.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 260.8,
+      "price": 261.86,
       "previousClose": 267.2,
-      "changePct": -2.4,
-      "perf5dPct": -12.98,
-      "perf1mPct": -11.95,
-      "perf3mPct": -5.55,
+      "changePct": -2,
+      "perf5dPct": -12.62,
+      "perf1mPct": -11.6,
+      "perf3mPct": -5.16,
       "sparkline": [
         293.8,
         312.64,
@@ -3500,7 +5482,7 @@
         274.89,
         275.26,
         267.2,
-        260.8
+        261.86
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3509,15 +5491,15 @@
       "symbol": "META",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/META?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:24.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 610.97,
+      "price": 610.2,
       "previousClose": 614.23,
-      "changePct": -0.53,
-      "perf5dPct": 2.02,
-      "perf1mPct": -11.27,
-      "perf3mPct": -5.98,
+      "changePct": -0.66,
+      "perf5dPct": 1.89,
+      "perf1mPct": -11.38,
+      "perf3mPct": -6.1,
       "sparkline": [
         637.25,
         639.3,
@@ -3578,7 +5560,7 @@
         616.63,
         618.43,
         614.23,
-        610.97
+        610.2
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3587,15 +5569,15 @@
       "symbol": "TSLT",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSLT?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:27.000Z",
+      "asOf": "2026-05-18T19:55:18.000Z",
       "currency": "USD",
       "exchange": "BTS",
-      "price": 19.51,
+      "price": 19.7,
       "previousClose": 20.99,
-      "changePct": -7.05,
-      "perf5dPct": -16.94,
-      "perf1mPct": 0.77,
-      "perf3mPct": -12.08,
+      "changePct": -6.12,
+      "perf5dPct": -16.11,
+      "perf1mPct": 1.78,
+      "perf3mPct": -11.2,
       "sparkline": [
         20.26,
         21.22,
@@ -3656,7 +5638,7 @@
         23.44,
         23.22,
         20.99,
-        19.51
+        19.7
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3665,15 +5647,15 @@
       "symbol": "CONL",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CONL?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:24.000Z",
+      "asOf": "2026-05-18T19:55:27.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 7.28,
+      "price": 7.65,
       "previousClose": 8.15,
-      "changePct": -10.67,
-      "perf5dPct": -28.21,
-      "perf1mPct": -24.09,
-      "perf3mPct": 41.36,
+      "changePct": -6.14,
+      "perf5dPct": -24.56,
+      "perf1mPct": -20.24,
+      "perf3mPct": 48.53,
       "sparkline": [
         6.44,
         6.57,
@@ -3734,7 +5716,7 @@
         8.8,
         9.66,
         8.15,
-        7.28
+        7.65
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3743,15 +5725,15 @@
       "symbol": "SPY",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 734.43,
+      "price": 738.42,
       "previousClose": 739.17,
-      "changePct": -0.64,
-      "perf5dPct": -0.66,
-      "perf1mPct": 3.42,
-      "perf3mPct": 7.8,
+      "changePct": -0.1,
+      "perf5dPct": -0.12,
+      "perf1mPct": 3.98,
+      "perf3mPct": 8.39,
       "sparkline": [
         682.39,
         687.35,
@@ -3812,7 +5794,7 @@
         742.31,
         748.17,
         739.17,
-        734.43
+        738.42
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3821,15 +5803,15 @@
       "symbol": "MA",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/MA?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:27.000Z",
+      "asOf": "2026-05-18T19:55:18.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 502.72,
+      "price": 505.01,
       "previousClose": 494.2,
-      "changePct": 1.72,
-      "perf5dPct": 0.99,
-      "perf1mPct": -3.56,
-      "perf3mPct": -4.69,
+      "changePct": 2.19,
+      "perf5dPct": 1.45,
+      "perf1mPct": -3.13,
+      "perf3mPct": -4.26,
       "sparkline": [
         496.03,
         498,
@@ -3890,7 +5872,7 @@
         490.64,
         489.94,
         494.2,
-        502.72
+        505.01
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -3899,15 +5881,15 @@
       "symbol": "BMNR",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/BMNR?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:27.000Z",
+      "asOf": "2026-05-18T19:55:18.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 18.41,
+      "price": 18.84,
       "previousClose": 19.87,
-      "changePct": -7.34,
-      "perf5dPct": -20.02,
-      "perf1mPct": -19.77,
-      "perf3mPct": -6.73,
+      "changePct": -5.16,
+      "perf5dPct": -18.14,
+      "perf1mPct": -17.89,
+      "perf3mPct": -4.53,
       "sparkline": [
         19.22,
         19.44,
@@ -3968,7 +5950,7 @@
         21.18,
         22,
         19.87,
-        18.41
+        18.84
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4055,15 +6037,15 @@
       "symbol": "NFLX",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NFLX?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 89.29,
+      "price": 89.64,
       "previousClose": 87.02,
-      "changePct": 2.61,
-      "perf5dPct": 4.5,
-      "perf1mPct": -8.24,
-      "perf3mPct": 17.71,
+      "changePct": 3.01,
+      "perf5dPct": 4.9,
+      "perf1mPct": -7.89,
+      "perf3mPct": 18.16,
       "sparkline": [
         76.02,
         78.04,
@@ -4124,7 +6106,7 @@
         87.56,
         86.94,
         87.02,
-        89.29
+        89.64
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4133,15 +6115,15 @@
       "symbol": "QQQ",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:23.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 700.23,
+      "price": 705.72,
       "previousClose": 708.93,
-      "changePct": -1.23,
-      "perf5dPct": -1.83,
-      "perf1mPct": 7.92,
-      "perf3mPct": 16.58,
+      "changePct": -0.45,
+      "perf5dPct": -1.06,
+      "perf1mPct": 8.76,
+      "perf3mPct": 17.49,
       "sparkline": [
         601.41,
         607.87,
@@ -4202,7 +6184,7 @@
         714.71,
         719.79,
         708.93,
-        700.29
+        705.72
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4211,15 +6193,15 @@
       "symbol": "IWM",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/IWM?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 274.3,
+      "price": 276.16,
       "previousClose": 277.6,
-      "changePct": -1.19,
-      "perf5dPct": -3.87,
-      "perf1mPct": -0.54,
-      "perf3mPct": 5.69,
+      "changePct": -0.52,
+      "perf5dPct": -3.21,
+      "perf1mPct": 0.14,
+      "perf3mPct": 6.4,
       "sparkline": [
         260.49,
         263.33,
@@ -4280,7 +6262,7 @@
         282.67,
         284.45,
         277.6,
-        274.3
+        276.16
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4289,15 +6271,15 @@
       "symbol": "^VIX",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:10:16.000Z",
+      "asOf": "2026-05-18T19:40:16.000Z",
       "currency": "USD",
       "exchange": "CXI",
-      "price": 18.49,
+      "price": 18.11,
       "previousClose": 18.43,
-      "changePct": 0.33,
-      "perf5dPct": 0.6,
-      "perf1mPct": 5.78,
-      "perf3mPct": -11.19,
+      "changePct": -1.74,
+      "perf5dPct": -1.47,
+      "perf1mPct": 3.6,
+      "perf3mPct": -13.02,
       "sparkline": [
         21.01,
         19.55,
@@ -4358,7 +6340,7 @@
         17.87,
         17.26,
         18.43,
-        18.49
+        18.11
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T07:00:00.000Z"
@@ -4367,15 +6349,15 @@
       "symbol": "DX-Y.NYB",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:15:27.000Z",
+      "asOf": "2026-05-18T19:45:27.000Z",
       "currency": "USD",
       "exchange": "NYB",
-      "price": 99.07,
+      "price": 99.01,
       "previousClose": 99.28,
-      "changePct": -0.21,
-      "perf5dPct": 1.16,
-      "perf1mPct": 0.99,
-      "perf3mPct": 2.21,
+      "changePct": -0.28,
+      "perf5dPct": 1.09,
+      "perf1mPct": 0.93,
+      "perf3mPct": 2.15,
       "sparkline": [
         97.7,
         97.88,
@@ -4436,7 +6418,7 @@
         98.48,
         98.88,
         99.27,
-        99.07
+        99.01
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T04:00:00.000Z"
@@ -4445,15 +6427,15 @@
       "symbol": "BTC-USD",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:26.000Z",
+      "asOf": "2026-05-18T19:55:25.000Z",
       "currency": "USD",
       "exchange": "CCC",
-      "price": 76267.8,
+      "price": 76848.01,
       "previousClose": 77414.91,
-      "changePct": -1.48,
-      "perf5dPct": -3.8,
-      "perf1mPct": -1.42,
-      "perf3mPct": 7.1,
+      "changePct": -0.73,
+      "perf5dPct": -3.06,
+      "perf1mPct": -0.67,
+      "perf3mPct": 7.91,
       "sparkline": [
         70522.59,
         68711.52,
@@ -4514,7 +6496,7 @@
         79065.68,
         78131.44,
         77429.35,
-        76267.8
+        76848.01
       ],
       "dataPoints": 182,
       "lastTimestamp": "2026-05-18T00:00:00.000Z"
@@ -4523,15 +6505,15 @@
       "symbol": "ETH-USD",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/ETH-USD?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:24.000Z",
+      "asOf": "2026-05-18T19:55:26.000Z",
       "currency": "USD",
       "exchange": "CCC",
-      "price": 2092.2,
+      "price": 2123.37,
       "previousClose": 2129.87,
-      "changePct": -1.77,
-      "perf5dPct": -7.33,
-      "perf1mPct": -9.16,
-      "perf3mPct": -0.23,
+      "changePct": -0.31,
+      "perf5dPct": -5.94,
+      "perf1mPct": -7.8,
+      "perf3mPct": 1.25,
       "sparkline": [
         2146.5,
         2076.69,
@@ -4592,7 +6574,7 @@
         2223.33,
         2179.75,
         2127.65,
-        2092.2
+        2123.37
       ],
       "dataPoints": 182,
       "lastTimestamp": "2026-05-18T00:00:00.000Z"
@@ -4601,15 +6583,15 @@
       "symbol": "TSLA",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TSLA?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 407.2,
+      "price": 409.29,
       "previousClose": 422.24,
-      "changePct": -3.56,
-      "perf5dPct": -8.49,
-      "perf1mPct": 1.64,
-      "perf3mPct": -2.37,
+      "changePct": -3.07,
+      "perf5dPct": -8.02,
+      "perf1mPct": 2.16,
+      "perf3mPct": -1.87,
       "sparkline": [
         399.83,
         409.38,
@@ -4670,7 +6652,7 @@
         445.27,
         443.3,
         422.24,
-        407.2
+        409.36
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4679,15 +6661,15 @@
       "symbol": "COIN",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/COIN?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:18.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 185.11,
+      "price": 189.66,
       "previousClose": 195.43,
-      "changePct": -5.28,
-      "perf5dPct": -14.54,
-      "perf1mPct": -10.28,
-      "perf3mPct": 31.2,
+      "changePct": -2.95,
+      "perf5dPct": -12.44,
+      "perf1mPct": -8.08,
+      "perf3mPct": 34.42,
       "sparkline": [
         160.24,
         162.03,
@@ -4748,7 +6730,7 @@
         201.8,
         212.01,
         195.43,
-        185.11
+        189.66
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4757,15 +6739,15 @@
       "symbol": "NVDA",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 219.71,
+      "price": 222.25,
       "previousClose": 225.32,
-      "changePct": -2.49,
-      "perf5dPct": 0.12,
-      "perf1mPct": 8.94,
-      "perf3mPct": 17.53,
+      "changePct": -1.36,
+      "perf5dPct": 1.28,
+      "perf1mPct": 10.2,
+      "perf3mPct": 18.89,
       "sparkline": [
         191.55,
         192.85,
@@ -4826,7 +6808,7 @@
         225.83,
         235.74,
         225.32,
-        219.71
+        222.24
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4835,15 +6817,15 @@
       "symbol": "AVGO",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/AVGO?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:27.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 416.98,
+      "price": 421.27,
       "previousClose": 425.19,
-      "changePct": -1.93,
-      "perf5dPct": -2.67,
-      "perf1mPct": 2.57,
-      "perf3mPct": 25.91,
+      "changePct": -0.92,
+      "perf5dPct": -1.67,
+      "perf1mPct": 3.62,
+      "perf3mPct": 27.21,
       "sparkline": [
         330.34,
         325.49,
@@ -4904,7 +6886,7 @@
         416.79,
         439.79,
         425.19,
-        416.98
+        421.27
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4913,15 +6895,15 @@
       "symbol": "VRT",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/VRT?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:18.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 331.52,
+      "price": 340.63,
       "previousClose": 370.94,
-      "changePct": -10.63,
-      "perf5dPct": -9.89,
-      "perf1mPct": 7.87,
-      "perf3mPct": 40.17,
+      "changePct": -8.17,
+      "perf5dPct": -7.42,
+      "perf1mPct": 10.83,
+      "perf3mPct": 44.02,
       "sparkline": [
         245.42,
         253.15,
@@ -4982,7 +6964,7 @@
         369.99,
         376.23,
         370.94,
-        331.52
+        340.63
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -4991,15 +6973,15 @@
       "symbol": "GOOGL",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/GOOGL?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:28.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 398.58,
+      "price": 396.28,
       "previousClose": 396.78,
-      "changePct": 0.45,
-      "perf5dPct": 2.56,
-      "perf1mPct": 16.65,
-      "perf3mPct": 28.99,
+      "changePct": -0.13,
+      "perf5dPct": 1.97,
+      "perf1mPct": 15.98,
+      "perf3mPct": 28.25,
       "sparkline": [
         311.49,
         310.9,
@@ -5060,7 +7042,7 @@
         402.62,
         401.07,
         396.78,
-        398.58
+        396.28
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5069,15 +7051,15 @@
       "symbol": "IBIT",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/IBIT?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:26.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 43.19,
+      "price": 43.51,
       "previousClose": 44.82,
-      "changePct": -3.63,
-      "perf5dPct": -7.05,
-      "perf1mPct": -1.7,
-      "perf3mPct": 16.59,
+      "changePct": -2.91,
+      "perf5dPct": -6.36,
+      "perf1mPct": -0.97,
+      "perf3mPct": 17.45,
       "sparkline": [
         36.55,
         36.53,
@@ -5138,7 +7120,7 @@
         45.12,
         46.17,
         44.82,
-        43.19
+        43.51
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5147,15 +7129,15 @@
       "symbol": "GEV",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/GEV?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:23.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 986.12,
+      "price": 1013.94,
       "previousClose": 1049.23,
-      "changePct": -6.01,
-      "perf5dPct": -8.1,
-      "perf1mPct": -1.66,
-      "perf3mPct": 20.77,
+      "changePct": -3.36,
+      "perf5dPct": -5.51,
+      "perf1mPct": 1.12,
+      "perf3mPct": 24.17,
       "sparkline": [
         831.7,
         879.73,
@@ -5216,7 +7198,7 @@
         1062.57,
         1090.53,
         1049.23,
-        986.12
+        1013.83
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5225,15 +7207,15 @@
       "symbol": "ETN",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/ETN?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 376.24,
+      "price": 382.2,
       "previousClose": 399.44,
-      "changePct": -5.81,
-      "perf5dPct": -10.21,
-      "perf1mPct": -7.38,
-      "perf3mPct": -3.61,
+      "changePct": -4.32,
+      "perf5dPct": -8.78,
+      "perf1mPct": -5.91,
+      "perf3mPct": -2.08,
       "sparkline": [
         362.05,
         374.56,
@@ -5294,7 +7276,7 @@
         406.94,
         408.1,
         399.44,
-        376.24
+        382.2
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5303,15 +7285,15 @@
       "symbol": "PWR",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/PWR?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:16.000Z",
+      "asOf": "2026-05-18T19:55:10.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 722.68,
+      "price": 724.97,
       "previousClose": 769.99,
-      "changePct": -6.14,
-      "perf5dPct": -7.51,
-      "perf1mPct": 20.07,
-      "perf3mPct": 40.09,
+      "changePct": -5.85,
+      "perf5dPct": -7.22,
+      "perf1mPct": 20.45,
+      "perf3mPct": 40.53,
       "sparkline": [
         549.11,
         568.21,
@@ -5372,7 +7354,7 @@
         773.72,
         780.08,
         769.99,
-        722.68
+        724.97
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5381,15 +7363,15 @@
       "symbol": "NXT",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/NXT?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:25.000Z",
+      "asOf": "2026-05-18T19:55:26.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 132.38,
+      "price": 134.63,
       "previousClose": 144.29,
-      "changePct": -8.25,
-      "perf5dPct": 4.85,
-      "perf1mPct": 18.84,
-      "perf3mPct": 15.88,
+      "changePct": -6.69,
+      "perf5dPct": 6.63,
+      "perf1mPct": 20.86,
+      "perf3mPct": 17.85,
       "sparkline": [
         116.99,
         120.58,
@@ -5450,7 +7432,7 @@
         136.37,
         142.75,
         144.29,
-        132.38
+        134.63
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5459,15 +7441,15 @@
       "symbol": "CCJ",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/CCJ?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:15.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 103.94,
+      "price": 104.87,
       "previousClose": 107.51,
-      "changePct": -3.32,
-      "perf5dPct": -13.49,
-      "perf1mPct": -13.86,
-      "perf3mPct": -10.7,
+      "changePct": -2.46,
+      "perf5dPct": -12.71,
+      "perf1mPct": -13.09,
+      "perf3mPct": -9.9,
       "sparkline": [
         118.75,
         121.08,
@@ -5528,7 +7510,7 @@
         115.39,
         112.51,
         107.51,
-        103.94
+        104.87
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5537,15 +7519,15 @@
       "symbol": "URA",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/URA?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "PCX",
-      "price": 48.28,
+      "price": 48.65,
       "previousClose": 49.93,
-      "changePct": -3.31,
-      "perf5dPct": -15.65,
-      "perf1mPct": -13.58,
-      "perf3mPct": -6.71,
+      "changePct": -2.57,
+      "perf5dPct": -15,
+      "perf1mPct": -12.92,
+      "perf3mPct": -6,
       "sparkline": [
         53.44,
         54.95,
@@ -5606,7 +7588,7 @@
         53.31,
         52.5,
         49.93,
-        48.28
+        48.65
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5615,15 +7597,15 @@
       "symbol": "OKLO",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/OKLO?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:18.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 57.26,
+      "price": 58.76,
       "previousClose": 62.25,
-      "changePct": -8.02,
-      "perf5dPct": -26.71,
-      "perf1mPct": -14.29,
-      "perf3mPct": -10.42,
+      "changePct": -5.6,
+      "perf5dPct": -24.79,
+      "perf1mPct": -12.05,
+      "perf3mPct": -8.07,
       "sparkline": [
         63.09,
         65.06,
@@ -5684,7 +7666,7 @@
         69.66,
         67.21,
         62.25,
-        57.26
+        58.76
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5693,15 +7675,15 @@
       "symbol": "SMR",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/SMR?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:17.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 10.28,
+      "price": 10.43,
       "previousClose": 11.23,
-      "changePct": -8.41,
-      "perf5dPct": -22.61,
-      "perf1mPct": -18.7,
-      "perf3mPct": -26.48,
+      "changePct": -7.17,
+      "perf5dPct": -21.56,
+      "perf1mPct": -17.59,
+      "perf3mPct": -25.48,
       "sparkline": [
         12.6,
         13.43,
@@ -5762,7 +7744,7 @@
         11.96,
         12.06,
         11.23,
-        10.28
+        10.43
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5771,15 +7753,15 @@
       "symbol": "RKLB",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/RKLB?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:27.000Z",
+      "asOf": "2026-05-18T19:55:27.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 127.42,
+      "price": 131.3,
       "previousClose": 124.77,
-      "changePct": 2.12,
-      "perf5dPct": 8.58,
-      "perf1mPct": 50.26,
-      "perf3mPct": 93.03,
+      "changePct": 5.24,
+      "perf5dPct": 11.89,
+      "perf1mPct": 54.84,
+      "perf3mPct": 98.92,
       "sparkline": [
         70.21,
         69.97,
@@ -5840,7 +7822,7 @@
         124.15,
         132.55,
         124.77,
-        127.42
+        131.3
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5849,15 +7831,15 @@
       "symbol": "PLTR",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/PLTR?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:29.000Z",
+      "asOf": "2026-05-18T19:55:27.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 133.56,
+      "price": 134.97,
       "previousClose": 133.99,
-      "changePct": -0.32,
-      "perf5dPct": -2.43,
-      "perf1mPct": -8.76,
-      "perf3mPct": 3.43,
+      "changePct": 0.73,
+      "perf5dPct": -1.4,
+      "perf1mPct": -7.8,
+      "perf3mPct": 4.52,
       "sparkline": [
         130.6,
         128.84,
@@ -5918,7 +7900,7 @@
         130.05,
         133.73,
         133.99,
-        133.56
+        134.97
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -5927,15 +7909,15 @@
       "symbol": "RDDT",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/RDDT?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:26.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 156.9,
+      "price": 159.02,
       "previousClose": 158.17,
-      "changePct": -0.8,
-      "perf5dPct": -1.63,
-      "perf1mPct": -4.21,
-      "perf3mPct": 19.71,
+      "changePct": 0.54,
+      "perf5dPct": -0.31,
+      "perf1mPct": -2.92,
+      "perf3mPct": 21.32,
       "sparkline": [
         142.46,
         142.08,
@@ -5996,7 +7978,7 @@
         154.12,
         156.31,
         158.17,
-        156.9
+        159.02
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -6005,15 +7987,15 @@
       "symbol": "HIMS",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/HIMS?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:19.000Z",
       "currency": "USD",
       "exchange": "NYQ",
-      "price": 22.6,
+      "price": 22.37,
       "previousClose": 25.05,
-      "changePct": -9.78,
-      "perf5dPct": -22.44,
-      "perf1mPct": -21.58,
-      "perf3mPct": 43.04,
+      "changePct": -10.71,
+      "perf5dPct": -23.24,
+      "perf1mPct": -22.39,
+      "perf3mPct": 41.57,
       "sparkline": [
         15.51,
         15.46,
@@ -6074,7 +8056,7 @@
         24.14,
         24.24,
         25.05,
-        22.6
+        22.37
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -6083,15 +8065,15 @@
       "symbol": "TMDX",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/TMDX?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:18.000Z",
+      "asOf": "2026-05-18T19:55:20.000Z",
       "currency": "USD",
       "exchange": "NGM",
-      "price": 67.86,
+      "price": 68.22,
       "previousClose": 63.2,
-      "changePct": 7.37,
-      "perf5dPct": 5.54,
-      "perf1mPct": -41.43,
-      "perf3mPct": -47.2,
+      "changePct": 7.94,
+      "perf5dPct": 6.1,
+      "perf1mPct": -41.12,
+      "perf3mPct": -46.92,
       "sparkline": [
         134.65,
         137.78,
@@ -6152,7 +8134,7 @@
         64.18,
         62.04,
         63.2,
-        67.86
+        68.22
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -6161,15 +8143,15 @@
       "symbol": "ASTS",
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)",
       "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/ASTS?range=1d&interval=1m&includePrePost=true",
-      "asOf": "2026-05-18T18:25:28.000Z",
+      "asOf": "2026-05-18T19:55:24.000Z",
       "currency": "USD",
       "exchange": "NMS",
-      "price": 83.72,
+      "price": 86.9,
       "previousClose": 83.67,
-      "changePct": 0.06,
-      "perf5dPct": 1.42,
-      "perf1mPct": -2.12,
-      "perf3mPct": 1.82,
+      "changePct": 3.87,
+      "perf5dPct": 5.28,
+      "perf1mPct": 1.61,
+      "perf3mPct": 5.7,
       "sparkline": [
         83.9,
         85.82,
@@ -6230,7 +8212,7 @@
         74.81,
         83.01,
         83.67,
-        83.72
+        86.91
       ],
       "dataPoints": 124,
       "lastTimestamp": "2026-05-18T13:30:00.000Z"
@@ -6294,10 +8276,5 @@
       "value": 3.63
     }
   ],
-  "liveDataErrors": [
-    {
-      "source": "SEC company_tickers",
-      "error": "403 https://www.sec.gov/files/company_tickers.json"
-    }
-  ]
+  "liveDataErrors": []
 }

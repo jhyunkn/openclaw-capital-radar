@@ -9,7 +9,7 @@ const statePath = fs.existsSync(path.join(root, 'data', 'report-state.live.json'
 const report = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, 'utf8') : '';
 const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : {};
 function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-function clean(value) { return String(value ?? '').replace(/\s*sample\b/ig, '').replace(/\bin the sample state\b/ig, 'under current live review').replace(/TBD-\d+/g, '').trim(); }
+function clean(value) { return String(value ?? '').replace(/\s*sample\b/ig, '').replace(/\bin the sample state\b/ig, 'under current live review').replace(/\bin the state\b/ig, 'under current live review').replace(/TBD-\d+/g, '').trim(); }
 function num(value) { const parsed = Number(String(value ?? '').replace(/[$,%]/g, '').replace(/,/g, '')); return Number.isFinite(parsed) ? parsed : null; }
 function fmt(value, digits = 2) { const n = num(value); return Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: digits }) : esc(value || '—'); }
 function tone(value) { const n = num(value); return !Number.isFinite(n) ? '' : n >= 0 ? 'good' : 'bad'; }

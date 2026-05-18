@@ -1,0 +1,37 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const indexPath = path.join(root, 'index.html');
+if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
+let html = fs.readFileSync(indexPath, 'utf8');
+const css = `<style id="four-tab-consolidation-css">.four-tab-nav{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(246,244,237,.92);backdrop-filter:blur(16px)}.four-tab-nav a{padding:15px 18px;text-decoration:none;border-right:1px solid var(--rule);color:var(--ink);font-size:13px;letter-spacing:.02em}.four-tab-nav a:last-child{border-right:0}.four-tab-nav span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px}.tab-cluster{scroll-margin-top:76px}.tab-cluster-intro{padding:34px 0 18px;border-top:1px solid var(--rule)}.tab-cluster-intro h2{font-size:clamp(38px,5.2vw,84px);line-height:.92;letter-spacing:-.065em;margin:0}.tab-cluster-intro p{max-width:760px;color:var(--muted);font-size:16px;line-height:1.48;margin-top:14px}.section-compact-note{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px}.decision-poster{display:grid;grid-template-columns:1.2fr .8fr;gap:0;border:1px solid var(--rule);background:rgba(251,250,246,.22);margin:20px 0 28px}.decision-poster article{padding:22px;border-right:1px solid var(--rule)}.decision-poster aside{padding:22px}.decision-poster h3{font-size:clamp(32px,4vw,64px);line-height:.95;letter-spacing:-.06em;margin:0}.decision-poster p{font-size:15px;line-height:1.45;color:var(--muted);margin-top:12px}.decision-poster .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:18px}.decision-poster .mini-grid div{padding:13px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}.decision-poster .mini-grid span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:7px}.decision-poster .mini-grid b{font-size:18px;letter-spacing:-.03em}@media(max-width:800px){.four-tab-nav{grid-template-columns:1fr 1fr}.decision-poster{grid-template-columns:1fr}.decision-poster article{border-right:0;border-bottom:1px solid var(--rule)}}@media(max-width:560px){.four-tab-nav{position:relative;grid-template-columns:1fr}.four-tab-nav a{border-right:0;border-bottom:1px solid var(--rule)}}</style>`;
+html = html.replace(/<style id="four-tab-consolidation-css">[\s\S]*?<\/style>/, '');
+html = html.replace('</head>', `${css}</head>`);
+html = html.replace(/<nav class="four-tab-nav"[\s\S]*?<\/nav>/, '');
+html = html.replace(/<section id="command-tab" class="tab-cluster-intro[\s\S]*?<\/section>/g, '');
+html = html.replace(/<section id="portfolio-tab" class="tab-cluster-intro[\s\S]*?<\/section>/g, '');
+html = html.replace(/<section id="workbench-tab" class="tab-cluster-intro[\s\S]*?<\/section>/g, '');
+html = html.replace(/<section id="research-tab" class="tab-cluster-intro[\s\S]*?<\/section>/g, '');
+html = html.replace(/<section class="decision-poster"[\s\S]*?<\/section>/g, '');
+const nav = `<nav class="four-tab-nav" aria-label="Capital Radar operating tabs"><a href="#command-tab"><span>01</span>Command</a><a href="#portfolio-tab"><span>02</span>Portfolio</a><a href="#workbench-tab"><span>03</span>Workbench</a><a href="#research-tab"><span>04</span>Research</a></nav>`;
+const commandIntro = `<section id="command-tab" class="tab-cluster-intro tab-cluster"><p class="section-compact-note">Command</p><h2>What requires action now?</h2><p>The first surface is not a report. It is the operating answer: what is allowed, what is forbidden, what changed, and whether the data is fresh enough to trust.</p></section><section class="decision-poster"><article><p class="section-compact-note">Today’s decision poster</p><h3>Read permission before price.</h3><p>Buy zones are review zones only. A hard-exit, stale-data, verification, coverage, or risk-budget block overrides attractive price proximity.</p><div class="mini-grid"><div><span>First question</span><b>Can I act?</b></div><div><span>Second question</span><b>What is forbidden?</b></div><div><span>Third question</span><b>What changed?</b></div><div><span>Fourth question</span><b>What evidence is missing?</b></div></div></article><aside><p class="section-compact-note">Consumer contract</p><p>30 seconds: know what matters. 3 minutes: understand why. 30 minutes: audit the evidence.</p><p>This board should compress complexity into a small number of operational images and permission states, not ask the reader to reconcile every module manually.</p></aside></section>`;
+const portfolioIntro = `<section id="portfolio-tab" class="tab-cluster-intro tab-cluster"><p class="section-compact-note">Portfolio</p><h2>What is the total pressure?</h2><p>Portfolio sections should explain exposure, concentration, macro sensitivity, data weakness, and risk budget as one system rather than scattered facts.</p></section>`;
+const workbenchIntro = `<section id="workbench-tab" class="tab-cluster-intro tab-cluster"><p class="section-compact-note">Workbench</p><h2>Which holding needs review?</h2><p>The workbench is the operating table: ticker, decision, permission, current price versus key level, evidence state, and one-line reason.</p></section>`;
+const researchIntro = `<section id="research-tab" class="tab-cluster-intro tab-cluster"><p class="section-compact-note">Research</p><h2>What should enter research, not action?</h2><p>Research candidates, evidence packets, source reliability, and gate audits belong here. Research should not compete with Command for action authority.</p></section>`;
+const mainIdx = html.indexOf('<main');
+if (mainIdx < 0) throw new Error('main element not found');
+const mainOpenEnd = html.indexOf('>', mainIdx);
+html = html.slice(0, mainOpenEnd + 1) + nav + commandIntro + html.slice(mainOpenEnd + 1);
+function insertBeforeFirst(ids, intro) {
+  const candidates = ids.map(id => html.indexOf(`id="${id}"`)).filter(i => i >= 0).sort((a,b)=>a-b);
+  if (!candidates.length) return false;
+  const idx = html.lastIndexOf('<section', candidates[0]);
+  if (idx < 0) return false;
+  html = html.slice(0, idx) + intro + html.slice(idx);
+  return true;
+}
+insertBeforeFirst(['portfolio-exposure-map','thesis-coverage-home','market-stress-brief'], portfolioIntro);
+insertBeforeFirst(['strategic-holdings','portfolio-scoreboard','action-proximity'], workbenchIntro);
+insertBeforeFirst(['research-candidate-map','opportunity-evidence-engine','ticker-gate-audit','native-research-engine'], researchIntro);
+fs.writeFileSync(indexPath, html);
+console.log('consolidated homepage into four-tab operating architecture');

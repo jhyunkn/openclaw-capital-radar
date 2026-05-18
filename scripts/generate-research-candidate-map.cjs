@@ -13,14 +13,28 @@ function pct(v){ const x = n(v); return x == null ? 0 : x; }
 function momentumScore(c){ return Math.max(0, Math.min(40, (pct(c.dayChangePct) > 2 ? 10 : 0) + (pct(c.perf5dPct) > 5 ? 10 : 0) + (pct(c.perf1mPct) > 10 ? 10 : 0) + (pct(c.perf3mPct) > 20 ? 10 : 0))); }
 function setupScore(c){ const t = text(c); return Math.max(0, Math.min(30, (/earnings|breakout|volume|relative strength|inflection|contract|approval|catalyst|guidance|surprise/i.test(t) ? 15 : 0) + ((c.confirmBeforeAdd || []).length >= 3 ? 8 : 0) + ((c.keyRisks || []).length >= 3 ? 7 : 0))); }
 function macroFitScore(c){ const t = text(c); return Math.max(0, Math.min(40, (/rates|duration|defensive|cash flow|dividend|energy|utility|healthcare|industrial|infrastructure|credit|inflation|liquidity|recession|quality|balance/i.test(t) ? 18 : 0) + (/AI|power|grid|data center|semiconductor|cloud|cyber|defense/i.test(t) ? 10 : 0) + ((c.confirmBeforeAdd || []).length >= 3 ? 6 : 0) + ((c.keyRisks || []).length >= 3 ? 6 : 0))); }
-function diversificationFit(c){ const t = text(c); const aiBucket = (exposure.buckets || []).find(b => b.id === 'ai_infrastructure'); const leveredBucket = (exposure.buckets || []).find(b => b.id === 'levered_decay'); let score = 20; let reason = 'Candidate does not obviously worsen a dominant current exposure.'; if (/AI|semiconductor|cloud|data center|power|grid/i.test(t) && aiBucket && aiBucket.pressure !== 'inside-cap') { score -= 8; reason = 'Candidate may add to already pressured AI/infrastructure exposure; require substitution logic.'; } if (/levered|2x|3x|daily reset/i.test(t) && leveredBucket && leveredBucket.weightPct > 0) { score -= 12; reason = 'Candidate worsens levered/decay exposure; treat as tactical only.'; } if (/healthcare|consumer staples|utility|bond|treasury|cash flow|dividend|low beta|quality/i.test(t)) { score += 8; reason = 'Candidate may diversify portfolio factor exposure away from high-beta AI/liquidity concentration.'; } return { score: Math.max(0, Math.min(30, score)), reason }; }
-function classify(c){ const div = diversificationFit(c); const nearTermScore = momentumScore(c) + setupScore(c) + Math.min(15, div.score / 2); const longTermScore = macroFitScore(c) + div.score + ((c.thesis || '').length > 120 ? 10 : 0); const base = { ticker: c.ticker, name: c.name || c.ticker, price: c.price, dayChangePct: c.dayChangePct, signal: c.signal || 'INVESTIGATE', thesis: c.thesis || 'No thesis loaded.', confirmBeforeAdd: c.confirmBeforeAdd || [], keyRisks: c.keyRisks || [], portfolioFit: div.reason };
+function diversificationFit(c){
+  const t = text(c);
+  const aiBucket = (exposure.buckets || []).find(b => ['cloud_software_ai','ecommerce_cloud','digital_ads_ai_platform','power_energy_infrastructure'].includes(b.id));
+  const leveredBucket = (exposure.buckets || []).find(b => b.id === 'levered_tactical');
+  let score = 20;
+  let reason = 'Candidate does not obviously worsen a dominant current exposure.';
+  if (/AI|semiconductor|cloud|data center|power|grid/i.test(t) && aiBucket && aiBucket.pressure !== 'inside-cap') { score -= 8; reason = 'Candidate may add to already pressured AI/infrastructure-adjacent exposure; require substitution logic.'; }
+  if (/levered|2x|3x|daily reset/i.test(t) && leveredBucket && leveredBucket.weightPct > 0) { score -= 12; reason = 'Candidate worsens levered/decay exposure; treat as tactical only.'; }
+  if (/healthcare|consumer staples|utility|bond|treasury|cash flow|dividend|low beta|quality/i.test(t)) { score += 8; reason = 'Candidate may diversify portfolio factor exposure away from high-beta AI/liquidity concentration.'; }
+  return { score: Math.max(0, Math.min(30, score)), reason };
+}
+function classify(c){
+  const div = diversificationFit(c);
+  const nearTermScore = momentumScore(c) + setupScore(c) + Math.min(15, div.score / 2);
+  const longTermScore = macroFitScore(c) + div.score + ((c.thesis || '').length > 120 ? 10 : 0);
+  const base = { ticker: c.ticker, name: c.name || c.ticker, price: c.price, dayChangePct: c.dayChangePct, signal: c.signal || 'INVESTIGATE', thesis: c.thesis || '', confirmBeforeAdd: c.confirmBeforeAdd || [], keyRisks: c.keyRisks || [], portfolioFit: div.reason };
   return { ...base, nearTermScore: Number(nearTermScore.toFixed(1)), longTermScore: Number(longTermScore.toFixed(1)), category: nearTermScore >= longTermScore ? 'ticker_of_the_moment' : 'long_term_macro_fit' };
 }
-const mapped = candidates.map(classify);
+const mapped = candidates.filter(c => c && c.ticker && c.thesis && !/^TBD/i.test(String(c.ticker))).map(classify);
 const tickerOfMoment = mapped.filter(x => x.nearTermScore >= 45 || x.category === 'ticker_of_the_moment').sort((a,b) => b.nearTermScore - a.nearTermScore).slice(0,5);
 const longTermMacroFit = mapped.filter(x => x.longTermScore >= 45 || x.category === 'long_term_macro_fit').sort((a,b) => b.longTermScore - a.longTermScore).slice(0,5);
-const result = { generatedAt: new Date().toISOString(), purpose: 'Split research candidates into near-term explosive setups and long-term macro/portfolio-balance candidates.', tickerOfMoment, longTermMacroFit, allCandidates: mapped };
+const result = { generatedAt: new Date().toISOString(), purpose: 'Split research candidates into near-term explosive setups and long-term macro/portfolio-balance candidates.', emptyState: 'No near-term candidates today.', tickerOfMoment, longTermMacroFit, allCandidates: mapped };
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n');
 console.log(`generated research candidate map: ${tickerOfMoment.length} moment / ${longTermMacroFit.length} long-term`);

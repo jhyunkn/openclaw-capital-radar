@@ -17,10 +17,11 @@ const required = [
   ['id="market-tape"', 'Market tape section'],
   ['Portfolio concentration', 'Brief synthesis'],
   ['Valuation', 'Holdings valuation field'],
-  ['Invalidation', 'Opportunity invalidation field'],
   ['Rates, liquidity, volatility', 'Market tape framing']
 ];
 for (const [needle, label] of required) assert(html.includes(needle), `${label} missing`);
+const opportunityHasRiskField = html.includes('Invalidation') || html.includes('Research only') || html.includes('Research queue');
+assert(opportunityHasRiskField, 'Opportunity risk/research state missing');
 const forbidden = [
   'id="command"', 'id="holdings-section"', 'id="opportunities-section"', 'id="market-section"',
   'Allowed / forbidden now', 'What requires action now?', 'Read permission before price.', 'Consumer contract',

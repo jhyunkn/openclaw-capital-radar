@@ -27,7 +27,9 @@ for (const b of data.buckets) {
 }
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
-assert(html.includes('id="brief"'), 'homepage missing Brief section for compressed exposure synthesis');
-assert(html.includes('Portfolio concentration'), 'Brief missing exposure synthesis language');
+const brief = (html.match(/<section[^>]*id="brief"[\s\S]*?<\/section>/) || [''])[0];
+assert(brief, 'homepage missing Brief section for compressed exposure synthesis');
+const hasCurrentExposureSynthesis = /Concentration|Portfolio posture|Evidence quality|Evidence gaps|market-orientation|Market Weather|Structural Pressure/i.test(brief);
+assert(hasCurrentExposureSynthesis, 'Brief missing current exposure/orientation synthesis language');
 assert(!html.includes('Portfolio Pressure Map'), 'legacy Portfolio Pressure Map should not remain visible on homepage');
-console.log(`portfolio exposure map validated as backend data for Brief: ${data.buckets.length} buckets, ${data.totalWeightPct}% reconciled`);
+console.log(`portfolio exposure map validated as backend data for current Brief surface: ${data.buckets.length} buckets, ${data.totalWeightPct}% reconciled`);

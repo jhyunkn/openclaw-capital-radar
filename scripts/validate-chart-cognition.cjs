@@ -27,5 +27,11 @@ for (const h of holdings) {
 const indexPath = path.join(root, 'index.html');
 assert(fs.existsSync(indexPath), 'index.html missing');
 const index = fs.readFileSync(indexPath, 'utf8');
-assert(index.includes('id="action-proximity"'), 'homepage missing action proximity section');
-console.log(`chart cognition validated: ${holdings.length} ticker workspaces`);
+const cleanHome = index.includes('id="command"') && index.includes('Allowed / forbidden now') && index.includes('outputs/authoritative-action-state.json');
+const legacyHome = index.includes('id="action-proximity"');
+assert(cleanHome || legacyHome, 'homepage missing either clean command surface or legacy action proximity section');
+if (cleanHome) {
+  assert(!index.includes('What requires action now?'), 'legacy command manifesto still present');
+  assert(!index.includes('Read permission before price.'), 'legacy decision-poster still present');
+}
+console.log(`chart cognition validated: ${holdings.length} ticker workspaces; ${cleanHome ? 'clean homepage command surface' : 'legacy action proximity'}`);

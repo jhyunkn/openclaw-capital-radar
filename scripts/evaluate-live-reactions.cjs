@@ -10,7 +10,7 @@ const publicOutPath = path.join(root, 'public', 'outputs', 'live-reaction-state.
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 const tapeBySymbol = Object.fromEntries((state.liveMarket || []).map(x => [x.symbol, x]));
-const STALE_BLOCK_MINUTES = 24 * 60;
+const STALE_BLOCK_MINUTES = 1440;
 const CAUTION_MINUTES = 6 * 60;
 
 function round(n, d = 2) { return typeof n === 'number' && Number.isFinite(n) ? Number(n.toFixed(d)) : null; }

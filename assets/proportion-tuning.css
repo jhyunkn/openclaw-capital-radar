@@ -1,4 +1,24 @@
-/* Editorial holdings restoration pass */
+:root{
+  --cr-display: clamp(52px, 7.4vw, 104px);
+  --cr-h2: clamp(28px, 3.2vw, 52px);
+  --cr-h3: clamp(20px, 2vw, 34px);
+  --cr-body: 14px;
+  --cr-caption: 12px;
+  --cr-section-pad: clamp(34px, 4.2vw, 52px);
+  --cr-tile-pad: clamp(14px, 1.6vw, 20px);
+}
+
+/* Required proportion tuning layer. Keep these tokens present for build validation. */
+body{font-size:var(--cr-body)}
+.topbar{padding:13px clamp(18px,3.2vw,42px);font-size:13px}
+.nav a,#generated{font-size:12px}
+h1{font-size:var(--cr-display);line-height:.92;letter-spacing:-.072em}
+h2{font-size:var(--cr-h2);line-height:1.02;letter-spacing:-.052em;margin-bottom:14px}
+h3{font-size:var(--cr-h3);line-height:1.25}
+.panel,section{padding-top:var(--cr-section-pad);padding-bottom:var(--cr-section-pad)}
+.card,.metric,.board-card,.strategy-card,.holding-card{padding:var(--cr-tile-pad)}
+
+/* Legacy holdings selectors retained as harmless compatibility overrides. */
 #holdings{
   background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0))!important;
 }
@@ -14,7 +34,6 @@
   border-radius:22px!important;
   background:rgba(251,250,246,.78)!important;
   box-shadow:0 18px 48px rgba(36,35,31,.04)!important;
-  padding:22px!important;
   overflow:hidden!important;
 }
 

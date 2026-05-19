@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "policy": "Build stages are grouped by intent so homepage and research surfaces can evolve without editing one fragile package.json chain.",
+  "version": 2,
+  "policy": "Capital Radar builds trusted market-orientation artifacts first, then renders interchangeable surfaces from those artifacts. Stages are grouped by intent so macro, ontology, homepage, and research layers can evolve without editing one fragile package.json chain.",
   "stages": [
     {
       "name": "base-data",
@@ -45,6 +45,14 @@
       ]
     },
     {
+      "name": "market-orientation",
+      "description": "Fold macro regime, infrastructure dependency, narrative velocity, capital flow, and asymmetry discovery into a decision-grade map artifact.",
+      "commands": [
+        "node scripts/generate-market-orientation-map.cjs",
+        "node scripts/validate-market-orientation-map.cjs"
+      ]
+    },
+    {
       "name": "workbench-hierarchy",
       "commands": [
         "node scripts/inject-strategy-interpreter-workbenches.cjs",
@@ -57,6 +65,7 @@
     },
     {
       "name": "homepage",
+      "description": "Render the homepage as a market-orientation surface from generated artifacts, not as isolated ticker modules.",
       "commands": [
         "node scripts/finalize-homepage-composition.cjs",
         "node scripts/inject-proportion-tuning.cjs",
@@ -84,6 +93,7 @@
         "node scripts/validate-ticker-workbench-hierarchy.cjs",
         "node scripts/validate-threshold-consistency.cjs",
         "node scripts/validate-system-quality-score.cjs",
+        "node scripts/validate-market-orientation-map.cjs",
         "node scripts/validate-homepage-information-hierarchy.cjs",
         "node scripts/validate-proportion-tuning.cjs",
         "node scripts/validate-four-section-homepage.cjs",

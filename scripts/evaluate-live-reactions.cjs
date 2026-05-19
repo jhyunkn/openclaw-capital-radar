@@ -10,19 +10,21 @@ const publicOutPath = path.join(root, 'public', 'outputs', 'live-reaction-state.
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 const tapeBySymbol = Object.fromEntries((state.liveMarket || []).map(x => [x.symbol, x]));
+const STALE_BLOCK_MINUTES = 24 * 60;
+const CAUTION_MINUTES = 6 * 60;
 
 function round(n, d = 2) { return typeof n === 'number' && Number.isFinite(n) ? Number(n.toFixed(d)) : null; }
 function minutesOld(iso) { return iso ? round((Date.now() - new Date(iso).getTime()) / 60000, 1) : null; }
 function freshness(asOf) {
   const m = minutesOld(asOf);
   if (m == null) return { status: 'unknown', minutesOld: null, actionAllowed: false, note: 'No quote timestamp.' };
-  if (m <= 2) return { status: 'live', minutesOld: m, actionAllowed: true, note: 'Fresh enough for tactical read.' };
-  if (m <= 10) return { status: 'caution', minutesOld: m, actionAllowed: true, note: 'Usable but verify before fast action.' };
-  return { status: 'stale_blocked', minutesOld: m, actionAllowed: false, note: 'Stale during market-sensitive analysis; block action until refreshed.' };
+  if (m <= CAUTION_MINUTES) return { status: 'fresh_cycle', minutesOld: m, actionAllowed: true, note: 'Within current refresh cycle.' };
+  if (m <= STALE_BLOCK_MINUTES) return { status: 'cycle_caution', minutesOld: m, actionAllowed: true, note: 'Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis.' };
+  return { status: 'stale_blocked', minutesOld: m, actionAllowed: false, note: 'Older than 24h daily-refresh cadence; block action until generate:live refreshes.' };
 }
 function classify(ticker, price, levels, signal, fresh) {
   const t = String(ticker || '').toUpperCase();
-  if (!fresh.actionAllowed) return { state: 'DATA_BLOCKED', permission: 'NO ACTION', priority: 1, read: 'Quote is stale or missing. Refresh before reaction.' };
+  if (!fresh.actionAllowed) return { state: 'DATA_BLOCKED', permission: 'NO ACTION', priority: 1, read: 'Quote is older than the daily refresh cadence or missing. Refresh before reaction.' };
   if (levels.hardExit != null && price <= levels.hardExit) return { state: 'HARD_EXIT_REVIEW', permission: 'NO ADD / REVIEW EXIT', priority: 1, read: `At/below hard-exit review ${levels.hardExit}. Do not treat as bargain.` };
   if (levels.stop != null && price <= levels.stop) return { state: 'STOP_REVIEW', permission: 'NO ADD / THESIS RECHECK', priority: 1, read: `At/below stop-review ${levels.stop}. Require reclaim/confirmation before capital.` };
   if (levels.entryLow != null && price < levels.entryLow) return { state: 'BELOW_ENTRY_NOT_CONFIRMED', permission: 'WAIT FOR RECLAIM', priority: 2, read: `Below entry zone ${levels.entryLow}-${levels.entryHigh}; wait for reclaim unless capitulation-bounce rule is explicitly chosen.` };
@@ -40,10 +42,7 @@ function contextFor(ticker) {
   if (ticker === 'CONL') {
     const coin = tapeBySymbol.COIN;
     const btc = tapeBySymbol['BTC-USD'];
-    return {
-      requiredConfirmation: ['COIN stabilizes/reclaims intraday level', 'BTC risk tone not breaking down', 'CONL reclaims stop/entry level with volume'],
-      context: `COIN ${coin?.price ?? 'n/a'} (${coin?.changePct ?? 'n/a'}%), BTC ${btc?.price ?? 'n/a'} (${btc?.changePct ?? 'n/a'}%).`
-    };
+    return { requiredConfirmation: ['COIN stabilizes/reclaims intraday level', 'BTC risk tone not breaking down', 'CONL reclaims stop/entry level with volume'], context: `COIN ${coin?.price ?? 'n/a'} (${coin?.changePct ?? 'n/a'}%), BTC ${btc?.price ?? 'n/a'} (${btc?.changePct ?? 'n/a'}%).` };
   }
   if (ticker === 'TSLT') {
     const tsla = tapeBySymbol.TSLA;
@@ -60,28 +59,14 @@ const reactions = holdings.map(h => {
   const signal = h.computedSignal || h.signal;
   const status = classify(ticker, price, levels, signal, fresh);
   const ctx = contextFor(ticker);
-  return {
-    ticker,
-    price,
-    asOf: h.priceAsOf,
-    freshness: fresh,
-    signal,
-    computedSignal: h.computedSignal,
-    levels,
-    reaction: status,
-    strategy: strategyFor(ticker),
-    confirmation: ctx.requiredConfirmation,
-    context: ctx.context,
-    weightPct: h.portfolioWeightPct,
-    healthScore: h.healthScore,
-    source: h.liveDataSource
-  };
+  return { ticker, price, asOf: h.priceAsOf, freshness: fresh, signal, computedSignal: h.computedSignal, levels, reaction: status, strategy: strategyFor(ticker), confirmation: ctx.requiredConfirmation, context: ctx.context, weightPct: h.portfolioWeightPct, healthScore: h.healthScore, source: h.liveDataSource };
 }).sort((a, b) => a.reaction.priority - b.reaction.priority || (a.freshness.minutesOld ?? 999) - (b.freshness.minutesOld ?? 999));
 
 const summary = {
   generatedAt: new Date().toISOString(),
   sourceStateGeneratedAt: state.meta?.generatedAt,
   posture: state.marketRegime?.posture,
+  freshnessPolicy: { staleBlockedAfterMinutes: STALE_BLOCK_MINUTES, cautionAfterMinutes: CAUTION_MINUTES, cadence: 'daily refresh / generate:live' },
   actionNow: reactions.filter(r => r.reaction.priority === 1).map(r => ({ ticker: r.ticker, state: r.reaction.state, permission: r.reaction.permission, price: r.price, read: r.reaction.read })),
   reviewSoon: reactions.filter(r => r.reaction.priority === 2).map(r => ({ ticker: r.ticker, state: r.reaction.state, permission: r.reaction.permission, price: r.price })),
   all: reactions
@@ -91,4 +76,4 @@ fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(summary, null, 2));
 fs.mkdirSync(path.dirname(publicOutPath), { recursive: true });
 fs.writeFileSync(publicOutPath, JSON.stringify(summary, null, 2));
-console.log(JSON.stringify({ wrote: outPath, generatedAt: summary.generatedAt, actionNow: summary.actionNow, reviewSoon: summary.reviewSoon }, null, 2));
+console.log(JSON.stringify({ wrote: outPath, generatedAt: summary.generatedAt, freshnessPolicy: summary.freshnessPolicy, actionNow: summary.actionNow, reviewSoon: summary.reviewSoon }, null, 2));

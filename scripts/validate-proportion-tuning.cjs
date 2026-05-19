@@ -9,8 +9,8 @@ assert(fs.existsSync(cssPath), 'assets/proportion-tuning.css missing');
 assert(fs.existsSync(indexPath), 'index.html missing');
 const css = fs.readFileSync(cssPath, 'utf8');
 const html = fs.readFileSync(indexPath, 'utf8');
-for (const token of ['--cr-display','--cr-h2','--cr-section-pad','.strategy-card h3','.strategy-card-grid']) {
+for (const token of ['--cr-display','--cr-h2','--cr-section-pad','.holding-card','.holding-head b','.holdings-grid']) {
   assert(css.includes(token), `stylesheet missing ${token}`);
 }
 assert(html.includes('assets/proportion-tuning.css'), 'homepage missing proportion tuning stylesheet link');
-console.log('proportion tuning validated');
+console.log('proportion tuning validated for current holdings surface');

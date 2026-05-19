@@ -20,9 +20,8 @@ for (const item of data.interpretations) {
 }
 if (fs.existsSync(indexPath)) {
   const html = fs.readFileSync(indexPath, 'utf8');
-  assert(html.includes('Interpreted decision cards'), 'homepage missing interpreted decision cards heading');
-  assert(html.includes('New information processed'), 'homepage missing new information processed section');
-  assert(html.includes('Signal changes if'), 'homepage missing signal changes if section');
-  assert(html.includes('Action permission'), 'homepage missing action permission band');
+  assert(html.includes('id="holdings"'), 'homepage missing compressed Holdings section');
+  assert(!html.includes('Interpreted decision cards') && !html.includes('strategy-card-grid'), 'legacy interpreted decision card surface still visible');
+  for (const item of data.interpretations) assert(html.includes(`>${item.ticker}</b>`) || html.includes(`>${item.ticker}<`), `compressed holdings missing ${item.ticker}`);
 }
-console.log(`strategy interpretations validated: ${data.interpretations.length} holdings`);
+console.log(`strategy interpretations validated as data backing compressed holdings: ${data.interpretations.length} holdings`);

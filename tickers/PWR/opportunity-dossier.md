@@ -1,6 +1,6 @@
 # PWR Opportunity Dossier
 
-Generated: 2026-05-18T21:45:19.095Z
+Generated: 2026-05-19T03:25:24.839Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 

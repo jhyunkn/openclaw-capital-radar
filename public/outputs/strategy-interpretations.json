@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-18T21:45:18.539Z",
-  "policy": "Strategy Interpreter uses h.signalThresholds as the authoritative signal-change source.",
+  "generatedAt": "2026-05-19T03:25:24.336Z",
+  "policy": "Strategy Interpreter uses h.signalThresholds as the authoritative signal-change source. Index instruments use the index ballast cap framework rather than the single-name cap.",
   "homepage": {
     "actNow": [
       {
@@ -9,6 +9,7 @@
         "role": "Tactical torque / decay risk",
         "exposureType": "levered",
         "riskCap": 5,
+        "capFramework": "Levered / decay risk framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Threatened",
@@ -41,7 +42,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 5,
-          "reason": "0.51% is inside 5% cap."
+          "framework": "Levered / decay risk framework",
+          "reason": "0.51% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -70,75 +72,6 @@
           "Trim/rebalance review near $10.22 (+34.00% vol-adjusted band) or if weight exceeds cap.",
           "Risk/exit review if price breaks $5.04 (-34.00% vol-adjusted band) or thesis invalidation triggers."
         ]
-      },
-      {
-        "ticker": "SPY",
-        "signal": "HOLD",
-        "role": "Portfolio ballast / market beta",
-        "exposureType": "index",
-        "riskCap": 15,
-        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "thesisStatus": {
-          "status": "Intact",
-          "tone": "positive",
-          "reason": "Thesis, rationale, and invalidation language are present."
-        },
-        "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is over budget; adding is blocked by risk budget."
-        },
-        "urgency": {
-          "level": "Now",
-          "tone": "danger",
-          "reason": "Exit/risk-budget pressure requires immediate review."
-        },
-        "newInformation": [
-          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-          "52.86% exceeds 15% cap."
-        ],
-        "nearestDecisionBoundary": {
-          "label": "vol-adjusted add zone",
-          "value": 725.62,
-          "thresholdPct": -1.68,
-          "tone": "positive",
-          "distancePct": -1.6748421366432713,
-          "source": "signalThresholds"
-        },
-        "positionPressure": {
-          "status": "Over budget",
-          "tone": "danger",
-          "cap": 15,
-          "reason": "52.86% exceeds 15% cap."
-        },
-        "trendRead": {
-          "status": "Supportive",
-          "tone": "positive",
-          "reason": "1M and 3M trend remain positive."
-        },
-        "dataConfidence": {
-          "status": "Usable data",
-          "tone": "positive",
-          "missing": [],
-          "reason": "Core valuation/event fields are available."
-        },
-        "portfolioConflict": {
-          "status": "No major conflict",
-          "tone": "positive",
-          "reason": "No dominant portfolio conflict detected from current tags."
-        },
-        "decisionConfidence": {
-          "level": "High",
-          "score": 80,
-          "tone": "positive",
-          "reason": "Most decision factors are supportive."
-        },
-        "signalChangeConditions": [
-          "Add review only near $725.62 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $804.40 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
-        ]
       }
     ],
     "reviewSoon": [
@@ -148,6 +81,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -180,7 +114,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "2.10% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "2.10% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Broadly supportive",
@@ -216,6 +151,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -223,9 +159,9 @@
           "reason": "Thesis, rationale, and invalidation language are present."
         },
         "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is near cap; adding is blocked by risk budget."
+          "status": "Add review allowed",
+          "tone": "positive",
+          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
         },
         "urgency": {
           "level": "Soon",
@@ -234,7 +170,7 @@
         },
         "newInformation": [
           "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-          "14.61% is near 15% cap.",
+          "14.61% is near 15% single-name concentration framework cap.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
@@ -249,7 +185,8 @@
           "status": "Near cap",
           "tone": "caution",
           "cap": 15,
-          "reason": "14.61% is near 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "14.61% is near 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -276,8 +213,7 @@
         "signalChangeConditions": [
           "Add review only near $258.83 (-2.19% vol-adjusted band) with thesis/data gates clear.",
           "Trim/rebalance review near $299.68 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
+          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -286,6 +222,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -319,7 +256,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "1.31% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "1.31% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -355,6 +293,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -388,7 +327,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "8.42% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "8.42% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -424,6 +364,7 @@
         "role": "Tactical torque / decay risk",
         "exposureType": "levered",
         "riskCap": 5,
+        "capFramework": "Levered / decay risk framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -456,7 +397,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 5,
-          "reason": "0.49% is inside 5% cap."
+          "framework": "Levered / decay risk framework",
+          "reason": "0.49% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -487,11 +429,83 @@
         ]
       },
       {
+        "ticker": "SPY",
+        "signal": "HOLD",
+        "role": "Portfolio ballast / market beta",
+        "exposureType": "index",
+        "riskCap": 55,
+        "capFramework": "Index ballast framework",
+        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "thesisStatus": {
+          "status": "Intact",
+          "tone": "positive",
+          "reason": "Thesis, rationale, and invalidation language are present."
+        },
+        "actionPermission": {
+          "status": "Add review allowed",
+          "tone": "positive",
+          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
+        },
+        "urgency": {
+          "level": "Soon",
+          "tone": "caution",
+          "reason": "Near vol-adjusted add zone."
+        },
+        "newInformation": [
+          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
+          "52.86% is near 55% index ballast framework cap.",
+          "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
+        ],
+        "nearestDecisionBoundary": {
+          "label": "vol-adjusted add zone",
+          "value": 725.62,
+          "thresholdPct": -1.68,
+          "tone": "positive",
+          "distancePct": -1.6748421366432713,
+          "source": "signalThresholds"
+        },
+        "positionPressure": {
+          "status": "Near cap",
+          "tone": "caution",
+          "cap": 55,
+          "framework": "Index ballast framework",
+          "reason": "52.86% is near 55% index ballast framework cap."
+        },
+        "trendRead": {
+          "status": "Supportive",
+          "tone": "positive",
+          "reason": "1M and 3M trend remain positive."
+        },
+        "dataConfidence": {
+          "status": "Usable data",
+          "tone": "positive",
+          "missing": [],
+          "reason": "Core valuation/event fields are available."
+        },
+        "portfolioConflict": {
+          "status": "Index ballast concentration",
+          "tone": "caution",
+          "reason": "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
+        },
+        "decisionConfidence": {
+          "level": "High",
+          "score": 80,
+          "tone": "positive",
+          "reason": "Most decision factors are supportive."
+        },
+        "signalChangeConditions": [
+          "Add review only near $725.62 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $804.40 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+        ]
+      },
+      {
         "ticker": "MA",
         "signal": "HOLD",
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -524,7 +538,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "3.36% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "3.36% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -560,6 +575,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Unverified",
@@ -592,7 +608,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "10.65% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "10.65% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -630,6 +647,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Unverified",
@@ -661,7 +679,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "1.99% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "1.99% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -697,6 +716,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -729,7 +749,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "3.71% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "3.71% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -762,81 +783,12 @@
     ],
     "blockedAdds": [
       {
-        "ticker": "AMZN",
-        "signal": "HOLD",
-        "role": "Core AI / infrastructure compounder",
-        "exposureType": "equity",
-        "riskCap": 15,
-        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "thesisStatus": {
-          "status": "Intact",
-          "tone": "positive",
-          "reason": "Thesis, rationale, and invalidation language are present."
-        },
-        "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is near cap; adding is blocked by risk budget."
-        },
-        "urgency": {
-          "level": "Soon",
-          "tone": "caution",
-          "reason": "Near vol-adjusted add zone."
-        },
-        "newInformation": [
-          "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-          "14.61% is near 15% cap.",
-          "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
-        ],
-        "nearestDecisionBoundary": {
-          "label": "vol-adjusted add zone",
-          "value": 258.83,
-          "thresholdPct": -2.19,
-          "tone": "positive",
-          "distancePct": -2.188043231804104,
-          "source": "signalThresholds"
-        },
-        "positionPressure": {
-          "status": "Near cap",
-          "tone": "caution",
-          "cap": 15,
-          "reason": "14.61% is near 15% cap."
-        },
-        "trendRead": {
-          "status": "Supportive",
-          "tone": "positive",
-          "reason": "1M and 3M trend remain positive."
-        },
-        "dataConfidence": {
-          "status": "Usable data",
-          "tone": "positive",
-          "missing": [],
-          "reason": "Core valuation/event fields are available."
-        },
-        "portfolioConflict": {
-          "status": "AI concentration",
-          "tone": "caution",
-          "reason": "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
-        },
-        "decisionConfidence": {
-          "level": "High",
-          "score": 80,
-          "tone": "positive",
-          "reason": "Most decision factors are supportive."
-        },
-        "signalChangeConditions": [
-          "Add review only near $258.83 (-2.19% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $299.68 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
-        ]
-      },
-      {
         "ticker": "TSLT",
         "signal": "TRIM WATCH",
         "role": "Tactical torque / decay risk",
         "exposureType": "levered",
         "riskCap": 5,
+        "capFramework": "Levered / decay risk framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -869,7 +821,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 5,
-          "reason": "0.49% is inside 5% cap."
+          "framework": "Levered / decay risk framework",
+          "reason": "0.49% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -905,6 +858,7 @@
         "role": "Tactical torque / decay risk",
         "exposureType": "levered",
         "riskCap": 5,
+        "capFramework": "Levered / decay risk framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Threatened",
@@ -937,7 +891,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 5,
-          "reason": "0.51% is inside 5% cap."
+          "framework": "Levered / decay risk framework",
+          "reason": "0.51% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -968,80 +923,12 @@
         ]
       },
       {
-        "ticker": "SPY",
-        "signal": "HOLD",
-        "role": "Portfolio ballast / market beta",
-        "exposureType": "index",
-        "riskCap": 15,
-        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "thesisStatus": {
-          "status": "Intact",
-          "tone": "positive",
-          "reason": "Thesis, rationale, and invalidation language are present."
-        },
-        "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is over budget; adding is blocked by risk budget."
-        },
-        "urgency": {
-          "level": "Now",
-          "tone": "danger",
-          "reason": "Exit/risk-budget pressure requires immediate review."
-        },
-        "newInformation": [
-          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-          "52.86% exceeds 15% cap."
-        ],
-        "nearestDecisionBoundary": {
-          "label": "vol-adjusted add zone",
-          "value": 725.62,
-          "thresholdPct": -1.68,
-          "tone": "positive",
-          "distancePct": -1.6748421366432713,
-          "source": "signalThresholds"
-        },
-        "positionPressure": {
-          "status": "Over budget",
-          "tone": "danger",
-          "cap": 15,
-          "reason": "52.86% exceeds 15% cap."
-        },
-        "trendRead": {
-          "status": "Supportive",
-          "tone": "positive",
-          "reason": "1M and 3M trend remain positive."
-        },
-        "dataConfidence": {
-          "status": "Usable data",
-          "tone": "positive",
-          "missing": [],
-          "reason": "Core valuation/event fields are available."
-        },
-        "portfolioConflict": {
-          "status": "No major conflict",
-          "tone": "positive",
-          "reason": "No dominant portfolio conflict detected from current tags."
-        },
-        "decisionConfidence": {
-          "level": "High",
-          "score": 80,
-          "tone": "positive",
-          "reason": "Most decision factors are supportive."
-        },
-        "signalChangeConditions": [
-          "Add review only near $725.62 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $804.40 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
-        ]
-      },
-      {
         "ticker": "BMNR",
         "signal": "INVESTIGATE",
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Unverified",
@@ -1074,7 +961,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "10.65% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "10.65% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1112,6 +1000,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Unverified",
@@ -1143,7 +1032,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "1.99% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "1.99% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -1181,6 +1071,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Unverified",
@@ -1213,7 +1104,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "10.65% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "10.65% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1253,6 +1145,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1285,7 +1178,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "2.10% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "2.10% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Broadly supportive",
@@ -1321,6 +1215,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1328,9 +1223,9 @@
           "reason": "Thesis, rationale, and invalidation language are present."
         },
         "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is near cap; adding is blocked by risk budget."
+          "status": "Add review allowed",
+          "tone": "positive",
+          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
         },
         "urgency": {
           "level": "Soon",
@@ -1339,7 +1234,7 @@
         },
         "newInformation": [
           "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-          "14.61% is near 15% cap.",
+          "14.61% is near 15% single-name concentration framework cap.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
@@ -1354,7 +1249,8 @@
           "status": "Near cap",
           "tone": "caution",
           "cap": 15,
-          "reason": "14.61% is near 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "14.61% is near 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -1381,8 +1277,7 @@
         "signalChangeConditions": [
           "Add review only near $258.83 (-2.19% vol-adjusted band) with thesis/data gates clear.",
           "Trim/rebalance review near $299.68 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
+          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1391,6 +1286,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1424,7 +1320,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "1.31% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "1.31% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1460,6 +1357,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1493,7 +1391,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "8.42% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "8.42% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -1529,6 +1428,7 @@
         "role": "Tactical torque / decay risk",
         "exposureType": "levered",
         "riskCap": 5,
+        "capFramework": "Levered / decay risk framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1561,7 +1461,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 5,
-          "reason": "0.49% is inside 5% cap."
+          "framework": "Levered / decay risk framework",
+          "reason": "0.49% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -1597,6 +1498,7 @@
         "role": "Tactical torque / decay risk",
         "exposureType": "levered",
         "riskCap": 5,
+        "capFramework": "Levered / decay risk framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Threatened",
@@ -1629,7 +1531,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 5,
-          "reason": "0.51% is inside 5% cap."
+          "framework": "Levered / decay risk framework",
+          "reason": "0.51% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -1658,6 +1561,77 @@
           "Trim/rebalance review near $10.22 (+34.00% vol-adjusted band) or if weight exceeds cap.",
           "Risk/exit review if price breaks $5.04 (-34.00% vol-adjusted band) or thesis invalidation triggers."
         ]
+      },
+      {
+        "ticker": "SPY",
+        "signal": "HOLD",
+        "role": "Portfolio ballast / market beta",
+        "exposureType": "index",
+        "riskCap": 55,
+        "capFramework": "Index ballast framework",
+        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "thesisStatus": {
+          "status": "Intact",
+          "tone": "positive",
+          "reason": "Thesis, rationale, and invalidation language are present."
+        },
+        "actionPermission": {
+          "status": "Add review allowed",
+          "tone": "positive",
+          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
+        },
+        "urgency": {
+          "level": "Soon",
+          "tone": "caution",
+          "reason": "Near vol-adjusted add zone."
+        },
+        "newInformation": [
+          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
+          "52.86% is near 55% index ballast framework cap.",
+          "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
+        ],
+        "nearestDecisionBoundary": {
+          "label": "vol-adjusted add zone",
+          "value": 725.62,
+          "thresholdPct": -1.68,
+          "tone": "positive",
+          "distancePct": -1.6748421366432713,
+          "source": "signalThresholds"
+        },
+        "positionPressure": {
+          "status": "Near cap",
+          "tone": "caution",
+          "cap": 55,
+          "framework": "Index ballast framework",
+          "reason": "52.86% is near 55% index ballast framework cap."
+        },
+        "trendRead": {
+          "status": "Supportive",
+          "tone": "positive",
+          "reason": "1M and 3M trend remain positive."
+        },
+        "dataConfidence": {
+          "status": "Usable data",
+          "tone": "positive",
+          "missing": [],
+          "reason": "Core valuation/event fields are available."
+        },
+        "portfolioConflict": {
+          "status": "Index ballast concentration",
+          "tone": "caution",
+          "reason": "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
+        },
+        "decisionConfidence": {
+          "level": "High",
+          "score": 80,
+          "tone": "positive",
+          "reason": "Most decision factors are supportive."
+        },
+        "signalChangeConditions": [
+          "Add review only near $725.62 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $804.40 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+        ]
       }
     ],
     "highConfidence": [
@@ -1667,6 +1641,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1699,7 +1674,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "2.10% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "2.10% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Broadly supportive",
@@ -1735,6 +1711,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1742,9 +1719,9 @@
           "reason": "Thesis, rationale, and invalidation language are present."
         },
         "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is near cap; adding is blocked by risk budget."
+          "status": "Add review allowed",
+          "tone": "positive",
+          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
         },
         "urgency": {
           "level": "Soon",
@@ -1753,7 +1730,7 @@
         },
         "newInformation": [
           "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-          "14.61% is near 15% cap.",
+          "14.61% is near 15% single-name concentration framework cap.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
@@ -1768,7 +1745,8 @@
           "status": "Near cap",
           "tone": "caution",
           "cap": 15,
-          "reason": "14.61% is near 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "14.61% is near 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -1795,8 +1773,7 @@
         "signalChangeConditions": [
           "Add review only near $258.83 (-2.19% vol-adjusted band) with thesis/data gates clear.",
           "Trim/rebalance review near $299.68 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
+          "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1805,6 +1782,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1838,7 +1816,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "8.42% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "8.42% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -1873,7 +1852,8 @@
         "signal": "HOLD",
         "role": "Portfolio ballast / market beta",
         "exposureType": "index",
-        "riskCap": 15,
+        "riskCap": 55,
+        "capFramework": "Index ballast framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1881,18 +1861,19 @@
           "reason": "Thesis, rationale, and invalidation language are present."
         },
         "actionPermission": {
-          "status": "Hold only",
-          "tone": "caution",
-          "reason": "Position is over budget; adding is blocked by risk budget."
+          "status": "Add review allowed",
+          "tone": "positive",
+          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
         },
         "urgency": {
-          "level": "Now",
-          "tone": "danger",
-          "reason": "Exit/risk-budget pressure requires immediate review."
+          "level": "Soon",
+          "tone": "caution",
+          "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
           "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-          "52.86% exceeds 15% cap."
+          "52.86% is near 55% index ballast framework cap.",
+          "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
@@ -1903,10 +1884,11 @@
           "source": "signalThresholds"
         },
         "positionPressure": {
-          "status": "Over budget",
-          "tone": "danger",
-          "cap": 15,
-          "reason": "52.86% exceeds 15% cap."
+          "status": "Near cap",
+          "tone": "caution",
+          "cap": 55,
+          "framework": "Index ballast framework",
+          "reason": "52.86% is near 55% index ballast framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -1920,9 +1902,9 @@
           "reason": "Core valuation/event fields are available."
         },
         "portfolioConflict": {
-          "status": "No major conflict",
-          "tone": "positive",
-          "reason": "No dominant portfolio conflict detected from current tags."
+          "status": "Index ballast concentration",
+          "tone": "caution",
+          "reason": "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
         },
         "decisionConfidence": {
           "level": "High",
@@ -1933,8 +1915,7 @@
         "signalChangeConditions": [
           "Add review only near $725.62 (-1.68% vol-adjusted band) with thesis/data gates clear.",
           "Trim/rebalance review near $804.40 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
-          "Adding remains blocked until position pressure is reduced."
+          "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1943,6 +1924,7 @@
         "role": "Core AI / infrastructure compounder",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -1975,7 +1957,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "3.36% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "3.36% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -2011,6 +1994,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Unverified",
@@ -2042,7 +2026,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "1.99% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "1.99% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -2078,6 +2063,7 @@
         "role": "Single-name equity exposure",
         "exposureType": "equity",
         "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
         "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
         "thesisStatus": {
           "status": "Intact",
@@ -2110,7 +2096,8 @@
           "status": "Inside budget",
           "tone": "positive",
           "cap": 15,
-          "reason": "3.71% is inside 15% cap."
+          "framework": "Single-name concentration framework",
+          "reason": "3.71% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -2149,6 +2136,7 @@
       "role": "Core AI / infrastructure compounder",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2181,7 +2169,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "2.10% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "2.10% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Broadly supportive",
@@ -2217,6 +2206,7 @@
       "role": "Core AI / infrastructure compounder",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2224,9 +2214,9 @@
         "reason": "Thesis, rationale, and invalidation language are present."
       },
       "actionPermission": {
-        "status": "Hold only",
-        "tone": "caution",
-        "reason": "Position is near cap; adding is blocked by risk budget."
+        "status": "Add review allowed",
+        "tone": "positive",
+        "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
       },
       "urgency": {
         "level": "Soon",
@@ -2235,7 +2225,7 @@
       },
       "newInformation": [
         "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-        "14.61% is near 15% cap.",
+        "14.61% is near 15% single-name concentration framework cap.",
         "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
       ],
       "nearestDecisionBoundary": {
@@ -2250,7 +2240,8 @@
         "status": "Near cap",
         "tone": "caution",
         "cap": 15,
-        "reason": "14.61% is near 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "14.61% is near 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Supportive",
@@ -2277,8 +2268,7 @@
       "signalChangeConditions": [
         "Add review only near $258.83 (-2.19% vol-adjusted band) with thesis/data gates clear.",
         "Trim/rebalance review near $299.68 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers.",
-        "Adding remains blocked until position pressure is reduced."
+        "Risk/exit review if price breaks $236.83 (-10.50% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2287,6 +2277,7 @@
       "role": "Core AI / infrastructure compounder",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2320,7 +2311,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "1.31% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "1.31% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2356,6 +2348,7 @@
       "role": "Core AI / infrastructure compounder",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2389,7 +2382,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "8.42% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "8.42% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Weakening",
@@ -2425,6 +2419,7 @@
       "role": "Tactical torque / decay risk",
       "exposureType": "levered",
       "riskCap": 5,
+      "capFramework": "Levered / decay risk framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2457,7 +2452,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 5,
-        "reason": "0.49% is inside 5% cap."
+        "framework": "Levered / decay risk framework",
+        "reason": "0.49% is inside 5% levered / decay risk framework cap."
       },
       "trendRead": {
         "status": "Mixed",
@@ -2493,6 +2489,7 @@
       "role": "Tactical torque / decay risk",
       "exposureType": "levered",
       "riskCap": 5,
+      "capFramework": "Levered / decay risk framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Threatened",
@@ -2525,7 +2522,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 5,
-        "reason": "0.51% is inside 5% cap."
+        "framework": "Levered / decay risk framework",
+        "reason": "0.51% is inside 5% levered / decay risk framework cap."
       },
       "trendRead": {
         "status": "Mixed",
@@ -2560,7 +2558,8 @@
       "signal": "HOLD",
       "role": "Portfolio ballast / market beta",
       "exposureType": "index",
-      "riskCap": 15,
+      "riskCap": 55,
+      "capFramework": "Index ballast framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2568,18 +2567,19 @@
         "reason": "Thesis, rationale, and invalidation language are present."
       },
       "actionPermission": {
-        "status": "Hold only",
-        "tone": "caution",
-        "reason": "Position is over budget; adding is blocked by risk budget."
+        "status": "Add review allowed",
+        "tone": "positive",
+        "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
       },
       "urgency": {
-        "level": "Now",
-        "tone": "danger",
-        "reason": "Exit/risk-budget pressure requires immediate review."
+        "level": "Soon",
+        "tone": "caution",
+        "reason": "Near vol-adjusted add zone."
       },
       "newInformation": [
         "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-        "52.86% exceeds 15% cap."
+        "52.86% is near 55% index ballast framework cap.",
+        "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
@@ -2590,10 +2590,11 @@
         "source": "signalThresholds"
       },
       "positionPressure": {
-        "status": "Over budget",
-        "tone": "danger",
-        "cap": 15,
-        "reason": "52.86% exceeds 15% cap."
+        "status": "Near cap",
+        "tone": "caution",
+        "cap": 55,
+        "framework": "Index ballast framework",
+        "reason": "52.86% is near 55% index ballast framework cap."
       },
       "trendRead": {
         "status": "Supportive",
@@ -2607,9 +2608,9 @@
         "reason": "Core valuation/event fields are available."
       },
       "portfolioConflict": {
-        "status": "No major conflict",
-        "tone": "positive",
-        "reason": "No dominant portfolio conflict detected from current tags."
+        "status": "Index ballast concentration",
+        "tone": "caution",
+        "reason": "SPY is 52.86% of the account; acceptable only under index ballast framework, not single-name logic."
       },
       "decisionConfidence": {
         "level": "High",
@@ -2620,8 +2621,7 @@
       "signalChangeConditions": [
         "Add review only near $725.62 (-1.68% vol-adjusted band) with thesis/data gates clear.",
         "Trim/rebalance review near $804.40 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
-        "Adding remains blocked until position pressure is reduced."
+        "Risk/exit review if price breaks $689.09 (-6.63% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2630,6 +2630,7 @@
       "role": "Core AI / infrastructure compounder",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2662,7 +2663,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "3.36% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "3.36% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Weakening",
@@ -2698,6 +2700,7 @@
       "role": "Single-name equity exposure",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Unverified",
@@ -2730,7 +2733,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "10.65% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "10.65% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2768,6 +2772,7 @@
       "role": "Single-name equity exposure",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Unverified",
@@ -2799,7 +2804,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "1.99% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "1.99% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Supportive",
@@ -2835,6 +2841,7 @@
       "role": "Single-name equity exposure",
       "exposureType": "equity",
       "riskCap": 15,
+      "capFramework": "Single-name concentration framework",
       "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
       "thesisStatus": {
         "status": "Intact",
@@ -2867,7 +2874,8 @@
         "status": "Inside budget",
         "tone": "positive",
         "cap": 15,
-        "reason": "3.71% is inside 15% cap."
+        "framework": "Single-name concentration framework",
+        "reason": "3.71% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Mixed",

@@ -1,7 +1,12 @@
 {
-  "generatedAt": "2026-05-18T21:45:17.729Z",
+  "generatedAt": "2026-05-19T03:25:23.897Z",
   "sourceStateGeneratedAt": "2026-05-18T21:43:44.768Z",
   "posture": "HOLD / WATCH",
+  "freshnessPolicy": {
+    "staleBlockedAfterMinutes": 1440,
+    "cautionAfterMinutes": 360,
+    "cadence": "daily refresh / generate:live"
+  },
   "actionNow": [
     {
       "ticker": "CONL",
@@ -9,13 +14,6 @@
       "permission": "NO ADD / REVIEW EXIT",
       "price": 7.63,
       "read": "At/below hard-exit review 7.7. Do not treat as bargain."
-    },
-    {
-      "ticker": "TSNF",
-      "state": "DATA_BLOCKED",
-      "permission": "NO ACTION",
-      "price": 29.98,
-      "read": "Quote is stale or missing. Refresh before reaction."
     }
   ],
   "reviewSoon": [
@@ -30,6 +28,12 @@
       "state": "THESIS_VERIFICATION_REQUIRED",
       "permission": "NO ADD",
       "price": 18.9
+    },
+    {
+      "ticker": "TSNF",
+      "state": "THESIS_VERIFICATION_REQUIRED",
+      "permission": "NO ADD",
+      "price": 29.98
     }
   ],
   "all": [
@@ -38,10 +42,10 @@
       "price": 7.63,
       "asOf": "2026-05-18T21:43:31.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.8,
+        "status": "fresh_cycle",
+        "minutesOld": 341.9,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "EXIT REVIEW",
       "computedSignal": "EXIT REVIEW",
@@ -84,64 +88,14 @@
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "TSNF",
-      "price": 29.98,
-      "asOf": "2026-05-18T21:05:00.000Z",
-      "freshness": {
-        "status": "stale_blocked",
-        "minutesOld": 40.3,
-        "actionAllowed": false,
-        "note": "Stale during market-sensitive analysis; block action until refreshed."
-      },
-      "signal": "INVESTIGATE",
-      "computedSignal": "INVESTIGATE",
-      "levels": {
-        "current": 29.98,
-        "entryLow": 26.38,
-        "entryHigh": 27.88,
-        "addBelow": null,
-        "trimLow": 32.38,
-        "trimHigh": 34.48,
-        "stop": 26.98,
-        "hardExit": 25.48,
-        "target": 34.18,
-        "horizon": "days to weeks",
-        "basis": "spec dynamic band from current price"
-      },
-      "reaction": {
-        "state": "DATA_BLOCKED",
-        "permission": "NO ACTION",
-        "priority": 1,
-        "read": "Quote is stale or missing. Refresh before reaction."
-      },
-      "strategy": {
-        "posture": "Speculative verification",
-        "holdUntil": "Hold only while thesis/liquidity are being verified.",
-        "addWhen": "No add until liquidity, issuer, catalyst, downside are documented.",
-        "trimWhen": "Trim on strength or if liquidity remains thin.",
-        "exitWhen": "Exit review if thesis cannot be verified or liquidity is inadequate.",
-        "invalidation": "Cannot verify what you own and why it should outperform.",
-        "review": "Priority research."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 1.99,
-      "healthScore": 54,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
       "ticker": "TSLT",
       "price": 19.7,
       "asOf": "2026-05-18T21:43:34.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.7,
+        "status": "fresh_cycle",
+        "minutesOld": 341.8,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "TRIM WATCH",
       "computedSignal": "TRIM WATCH",
@@ -187,10 +141,10 @@
       "price": 18.9,
       "asOf": "2026-05-18T21:43:37.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.7,
+        "status": "fresh_cycle",
+        "minutesOld": 341.8,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "INVESTIGATE",
       "computedSignal": "INVESTIGATE",
@@ -233,14 +187,64 @@
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
+      "ticker": "TSNF",
+      "price": 29.98,
+      "asOf": "2026-05-18T21:05:00.000Z",
+      "freshness": {
+        "status": "cycle_caution",
+        "minutesOld": 380.4,
+        "actionAllowed": true,
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
+      },
+      "signal": "INVESTIGATE",
+      "computedSignal": "INVESTIGATE",
+      "levels": {
+        "current": 29.98,
+        "entryLow": 26.38,
+        "entryHigh": 27.88,
+        "addBelow": null,
+        "trimLow": 32.38,
+        "trimHigh": 34.48,
+        "stop": 26.98,
+        "hardExit": 25.48,
+        "target": 34.18,
+        "horizon": "days to weeks",
+        "basis": "spec dynamic band from current price"
+      },
+      "reaction": {
+        "state": "THESIS_VERIFICATION_REQUIRED",
+        "permission": "NO ADD",
+        "priority": 2,
+        "read": "Thesis/liquidity/downside proof required before capital."
+      },
+      "strategy": {
+        "posture": "Speculative verification",
+        "holdUntil": "Hold only while thesis/liquidity are being verified.",
+        "addWhen": "No add until liquidity, issuer, catalyst, downside are documented.",
+        "trimWhen": "Trim on strength or if liquidity remains thin.",
+        "exitWhen": "Exit review if thesis cannot be verified or liquidity is inadequate.",
+        "invalidation": "Cannot verify what you own and why it should outperform.",
+        "review": "Priority research."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 1.99,
+      "healthScore": 54,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
       "ticker": "MSFT",
       "price": 423.1,
       "asOf": "2026-05-18T21:43:37.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.7,
+        "status": "fresh_cycle",
+        "minutesOld": 341.8,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD",
       "computedSignal": "HOLD",
@@ -287,10 +291,10 @@
       "price": 262.81,
       "asOf": "2026-05-18T21:43:35.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.7,
+        "status": "fresh_cycle",
+        "minutesOld": 341.8,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD / WATCH",
       "computedSignal": "HOLD / WATCH",
@@ -337,10 +341,10 @@
       "price": 737.98,
       "asOf": "2026-05-18T21:43:37.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.7,
+        "status": "fresh_cycle",
+        "minutesOld": 341.8,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD",
       "computedSignal": "HOLD",
@@ -387,10 +391,10 @@
       "price": 89.61,
       "asOf": "2026-05-18T21:43:30.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.8,
+        "status": "fresh_cycle",
+        "minutesOld": 341.9,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD / WATCH",
       "computedSignal": "HOLD / WATCH",
@@ -437,10 +441,10 @@
       "price": 264.62,
       "asOf": "2026-05-18T21:43:22.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 1.9,
+        "status": "fresh_cycle",
+        "minutesOld": 342,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD",
       "computedSignal": "HOLD",
@@ -487,10 +491,10 @@
       "price": 610.37,
       "asOf": "2026-05-18T21:43:15.000Z",
       "freshness": {
-        "status": "live",
-        "minutesOld": 2,
+        "status": "fresh_cycle",
+        "minutesOld": 342.1,
         "actionAllowed": true,
-        "note": "Fresh enough for tactical read."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD / WATCH",
       "computedSignal": "HOLD / WATCH",
@@ -537,10 +541,10 @@
       "price": 505.42,
       "asOf": "2026-05-18T21:41:11.000Z",
       "freshness": {
-        "status": "caution",
-        "minutesOld": 4.1,
+        "status": "fresh_cycle",
+        "minutesOld": 344.2,
         "actionAllowed": true,
-        "note": "Usable but verify before fast action."
+        "note": "Within current refresh cycle."
       },
       "signal": "HOLD",
       "computedSignal": "HOLD",

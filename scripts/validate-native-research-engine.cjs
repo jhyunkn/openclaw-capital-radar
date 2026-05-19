@@ -17,9 +17,9 @@ check(events.status === 'ACTIVE', 'native event ledger not active');
 check(list(events.events).length >= 8, 'native event ledger has too few events');
 check(list(events.immediateResearchQueue).length > 0, 'immediate research queue empty');
 check(events.operationalGates?.canClaimFreshNewsCausality === false, 'degraded run must not claim fresh news causality');
-check(html.includes('id="native-research-engine"'), 'homepage missing native research panel');
-check(html.includes('No whole-web search dependency'), 'homepage missing no-search boundary language');
-check(publicHtml.includes('id="native-research-engine"'), 'public homepage missing native research panel');
+check(!html.includes('id="native-research-engine"'), 'native research telemetry should not be a top-level homepage section after compression');
+check(html.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"'), 'homepage missing compressed constitution marker');
+check(!publicHtml.includes('id="native-research-engine"'), 'public homepage still exposes native research telemetry panel');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'native-events.json')), 'public native events missing');
 check(fs.existsSync(path.join(root, 'public', 'data', 'research', 'source-registry.json')), 'public source registry missing');
 const output = {
@@ -31,8 +31,8 @@ const output = {
     eventCount: list(events.events).length,
     immediateResearchQueue: list(events.immediateResearchQueue).length,
     canClaimFreshNewsCausality: events.operationalGates?.canClaimFreshNewsCausality === true,
-    dashboardPanel: html.includes('id="native-research-engine"'),
-    publicSync: publicHtml.includes('id="native-research-engine"')
+    dashboardPanel: false,
+    publicSync: publicHtml.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"')
   },
   failures
 };

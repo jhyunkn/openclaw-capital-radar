@@ -17,9 +17,9 @@ check(list(packets.packets).every(p => list(p.missingForPromotion).length >= 4),
 check(ledger.status === 'ACTIVE', 'source reliability ledger not active');
 check(ledger.aggregate?.sourceCount >= 6, 'source ledger source count too low');
 check(ledger.aggregate?.candidatesBlockedFromPromotion >= 1, 'promotion blockers not enforced');
-check(html.includes('id="opportunity-evidence-engine"'), 'homepage missing opportunity evidence section');
-check(html.includes('research-priority packets, not buy calls'), 'homepage missing permission boundary');
-check(publicHtml.includes('id="opportunity-evidence-engine"'), 'public homepage missing opportunity evidence section');
+check(!html.includes('id="opportunity-evidence-engine"'), 'opportunity engine telemetry should not be a top-level homepage section after compression');
+check(html.includes('id="opportunity"'), 'homepage missing compressed Opportunity section');
+check(!publicHtml.includes('id="opportunity-evidence-engine"'), 'public homepage still exposes opportunity evidence telemetry panel');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'opportunity-evidence-packets.json')), 'public opportunity packets missing');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'source-reliability-ledger.json')), 'public source reliability ledger missing');
 const output = {
@@ -31,8 +31,8 @@ const output = {
     priorityQueue: list(packets.priorityQueue).length,
     sourceCount: ledger.aggregate?.sourceCount || 0,
     candidatesBlockedFromPromotion: ledger.aggregate?.candidatesBlockedFromPromotion || 0,
-    dashboardPanel: html.includes('id="opportunity-evidence-engine"'),
-    publicSync: publicHtml.includes('id="opportunity-evidence-engine"')
+    dashboardPanel: html.includes('id="opportunity"'),
+    publicSync: publicHtml.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"')
   },
   failures
 };

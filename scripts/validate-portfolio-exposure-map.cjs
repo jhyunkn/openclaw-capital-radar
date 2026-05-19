@@ -14,9 +14,7 @@ assert(Array.isArray(data.whyTodayMatters), 'whyTodayMatters array missing');
 assert(typeof data.totalWeightPct === 'number', 'totalWeightPct missing');
 assert(Math.abs(data.totalWeightPct - 100) <= 0.15, `exclusive bucket weights do not reconcile to 100%; got ${data.totalWeightPct}`);
 assert(data.reconciliation === 'PASS', 'portfolio exposure reconciliation did not pass');
-for (const id of ['ecommerce_cloud','cloud_software_ai','payments_financial_infrastructure','levered_tactical','index_market_beta']) {
-  assert(data.buckets.some(b => b.id === id), `missing exposure bucket ${id}`);
-}
+for (const id of ['ecommerce_cloud','cloud_software_ai','payments_financial_infrastructure','levered_tactical','index_market_beta']) assert(data.buckets.some(b => b.id === id), `missing exposure bucket ${id}`);
 const crypto = data.buckets.find(b => b.id === 'speculative_crypto_infrastructure');
 if (crypto) assert(!(crypto.members || []).some(m => m.ticker === 'AMZN'), 'AMZN must not appear in crypto infrastructure bucket');
 const payments = data.buckets.find(b => b.id === 'payments_financial_infrastructure');
@@ -29,7 +27,7 @@ for (const b of data.buckets) {
 }
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
-assert(html.includes('Portfolio Pressure Map'), 'homepage missing Portfolio Pressure Map');
-assert(html.includes('Why today matters'), 'homepage missing Why today matters');
-assert(html.includes('outputs/portfolio-exposure-map.json'), 'homepage missing exposure JSON link');
-console.log(`portfolio exposure map validated: ${data.buckets.length} buckets, ${data.totalWeightPct}% reconciled`);
+assert(html.includes('id="brief"'), 'homepage missing Brief section for compressed exposure synthesis');
+assert(html.includes('Portfolio concentration'), 'Brief missing exposure synthesis language');
+assert(!html.includes('Portfolio Pressure Map'), 'legacy Portfolio Pressure Map should not remain visible on homepage');
+console.log(`portfolio exposure map validated as backend data for Brief: ${data.buckets.length} buckets, ${data.totalWeightPct}% reconciled`);

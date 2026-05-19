@@ -26,6 +26,7 @@ for (const t of ['BMNR','CONL','TSLT']) {
   const row = data.holdings.find(h => h.ticker === t);
   if (row) ok(row.humanReviewRequired === true, `${t} should require human review`);
 }
-ok(html.includes('Underwritten vs constrained holdings') || html.includes('Underwritten vs merely tracked holdings'), 'homepage thesis coverage section missing');
-ok(html.includes('outputs/portfolio-thesis-coverage-map.json'), 'coverage JSON link missing');
-console.log(`thesis coverage validated: ${data.holdings.length} holdings, avg ${data.summary.averageCoverageScore}%, constrained ${data.summary.constrained}`);
+ok(html.includes('id="brief"'), 'homepage missing Brief section for compressed thesis synthesis');
+ok(html.includes('thesis') || html.includes('coverage'), 'Brief missing thesis coverage synthesis');
+ok(!html.includes('Underwritten vs constrained holdings') && !html.includes('Underwritten vs merely tracked holdings'), 'legacy thesis coverage chart section still visible');
+console.log(`thesis coverage validated as backend data for Brief: ${data.holdings.length} holdings, avg ${data.summary.averageCoverageScore}%, constrained ${data.summary.constrained}`);

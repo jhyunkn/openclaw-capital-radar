@@ -13,15 +13,18 @@ html = html.replace(/<section id="research-tab" class="tab-cluster-intro[\s\S]*?
 html = html.replace(/<section class="decision-poster"[\s\S]*?<\/section>/g, '');
 html = html.replace(/<section[^>]*>[\s\S]*?What requires action now\?[\s\S]*?<\/section>/i, '');
 html = html.replace(/Read permission before price\.[\s\S]*?Consumer contract[\s\S]*?<\/section>/i, '');
-const flowCss = `<style id="homepage-flow-rail-css">.homepage-flow-rail{display:flex;gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.3);overflow:auto}.homepage-flow-rail span{flex:1 0 220px;padding:10px 16px;border-right:1px solid var(--rule);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.homepage-flow-rail b{display:block;color:var(--ink);font-size:15px;letter-spacing:-.03em;text-transform:none;margin-top:3px}@media(max-width:700px){.homepage-flow-rail span{flex:1 0 170px}}</style>`;
+const flowCss = `<style id="homepage-flow-rail-css">.homepage-flow-rail{display:flex;gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.3);overflow:auto}.homepage-flow-rail span{flex:1 0 220px;padding:10px 16px;border-right:1px solid var(--rule);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.homepage-flow-rail b{display:block;color:var(--ink);font-size:15px;letter-spacing:-.03em;text-transform:none;margin-top:3px}.risk-officer-panel,.visual-committee-panel,.executive-brief-panel{opacity:.82}.risk-officer-panel details,.visual-committee-panel details,.executive-brief-panel details{margin-top:10px}.risk-officer-panel summary,.visual-committee-panel summary,.executive-brief-panel summary{cursor:pointer;font-size:12px;color:var(--muted)}.authoritative-action-state{border:2px solid rgba(47,111,78,.18);box-shadow:0 0 0 1px rgba(47,111,78,.06) inset}.strategy-command-panel{border-top:1px solid var(--rule2)}@media(max-width:700px){.homepage-flow-rail span{flex:1 0 170px}}</style>`;
 html = html.replace(/<style id="homepage-flow-rail-css">[\s\S]*?<\/style>/, '');
 html = html.replace('</head>', `${flowCss}</head>`);
 html = html.replace(/<div class="homepage-flow-rail">[\s\S]*?<\/div>/, '');
 const rail = `<div class="homepage-flow-rail"><span>01<b>Command</b></span><span>02<b>Holdings</b></span><span>03<b>Portfolio</b></span><span>04<b>Research</b></span></div>`;
 const mainIdx = html.indexOf('<main');
-if(mainIdx >= 0){
- const end = html.indexOf('>', mainIdx);
- html = html.slice(0,end+1)+rail+html.slice(end+1);
-}
+if(mainIdx >= 0){ const end = html.indexOf('>', mainIdx); html = html.slice(0,end+1)+rail+html.slice(end+1); }
+html = html.replace(/<section([^>]*)id="strategy-command"([^>]*)>/gi,'<section$1id="strategy-command" class="panel strategy-command-panel"$2>');
+html = html.replace(/<section([^>]*)id="authoritative-action-state"([^>]*)>/gi,'<section$1id="authoritative-action-state" class="panel authoritative-action-state"$2>');
+html = html.replace(/<section([^>]*)id="risk-officer"([^>]*)>([\s\S]*?)<\/section>/gi,'<section$1id="risk-officer" class="panel risk-officer-panel"$2><details><summary>Risk officer detail</summary>$3</details></section>');
+html = html.replace(/<section([^>]*)id="visual-investment-committee"([^>]*)>([\s\S]*?)<\/section>/gi,'<section$1id="visual-investment-committee" class="panel visual-committee-panel"$2><details><summary>Portfolio composition detail</summary>$3</details></section>');
+html = html.replace(/<section([^>]*)id="executive-brief"([^>]*)>([\s\S]*?)<\/section>/gi,'<section$1id="executive-brief" class="panel executive-brief-panel"$2><details><summary>Macro context</summary>$3</details></section>');
+html = html.replace(/Protected core \((.*?)\)/gi,'Protected core ($1 · includes 52.86% SPY concentration)');
 fs.writeFileSync(indexPath, html);
-console.log('removed oversized command manifesto and restored compact operational opening');
+console.log('consolidated command surfaces around authoritative state');

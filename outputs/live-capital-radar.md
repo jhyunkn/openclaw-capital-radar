@@ -1,18 +1,18 @@
 # OpenClaw Capital Radar - Daily Financial Report
 
-**Date:** 2026-05-18  
+**Date:** 2026-05-19  
 **Target time:** 8:30 AM America/New_York  
-**Data status:** LIVE_PUBLIC_DATA  
+**Data status:** PARTIAL_LIVE_PUBLIC_DATA  
 **Boundary:** Research/report support only; not an automatic broker.
 
 ## 1. Market Regime
 - **Posture:** HOLD / WATCH
 - **Growth:** Live proxy: equity trend mixed/weak
 - **Inflation:** Live proxy: breakeven/rates check required; see FRED T10YIE
-- **Policy:** Live: 10Y Treasury 4.47% (rate pressure present)
-- **Liquidity:** Live: HY OAS 2.8
-- **Risk appetite:** Live: VIX 17.83; risk watch
-- **Most important macro signal:** 2Y/10Y curve is 0.38 pts; watch rate pressure and cycle signal.
+- **Policy:** Live: 10Y Treasury 4.59% (rate pressure present)
+- **Liquidity:** Live: HY OAS 2.83
+- **Risk appetite:** Live: VIX 17.9; risk watch
+- **Most important macro signal:** 2Y/10Y curve is 0.50 pts; watch rate pressure and cycle signal.
 - **Confidence:** Medium for prices/rates; low for fundamentals/news until adapters are added.
 
 ## 2. Kostolany Cycle Position
@@ -27,17 +27,17 @@ Core compounders still supported, but levered/speculative exposures need stricte
 ## 3. Existing Holdings Review
 | Ticker | Shares | Price | Day | 5D | 1M | Weight | Role | Health | Signal | Rationale |
 |---|---:|---:|---:|---:|---:|---:|---|---|---|---|
-|MSFT|3|423.35|0.34|2.59|0.13|2.11|Core AI/cloud compounder|Strong|HOLD|Keep as core unless earnings revisions or valuation expectations materially deteriorate.|
-|AMZN|33.31|264.69|0.21|-1.6|5.64|14.62|Cloud + consumer operating leverage|Strong|HOLD|Core hold; monitor whether AWS acceleration offsets consumer softness.|
-|CEG|3|262.18|-1.88|-12.52|-11.49|1.3|Power / AI grid infrastructure|Good but crowded|HOLD / WATCH|Keep but watch expectation risk; do not add blindly into narrative heat.|
-|META|8.33|610.64|-0.58|1.97|-11.32|8.44|Ads + AI distribution platform|Strong|HOLD|Core hold while ad momentum and margins support thesis.|
-|TSLT|15|19.77|-5.81|-15.84|2.12|0.49|Levered TSLA-linked income/speculation|Fragile|TRIM WATCH|Treat as risk product, not investment compounder; trim if portfolio risk budget tightens.|
-|CONL|40|7.65|-6.13|-24.56|-20.23|0.51|Levered crypto beta|High risk|EXIT REVIEW|Requires explicit reason to keep; hidden correlation and decay make it a review priority.|
-|SPY|43.23|737.97|-0.16|-0.18|3.92|52.91|Core market beta baseline|Anchor|HOLD|Keep as baseline unless portfolio strategy changes.|
-|MA|4.01|505.22|2.23|1.49|-3.08|3.36|Quality payments compounder|Strong|HOLD|Core quality compounder; compare against SPY opportunity cost.|
-|BMNR|340|18.73|-5.74|-18.64|-18.39|10.56|Speculative / thesis verification required|Unknown|INVESTIGATE|No action until thesis, filings, liquidity, and downside case are verified.|
-|TSNF|40|29.98|-0.94|-3.41|6.27|1.99|Speculative / thesis verification required|Unknown|INVESTIGATE|No action until thesis, filings, liquidity, and downside case are verified.|
-|NFLX|25|89.72|3.1|5|-7.8|3.72|Media subscription compounder|Good|HOLD / WATCH|Hold but watch valuation versus subscriber/ads expectations.|
+|MSFT|3|419.1|-1.05|2.78|0.25|2.1|Core AI/cloud compounder|Strong|HOLD|Keep as core unless earnings revisions or valuation expectations materially deteriorate.|
+|AMZN|33.31|259.28|-2.11|-2.46|4.43|14.41|Cloud + consumer operating leverage|Strong|HOLD|Core hold; monitor whether AWS acceleration offsets consumer softness.|
+|CEG|3|259.42|-0.99|-11.64|-9.79|1.3|Power / AI grid infrastructure|Good but crowded|HOLD / WATCH|Keep but watch expectation risk; do not add blindly into narrative heat.|
+|META|8.33|602.47|-1.43|-0.09|-10.2|8.37|Ads + AI distribution platform|Strong|HOLD|Core hold while ad momentum and margins support thesis.|
+|TSLT|15|19.28|-2.45|-13.05|3.91|0.48|Levered TSLA-linked income/speculation|Fragile|TRIM WATCH|Treat as risk product, not investment compounder; trim if portfolio risk budget tightens.|
+|CONL|40|8.01|4.71|-14.06|-20.46|0.53|Levered crypto beta|High risk|EXIT REVIEW|Requires explicit reason to keep; hidden correlation and decay make it a review priority.|
+|SPY|43.23|735.87|-0.38|-0.31|3.83|53.06|Core market beta baseline|Anchor|HOLD|Keep as baseline unless portfolio strategy changes.|
+|MA|4.01|501.24|-0.9|0.29|-2.98|3.35|Quality payments compounder|Strong|HOLD|Core quality compounder; compare against SPY opportunity cost.|
+|BMNR|340|18.83|0.51|-13.13|-16.44|10.68|Speculative / thesis verification required|Unknown|INVESTIGATE|No action until thesis, filings, liquidity, and downside case are verified.|
+|TSNF|40|30|0.07|-1.9|5.56|2|Speculative / thesis verification required|Unknown|INVESTIGATE|No action until thesis, filings, liquidity, and downside case are verified.|
+|NFLX|25|88.98|-0.75|1.51|-6.17|3.71|Media subscription compounder|Good|HOLD / WATCH|Hold but watch valuation versus subscriber/ads expectations.|
 
 ## 4. News and Article Monitoring
 - **M5** Replace sample with live material news scan - affected: ALL; source: news/search + filings + earnings calendar; status: Required before daily use
@@ -84,67 +84,67 @@ Generated from active market force fields and public quote/rates context; candid
 
 **Current candidates:**
 - **NVDA - ADD WATCH:** Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.
-  - Data support: Price $222.13; day -1.42%; 1M 10.14%; 3M 18.82% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:56.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $222.61; day 0.13%; 1M 10.17%; 3M 21.77% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:40.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Forward revenue/gross-margin durability remains intact; Valuation reset or earnings growth justifies multiple; Customer concentration and export-control risks are understood
   - Key risks: Crowding and multiple compression; Export controls / supply chain limits; AI capex digestion cycle
 - **AVGO - ADD WATCH:** Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.
-  - Data support: Price $420.37; day -1.13%; 1M 3.4%; 3M 26.94% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:53.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $412.13; day -2.04%; 1M 3.13%; 3M 26.74% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:40.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: AI semiconductor growth offsets cyclicality; Debt/software integration risk remains controlled; Price action is not purely multiple expansion
   - Key risks: Semiconductor cycle; Acquisition/integration execution; Valuation crowding
 - **GEV - INVESTIGATE:** A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.
-  - Data support: Price $1008.89; day -3.84%; 1M 0.61%; 3M 23.55% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:41.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $1013.98; day 0.17%; 1M 2.4%; 3M 26.41% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:22.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Orders/backlog support multi-year grid demand; Margin execution is improving rather than just narrative-driven; Entry price is not stretched versus industrial peers
   - Key risks: Industrial cyclicality; Execution/margin volatility; Crowding after power-theme enthusiasm
 - **VRT - ADD WATCH:** Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.
-  - Data support: Price $339.38; day -8.51%; 1M 10.42%; 3M 43.49% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:48.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $325.73; day -4.12%; 1M 3.6%; 3M 38.89% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:40.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Backlog/order growth supports the AI infrastructure thesis; Margins remain resilient as capacity scales; Entry price compensates for crowded theme risk
   - Key risks: Theme crowding; Execution and margin pressure; Industrial cyclicality if capex slows
 - **ETN - INVESTIGATE:** A less flashy but potentially higher-quality way to express the grid/data-center power constraint without owning only the hottest AI names.
-  - Data support: Price $381.87; day -4.4%; 1M -5.99%; 3M -2.17% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:00.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $372.99; day -2.32%; 1M -8.48%; 3M -4.18% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:40.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Data-center/electrical segment growth remains durable; Valuation reset offers margin of safety; Balance sheet and cash conversion remain strong
   - Key risks: Valuation premium; Industrial slowdown; Theme overcrowding
 - **GOOGL - INVESTIGATE:** Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.
-  - Data support: Price $396.8; day 0.01%; 1M 16.13%; 3M 28.41% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:53.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $390.31; day -1.67%; 1M 15.67%; 3M 27.67% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:39.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Cloud and AI monetization progress is visible; Regulatory/search risks are priced in; Relative valuation is attractive versus existing platform holdings
   - Key risks: Antitrust/regulatory pressure; Search disruption narrative; AI capex margin drag
 - **PWR - INVESTIGATE:** A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.
-  - Data support: Price $724; day -5.97%; 1M 20.29%; 3M 40.34% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:16:39.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $719.04; day -0.55%; 1M 18.86%; 3M 37.2% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:14.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Backlog and utility capex visibility remain strong; Labor/input cost risk is controlled; Price enters prepared add zone
   - Key risks: Project execution; Utility capex timing; Rate-sensitive valuation
 - **CCJ - INVESTIGATE:** A creative non-AI software expression of the power scarcity thesis: nuclear fuel exposure if electricity demand and energy security remain structurally important.
-  - Data support: Price $107; day -0.47%; 1M -11.32%; 3M -8.07% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:03.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $104.3; day -0.8%; 1M -15.63%; 3M -7.62% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:34.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Uranium contracting/pricing remains supportive; Position size respects commodity cyclicality; Entry is not late-cycle momentum chasing
   - Key risks: Commodity cycle; Mine/geopolitical risk; Narrative crowding
 - **NXT - INVESTIGATE:** More experimental energy-infrastructure idea: not just AI power demand, but grid-edge hardware and utility-scale solar deployment efficiency.
-  - Data support: Price $132.6; day -8.1%; 1M 19.04%; 3M 16.07% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:18:42.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $129.86; day -3.44%; 1M 21.95%; 3M 11.53% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:35.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Bookings/backlog support growth; Margins are not peaking cyclically; Policy/tariff risks are understood
   - Key risks: Solar cyclicality; Policy and tariff risk; Smaller-cap volatility
 - **TMDX - INVESTIGATE:** A genuinely different growth infrastructure idea: organ transplant logistics and preservation network effects, far from current AI/platform concentration.
-  - Data support: Price $68.2; day 7.91%; 1M -41.14%; 3M -46.93% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:19:17.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $66.85; day -2.18%; 1M -40.91%; 3M -48.51% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:28:58.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Procedure growth and reimbursement remain supportive; Margins scale with network utilization; Competition and execution risks are understood
   - Key risks: Execution volatility; Healthcare reimbursement; Small/mid-cap valuation risk
 - **IBIT - INVESTIGATE:** A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.
-  - Data support: Price $43.61; day -2.7%; 1M -0.75%; 3M 17.71% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:45.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $43.46; day -0.16%; 1M 0.49%; 3M 11.52% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:37.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Explicit risk budget for crypto beta; Liquidity regime supports risk assets; Expense, tracking, and drawdown profile beat levered alternatives
   - Key risks: Bitcoin drawdown risk; Liquidity/regulatory shocks; No cash flow valuation anchor
 - **PLTR - INVESTIGATE:** A controversial but interesting candidate: if AI shifts from model infrastructure to operational deployment, PLTR may be a pure workflow/ontology beneficiary.
-  - Data support: Price $134.68; day 0.51%; 1M -8%; 3M 4.3% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:50.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $135.31; day 0.13%; 1M -7.25%; 3M 2.97% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:39.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Revenue growth and margin quality justify valuation; Commercial adoption is not hype-only; Entry follows valuation reset or major evidence upgrade
   - Key risks: Extreme valuation; Narrative crowding; Government/commercial concentration debates
 - **RKLB - INVESTIGATE:** A creative industrial-space candidate: asymmetric if launch cadence, defense/customer demand, and satellite systems compound into infrastructure status.
-  - Data support: Price $130.16; day 4.32%; 1M 53.49%; 3M 97.18% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:52.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $127.29; day -2.95%; 1M 42.28%; 3M 88.74% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:39.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Launch cadence/backlog improves; Gross margin path is credible; Risk budget treats it as speculative growth
   - Key risks: Execution risk; Funding/dilution; High beta market sensitivity
 - **RDDT - INVESTIGATE:** Experimental attention/data asset: interesting if human conversation data becomes a scarce AI-training/licensing input and ad monetization keeps improving.
-  - Data support: Price $159; day 0.52%; 1M -2.93%; 3M 21.31% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:19:33.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $155.62; day -2.19%; 1M -6.41%; 3M 11.44% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:40.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Revenue growth and margin path are improving; Data licensing is durable not one-off; User/community risk is priced in
   - Key risks: Post-IPO volatility; Platform governance/user backlash; Ad-cycle sensitivity
 - **HIMS - INVESTIGATE:** Experimental consumer-health platform candidate: potentially interesting if direct-to-consumer healthcare keeps taking share and category expansion is disciplined.
-  - Data support: Price $22.28; day -11.06%; 1M -22.69%; 3M 41.01% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:54.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $22.5; day 0.92%; 1M -27.46%; 3M 38.01% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:40.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Retention and margin quality support growth; Regulatory/product concentration risk is controlled; Entry is based on valuation reset not social momentum
   - Key risks: Regulatory scrutiny; Category concentration; High-growth multiple compression
 - **OKLO - INVESTIGATE:** Highly experimental asymmetric optionality on advanced nuclear power. This belongs in the creative lab, not the core portfolio, unless evidence improves dramatically.
-  - Data support: Price $58.35; day -6.27%; 1M -12.66%; 3M -8.71% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-18T20:20:55.000Z | 10Y Treasury 4.47% as of 2026-05-14 | 10Y breakeven inflation 2.49% as of 2026-05-15 | HY OAS 2.8 as of 2026-05-15
+  - Data support: Price $56.04; day -4.3%; 1M -17.75%; 3M -14.69% | Source: Yahoo Finance chart API (public/unofficial; 1m intraday when available); as of 2026-05-19T18:29:35.000Z | 10Y Treasury 4.59% as of 2026-05-15 | 10Y breakeven inflation 2.48% as of 2026-05-18 | HY OAS 2.83 as of 2026-05-18
   - Confirm before add: Licensing/regulatory milestones are concrete; Cash runway and dilution risk are understood; Position is capped as venture-style optionality
   - Key risks: Pre-commercial execution; Regulatory delay; Extreme dilution/volatility
 
@@ -168,59 +168,62 @@ Generated from active market force fields and public quote/rates context; candid
 ### Market tape
 | Symbol | Price | Day % | 5D % | 1M % | 3M % | As of |
 |---|---:|---:|---:|---:|---:|---|
-|MSFT|423.35|0.34|2.59|0.13|5.35|2026-05-18T20:20:54.000Z|
-|AMZN|264.69|0.21|-1.6|5.64|32.61|2026-05-18T20:20:37.000Z|
-|CEG|262.18|-1.88|-12.52|-11.49|-5.05|2026-05-18T20:20:24.000Z|
-|META|610.64|-0.58|1.97|-11.32|-6.03|2026-05-18T20:20:53.000Z|
-|TSLT|19.77|-5.81|-15.84|2.12|-10.91|2026-05-18T20:20:51.000Z|
-|CONL|7.65|-6.13|-24.56|-20.23|48.54|2026-05-18T20:20:46.000Z|
-|SPY|737.97|-0.16|-0.18|3.92|8.32|2026-05-18T20:20:57.000Z|
-|MA|505.22|2.23|1.49|-3.08|-4.22|2026-05-18T20:20:55.000Z|
-|BMNR|18.73|-5.74|-18.64|-18.39|-5.12|2026-05-18T20:20:48.000Z|
-|TSNF|29.98|-0.94|-3.41|6.27|21.62|2026-05-18T20:04:26.000Z|
-|NFLX|89.72|3.1|5|-7.8|18.27|2026-05-18T20:20:47.000Z|
-|QQQ|705.19|-0.53|-1.14|8.68|17.41|2026-05-18T20:20:54.000Z|
-|IWM|275.93|-0.6|-3.29|0.05|6.32|2026-05-18T20:20:11.000Z|
-|^VIX|17.83|-3.26|-2.99|2|-14.36|2026-05-18T20:04:00.000Z|
-|DX-Y.NYB|98.98|-0.31|1.06|0.9|2.11|2026-05-18T20:10:52.000Z|
-|BTC-USD|76994.96|-0.54|-2.88|-0.48|8.12|2026-05-18T20:20:53.000Z|
-|ETH-USD|2124.2|-0.27|-5.91|-7.77|1.29|2026-05-18T20:20:50.000Z|
-|TSLA|409.64|-2.98|-7.95|2.25|-1.78|2026-05-18T20:20:57.000Z|
-|COIN|189.56|-3|-12.48|-8.13|34.35|2026-05-18T20:20:54.000Z|
-|NVDA|222.13|-1.42|1.23|10.14|18.82|2026-05-18T20:20:56.000Z|
-|AVGO|420.37|-1.13|-1.88|3.4|26.94|2026-05-18T20:20:53.000Z|
-|VRT|339.38|-8.51|-7.76|10.42|43.49|2026-05-18T20:20:48.000Z|
-|GOOGL|396.8|0.01|2.1|16.13|28.41|2026-05-18T20:20:53.000Z|
-|IBIT|43.61|-2.7|-6.15|-0.75|17.71|2026-05-18T20:20:45.000Z|
-|GEV|1008.89|-3.84|-5.98|0.61|23.55|2026-05-18T20:20:41.000Z|
-|ETN|381.87|-4.4|-8.86|-5.99|-2.17|2026-05-18T20:20:00.000Z|
-|PWR|724|-5.97|-7.34|20.29|40.34|2026-05-18T20:16:39.000Z|
-|NXT|132.6|-8.1|5.02|19.04|16.07|2026-05-18T20:18:42.000Z|
-|CCJ|107|-0.47|-10.94|-11.32|-8.07|2026-05-18T20:20:03.000Z|
-|URA|48.73|-2.4|-14.85|-12.76|-5.84|2026-05-18T20:19:58.000Z|
-|OKLO|58.35|-6.27|-25.32|-12.66|-8.71|2026-05-18T20:20:55.000Z|
-|SMR|10.55|-6.06|-20.62|-16.6|-24.59|2026-05-18T20:20:35.000Z|
-|RKLB|130.16|4.32|10.92|53.49|97.18|2026-05-18T20:20:52.000Z|
-|PLTR|134.68|0.51|-1.61|-8|4.3|2026-05-18T20:20:50.000Z|
-|RDDT|159|0.52|-0.32|-2.93|21.31|2026-05-18T20:19:33.000Z|
-|HIMS|22.28|-11.06|-23.54|-22.69|41.01|2026-05-18T20:20:54.000Z|
-|TMDX|68.2|7.91|6.07|-41.14|-46.93|2026-05-18T20:19:17.000Z|
-|ASTS|86.77|3.7|5.11|1.45|5.53|2026-05-18T20:20:38.000Z|
+|MSFT|419.1|-1.05|2.78|0.25|4.43|2026-05-19T18:29:36.000Z|
+|AMZN|259.28|-2.11|-2.46|4.43|30.43|2026-05-19T18:29:40.000Z|
+|CEG|259.42|-0.99|-11.64|-9.79|-10.06|2026-05-19T18:29:37.000Z|
+|META|602.47|-1.43|-0.09|-10.2|-5.83|2026-05-19T18:29:40.000Z|
+|TSLT|19.28|-2.45|-13.05|3.91|-13.13|2026-05-19T18:29:39.000Z|
+|CONL|8.01|4.71|-14.06|-20.46|17.28|2026-05-19T18:29:36.000Z|
+|SPY|735.87|-0.38|-0.31|3.83|7.94|2026-05-19T18:29:39.000Z|
+|MA|501.24|-0.9|0.29|-2.98|-3.3|2026-05-19T18:29:32.000Z|
+|BMNR|18.83|0.51|-13.13|-16.44|-10.19|2026-05-19T18:29:34.000Z|
+|TSNF|30|0.07|-1.9|5.56|19.87|2026-05-19T17:43:16.000Z|
+|NFLX|88.98|-0.75|1.51|-6.17|15.75|2026-05-19T18:29:39.000Z|
+|QQQ|704.02|-0.26|-0.46|8.85|16.96|2026-05-19T18:29:40.000Z|
+|IWM|273.76|-0.8|-3.12|-1.29|4.11|2026-05-19T18:29:40.000Z|
+|^VIX|17.9|0.45|-0.5|-5.14|-13.11|2026-05-19T18:14:31.000Z|
+|DX-Y.NYB|99.26|0.06|0.98|1.23|2.45|2026-05-19T18:19:37.000Z|
+|BTC-USD|76723.1|-0.3|-5.34|0.49|5.4|2026-05-19T18:29:34.000Z|
+|ETH-USD|2111.41|-0.81|-7.43|-7.78|-3.03|2026-05-19T18:29:35.000Z|
+|TSLA|404.88|-1.25|-6.59|3.15|-3.01|2026-05-19T18:29:39.000Z|
+|COIN|194.07|2.44|-6.54|-8.3|18.1|2026-05-19T18:29:39.000Z|
+|NVDA|222.61|0.13|0.83|10.17|21.77|2026-05-19T18:29:40.000Z|
+|AVGO|412.13|-2.04|-1.71|3.13|26.74|2026-05-19T18:29:40.000Z|
+|VRT|325.73|-4.12|-11.28|3.6|38.89|2026-05-19T18:29:40.000Z|
+|GOOGL|390.31|-1.67|0.76|15.67|27.67|2026-05-19T18:29:39.000Z|
+|IBIT|43.46|-0.16|-5.11|0.49|11.52|2026-05-19T18:29:37.000Z|
+|GEV|1013.98|0.17|-5.41|2.4|26.41|2026-05-19T18:29:22.000Z|
+|ETN|372.99|-2.32|-7.11|-8.48|-4.18|2026-05-19T18:29:40.000Z|
+|PWR|719.04|-0.55|-6.11|18.86|37.2|2026-05-19T18:29:14.000Z|
+|NXT|129.86|-3.44|3.58|21.95|11.53|2026-05-19T18:29:35.000Z|
+|CCJ|104.3|-0.8|-10.8|-15.63|-7.62|2026-05-19T18:29:34.000Z|
+|URA|47.48|-2.46|-12.64|-15.29|-8.53|2026-05-19T18:29:25.000Z|
+|OKLO|56.04|-4.3|-23.89|-17.75|-14.69|2026-05-19T18:29:35.000Z|
+|SMR|10.04|-4.2|-16.33|-21.5|-29.84|2026-05-19T18:29:40.000Z|
+|RKLB|127.29|-2.95|8.27|42.28|88.74|2026-05-19T18:29:39.000Z|
+|PLTR|135.31|0.13|-0.51|-7.25|2.97|2026-05-19T18:29:39.000Z|
+|RDDT|155.62|-2.19|2.15|-6.41|11.44|2026-05-19T18:29:40.000Z|
+|HIMS|22.5|0.92|-10.13|-27.46|38.01|2026-05-19T18:29:40.000Z|
+|TMDX|66.85|-2.18|4.57|-40.91|-48.51|2026-05-19T18:28:58.000Z|
+|ASTS|88.36|1.76|21.11|9.09|7.09|2026-05-19T18:29:40.000Z|
 
 ### Rates / credit / liquidity
 | Series | Name | Value | Latest date |
 |---|---|---:|---|
 |DGS2|US 2Y Treasury yield|4.09|2026-05-15|
-|DGS10|US 10Y Treasury yield|4.47|2026-05-14|
+|DGS10|US 10Y Treasury yield|4.59|2026-05-15|
 |DGS30|US 30Y Treasury yield|5.12|2026-05-15|
-|T10YIE|10Y breakeven inflation rate|2.49|2026-05-15|
-|BAMLH0A0HYM2|High yield option-adjusted spread|2.8|2026-05-15|
-|BAMLC0A0CM|Investment grade corporate OAS|0.75|2026-05-15|
+|T10YIE|10Y breakeven inflation rate|2.48|2026-05-18|
+|BAMLH0A0HYM2|High yield option-adjusted spread|2.83|2026-05-18|
+|BAMLC0A0CM|Investment grade corporate OAS|0.75|2026-05-18|
 |DFF|Effective federal funds rate|3.63|2026-05-15|
+
+### Live data errors
+- {"source":"SEC company_tickers","error":"403 https://www.sec.gov/files/company_tickers.json"}
 
 ## 10. Final Output
 - **Market Posture:** HOLD / WATCH
-- **Most Important Macro Signal:** 2Y/10Y curve is 0.38 pts; watch rate pressure and cycle signal.
+- **Most Important Macro Signal:** 2Y/10Y curve is 0.50 pts; watch rate pressure and cycle signal.
 - **Most Important Holding Update:** CONL and TSLT remain the risk-control focus in the sample state.
 - **Strongest Current Holding:** MSFT/AMZN/META sample; verify live
 - **Weakest Current Holding:** CONL sample; verify live

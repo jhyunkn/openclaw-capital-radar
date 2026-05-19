@@ -5,6 +5,12 @@ const interpPath = path.join(root, 'outputs', 'strategy-interpretations.json');
 const indexPath = path.join(root, 'index.html');
 function fail(message){ console.error(`STRATEGY INTERPRETATION VALIDATION FAILED: ${message}`); process.exit(1); }
 function assert(condition, message){ if(!condition) fail(message); }
+function detectHoldingsSurface(holdingsHtml){
+  if (holdingsHtml.includes('strategy-card-grid') && holdingsHtml.includes('health-card') && holdingsHtml.includes('health-matrix')) return 'cleaned-health-cards';
+  if (holdingsHtml.includes('strategy-card-grid') && holdingsHtml.includes('strategy-decision-band') && holdingsHtml.includes('strategy-fact-list')) return 'restored-strategy-cards';
+  if (holdingsHtml.includes('holding-card') || holdingsHtml.includes('holdings-grid')) return 'compressed-holding-cards';
+  return null;
+}
 assert(fs.existsSync(interpPath), 'outputs/strategy-interpretations.json missing');
 const data = JSON.parse(fs.readFileSync(interpPath, 'utf8'));
 assert(Array.isArray(data.interpretations), 'interpretations array missing');
@@ -24,17 +30,17 @@ if (fs.existsSync(indexPath)) {
   const holdingsMatch = html.match(/<section[^>]*id="holdings"[\s\S]*?<\/section>/);
   assert(holdingsMatch, 'Holdings section not found');
   const holdingsHtml = holdingsMatch[0];
-  const hasCompressedHoldings = holdingsHtml.includes('holding-card') || holdingsHtml.includes('holdings-grid');
-  const hasRestoredStrategyHoldings = holdingsHtml.includes('strategy-card-grid') && holdingsHtml.includes('strategy-decision-band') && holdingsHtml.includes('strategy-fact-list');
-  assert(hasCompressedHoldings || hasRestoredStrategyHoldings, 'Holdings section missing recognized holdings surface');
-  if (hasRestoredStrategyHoldings) {
-    for (const label of ['Action permission','Urgency','Thesis','Confidence','New information processed','Signal changes if','Portfolio conflict','Position pressure','Valuation read','Data confidence']) {
-      assert(holdingsHtml.includes(label), `restored Holdings surface missing ${label}`);
-    }
+  const surfaceMode = detectHoldingsSurface(holdingsHtml);
+  assert(surfaceMode, 'Holdings section missing recognized holdings surface mode');
+  if (surfaceMode === 'restored-strategy-cards') {
+    for (const label of ['Action permission','Urgency','Thesis','Confidence','New information processed','Signal changes if','Portfolio conflict','Position pressure','Valuation read','Data confidence']) assert(holdingsHtml.includes(label), `restored Holdings surface missing ${label}`);
+  }
+  if (surfaceMode === 'cleaned-health-cards') {
+    for (const label of ['Valuation','Cash flow','Trend','Thesis','Risk flag','Data confidence']) assert(holdingsHtml.includes(label), `cleaned Holdings surface missing ${label}`);
+    for (const removed of ['New information processed','Signal changes if']) assert(!holdingsHtml.includes(removed), `cleaned Holdings surface still includes removed redundant field: ${removed}`);
   }
   assert(!html.includes('Interpreted decision cards'), 'legacy Interpreted decision cards heading still visible');
-  for (const item of data.interpretations) {
-    assert(holdingsHtml.includes(`>${item.ticker}</b>`) || holdingsHtml.includes(`>${item.ticker}</h3>`) || holdingsHtml.includes(`>${item.ticker}<`), `Holdings missing ${item.ticker}`);
-  }
+  for (const item of data.interpretations) assert(holdingsHtml.includes(`>${item.ticker}</b>`) || holdingsHtml.includes(`>${item.ticker}</h3>`) || holdingsHtml.includes(`>${item.ticker}<`), `Holdings missing ${item.ticker}`);
+  console.log(`strategy interpretations UI binding validated: ${surfaceMode}`);
 }
-console.log(`strategy interpretations validated as data backing current Holdings surface: ${data.interpretations.length} holdings`);
+console.log(`strategy interpretations data validated: ${data.interpretations.length} holdings`);

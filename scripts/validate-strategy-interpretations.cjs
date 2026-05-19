@@ -20,8 +20,21 @@ for (const item of data.interpretations) {
 }
 if (fs.existsSync(indexPath)) {
   const html = fs.readFileSync(indexPath, 'utf8');
-  assert(html.includes('id="holdings"'), 'homepage missing compressed Holdings section');
-  assert(!html.includes('Interpreted decision cards') && !html.includes('strategy-card-grid'), 'legacy interpreted decision card surface still visible');
-  for (const item of data.interpretations) assert(html.includes(`>${item.ticker}</b>`) || html.includes(`>${item.ticker}<`), `compressed holdings missing ${item.ticker}`);
+  assert(html.includes('id="holdings"'), 'homepage missing Holdings section');
+  const holdingsMatch = html.match(/<section[^>]*id="holdings"[\s\S]*?<\/section>/);
+  assert(holdingsMatch, 'Holdings section not found');
+  const holdingsHtml = holdingsMatch[0];
+  const hasCompressedHoldings = holdingsHtml.includes('holding-card') || holdingsHtml.includes('holdings-grid');
+  const hasRestoredStrategyHoldings = holdingsHtml.includes('strategy-card-grid') && holdingsHtml.includes('strategy-decision-band') && holdingsHtml.includes('strategy-fact-list');
+  assert(hasCompressedHoldings || hasRestoredStrategyHoldings, 'Holdings section missing recognized holdings surface');
+  if (hasRestoredStrategyHoldings) {
+    for (const label of ['Action permission','Urgency','Thesis','Confidence','New information processed','Signal changes if','Portfolio conflict','Position pressure','Valuation read','Data confidence']) {
+      assert(holdingsHtml.includes(label), `restored Holdings surface missing ${label}`);
+    }
+  }
+  assert(!html.includes('Interpreted decision cards'), 'legacy Interpreted decision cards heading still visible');
+  for (const item of data.interpretations) {
+    assert(holdingsHtml.includes(`>${item.ticker}</b>`) || holdingsHtml.includes(`>${item.ticker}</h3>`) || holdingsHtml.includes(`>${item.ticker}<`), `Holdings missing ${item.ticker}`);
+  }
 }
-console.log(`strategy interpretations validated as data backing compressed holdings: ${data.interpretations.length} holdings`);
+console.log(`strategy interpretations validated as data backing current Holdings surface: ${data.interpretations.length} holdings`);

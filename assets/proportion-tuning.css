@@ -83,6 +83,25 @@ h3{font-size:15px;line-height:1.25}
 #brief .metric b{font-size:clamp(12px,1.02vw,16px)!important;line-height:1.12!important;letter-spacing:-.018em!important;margin-top:6px!important;font-weight:600!important;color:rgba(36,35,31,.78)!important}
 #brief + #holdings{padding-top:34px!important}
 
+/* Holdings card refinement: restore red/green operating graphics without adding sections. */
+#holdings{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,0))!important}
+#holdings .section-head{margin-bottom:18px!important}
+#holdings .section-head p{font-size:13px!important;color:rgba(36,35,31,.58)!important}
+.holdings-grid{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))!important;gap:10px!important;border:0!important}
+.holding-card{position:relative!important;border:1px solid rgba(36,35,31,.13)!important;background:rgba(251,250,246,.56)!important;border-radius:16px!important;box-shadow:0 12px 36px rgba(36,35,31,.045)!important;overflow:hidden!important;padding:16px!important}
+.holding-card:before{content:"";position:absolute;inset:0 auto 0 0;width:7px;background:rgba(138,106,44,.65)}
+.holding-card.neg:before{background:#a34638}.holding-card.warn:before{background:#b8872f}.holding-card.pos:before{background:#2f6f4e}
+.holding-card.neg{background:linear-gradient(90deg,rgba(163,70,56,.12),rgba(251,250,246,.66) 34%)!important}
+.holding-card.warn{background:linear-gradient(90deg,rgba(184,135,47,.12),rgba(251,250,246,.66) 34%)!important}
+.holding-card.pos{background:linear-gradient(90deg,rgba(47,111,78,.12),rgba(251,250,246,.66) 34%)!important}
+.holding-head b{font-size:clamp(34px,4.8vw,56px)!important;letter-spacing:-.06em!important;color:rgba(36,35,31,.9)!important}
+.holding-head small{font-size:11px!important;text-transform:uppercase!important;letter-spacing:.05em!important;color:rgba(36,35,31,.5)!important;max-width:210px!important}
+.price strong{font-size:clamp(28px,4.4vw,46px)!important;color:rgba(36,35,31,.9)!important}.price small{font-size:14px!important}
+.weight-line{height:8px!important;margin:14px 0 15px!important;background:rgba(36,35,31,.07)!important}.weight-line span{background:rgba(36,35,31,.62)!important}
+.chips{gap:7px!important;margin-bottom:13px!important}.chip{font-size:11px!important;padding:7px 10px!important;border-radius:999px!important;background:rgba(255,255,255,.48)!important;border-color:rgba(36,35,31,.14)!important;color:rgba(36,35,31,.72)!important}.chip.neg{background:rgba(163,70,56,.11)!important;border-color:rgba(163,70,56,.28)!important;color:#8f372e!important}.chip.warn{background:rgba(184,135,47,.13)!important;border-color:rgba(184,135,47,.3)!important;color:#7a5a20!important}.chip.pos{background:rgba(47,111,78,.12)!important;border-color:rgba(47,111,78,.26)!important;color:#2f6f4e!important}
+.thesis{font-size:15px!important;line-height:1.36!important;color:rgba(36,35,31,.82)!important;min-height:auto!important;margin-bottom:14px!important}
+.matrix{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;border:0!important;gap:7px!important}.matrix>div{border:1px solid rgba(36,35,31,.1)!important;border-radius:10px!important;min-height:78px!important;background:rgba(255,255,255,.32)!important;padding:9px!important}.matrix span{font-size:10px!important;text-transform:uppercase!important;letter-spacing:.055em!important;color:rgba(36,35,31,.45)!important}.matrix b{font-size:16px!important;line-height:1.12!important}.matrix b.neg{color:#9f3f35!important}.matrix b.warn{color:#8a6a2c!important}.matrix b.pos{color:#2f6f4e!important}.matrix small{font-size:11px!important;line-height:1.25!important;color:rgba(36,35,31,.52)!important}
+
 @media(max-width:1100px){
   .hero{min-height:auto;padding-top:48px}
   .topbar{gap:10px}
@@ -102,4 +121,8 @@ h3{font-size:15px;line-height:1.25}
   #brief h1{font-size:40px!important}
   #brief .brief-text{font-size:14px!important}
   #brief .brief-metrics{grid-template-columns:1fr!important}
+  .holdings-grid{grid-template-columns:1fr!important;gap:12px!important}
+  .holding-card{border-radius:14px!important;padding:16px!important}
+  .holding-head b{font-size:42px!important}.price strong{font-size:36px!important}
+  .matrix{grid-template-columns:1fr 1fr!important}.matrix>div{min-height:70px!important}
 }

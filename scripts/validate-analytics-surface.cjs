@@ -26,9 +26,23 @@ const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 assert(holdings.length > 0, 'state.holdings is empty');
 assert(fs.existsSync(indexPath), 'index.html missing');
 const index = fs.readFileSync(indexPath, 'utf8');
-assert(index.includes('id="portfolio-scoreboard"'), 'homepage missing #portfolio-scoreboard');
-assert(index.includes('Review queue from signal scorecards'), 'homepage missing portfolio scoreboard heading');
-assert(index.includes('outputs/portfolio-scoreboard.json'), 'homepage missing scoreboard JSON link');
+
+const cleanHome = index.includes('id="command"') && index.includes('Compact ticker matrix') && index.includes('id="portfolio"');
+if (cleanHome) {
+  assert(index.includes('id="command"'), 'clean homepage missing command surface');
+  assert(index.includes('Allowed / forbidden now'), 'clean homepage missing command heading');
+  assert(index.includes('outputs/authoritative-action-state.json'), 'clean homepage missing authoritative action-state JSON link');
+  assert(index.includes('id="holdings-section"'), 'clean homepage missing holdings matrix');
+  assert(index.includes('id="portfolio"'), 'clean homepage missing portfolio section');
+  assert(index.includes('id="research"'), 'clean homepage missing research section');
+  assert(!index.includes('What requires action now?'), 'legacy command manifesto still present');
+  assert(!index.includes('Read permission before price.'), 'legacy decision poster still present');
+  assert(!index.includes('Consumer contract'), 'legacy consumer contract still present');
+} else {
+  assert(index.includes('id="portfolio-scoreboard"'), 'homepage missing #portfolio-scoreboard');
+  assert(index.includes('Review queue from signal scorecards'), 'homepage missing portfolio scoreboard heading');
+  assert(index.includes('outputs/portfolio-scoreboard.json'), 'homepage missing scoreboard JSON link');
+}
 
 const scoreboard = readJson(scoreboardPath);
 assert(Array.isArray(scoreboard.scorecards), 'portfolio-scoreboard.json missing scorecards array');
@@ -46,7 +60,7 @@ for (const h of holdings) {
   assert(html.includes('Why this signal exists'), `pages/${ticker}.html missing scorecard explanation heading`);
   assert(html.includes('Data quality'), `pages/${ticker}.html missing Data quality section`);
   assert(html.includes('Risk budget'), `pages/${ticker}.html missing Risk budget section`);
-  assert(html.includes('Load live chart'), `pages/${ticker}.html missing live chart loader`);
+  assert(html.includes('TradingView') || html.includes('chart-section'), `pages/${ticker}.html missing chart surface`);
 }
 
-console.log(`analytics surface validated: ${holdings.length} holding pages, homepage scoreboard, JSON output`);
+console.log(`analytics surface validated: ${holdings.length} holding pages, ${cleanHome ? 'clean homepage composition' : 'legacy homepage scoreboard'}, JSON output`);

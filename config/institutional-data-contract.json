@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "purpose": "Define canonical source classes for Capital Radar. OpenClaw must collect institution-grade, company-verified, and market-structure evidence before synthesizing holding zones or strategy actions.",
+  "source_tiers": {
+    "tier_1_company_verified": {
+      "description": "Primary company disclosures and official events. Highest authority for company fundamentals and guidance.",
+      "examples": [
+        "SEC 10-K",
+        "SEC 10-Q",
+        "8-K",
+        "earnings release",
+        "earnings call transcript",
+        "investor presentation",
+        "company press release",
+        "official guidance update"
+      ],
+      "required_fields": [
+        "ticker",
+        "source_name",
+        "source_type",
+        "url",
+        "publish_date",
+        "period",
+        "extracted_metric",
+        "extracted_value",
+        "affected_thesis",
+        "reliability_score"
+      ],
+      "minimum_reliability_score": 0.9
+    },
+    "tier_2_institutional_positioning": {
+      "description": "Large investor and institutional positioning evidence. Used for ownership, accumulation, sponsorship, and crowding analysis.",
+      "examples": [
+        "13F filings",
+        "13D filings",
+        "13G filings",
+        "Form 4 insider transactions",
+        "proxy statements",
+        "fund letters",
+        "major holder reports",
+        "ETF/index ownership",
+        "short interest",
+        "options open interest"
+      ],
+      "required_fields": [
+        "ticker",
+        "institution",
+        "source_type",
+        "filing_date",
+        "report_period",
+        "shares",
+        "change_in_shares",
+        "estimated_value",
+        "ownership_signal",
+        "reliability_score"
+      ],
+      "minimum_reliability_score": 0.75
+    },
+    "tier_3_market_structure": {
+      "description": "Price, volume, volatility, and flow evidence used to generate action zones and market-tape confirmation.",
+      "examples": [
+        "OHLCV history",
+        "anchored VWAP",
+        "volume profile",
+        "support/resistance levels",
+        "moving averages",
+        "relative strength",
+        "implied volatility",
+        "options skew",
+        "credit spreads",
+        "rates",
+        "dollar index",
+        "oil/energy prices",
+        "BTC and crypto liquidity"
+      ],
+      "required_fields": [
+        "symbol",
+        "metric",
+        "value",
+        "as_of",
+        "lookback_window",
+        "source_name",
+        "source_type",
+        "reliability_score"
+      ],
+      "minimum_reliability_score": 0.65
+    },
+    "tier_4_research_interpretation": {
+      "description": "Broker, media, analyst, and agent synthesis. Useful only when tied back to tier 1-3 evidence.",
+      "examples": [
+        "sell-side reports",
+        "news articles",
+        "industry research",
+        "expert commentary",
+        "agent synthesis"
+      ],
+      "required_fields": [
+        "source_name",
+        "source_type",
+        "url_or_citation",
+        "publish_date",
+        "extracted_claim",
+        "linked_evidence_ids",
+        "affected_thesis",
+        "reliability_score"
+      ],
+      "minimum_reliability_score": 0.5
+    }
+  },
+  "strategy_rules": [
+    "No holding-zone level may be promoted from proxy_v1 to institutional without at least one tier_1_company_verified or tier_2_institutional_positioning source plus one tier_3_market_structure source.",
+    "No buy/add permission may be generated from institutional positioning alone.",
+    "No market strategy posture may upgrade risk-on if data truth is blocked or stale for critical market-tape signals.",
+    "Narrative claims must reference evidence IDs. Price-zone claims must reference zone_source_ids.",
+    "Institutional ownership is evidence of sponsorship or crowding, not proof of future return."
+  ],
+  "canonical_artifacts": [
+    "company-verified-evidence-state.json",
+    "institutional-positioning-state.json",
+    "market-structure-state.json",
+    "holding-zone-state.json",
+    "strategy-state.json",
+    "market-tape-state.json"
+  ]
+}

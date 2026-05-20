@@ -1,146 +1,38 @@
 const fs = require('fs');
 const path = require('path');
-
 const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
-const statePath = path.join(root, 'outputs', 'portfolio-translation-state.json');
+const zonePath = path.join(root, 'outputs', 'holding-zone-state.json');
+const translationPath = path.join(root, 'outputs', 'portfolio-translation-state.json');
 const decisionPath = path.join(root, 'outputs', 'portfolio-decision-state.json');
-
-const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const list = value => Array.isArray(value) ? value : [];
-const fmt = (value, digits = 1) => {
-  const x = Number(value);
-  return Number.isFinite(x) ? x.toLocaleString(undefined, { maximumFractionDigits: digits }) : '—';
-};
-const usd = value => Number.isFinite(Number(value)) && Number(value) > 0 ? `$${fmt(value, 2)}` : '—';
-const pct = value => Number.isFinite(Number(value)) ? `${fmt(value, 1)}%` : '—';
-const range = (low, high) => `${usd(low)}–${usd(high)}`;
-const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
-const n = value => Number.isFinite(Number(value)) ? Number(value) : null;
-const positive = value => {
-  const x = n(value);
-  return x && x > 0 ? x : null;
-};
-const round = (value, digits = 2) => Number.isFinite(Number(value)) ? Number(Number(value).toFixed(digits)) : null;
-const pctDistance = (from, to) => positive(from) && positive(to) ? round(((positive(to) - positive(from)) / positive(from)) * 100, 2) : null;
-const badge = value => {
-  const s = String(value || '').toUpperCase();
-  if (s.includes('HARD_EXIT') || s.includes('BELOW_STOP') || s.includes('VULNERABLE') || s.includes('HIGH') || s.includes('REDUCE') || s.includes('EXIT')) return 'bad';
-  if (s.includes('TRIM') || s.includes('CONSTRAINED') || s.includes('WATCH') || s.includes('REVIEW') || s.includes('VERIFY') || s.includes('NEAR_STOP')) return 'warn';
-  if (s.includes('BUY') || s.includes('SUPPORTED') || s.includes('ADD') || s.includes('NORMAL')) return 'good';
-  return '';
-};
-const safeRead = file => {
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return null; }
-};
-
-if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
-if (!fs.existsSync(statePath)) throw new Error('portfolio-translation-state.json missing');
-
-const state = safeRead(statePath);
-const decisionRows = list(safeRead(decisionPath));
-const decisionByTicker = Object.fromEntries(decisionRows.map(row => [String(row.ticker || '').toUpperCase(), row]));
-if (!state?.render_permission) throw new Error('portfolio-translation-state render_permission=false');
-
-const enrichedHolding = h => {
-  const source = decisionByTicker[String(h.ticker || '').toUpperCase()] || {};
-  const map = h.price_decision_map || {};
-  const price = positive(map.current_price) ?? positive(h.price) ?? positive(source.price) ?? positive(source.livePrice);
-  return {
-    ...source,
-    ...h,
-    price: price ?? h.price ?? source.price,
-    day_change_pct: n(h.day_change_pct ?? source.dayChangePct),
-    portfolio_weight_pct: n(h.portfolio_weight_pct ?? source.portfolioWeightPct),
-    price_decision_map: {
-      ...map,
-      current_price: price ?? positive(map.current_price)
-    }
-  };
-};
-const withFallbackZones = h => {
-  const base = h.price_decision_map || {};
-  const c = positive(base.current_price ?? h.price);
-  if (!c) return base;
-  const highRisk = ['high', 'elevated'].includes(String(h.risk_state || '').toLowerCase()) || /trim|exit/i.test(String(h.rule_permission || ''));
-  const conservative = String(h.exposure_state || '') !== 'supported' || highRisk;
-  const factors = conservative
-    ? { buyLow: 0.86, buyHigh: 0.92, trimLow: 1.08, trimHigh: 1.16, target: 1.18, stop: 0.90, hard: 0.84, rangeLow: 0.94, rangeHigh: 1.04, accLow: 0.97, accHigh: 1.01 }
-    : { buyLow: 0.90, buyHigh: 0.96, trimLow: 1.12, trimHigh: 1.22, target: 1.25, stop: 0.88, hard: 0.80, rangeLow: 0.95, rangeHigh: 1.05, accLow: 0.98, accHigh: 1.02 };
-  const m = { ...base };
-  const hasAnyPositiveSourceZone = [m.buy_zone_low, m.buy_zone_high, m.trim_zone_low, m.trim_zone_high, m.stop_review, m.hard_exit_review, m.target_resistance].some(value => positive(value) !== null);
-  m.current_price = positive(m.current_price) ?? c;
-  m.buy_zone_low = positive(m.buy_zone_low) ?? round(c * factors.buyLow, 2);
-  m.buy_zone_high = positive(m.buy_zone_high) ?? round(c * factors.buyHigh, 2);
-  m.buy_zone_mid = positive(m.buy_zone_mid) || round((m.buy_zone_low + m.buy_zone_high) / 2, 2);
-  m.trim_zone_low = positive(m.trim_zone_low) ?? round(c * factors.trimLow, 2);
-  m.trim_zone_high = positive(m.trim_zone_high) ?? round(c * factors.trimHigh, 2);
-  m.trim_zone_mid = positive(m.trim_zone_mid) || round((m.trim_zone_low + m.trim_zone_high) / 2, 2);
-  m.stop_review = positive(m.stop_review) ?? round(c * factors.stop, 2);
-  m.hard_exit_review = positive(m.hard_exit_review) ?? round(c * factors.hard, 2);
-  m.target_resistance = positive(m.target_resistance) ?? round(c * factors.target, 2);
-  m.upside_to_target_pct = n(m.upside_to_target_pct) && n(m.upside_to_target_pct) !== 0 ? n(m.upside_to_target_pct) : pctDistance(c, m.target_resistance);
-  m.upside_to_trim_low_pct = n(m.upside_to_trim_low_pct) && n(m.upside_to_trim_low_pct) !== 0 ? n(m.upside_to_trim_low_pct) : pctDistance(c, m.trim_zone_low);
-  m.downside_to_buy_mid_pct = n(m.downside_to_buy_mid_pct) && n(m.downside_to_buy_mid_pct) !== 0 ? n(m.downside_to_buy_mid_pct) : pctDistance(c, m.buy_zone_mid);
-  m.downside_to_stop_pct = n(m.downside_to_stop_pct) && n(m.downside_to_stop_pct) !== 0 ? n(m.downside_to_stop_pct) : pctDistance(c, m.stop_review);
-  m.downside_to_hard_exit_pct = n(m.downside_to_hard_exit_pct) && n(m.downside_to_hard_exit_pct) !== 0 ? n(m.downside_to_hard_exit_pct) : pctDistance(c, m.hard_exit_review);
-  m.recent_range_low = positive(m.recent_range_low) ?? round(c * factors.rangeLow, 2);
-  m.recent_range_high = positive(m.recent_range_high) ?? round(c * factors.rangeHigh, 2);
-  m.recent_accumulation_proxy_low = positive(m.recent_accumulation_proxy_low) ?? round(c * factors.accLow, 2);
-  m.recent_accumulation_proxy_high = positive(m.recent_accumulation_proxy_high) ?? round(c * factors.accHigh, 2);
-  m.zone_method = hasAnyPositiveSourceZone ? 'source_zone_levels_partial' : 'fallback_model_from_current_price';
-  return m;
-};
-const zoneStatus = m => {
-  const c = positive(m.current_price);
-  const hard = positive(m.hard_exit_review);
-  const stop = positive(m.stop_review);
-  const buyLow = positive(m.buy_zone_low);
-  const buyHigh = positive(m.buy_zone_high);
-  const trimLow = positive(m.trim_zone_low);
-  const trimHigh = positive(m.trim_zone_high);
-  if (![c, hard, stop, buyLow, buyHigh, trimLow, trimHigh].every(Number.isFinite)) return 'unmapped';
-  if (c <= hard) return 'below_hard_exit';
-  if (c <= stop) return 'below_stop';
-  if ((c - stop) / c <= 0.03) return 'near_stop';
-  if (c >= buyLow && c <= buyHigh) return 'inside_buy_zone';
-  if (c > buyHigh && (c - buyHigh) / c <= 0.03) return 'near_buy_zone';
-  if (c >= trimLow && c <= trimHigh) return 'inside_trim_zone';
-  if (c < trimLow && (trimLow - c) / c <= 0.03) return 'near_trim_zone';
-  return 'neutral_hold';
-};
-const zoneBar = m => {
-  const vals = [m.hard_exit_review, m.stop_review, m.buy_zone_low, m.buy_zone_high, m.trim_zone_low, m.trim_zone_high, m.target_resistance, m.current_price].map(positive).filter(Number.isFinite);
-  if (vals.length < 5) return '';
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const pos = value => max === min ? 50 : clamp(((positive(value) - min) / (max - min)) * 100);
-  const seg = (a, b, cls) => `<span class="zone-seg ${cls}" style="left:${pos(a)}%;width:${Math.max(1, pos(b)-pos(a))}%"></span>`;
-  return `<div class="zone-bar"><div class="zone-track">${seg(min, m.hard_exit_review, 'hard')}${seg(m.hard_exit_review, m.stop_review, 'risk')}${seg(m.buy_zone_low, m.buy_zone_high, 'buy')}${seg(m.trim_zone_low, m.trim_zone_high, 'trim')}<span class="zone-dot" style="left:${pos(m.current_price)}%"></span></div><div class="zone-scale"><span>${usd(min)}</span><span>${usd(m.current_price)}</span><span>${usd(max)}</span></div></div>`;
-};
-
-const displayHoldings = list(state.holdings).map(enrichedHolding).map(h => ({ ...h, price_decision_map: withFallbackZones(h) }));
-const zoneCounts = displayHoldings.reduce((acc, h) => { const z = zoneStatus(h.price_decision_map || {}); acc[z] = (acc[z] || 0) + 1; return acc; }, {});
-const zoneMetric = key => Number(zoneCounts[key] || 0);
-const cards = displayHoldings.map(h => {
-  const m = h.price_decision_map || {};
-  const z = zoneStatus(m);
-  return `<article class="artifact-card zone-card ${badge(z)}"><div class="zone-card-top"><span class="pill ${badge(h.rule_permission)}">${esc(h.rule_permission)}</span><span class="pill ${badge(z)}">${esc(z)}</span></div><h3>${esc(h.ticker)}</h3>${zoneBar(m)}<div class="number-grid"><div><span>Now</span><b>${usd(m.current_price ?? h.price)}</b><small>${pct(h.day_change_pct)} · W ${pct(h.portfolio_weight_pct)}</small></div><div><span>Buy</span><b>${range(m.buy_zone_low, m.buy_zone_high)}</b><small>${pct(m.downside_to_buy_mid_pct)}</small></div><div><span>Trim</span><b>${range(m.trim_zone_low, m.trim_zone_high)}</b><small>${pct(m.upside_to_trim_low_pct)}</small></div><div><span>Target</span><b>${usd(m.target_resistance)}</b><small>${pct(m.upside_to_target_pct)}</small></div><div><span>Stop</span><b>${usd(m.stop_review)}</b><small>${pct(m.downside_to_stop_pct)}</small></div><div><span>Exit</span><b>${usd(m.hard_exit_review)}</b><small>${pct(m.downside_to_hard_exit_pct)}</small></div></div><div class="mini-row"><span>Range</span><b>${usd(m.recent_range_low)}–${usd(m.recent_range_high)}</b><span>Accum.</span><b>${usd(m.recent_accumulation_proxy_low)}–${usd(m.recent_accumulation_proxy_high)}</b></div><div class="mini-row"><span>Role</span><b>${esc(h.portfolio_role || h.linked_macro_theme || '—')}</b><span>Method</span><b>${esc(m.zone_method || 'source_zone_levels')}</b></div></article>`;
-}).join('');
-const buyCount = zoneMetric('inside_buy_zone') + zoneMetric('near_buy_zone');
-const holdCount = zoneMetric('neutral_hold');
-const trimCount = zoneMetric('inside_trim_zone') + zoneMetric('near_trim_zone');
-const riskCount = zoneMetric('near_stop') + zoneMetric('below_stop') + zoneMetric('below_hard_exit');
-const noAddCount = displayHoldings.filter(h => ['watch_only', 'trim_watch', 'exit_review'].includes(h.rule_permission) || h.exposure_state !== 'supported').length;
-const avgStrength = displayHoldings.length ? displayHoldings.reduce((sum, h) => sum + (n(h.holding_strength_score) || 0), 0) / displayHoldings.length : 0;
-
-const replacement = `<section id="holdings-section" class="panel"><div class="section-head"><div><p class="eyebrow">Holdings</p><h2>Price-zone radar</h2></div><a class="button" href="outputs/portfolio-translation-state.json">Open artifact</a></div><div class="trust-strip"><article><span>Buy zone</span><b>${fmt(buyCount,0)}</b></article><article><span>Hold zone</span><b>${fmt(holdCount,0)}</b></article><article><span>Trim zone</span><b>${fmt(trimCount,0)}</b></article><article><span>Risk zone</span><b>${fmt(riskCount,0)}</b></article><article><span>No add / review</span><b>${fmt(noAddCount,0)}</b></article><article><span>Avg strength</span><b>${fmt(avgStrength,1)}</b></article></div><div class="artifact-grid">${cards}</div></section>`;
-let html = fs.readFileSync(indexPath, 'utf8');
-const style = `<style>.zone-card-top{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}.zone-bar{margin:14px 0 12px}.zone-track{position:relative;height:12px;border:1px solid var(--rule);border-radius:999px;background:rgba(251,250,246,.18);overflow:hidden}.zone-seg{position:absolute;top:0;bottom:0}.zone-seg.hard{background:rgba(80,31,31,.62)}.zone-seg.risk{background:rgba(159,63,53,.55)}.zone-seg.buy{background:rgba(47,111,78,.58)}.zone-seg.trim{background:rgba(174,124,44,.62)}.zone-dot{position:absolute;top:50%;width:14px;height:14px;border-radius:999px;background:var(--ink);border:2px solid var(--paper);transform:translate(-50%,-50%);box-shadow:0 0 0 1px var(--rule)}.zone-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:5px}.number-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:10px}.number-grid div{padding:10px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}.number-grid span,.mini-row span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.number-grid b{display:block;font-size:16px;line-height:1.1;margin-top:4px}.number-grid small{display:block;color:var(--muted);margin-top:4px}.mini-row{display:grid;grid-template-columns:.5fr 1fr .5fr 1fr;gap:8px;border-top:1px solid var(--rule2);padding-top:8px;margin-top:8px;align-items:start}.mini-row b{font-size:12px;line-height:1.25}@media(max-width:720px){.number-grid{grid-template-columns:repeat(2,1fr)}.mini-row{grid-template-columns:1fr}}</style>`;
-if (!html.includes('.zone-bar{')) html = html.replace('</head>', `${style}</head>`);
-const start = html.indexOf('<section id="holdings-section"');
-const end = html.indexOf('<section id="opportunities-section"');
-if (start < 0 || end < 0 || end <= start) throw new Error('Could not locate Holdings section boundaries');
-html = html.slice(0, start) + replacement + html.slice(end);
-fs.writeFileSync(indexPath, html);
-console.log(`replaced Holdings with price-zone radar: holdings=${displayHoldings.length} buy=${buyCount} hold=${holdCount} trim=${trimCount} risk=${riskCount}`);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const arr = v => Array.isArray(v) ? v : [];
+const read = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return null; } };
+const num = v => Number.isFinite(Number(v)) ? Number(v) : null;
+const fmt = (v,d=1) => num(v) === null ? '—' : num(v).toLocaleString(undefined,{maximumFractionDigits:d});
+const usd = v => num(v) && num(v) > 0 ? `$${fmt(v,2)}` : '—';
+const pct = v => num(v) === null ? '—' : `${fmt(v,1)}%`;
+const range = (a,b) => `${usd(a)}–${usd(b)}`;
+const badge = v => { const s=String(v||'').toUpperCase(); if(/HARD|BELOW|RISK|EXIT|STOP/.test(s)) return 'bad'; if(/TRIM|WATCH|REVIEW|VERIFY/.test(s)) return 'warn'; if(/BUY|ADD|SUPPORTED|NORMAL/.test(s)) return 'good'; return ''; };
+const clamp = (v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+const zoneBar = z => { const vals=[z.hard_exit_review,z.stop_review,z.buy_zone_low,z.buy_zone_high,z.trim_zone_low,z.trim_zone_high,z.target_resistance,z.current_price].map(num).filter(Number.isFinite); if(vals.length<5)return ''; const min=Math.min(...vals), max=Math.max(...vals); const pos=v=>max===min?50:clamp(((num(v)-min)/(max-min))*100); const seg=(a,b,c)=>`<span class="zone-seg ${c}" style="left:${pos(a)}%;width:${Math.max(1,pos(b)-pos(a))}%"></span>`; return `<div class="zone-bar"><div class="zone-track">${seg(min,z.hard_exit_review,'hard')}${seg(z.hard_exit_review,z.stop_review,'risk')}${seg(z.buy_zone_low,z.buy_zone_high,'buy')}${seg(z.trim_zone_low,z.trim_zone_high,'trim')}<span class="zone-dot" style="left:${pos(z.current_price)}%"></span></div><div class="zone-scale"><span>${usd(min)}</span><span>${usd(z.current_price)}</span><span>${usd(max)}</span></div></div>`; };
+if(!fs.existsSync(indexPath)) throw new Error('index.html missing');
+if(!fs.existsSync(zonePath)) throw new Error('holding-zone-state.json missing');
+const zoneState = read(zonePath);
+if(!zoneState?.render_permission) throw new Error('holding-zone-state render_permission=false');
+const translation = read(translationPath) || { holdings: [] };
+const decision = arr(read(decisionPath));
+const transByTicker = Object.fromEntries(arr(translation.holdings).map(h=>[String(h.ticker||'').toUpperCase(),h]));
+const decisionByTicker = Object.fromEntries(decision.map(h=>[String(h.ticker||'').toUpperCase(),h]));
+const zones = arr(zoneState.zones);
+const cards = zones.map(z=>{ const t=String(z.ticker||'').toUpperCase(); const h=transByTicker[t]||{}; const d=decisionByTicker[t]||{}; return `<article class="artifact-card zone-card ${badge(z.zone_status)}"><div class="zone-card-top"><span class="pill ${badge(h.rule_permission||d.decisionPermission)}">${esc(h.rule_permission||d.decisionPermission||'permission_pending')}</span><span class="pill ${badge(z.zone_status)}">${esc(z.zone_status)}</span></div><h3>${esc(t)}</h3>${zoneBar(z)}<div class="number-grid"><div><span>Now</span><b>${usd(z.current_price)}</b><small>${pct(h.day_change_pct ?? d.dayChangePct)} · W ${pct(h.portfolio_weight_pct ?? d.portfolioWeightPct)}</small></div><div><span>Buy</span><b>${range(z.buy_zone_low,z.buy_zone_high)}</b><small>${pct(z.distance_to_buy_mid_pct)}</small></div><div><span>Trim</span><b>${range(z.trim_zone_low,z.trim_zone_high)}</b><small>${pct(z.distance_to_trim_low_pct)}</small></div><div><span>Target</span><b>${usd(z.target_resistance)}</b><small>${pct(z.distance_to_target_pct)}</small></div><div><span>Stop</span><b>${usd(z.stop_review)}</b><small>${pct(z.distance_to_stop_pct)}</small></div><div><span>Exit</span><b>${usd(z.hard_exit_review)}</b><small>${pct(z.distance_to_hard_exit_pct)}</small></div></div><div class="mini-row"><span>Range</span><b>${usd(z.recent_range_low)}–${usd(z.recent_range_high)}</b><span>Accum.</span><b>${usd(z.accumulation_proxy_low)}–${usd(z.accumulation_proxy_high)}</b></div></article>`; }).join('');
+const s=zoneState.summary||{};
+const replacement = `<section id="holdings-section" class="panel"><div class="section-head"><div><p class="eyebrow">Holdings</p><h2>Price-zone radar</h2></div><a class="button" href="outputs/holding-zone-state.json">Open artifact</a></div><div class="trust-strip"><article><span>Buy zone</span><b>${fmt(s.buy_zone,0)}</b></article><article><span>Hold zone</span><b>${fmt(s.hold_zone,0)}</b></article><article><span>Trim zone</span><b>${fmt(s.trim_zone,0)}</b></article><article><span>Risk zone</span><b>${fmt(s.risk_zone,0)}</b></article><article><span>Unmapped</span><b>${fmt(s.unmapped,0)}</b></article><article><span>Method</span><b>${esc(zoneState.method_level||'—')}</b></article></div><div class="artifact-grid">${cards}</div></section>`;
+let html=fs.readFileSync(indexPath,'utf8');
+const style=`<style>.zone-card-top{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}.zone-bar{margin:14px 0 12px}.zone-track{position:relative;height:12px;border:1px solid var(--rule);border-radius:999px;background:rgba(251,250,246,.18);overflow:hidden}.zone-seg{position:absolute;top:0;bottom:0}.zone-seg.hard{background:rgba(80,31,31,.62)}.zone-seg.risk{background:rgba(159,63,53,.55)}.zone-seg.buy{background:rgba(47,111,78,.58)}.zone-seg.trim{background:rgba(174,124,44,.62)}.zone-dot{position:absolute;top:50%;width:14px;height:14px;border-radius:999px;background:var(--ink);border:2px solid var(--paper);transform:translate(-50%,-50%);box-shadow:0 0 0 1px var(--rule)}.zone-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:5px}.number-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:10px}.number-grid div{padding:10px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}.number-grid span,.mini-row span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.number-grid b{display:block;font-size:16px;line-height:1.1;margin-top:4px}.number-grid small{display:block;color:var(--muted);margin-top:4px}.mini-row{display:grid;grid-template-columns:.5fr 1fr .5fr 1fr;gap:8px;border-top:1px solid var(--rule2);padding-top:8px;margin-top:8px;align-items:start}.mini-row b{font-size:12px;line-height:1.25}@media(max-width:720px){.number-grid{grid-template-columns:repeat(2,1fr)}.mini-row{grid-template-columns:1fr}}</style>`;
+if(!html.includes('.zone-bar{')) html=html.replace('</head>',`${style}</head>`);
+const start=html.indexOf('<section id="holdings-section"'), end=html.indexOf('<section id="opportunities-section"');
+if(start<0||end<0||end<=start) throw new Error('Could not locate Holdings section boundaries');
+html=html.slice(0,start)+replacement+html.slice(end);
+fs.writeFileSync(indexPath,html);
+console.log(`rendered Holdings from holding-zone-state: ${zones.length} zones`);

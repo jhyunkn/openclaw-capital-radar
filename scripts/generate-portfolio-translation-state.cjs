@@ -15,11 +15,23 @@ function write(rel, data) {
 function list(value) { return Array.isArray(value) ? value : []; }
 function text(value, fallback = '') { const s = String(value ?? '').trim(); return s || fallback; }
 function num(value) { const n = Number(value); return Number.isFinite(n) ? n : null; }
+function round(value, digits = 2) { const n = Number(value); return Number.isFinite(n) ? Number(n.toFixed(digits)) : null; }
+function pctDistance(from, to) { const a = num(from); const b = num(to); return a && b ? round(((b - a) / a) * 100, 2) : null; }
+function midpoint(low, high) { const a = num(low); const b = num(high); return Number.isFinite(a) && Number.isFinite(b) ? round((a + b) / 2, 2) : null; }
 function includesAny(haystack, needles) {
   const h = String(haystack || '').toLowerCase();
   return needles.some(n => h.includes(String(n).toLowerCase()));
 }
 function clamp(n, lo = 0, hi = 100) { return Math.max(lo, Math.min(hi, Math.round(n))); }
+function quantile(values, q) {
+  const nums = values.map(num).filter(Number.isFinite).sort((a, b) => a - b);
+  if (!nums.length) return null;
+  const pos = (nums.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  if (nums[base + 1] !== undefined) return round(nums[base] + rest * (nums[base + 1] - nums[base]), 2);
+  return round(nums[base], 2);
+}
 
 const generatedAt = new Date().toISOString();
 const cycleId = generatedAt.slice(0, 13).replace(/[-:T]/g, '');
@@ -52,7 +64,6 @@ function themeForTicker(ticker, row) {
       macro_confidence: focus?.confidence ?? 0.58
     };
   }
-
   const search = `${row.thesisStatus || ''} ${row.nextEvidenceRequired || ''} ${row.addZone || ''}`;
   const focus = macroThemes.find(item => includesAny(search, item.theme.split(/\s+/).filter(w => w.length > 3)));
   return {
@@ -62,7 +73,6 @@ function themeForTicker(ticker, row) {
     macro_confidence: focus?.confidence ?? 0.45
   };
 }
-
 function exposureState(row) {
   const permission = String(row.decisionPermission || '').toUpperCase();
   const breaches = list(row.ruleBreaches).join(' ').toLowerCase();
@@ -116,26 +126,54 @@ function holdingStrengthScore(row, theme) {
   if (list(row.ruleBreaches).length) score -= Math.min(20, list(row.ruleBreaches).length * 7);
   return clamp(score);
 }
-function sizingPosture(row, exposure, risk) {
-  const weight = num(row.portfolioWeightPct ?? row.weight) ?? 0;
-  if (exposure === 'vulnerable' || risk === 'high') return 'reduce_or_freeze_until_invalidation_review';
-  if (exposure === 'constrained' || risk === 'elevated') return 'no_adds_hold_or_trim_review';
-  if (exposure === 'supported' && weight < 3) return 'starter_add_only_at_ruled_zone';
-  if (exposure === 'supported' && weight <= 8) return 'hold_add_only_if_trigger_confirms';
-  if (exposure === 'supported') return 'hold_do_not_concentrate_without_fresh_evidence';
-  return 'watch_only';
+function priceDecisionMap(row) {
+  const chart = row.analysisChart || {};
+  const zones = chart.zones || {};
+  const current = num(row.price ?? row.livePrice ?? chart.current);
+  const buyLow = num(zones.buy?.low);
+  const buyHigh = num(zones.buy?.high);
+  const buyMid = midpoint(buyLow, buyHigh);
+  const trimLow = num(zones.trim?.low);
+  const trimHigh = num(zones.trim?.high);
+  const trimMid = midpoint(trimLow, trimHigh);
+  const stop = num(zones.stop?.value);
+  const hardExit = num(zones.hardExit?.value);
+  const target = num(zones.target?.value);
+  const spark = list(row.sparkline).map(num).filter(Number.isFinite);
+  const proxyLow = quantile(spark, 0.25);
+  const proxyHigh = quantile(spark, 0.5);
+  return {
+    current_price: current,
+    buy_zone_low: buyLow,
+    buy_zone_high: buyHigh,
+    buy_zone_mid: buyMid,
+    trim_zone_low: trimLow,
+    trim_zone_high: trimHigh,
+    trim_zone_mid: trimMid,
+    stop_review: stop,
+    hard_exit_review: hardExit,
+    target_resistance: target,
+    upside_to_target_pct: pctDistance(current, target),
+    upside_to_trim_low_pct: pctDistance(current, trimLow),
+    downside_to_buy_mid_pct: pctDistance(current, buyMid),
+    downside_to_stop_pct: pctDistance(current, stop),
+    downside_to_hard_exit_pct: pctDistance(current, hardExit),
+    recent_range_low: spark.length ? round(Math.min(...spark), 2) : null,
+    recent_range_high: spark.length ? round(Math.max(...spark), 2) : null,
+    recent_accumulation_proxy_low: proxyLow,
+    recent_accumulation_proxy_high: proxyHigh,
+    institutional_accumulation_status: 'proxy_only_not_actual_institutional_cost_basis',
+    institutional_accumulation_method: 'Current proxy uses recent price distribution from sparkline. True institutional basis requires volume profile, anchored VWAP, 13F windows, or block/flow data.',
+    operational_read: text(chart.operationalRead, 'numeric decision map pending')
+  };
 }
-function actionProtocol(row, exposure, risk) {
-  const permission = permissionLabel(row.decisionPermission);
-  const protocol = [];
-  if (permission === 'add_allowed_at_ruled_zone') protocol.push('Add only inside pre-defined add zone and only if macro theme remains supported.');
-  if (permission === 'hold_verify') protocol.push('Hold, verify thesis evidence, and wait for next catalyst or price-zone confirmation.');
-  if (permission === 'watch_only') protocol.push('No new capital. Resolve missing evidence before any promotion.');
-  if (permission === 'trim_watch') protocol.push('Prepare trim review. Check whether move is thesis-confirming or risk-expanding.');
-  if (permission === 'exit_review') protocol.push('Run exit review. Do not average down without invalidation reversal.');
-  if (risk === 'high') protocol.push('Escalate risk review before any exposure increase.');
-  if (exposure === 'vulnerable') protocol.push('Treat as vulnerable exposure until macro support, price structure, and evidence improve.');
-  return protocol;
+function sizingPosture(row, exposure, risk) {
+  const map = priceDecisionMap(row);
+  if (exposure === 'vulnerable' || risk === 'high') return 'reduce_or_freeze_until_invalidation_review';
+  if (map.current_price && map.buy_zone_low && map.buy_zone_high && map.current_price >= map.buy_zone_low && map.current_price <= map.buy_zone_high && exposure === 'supported') return 'inside_buy_zone_add_review';
+  if (exposure === 'constrained' || risk === 'elevated') return 'no_adds_hold_or_trim_review';
+  if (exposure === 'supported') return 'hold_add_only_if_trigger_confirms';
+  return 'watch_only';
 }
 function concentrationState(row) {
   const weight = num(row.portfolioWeightPct ?? row.weight) ?? 0;
@@ -145,41 +183,56 @@ function concentrationState(row) {
   if (weight > 0) return 'position_small';
   return 'no_weight_or_tracking_only';
 }
-function thesisBridge(row, theme) {
-  return `This position is judged through ${theme.linked_macro_theme}: ${theme.theme_summary}`;
+function thesisBridge(row, theme) { return `${theme.linked_macro_theme}: ${theme.theme_summary}`; }
+function numericAction(row, exposure, risk) {
+  const map = priceDecisionMap(row);
+  if (exposure === 'vulnerable' || risk === 'high') return `Freeze/review. Watch stop ${map.stop_review ?? 'n/a'} and hard-exit ${map.hard_exit_review ?? 'n/a'}.`;
+  if (map.current_price && map.buy_zone_low && map.buy_zone_high && map.current_price >= map.buy_zone_low && map.current_price <= map.buy_zone_high) return `Inside buy zone ${map.buy_zone_low}-${map.buy_zone_high}; add review requires evidence confirmation.`;
+  if (map.current_price && map.trim_zone_low && map.current_price >= map.trim_zone_low) return `Inside/near trim zone ${map.trim_zone_low}-${map.trim_zone_high}; protect gains.`;
+  return `Wait. Buy zone ${map.buy_zone_low ?? 'n/a'}-${map.buy_zone_high ?? 'n/a'}; trim zone ${map.trim_zone_low ?? 'n/a'}-${map.trim_zone_high ?? 'n/a'}; stop ${map.stop_review ?? 'n/a'}.`;
 }
 
 const holdings = list(portfolio).map(row => {
   const theme = themeForTicker(row.ticker, row);
   const exposure = exposureState(row);
   const risk = riskState(row);
+  const priceMap = priceDecisionMap(row);
   const current = {
     ticker: row.ticker,
+    portfolio_role: row.role || row.exposureBucket || 'role pending',
     linked_macro_theme: theme.linked_macro_theme,
     macro_theme_summary: theme.theme_summary,
     thesis_bridge: thesisBridge(row, theme),
     exposure_state: exposure,
-    exposure_reason: `${exposure} because permission is ${permissionLabel(row.decisionPermission)}, risk is ${risk}, data freshness is ${text(row.dataFreshness, 'unknown')}, and macro evidence link is ${theme.evidence_ids.length ? 'present' : 'missing'}.`,
+    exposure_reason: `${exposure} because permission is ${permissionLabel(row.decisionPermission)}, risk is ${risk}, freshness is ${text(row.dataFreshness, 'unknown')}, macro evidence is ${theme.evidence_ids.length ? 'present' : 'missing'}.`,
     rule_permission: permissionLabel(row.decisionPermission),
     raw_permission: row.decisionPermission,
     risk_state: risk,
     concentration_state: concentrationState(row),
     sizing_posture: sizingPosture(row, exposure, risk),
+    numeric_action: numericAction(row, exposure, risk),
+    price_decision_map: priceMap,
     holding_strength_score: holdingStrengthScore(row, theme),
     thesis_quality_score: thesisQuality(row, theme),
     portfolio_weight_pct: num(row.portfolioWeightPct ?? row.weight),
-    price: num(row.price),
+    price: priceMap.current_price,
     day_change_pct: num(row.dayChangePct),
-    action_protocol: actionProtocol(row, exposure, risk),
-    next_evidence: [
-      text(row.nextEvidenceRequired, 'Refresh price, valuation, thesis evidence, and source confidence.'),
-      ...(theme.evidence_ids.length ? [] : ['Add explicit macro-theme evidence link before promotion.']),
-      ...(text(row.addZone).length > 10 ? [] : ['Define add zone before any increase.'])
+    next_decision_trigger: [
+      `Add review: price ${priceMap.buy_zone_low ?? 'n/a'}-${priceMap.buy_zone_high ?? 'n/a'} plus evidence confirmation.`,
+      `Trim/protect: price ${priceMap.trim_zone_low ?? 'n/a'}-${priceMap.trim_zone_high ?? 'n/a'}.`,
+      `Risk review: stop ${priceMap.stop_review ?? 'n/a'}; hard-exit review ${priceMap.hard_exit_review ?? 'n/a'}.`
     ],
     invalidation: [
       text(row.thesisInvalidation, 'Explicit invalidation evidence required before capital action.'),
-      text(row.exitTrigger, 'Exit review if thesis invalidation or source trust breach occurs.')
-    ].filter(Boolean),
+      `Numeric invalidation: stop/review ${priceMap.stop_review ?? 'n/a'}; hard-exit review ${priceMap.hard_exit_review ?? 'n/a'}.`
+    ],
+    evidence_quality: {
+      status: theme.evidence_ids.length && String(row.dataFreshness || '').toLowerCase() === 'fresh' ? 'fresh_partial_model_derived' : 'needs_source_upgrade',
+      evidence_backed: theme.evidence_ids.length > 0,
+      source_confidence: row.sourceConfidence,
+      data_freshness: row.dataFreshness,
+      macro_confidence: theme.macro_confidence
+    },
     data_truth: {
       evidence_backed: theme.evidence_ids.length > 0,
       evidence_ids: theme.evidence_ids,
@@ -194,14 +247,14 @@ const holdings = list(portfolio).map(row => {
     changed_since_last_cycle: false
   };
   const prev = previousByTicker[current.ticker];
-  current.changed_since_last_cycle = !prev || prev.exposure_state !== current.exposure_state || prev.rule_permission !== current.rule_permission || prev.linked_macro_theme !== current.linked_macro_theme || prev.sizing_posture !== current.sizing_posture || prev.holding_strength_score !== current.holding_strength_score || JSON.stringify(prev.data_truth?.rule_breaches || []) !== JSON.stringify(current.data_truth.rule_breaches);
+  current.changed_since_last_cycle = !prev || prev.exposure_state !== current.exposure_state || prev.rule_permission !== current.rule_permission || prev.linked_macro_theme !== current.linked_macro_theme || prev.sizing_posture !== current.sizing_posture || JSON.stringify(prev.price_decision_map) !== JSON.stringify(current.price_decision_map) || JSON.stringify(prev.data_truth?.rule_breaches || []) !== JSON.stringify(current.data_truth.rule_breaches);
   return current;
 });
 
 const translation = {
   as_of: generatedAt,
   cycle_id: cycleId,
-  purpose: 'Translate market landscape into ticker-level portfolio exposure, permission, sizing posture, next evidence, invalidation, and data-truth state.',
+  purpose: 'Numeric-first holding decision map: price zones, permission, risk budget, evidence quality, and invalidation.',
   landscape_cycle_id: landscape.cycle_id || null,
   strategy_cycle_id: strategy.cycle_id || null,
   holdings,
@@ -212,14 +265,14 @@ const translation = {
     evidence_backed: holdings.filter(h => h.data_truth.evidence_backed).length,
     high_risk: holdings.filter(h => h.risk_state === 'high').length,
     elevated_risk: holdings.filter(h => h.risk_state === 'elevated').length,
-    add_eligible: holdings.filter(h => h.rule_permission === 'add_allowed_at_ruled_zone' && h.exposure_state === 'supported').length,
-    no_add_or_review: holdings.filter(h => ['watch_only', 'trim_watch', 'exit_review'].includes(h.rule_permission)).length,
+    add_eligible: holdings.filter(h => h.sizing_posture === 'inside_buy_zone_add_review').length,
+    no_add_or_review: holdings.filter(h => ['watch_only', 'trim_watch', 'exit_review'].includes(h.rule_permission) || h.exposure_state !== 'supported').length,
     average_strength_score: holdings.length ? Number((holdings.reduce((sum, h) => sum + h.holding_strength_score, 0) / holdings.length).toFixed(1)) : 0,
     changed_since_last_cycle: holdings.filter(h => h.changed_since_last_cycle).length
   },
-  render_permission: holdings.length > 0 && holdings.every(h => h.ticker && h.linked_macro_theme && h.thesis_bridge && h.exposure_state && h.exposure_reason && h.rule_permission && h.risk_state && h.sizing_posture && h.action_protocol.length && h.next_evidence.length && h.invalidation.length && h.data_truth)
+  render_permission: holdings.length > 0 && holdings.every(h => h.ticker && h.portfolio_role && h.price_decision_map && h.rule_permission && h.risk_state && h.sizing_posture && h.next_decision_trigger.length && h.invalidation.length && h.evidence_quality)
 };
 
 write('outputs/portfolio-translation-state.json', translation);
 write('public/outputs/portfolio-translation-state.json', translation);
-console.log(`generated portfolio translation state: ${holdings.length} holdings, render_permission=${translation.render_permission}`);
+console.log(`generated numeric-first portfolio translation state: ${holdings.length} holdings, render_permission=${translation.render_permission}`);

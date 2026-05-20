@@ -16,7 +16,12 @@ function readJson(name) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
   catch (error) { errors.push(`${name} invalid JSON: ${error.message}`); return null; }
 }
-function present(value) { return value !== null && value !== undefined && String(value).trim() !== ''; }
+function present(value) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return true;
+  if (typeof value === 'object') return true;
+  return String(value).trim() !== '';
+}
 function requireField(obj, field, label, severity = 'error') {
   if (!obj || !present(obj[field])) (severity === 'warning' ? warnings : errors).push(`${label} missing ${field}`);
 }

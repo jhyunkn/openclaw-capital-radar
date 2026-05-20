@@ -1,0 +1,16 @@
+const fs=require('fs');const path=require('path');
+const root=path.join(__dirname,'..');const indexPath=path.join(root,'index.html');const statePath=path.join(root,'outputs','market-tape-state.json');
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const arr=v=>Array.isArray(v)?v:[];const cls=v=>{const s=String(v||'').toLowerCase();if(s.includes('contradict'))return'bad';if(s.includes('confirm'))return'good';return'warn'};
+if(!fs.existsSync(indexPath))throw new Error('index.html missing');if(!fs.existsSync(statePath))throw new Error('market-tape-state.json missing');
+const state=JSON.parse(fs.readFileSync(statePath,'utf8'));if(!state.render_permission)throw new Error('market-tape-state render_permission=false');
+const s=state.summary||{};
+const rows=arr(state.signals).map(sig=>`<article class="tape-row"><span class="pill ${cls(sig.confirmation_status)}">${esc(sig.confirmation_status)}</span><b>${esc(sig.signal)}</b><span>${esc(sig.value)}</span><span>${esc(sig.affected_thesis)}</span></article>`).join('');
+const section=`<section id="market-section" class="panel"><div class="section-head"><div><p class="eyebrow">Market Tape</p><h2>Confirmation board</h2></div><a class="button" href="outputs/market-tape-state.json">Open artifact</a></div><div class="trust-strip"><article><span>Confirming</span><b>${esc(s.confirming??0)}</b></article><article><span>Contradicting</span><b>${esc(s.contradicting??0)}</b></article><article><span>Neutral</span><b>${esc(s.neutral??0)}</b></article><article><span>Stale</span><b>${esc(s.stale_sources??0)}</b></article><article><span>Blocked</span><b>${esc(s.blocked_sources??0)}</b></article></div><div class="tape-board"><article class="tape-head"><span>Status</span><span>Signal</span><span>Value</span><span>Affects</span></article>${rows}</div></section>`;
+let html=fs.readFileSync(indexPath,'utf8');
+const style=`<style>.tape-board{border-left:1px solid var(--rule);border-top:1px solid var(--rule);margin-top:14px}.tape-head,.tape-row{display:grid;grid-template-columns:1fr .8fr 1.2fr 1.6fr;gap:10px;align-items:center;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:10px}.tape-head{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.tape-row b{font-size:18px}.tape-row span{font-size:12px;line-height:1.25}@media(max-width:850px){.tape-head,.tape-row{grid-template-columns:1fr 1fr}.tape-head span:nth-child(n+3),.tape-row span:nth-child(n+4){display:none}}</style>`;
+if(!html.includes('.tape-board{'))html=html.replace('</head>',`${style}</head>`);
+const start=html.indexOf('<section id="market-section"');
+const footer=html.indexOf('<footer class="footer"');
+if(start<0||footer<0||footer<=start)throw new Error('Could not locate Market Tape boundaries');
+html=html.slice(0,start)+section+html.slice(footer);fs.writeFileSync(indexPath,html);console.log(`injected market tape board: ${arr(state.signals).length} signals`);

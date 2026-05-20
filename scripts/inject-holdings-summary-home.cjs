@@ -1,3 +1,4 @@
-require('./normalize-portfolio-zone-values.cjs');
+require('./generate-holding-zone-state.cjs');
+require('./validate-holding-zone-state.cjs');
 require('./inject-strong-holdings-cards-home.cjs');
 require('./strip-holdings-role-method-home.cjs');

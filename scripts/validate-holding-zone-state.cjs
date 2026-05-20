@@ -1,0 +1,12 @@
+const fs=require('fs');const path=require('path');
+const root=path.join(__dirname,'..');const errors=[];const warnings=[];const mode=process.env.CAPITAL_RADAR_VALIDATION_MODE||'balanced';
+function read(rel){const f=path.join(root,rel);if(!fs.existsSync(f)){errors.push(`${rel} missing`);return null}try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch(e){errors.push(`${rel} invalid JSON: ${e.message}`);return null}}
+const arr=v=>Array.isArray(v)?v:[];const present=v=>v!==null&&v!==undefined&&(typeof v==='object'||String(v).trim()!=='');const positive=v=>Number.isFinite(Number(v))&&Number(v)>0;
+function req(o,k,l,severity='error'){if(!o||!present(o[k]))(severity==='warning'?warnings:errors).push(`${l} missing ${k}`)}
+const state=read('outputs/holding-zone-state.json');
+['as_of','artifact','method_level','zones','summary','render_permission'].forEach(k=>req(state,k,'holding-zone-state'));
+if(!Array.isArray(state?.zones)||!state.zones.length)errors.push('holding-zone-state.zones must be non-empty');
+const statuses=new Set(['inside_buy_zone','near_buy_zone','neutral_hold','near_trim_zone','inside_trim_zone','near_stop','below_stop','below_hard_exit','unmapped']);
+arr(state?.zones).forEach((z,i)=>{const l=`zone[${z?.ticker||i}]`;['ticker','current_price','buy_zone_low','buy_zone_high','trim_zone_low','trim_zone_high','target_resistance','stop_review','hard_exit_review','zone_status','zone_method','zone_confidence','source_quality'].forEach(k=>req(z,k,l));['current_price','buy_zone_low','buy_zone_high','trim_zone_low','trim_zone_high','target_resistance','stop_review','hard_exit_review'].forEach(k=>{if(!positive(z[k]))errors.push(`${l}.${k} must be positive`)});if(!statuses.has(z.zone_status))errors.push(`${l} invalid zone_status ${z.zone_status}`);const c=Number(z.zone_confidence);if(!Number.isFinite(c)||c<0||c>1)errors.push(`${l}.zone_confidence must be 0..1`);if(z.zone_status==='unmapped'&&mode==='strict')errors.push(`${l} is unmapped in strict mode`);else if(z.zone_status==='unmapped')warnings.push(`${l} is unmapped`)});
+if(state?.render_permission===true&&errors.length)errors.push('holding-zone-state render_permission=true while validation fails');
+for(const w of warnings)console.warn(`warning: ${w}`);if(errors.length){console.error('Holding zone validation failed:');for(const e of errors)console.error(`- ${e}`);process.exit(1)}console.log('Holding zone validation passed');

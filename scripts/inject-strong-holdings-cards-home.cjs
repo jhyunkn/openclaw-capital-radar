@@ -4,12 +4,13 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
 const statePath = path.join(root, 'outputs', 'portfolio-translation-state.json');
+const decisionPath = path.join(root, 'outputs', 'portfolio-decision-state.json');
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const list = value => Array.isArray(value) ? value : [];
 const fmt = (value, digits = 1) => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: digits }) : esc(value ?? '—');
+  const x = Number(value);
+  return Number.isFinite(x) ? x.toLocaleString(undefined, { maximumFractionDigits: digits }) : '—';
 };
 const usd = value => Number.isFinite(Number(value)) ? `$${fmt(value, 2)}` : '—';
 const pct = value => Number.isFinite(Number(value)) ? `${fmt(value, 1)}%` : '—';
@@ -25,39 +26,63 @@ const badge = value => {
   if (s.includes('BUY') || s.includes('SUPPORTED') || s.includes('ADD') || s.includes('NORMAL')) return 'good';
   return '';
 };
+const safeRead = file => {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return null; }
+};
+
+if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
+if (!fs.existsSync(statePath)) throw new Error('portfolio-translation-state.json missing');
+
+const state = safeRead(statePath);
+const decisionRows = list(safeRead(decisionPath));
+const decisionByTicker = Object.fromEntries(decisionRows.map(row => [String(row.ticker || '').toUpperCase(), row]));
+if (!state?.render_permission) throw new Error('portfolio-translation-state render_permission=false');
+
+const enrichedHolding = h => {
+  const source = decisionByTicker[String(h.ticker || '').toUpperCase()] || {};
+  const map = h.price_decision_map || {};
+  const price = n(map.current_price ?? h.price ?? source.price ?? source.livePrice);
+  return {
+    ...source,
+    ...h,
+    price: price ?? h.price ?? source.price,
+    day_change_pct: n(h.day_change_pct ?? source.dayChangePct),
+    portfolio_weight_pct: n(h.portfolio_weight_pct ?? source.portfolioWeightPct),
+    price_decision_map: {
+      ...map,
+      current_price: price ?? n(map.current_price)
+    }
+  };
+};
 const withFallbackZones = h => {
   const base = h.price_decision_map || {};
   const c = n(base.current_price ?? h.price);
   if (!c) return base;
-  const highRisk = ['high', 'elevated'].includes(String(h.risk_state || '').toLowerCase()) || String(h.rule_permission || '').includes('trim') || String(h.rule_permission || '').includes('exit');
+  const highRisk = ['high', 'elevated'].includes(String(h.risk_state || '').toLowerCase()) || /trim|exit/i.test(String(h.rule_permission || ''));
   const conservative = String(h.exposure_state || '') !== 'supported' || highRisk;
-  const buyLowPct = conservative ? 0.86 : 0.9;
-  const buyHighPct = conservative ? 0.92 : 0.96;
-  const trimLowPct = conservative ? 1.08 : 1.12;
-  const trimHighPct = conservative ? 1.16 : 1.22;
-  const targetPct = conservative ? 1.18 : 1.25;
-  const stopPct = conservative ? 0.9 : 0.88;
-  const hardPct = conservative ? 0.84 : 0.8;
+  const factors = conservative
+    ? { buyLow: 0.86, buyHigh: 0.92, trimLow: 1.08, trimHigh: 1.16, target: 1.18, stop: 0.90, hard: 0.84, rangeLow: 0.94, rangeHigh: 1.04, accLow: 0.97, accHigh: 1.01 }
+    : { buyLow: 0.90, buyHigh: 0.96, trimLow: 1.12, trimHigh: 1.22, target: 1.25, stop: 0.88, hard: 0.80, rangeLow: 0.95, rangeHigh: 1.05, accLow: 0.98, accHigh: 1.02 };
   const m = { ...base };
   m.current_price = n(m.current_price) ?? c;
-  m.buy_zone_low = n(m.buy_zone_low) ?? round(c * buyLowPct, 2);
-  m.buy_zone_high = n(m.buy_zone_high) ?? round(c * buyHighPct, 2);
+  m.buy_zone_low = n(m.buy_zone_low) ?? round(c * factors.buyLow, 2);
+  m.buy_zone_high = n(m.buy_zone_high) ?? round(c * factors.buyHigh, 2);
   m.buy_zone_mid = n(m.buy_zone_mid) || round((m.buy_zone_low + m.buy_zone_high) / 2, 2);
-  m.trim_zone_low = n(m.trim_zone_low) ?? round(c * trimLowPct, 2);
-  m.trim_zone_high = n(m.trim_zone_high) ?? round(c * trimHighPct, 2);
+  m.trim_zone_low = n(m.trim_zone_low) ?? round(c * factors.trimLow, 2);
+  m.trim_zone_high = n(m.trim_zone_high) ?? round(c * factors.trimHigh, 2);
   m.trim_zone_mid = n(m.trim_zone_mid) || round((m.trim_zone_low + m.trim_zone_high) / 2, 2);
-  m.stop_review = n(m.stop_review) ?? round(c * stopPct, 2);
-  m.hard_exit_review = n(m.hard_exit_review) ?? round(c * hardPct, 2);
-  m.target_resistance = n(m.target_resistance) ?? round(c * targetPct, 2);
+  m.stop_review = n(m.stop_review) ?? round(c * factors.stop, 2);
+  m.hard_exit_review = n(m.hard_exit_review) ?? round(c * factors.hard, 2);
+  m.target_resistance = n(m.target_resistance) ?? round(c * factors.target, 2);
   m.upside_to_target_pct = n(m.upside_to_target_pct) ?? pctDistance(c, m.target_resistance);
   m.upside_to_trim_low_pct = n(m.upside_to_trim_low_pct) ?? pctDistance(c, m.trim_zone_low);
   m.downside_to_buy_mid_pct = n(m.downside_to_buy_mid_pct) ?? pctDistance(c, m.buy_zone_mid);
   m.downside_to_stop_pct = n(m.downside_to_stop_pct) ?? pctDistance(c, m.stop_review);
   m.downside_to_hard_exit_pct = n(m.downside_to_hard_exit_pct) ?? pctDistance(c, m.hard_exit_review);
-  m.recent_range_low = n(m.recent_range_low) ?? round(c * 0.94, 2);
-  m.recent_range_high = n(m.recent_range_high) ?? round(c * 1.04, 2);
-  m.recent_accumulation_proxy_low = n(m.recent_accumulation_proxy_low) ?? round(c * 0.97, 2);
-  m.recent_accumulation_proxy_high = n(m.recent_accumulation_proxy_high) ?? round(c * 1.01, 2);
+  m.recent_range_low = n(m.recent_range_low) ?? round(c * factors.rangeLow, 2);
+  m.recent_range_high = n(m.recent_range_high) ?? round(c * factors.rangeHigh, 2);
+  m.recent_accumulation_proxy_low = n(m.recent_accumulation_proxy_low) ?? round(c * factors.accLow, 2);
+  m.recent_accumulation_proxy_high = n(m.recent_accumulation_proxy_high) ?? round(c * factors.accHigh, 2);
   m.zone_method = base.buy_zone_low == null || base.trim_zone_low == null || base.stop_review == null ? 'fallback_model_from_current_price' : 'source_zone_levels';
   return m;
 };
@@ -86,66 +111,31 @@ const zoneBar = m => {
   const max = Math.max(...vals);
   const pos = value => max === min ? 50 : clamp(((n(value) - min) / (max - min)) * 100);
   const seg = (a, b, cls) => `<span class="zone-seg ${cls}" style="left:${pos(a)}%;width:${Math.max(1, pos(b)-pos(a))}%"></span>`;
-  return `<div class="zone-bar"><div class="zone-track">
-    ${seg(min, m.hard_exit_review, 'hard')}
-    ${seg(m.hard_exit_review, m.stop_review, 'risk')}
-    ${seg(m.buy_zone_low, m.buy_zone_high, 'buy')}
-    ${seg(m.trim_zone_low, m.trim_zone_high, 'trim')}
-    <span class="zone-dot" style="left:${pos(m.current_price)}%"></span>
-  </div><div class="zone-scale"><span>${usd(min)}</span><span>${usd(m.current_price)}</span><span>${usd(max)}</span></div></div>`;
+  return `<div class="zone-bar"><div class="zone-track">${seg(min, m.hard_exit_review, 'hard')}${seg(m.hard_exit_review, m.stop_review, 'risk')}${seg(m.buy_zone_low, m.buy_zone_high, 'buy')}${seg(m.trim_zone_low, m.trim_zone_high, 'trim')}<span class="zone-dot" style="left:${pos(m.current_price)}%"></span></div><div class="zone-scale"><span>${usd(min)}</span><span>${usd(m.current_price)}</span><span>${usd(max)}</span></div></div>`;
 };
 
-if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
-if (!fs.existsSync(statePath)) throw new Error('portfolio-translation-state.json missing');
-
-const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
-if (!state.render_permission) throw new Error('portfolio-translation-state render_permission=false');
-
-const s = state.summary || {};
-const displayHoldings = list(state.holdings).map(h => ({ ...h, price_decision_map: withFallbackZones(h) }));
+const displayHoldings = list(state.holdings).map(enrichedHolding).map(h => ({ ...h, price_decision_map: withFallbackZones(h) }));
 const zoneCounts = displayHoldings.reduce((acc, h) => { const z = zoneStatus(h.price_decision_map || {}); acc[z] = (acc[z] || 0) + 1; return acc; }, {});
+const zoneMetric = key => Number(zoneCounts[key] || 0);
 const cards = displayHoldings.map(h => {
   const m = h.price_decision_map || {};
   const z = zoneStatus(m);
-  return `
-  <article class="artifact-card zone-card ${badge(z)}">
-    <div class="zone-card-top"><span class="pill ${badge(h.rule_permission)}">${esc(h.rule_permission)}</span><span class="pill ${badge(z)}">${esc(z)}</span></div>
-    <h3>${esc(h.ticker)}</h3>
-    ${zoneBar(m)}
-    <div class="number-grid">
-      <div><span>Now</span><b>${usd(m.current_price ?? h.price)}</b><small>${pct(h.day_change_pct)} · W ${pct(h.portfolio_weight_pct)}</small></div>
-      <div><span>Buy</span><b>${range(m.buy_zone_low, m.buy_zone_high)}</b><small>${pct(m.downside_to_buy_mid_pct)}</small></div>
-      <div><span>Trim</span><b>${range(m.trim_zone_low, m.trim_zone_high)}</b><small>${pct(m.upside_to_trim_low_pct)}</small></div>
-      <div><span>Target</span><b>${usd(m.target_resistance)}</b><small>${pct(m.upside_to_target_pct)}</small></div>
-      <div><span>Stop</span><b>${usd(m.stop_review)}</b><small>${pct(m.downside_to_stop_pct)}</small></div>
-      <div><span>Exit</span><b>${usd(m.hard_exit_review)}</b><small>${pct(m.downside_to_hard_exit_pct)}</small></div>
-    </div>
-    <div class="mini-row"><span>Range</span><b>${usd(m.recent_range_low)}–${usd(m.recent_range_high)}</b><span>Accum.</span><b>${usd(m.recent_accumulation_proxy_low)}–${usd(m.recent_accumulation_proxy_high)}</b></div>
-    <div class="mini-row"><span>Role</span><b>${esc(h.portfolio_role)}</b><span>Method</span><b>${esc(m.zone_method || 'source_zone_levels')}</b></div>
-  </article>`;
+  return `<article class="artifact-card zone-card ${badge(z)}"><div class="zone-card-top"><span class="pill ${badge(h.rule_permission)}">${esc(h.rule_permission)}</span><span class="pill ${badge(z)}">${esc(z)}</span></div><h3>${esc(h.ticker)}</h3>${zoneBar(m)}<div class="number-grid"><div><span>Now</span><b>${usd(m.current_price ?? h.price)}</b><small>${pct(h.day_change_pct)} · W ${pct(h.portfolio_weight_pct)}</small></div><div><span>Buy</span><b>${range(m.buy_zone_low, m.buy_zone_high)}</b><small>${pct(m.downside_to_buy_mid_pct)}</small></div><div><span>Trim</span><b>${range(m.trim_zone_low, m.trim_zone_high)}</b><small>${pct(m.upside_to_trim_low_pct)}</small></div><div><span>Target</span><b>${usd(m.target_resistance)}</b><small>${pct(m.upside_to_target_pct)}</small></div><div><span>Stop</span><b>${usd(m.stop_review)}</b><small>${pct(m.downside_to_stop_pct)}</small></div><div><span>Exit</span><b>${usd(m.hard_exit_review)}</b><small>${pct(m.downside_to_hard_exit_pct)}</small></div></div><div class="mini-row"><span>Range</span><b>${usd(m.recent_range_low)}–${usd(m.recent_range_high)}</b><span>Accum.</span><b>${usd(m.recent_accumulation_proxy_low)}–${usd(m.recent_accumulation_proxy_high)}</b></div><div class="mini-row"><span>Role</span><b>${esc(h.portfolio_role || h.linked_macro_theme || '—')}</b><span>Method</span><b>${esc(m.zone_method || 'source_zone_levels')}</b></div></article>`;
 }).join('');
+const buyCount = zoneMetric('inside_buy_zone') + zoneMetric('near_buy_zone');
+const holdCount = zoneMetric('neutral_hold');
+const trimCount = zoneMetric('inside_trim_zone') + zoneMetric('near_trim_zone');
+const riskCount = zoneMetric('near_stop') + zoneMetric('below_stop') + zoneMetric('below_hard_exit');
+const noAddCount = displayHoldings.filter(h => ['watch_only', 'trim_watch', 'exit_review'].includes(h.rule_permission) || h.exposure_state !== 'supported').length;
+const avgStrength = displayHoldings.length ? displayHoldings.reduce((sum, h) => sum + (n(h.holding_strength_score) || 0), 0) / displayHoldings.length : 0;
 
-const replacement = `<section id="holdings-section" class="panel">
-  <div class="section-head"><div><p class="eyebrow">Holdings</p><h2>Price-zone radar</h2></div><a class="button" href="outputs/portfolio-translation-state.json">Open artifact</a></div>
-  <div class="trust-strip">
-    <article><span>Buy zone</span><b>${fmt((zoneCounts.inside_buy_zone || 0) + (zoneCounts.near_buy_zone || 0),0)}</b></article>
-    <article><span>Hold zone</span><b>${fmt(zoneCounts.neutral_hold || 0,0)}</b></article>
-    <article><span>Trim zone</span><b>${fmt((zoneCounts.inside_trim_zone || 0) + (zoneCounts.near_trim_zone || 0),0)}</b></article>
-    <article><span>Risk zone</span><b>${fmt((zoneCounts.near_stop || 0) + (zoneCounts.below_stop || 0) + (zoneCounts.below_hard_exit || 0),0)}</b></article>
-    <article><span>No add / review</span><b>${fmt(s.no_add_or_review,0)}</b></article>
-    <article><span>Avg strength</span><b>${fmt(s.average_strength_score,1)}</b></article>
-  </div>
-  <div class="artifact-grid">${cards}</div>
-</section>`;
-
+const replacement = `<section id="holdings-section" class="panel"><div class="section-head"><div><p class="eyebrow">Holdings</p><h2>Price-zone radar</h2></div><a class="button" href="outputs/portfolio-translation-state.json">Open artifact</a></div><div class="trust-strip"><article><span>Buy zone</span><b>${fmt(buyCount,0)}</b></article><article><span>Hold zone</span><b>${fmt(holdCount,0)}</b></article><article><span>Trim zone</span><b>${fmt(trimCount,0)}</b></article><article><span>Risk zone</span><b>${fmt(riskCount,0)}</b></article><article><span>No add / review</span><b>${fmt(noAddCount,0)}</b></article><article><span>Avg strength</span><b>${fmt(avgStrength,1)}</b></article></div><div class="artifact-grid">${cards}</div></section>`;
 let html = fs.readFileSync(indexPath, 'utf8');
-const style = `<style>
-.zone-card-top{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}.zone-bar{margin:14px 0 12px}.zone-track{position:relative;height:12px;border:1px solid var(--rule);border-radius:999px;background:rgba(251,250,246,.18);overflow:hidden}.zone-seg{position:absolute;top:0;bottom:0}.zone-seg.hard{background:rgba(80,31,31,.62)}.zone-seg.risk{background:rgba(159,63,53,.55)}.zone-seg.buy{background:rgba(47,111,78,.58)}.zone-seg.trim{background:rgba(174,124,44,.62)}.zone-dot{position:absolute;top:50%;width:14px;height:14px;border-radius:999px;background:var(--ink);border:2px solid var(--paper);transform:translate(-50%,-50%);box-shadow:0 0 0 1px var(--rule)}.zone-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:5px}.number-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:10px}.number-grid div{padding:10px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}.number-grid span,.mini-row span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.number-grid b{display:block;font-size:16px;line-height:1.1;margin-top:4px}.number-grid small{display:block;color:var(--muted);margin-top:4px}.mini-row{display:grid;grid-template-columns:.5fr 1fr .5fr 1fr;gap:8px;border-top:1px solid var(--rule2);padding-top:8px;margin-top:8px;align-items:start}.mini-row b{font-size:12px;line-height:1.25}@media(max-width:720px){.number-grid{grid-template-columns:repeat(2,1fr)}.mini-row{grid-template-columns:1fr}}
-</style>`;
+const style = `<style>.zone-card-top{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}.zone-bar{margin:14px 0 12px}.zone-track{position:relative;height:12px;border:1px solid var(--rule);border-radius:999px;background:rgba(251,250,246,.18);overflow:hidden}.zone-seg{position:absolute;top:0;bottom:0}.zone-seg.hard{background:rgba(80,31,31,.62)}.zone-seg.risk{background:rgba(159,63,53,.55)}.zone-seg.buy{background:rgba(47,111,78,.58)}.zone-seg.trim{background:rgba(174,124,44,.62)}.zone-dot{position:absolute;top:50%;width:14px;height:14px;border-radius:999px;background:var(--ink);border:2px solid var(--paper);transform:translate(-50%,-50%);box-shadow:0 0 0 1px var(--rule)}.zone-scale{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:5px}.number-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:10px}.number-grid div{padding:10px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}.number-grid span,.mini-row span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.number-grid b{display:block;font-size:16px;line-height:1.1;margin-top:4px}.number-grid small{display:block;color:var(--muted);margin-top:4px}.mini-row{display:grid;grid-template-columns:.5fr 1fr .5fr 1fr;gap:8px;border-top:1px solid var(--rule2);padding-top:8px;margin-top:8px;align-items:start}.mini-row b{font-size:12px;line-height:1.25}@media(max-width:720px){.number-grid{grid-template-columns:repeat(2,1fr)}.mini-row{grid-template-columns:1fr}}</style>`;
 if (!html.includes('.zone-bar{')) html = html.replace('</head>', `${style}</head>`);
 const start = html.indexOf('<section id="holdings-section"');
 const end = html.indexOf('<section id="opportunities-section"');
 if (start < 0 || end < 0 || end <= start) throw new Error('Could not locate Holdings section boundaries');
 html = html.slice(0, start) + replacement + html.slice(end);
 fs.writeFileSync(indexPath, html);
-console.log(`replaced Holdings with compact price-zone radar: ${displayHoldings.length} holdings`);
+console.log(`replaced Holdings with price-zone radar: holdings=${displayHoldings.length} buy=${buyCount} hold=${holdCount} trim=${trimCount} risk=${riskCount}`);

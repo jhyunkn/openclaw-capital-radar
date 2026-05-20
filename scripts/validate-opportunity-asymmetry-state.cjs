@@ -35,7 +35,7 @@ const evidenceIds = new Set(list(evidenceMap?.evidence).map(ev => ev.id));
 ['as_of','cycle_id','purpose','opportunity_clusters','summary','render_permission'].forEach(field => requireField(asymmetry, field, 'opportunity-asymmetry-state'));
 if (!Array.isArray(asymmetry?.opportunity_clusters) || asymmetry.opportunity_clusters.length === 0) errors.push('opportunity-asymmetry-state.opportunity_clusters must be non-empty');
 
-const promotionStatuses = new Set(['priority_research', 'build_evidence_packet', 'watch_and_compare', 'research_only', 'blocked_no_buy_permission']);
+const promotionStatuses = new Set(['priority_research', 'build_evidence_packet', 'watch_and_compare', 'research_only', 'blocked_no_buy_permission', 'promotion_review', 'exception_review', 'watch_and_collect', 'low_priority_watch']);
 const severity = requiredSeverity(asymmetry?.render_permission);
 
 list(asymmetry?.opportunity_clusters).forEach((cluster, index) => {

@@ -12,7 +12,7 @@ const reaction = fs.existsSync(reactionPath) ? JSON.parse(fs.readFileSync(reacti
 const interp = fs.existsSync(interpPath) ? JSON.parse(fs.readFileSync(interpPath, 'utf8')) : { interpretations: [] };
 const coverage = fs.existsSync(coveragePath) ? JSON.parse(fs.readFileSync(coveragePath, 'utf8')) : { holdings: [] };
 const memos = fs.existsSync(memoPath) ? JSON.parse(fs.readFileSync(memoPath, 'utf8')) : { memos: [] };
-const n = v => { const x = Number(v); return Number.isFinite(x) ? x : null; };
+const n = v => { if (v === null || v === undefined || v === '') return null; const x = Number(v); return Number.isFinite(x) ? x : null; };
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 const reactionByTicker = new Map((reaction.reactions || reaction.holdings || []).map(r => [String(r.ticker || '').toUpperCase(), r]));
 const interpByTicker = new Map((interp.interpretations || []).map(i => [String(i.ticker || '').toUpperCase(), i]));
@@ -21,19 +21,32 @@ const memoByTicker = new Map((memos.memos || []).map(m => [String(m.ticker || ''
 function levelSet(h, i) {
   const t = h.signalThresholds || {};
   const fixed = h.actionBands || h.priceLevels || h.technicalMap || {};
+  const price = n(h.livePrice);
   const addLow = n(fixed.buyLow ?? fixed.buyZoneLow ?? fixed.addLow ?? fixed.addBelow ?? t.addPrice);
   const addHigh = n(fixed.buyHigh ?? fixed.buyZoneHigh ?? fixed.addHigh ?? fixed.buyAbove ?? null);
   const trimLow = n(fixed.trimLow ?? fixed.sellLow ?? t.trimPrice);
   const trimHigh = n(fixed.trimHigh ?? fixed.target ?? null);
-  const stop = n(fixed.stopReview ?? fixed.stop ?? null);
-  const hardExit = n(fixed.hardExit ?? fixed.exit ?? null);
+  const stop = n(fixed.stopReview ?? fixed.stop ?? t.riskReviewPrice ?? null);
+  const hardExitRaw = n(fixed.hardExit ?? fixed.exit ?? null);
+  const hardExit = hardExitRaw != null ? hardExitRaw : (stop != null ? Number((stop * 0.97).toFixed(2)) : null);
+  const pctWidth = (pct, fallback) => Math.max(Math.abs(n(pct) ?? fallback), fallback);
+  const addWidth = price != null ? Number((price * pctWidth(t.addPct, 1.5) / 100 * 0.25).toFixed(2)) : 0;
+  const trimWidth = price != null ? Number((price * pctWidth(t.trimPct, 5) / 100 * 0.2).toFixed(2)) : 0;
   return {
-    addZone: { low: addLow, high: addHigh || addLow, source: addLow ? 'fixed_or_volatility' : 'missing' },
-    trimZone: { low: trimLow, high: trimHigh || trimLow, source: trimLow ? 'fixed_or_volatility' : 'missing' },
+    addZone: {
+      low: addLow != null ? Number((addLow - addWidth).toFixed(2)) : null,
+      high: addLow != null ? Number(((addHigh ?? addLow) + addWidth).toFixed(2)) : null,
+      source: addLow != null ? 'ticker_specific_volatility_threshold' : 'missing'
+    },
+    trimZone: {
+      low: trimLow != null ? Number((trimLow - trimWidth).toFixed(2)) : null,
+      high: trimLow != null ? Number(((trimHigh ?? trimLow) + trimWidth).toFixed(2)) : null,
+      source: trimLow != null ? 'ticker_specific_volatility_threshold' : 'missing'
+    },
     stopReview: stop,
     hardExit,
     volatility: {
-      addPrice: n(t.addPrice), addPct: n(t.addPct), trimPrice: n(t.trimPrice), trimPct: n(t.trimPct), riskReviewPrice: n(t.riskReviewPrice), riskReviewPct: n(t.riskReviewPct)
+      addPrice: n(t.addPrice), addPct: n(t.addPct), trimPrice: n(t.trimPrice), trimPct: n(t.trimPct), riskReviewPrice: n(t.riskReviewPrice), riskReviewPct: n(t.riskReviewPct), formula: t.formula || null, exposureType: t.exposureType || null
     },
     nearestBoundary: i?.nearestDecisionBoundary || null
   };

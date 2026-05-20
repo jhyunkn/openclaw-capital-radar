@@ -1,3 +1,6 @@
+require('./collect-sec-company-evidence.cjs');
+require('./collect-manager-filing-index.cjs');
+require('./collect-market-structure-state.cjs');
 require('./generate-institutional-source-states.cjs');
 require('./generate-holding-zone-state.cjs');
 require('./validate-holding-zone-state.cjs');

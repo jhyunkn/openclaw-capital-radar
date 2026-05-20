@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "policy": "Capital Radar builds trusted market-orientation artifacts first, then renders interchangeable surfaces from those artifacts.",
+  "version": 4,
+  "policy": "Capital Radar builds trusted market-orientation and evidence-backed market-landscape artifacts first, then renders interchangeable surfaces from those artifacts.",
   "stages": [
     {
       "name": "base-data",
@@ -50,7 +50,9 @@
       "description": "Fold macro regime, infrastructure dependency, narrative velocity, capital flow, and asymmetry discovery into a decision-grade map artifact.",
       "commands": [
         "node scripts/generate-market-orientation-map.cjs",
-        "node scripts/validate-market-orientation-map.cjs"
+        "node scripts/validate-market-orientation-map.cjs",
+        "node scripts/generate-market-landscape-state.cjs",
+        "node scripts/validate-market-landscape-evidence.cjs"
       ]
     },
     {
@@ -66,7 +68,7 @@
     },
     {
       "name": "homepage",
-      "description": "Render the homepage as a market-orientation surface from generated artifacts, not as isolated ticker modules.",
+      "description": "Render the homepage as an evidence-backed market-landscape surface from generated artifacts, not as isolated ticker modules.",
       "commands": [
         "node scripts/finalize-homepage-composition.cjs",
         "node scripts/compose-compressed-homepage.cjs",
@@ -97,6 +99,7 @@
         "node scripts/validate-threshold-consistency.cjs",
         "node scripts/validate-system-quality-score.cjs",
         "node scripts/validate-market-orientation-map.cjs",
+        "node scripts/validate-market-landscape-evidence.cjs",
         "node scripts/validate-homepage-information-hierarchy.cjs",
         "node scripts/validate-proportion-tuning.cjs",
         "node scripts/validate-four-section-homepage.cjs",
@@ -111,6 +114,8 @@
     {
       "name": "ship",
       "commands": [
+        "node scripts/generate-market-landscape-state.cjs",
+        "node scripts/validate-market-landscape-evidence.cjs",
         "node scripts/render-operating-brain-home.cjs",
         "node scripts/validate-operating-brain.cjs",
         "node scripts/write-build-manifest.cjs",

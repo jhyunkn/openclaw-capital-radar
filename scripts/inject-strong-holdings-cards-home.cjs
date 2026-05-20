@@ -12,13 +12,17 @@ const fmt = (value, digits = 1) => {
   const x = Number(value);
   return Number.isFinite(x) ? x.toLocaleString(undefined, { maximumFractionDigits: digits }) : '—';
 };
-const usd = value => Number.isFinite(Number(value)) ? `$${fmt(value, 2)}` : '—';
+const usd = value => Number.isFinite(Number(value)) && Number(value) > 0 ? `$${fmt(value, 2)}` : '—';
 const pct = value => Number.isFinite(Number(value)) ? `${fmt(value, 1)}%` : '—';
 const range = (low, high) => `${usd(low)}–${usd(high)}`;
 const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
 const n = value => Number.isFinite(Number(value)) ? Number(value) : null;
+const positive = value => {
+  const x = n(value);
+  return x && x > 0 ? x : null;
+};
 const round = (value, digits = 2) => Number.isFinite(Number(value)) ? Number(Number(value).toFixed(digits)) : null;
-const pctDistance = (from, to) => n(from) && n(to) ? round(((n(to) - n(from)) / n(from)) * 100, 2) : null;
+const pctDistance = (from, to) => positive(from) && positive(to) ? round(((positive(to) - positive(from)) / positive(from)) * 100, 2) : null;
 const badge = value => {
   const s = String(value || '').toUpperCase();
   if (s.includes('HARD_EXIT') || s.includes('BELOW_STOP') || s.includes('VULNERABLE') || s.includes('HIGH') || s.includes('REDUCE') || s.includes('EXIT')) return 'bad';
@@ -41,7 +45,7 @@ if (!state?.render_permission) throw new Error('portfolio-translation-state rend
 const enrichedHolding = h => {
   const source = decisionByTicker[String(h.ticker || '').toUpperCase()] || {};
   const map = h.price_decision_map || {};
-  const price = n(map.current_price ?? h.price ?? source.price ?? source.livePrice);
+  const price = positive(map.current_price) ?? positive(h.price) ?? positive(source.price) ?? positive(source.livePrice);
   return {
     ...source,
     ...h,
@@ -50,13 +54,13 @@ const enrichedHolding = h => {
     portfolio_weight_pct: n(h.portfolio_weight_pct ?? source.portfolioWeightPct),
     price_decision_map: {
       ...map,
-      current_price: price ?? n(map.current_price)
+      current_price: price ?? positive(map.current_price)
     }
   };
 };
 const withFallbackZones = h => {
   const base = h.price_decision_map || {};
-  const c = n(base.current_price ?? h.price);
+  const c = positive(base.current_price ?? h.price);
   if (!c) return base;
   const highRisk = ['high', 'elevated'].includes(String(h.risk_state || '').toLowerCase()) || /trim|exit/i.test(String(h.rule_permission || ''));
   const conservative = String(h.exposure_state || '') !== 'supported' || highRisk;
@@ -64,36 +68,37 @@ const withFallbackZones = h => {
     ? { buyLow: 0.86, buyHigh: 0.92, trimLow: 1.08, trimHigh: 1.16, target: 1.18, stop: 0.90, hard: 0.84, rangeLow: 0.94, rangeHigh: 1.04, accLow: 0.97, accHigh: 1.01 }
     : { buyLow: 0.90, buyHigh: 0.96, trimLow: 1.12, trimHigh: 1.22, target: 1.25, stop: 0.88, hard: 0.80, rangeLow: 0.95, rangeHigh: 1.05, accLow: 0.98, accHigh: 1.02 };
   const m = { ...base };
-  m.current_price = n(m.current_price) ?? c;
-  m.buy_zone_low = n(m.buy_zone_low) ?? round(c * factors.buyLow, 2);
-  m.buy_zone_high = n(m.buy_zone_high) ?? round(c * factors.buyHigh, 2);
-  m.buy_zone_mid = n(m.buy_zone_mid) || round((m.buy_zone_low + m.buy_zone_high) / 2, 2);
-  m.trim_zone_low = n(m.trim_zone_low) ?? round(c * factors.trimLow, 2);
-  m.trim_zone_high = n(m.trim_zone_high) ?? round(c * factors.trimHigh, 2);
-  m.trim_zone_mid = n(m.trim_zone_mid) || round((m.trim_zone_low + m.trim_zone_high) / 2, 2);
-  m.stop_review = n(m.stop_review) ?? round(c * factors.stop, 2);
-  m.hard_exit_review = n(m.hard_exit_review) ?? round(c * factors.hard, 2);
-  m.target_resistance = n(m.target_resistance) ?? round(c * factors.target, 2);
-  m.upside_to_target_pct = n(m.upside_to_target_pct) ?? pctDistance(c, m.target_resistance);
-  m.upside_to_trim_low_pct = n(m.upside_to_trim_low_pct) ?? pctDistance(c, m.trim_zone_low);
-  m.downside_to_buy_mid_pct = n(m.downside_to_buy_mid_pct) ?? pctDistance(c, m.buy_zone_mid);
-  m.downside_to_stop_pct = n(m.downside_to_stop_pct) ?? pctDistance(c, m.stop_review);
-  m.downside_to_hard_exit_pct = n(m.downside_to_hard_exit_pct) ?? pctDistance(c, m.hard_exit_review);
-  m.recent_range_low = n(m.recent_range_low) ?? round(c * factors.rangeLow, 2);
-  m.recent_range_high = n(m.recent_range_high) ?? round(c * factors.rangeHigh, 2);
-  m.recent_accumulation_proxy_low = n(m.recent_accumulation_proxy_low) ?? round(c * factors.accLow, 2);
-  m.recent_accumulation_proxy_high = n(m.recent_accumulation_proxy_high) ?? round(c * factors.accHigh, 2);
-  m.zone_method = base.buy_zone_low == null || base.trim_zone_low == null || base.stop_review == null ? 'fallback_model_from_current_price' : 'source_zone_levels';
+  const hasAnyPositiveSourceZone = [m.buy_zone_low, m.buy_zone_high, m.trim_zone_low, m.trim_zone_high, m.stop_review, m.hard_exit_review, m.target_resistance].some(value => positive(value) !== null);
+  m.current_price = positive(m.current_price) ?? c;
+  m.buy_zone_low = positive(m.buy_zone_low) ?? round(c * factors.buyLow, 2);
+  m.buy_zone_high = positive(m.buy_zone_high) ?? round(c * factors.buyHigh, 2);
+  m.buy_zone_mid = positive(m.buy_zone_mid) || round((m.buy_zone_low + m.buy_zone_high) / 2, 2);
+  m.trim_zone_low = positive(m.trim_zone_low) ?? round(c * factors.trimLow, 2);
+  m.trim_zone_high = positive(m.trim_zone_high) ?? round(c * factors.trimHigh, 2);
+  m.trim_zone_mid = positive(m.trim_zone_mid) || round((m.trim_zone_low + m.trim_zone_high) / 2, 2);
+  m.stop_review = positive(m.stop_review) ?? round(c * factors.stop, 2);
+  m.hard_exit_review = positive(m.hard_exit_review) ?? round(c * factors.hard, 2);
+  m.target_resistance = positive(m.target_resistance) ?? round(c * factors.target, 2);
+  m.upside_to_target_pct = n(m.upside_to_target_pct) && n(m.upside_to_target_pct) !== 0 ? n(m.upside_to_target_pct) : pctDistance(c, m.target_resistance);
+  m.upside_to_trim_low_pct = n(m.upside_to_trim_low_pct) && n(m.upside_to_trim_low_pct) !== 0 ? n(m.upside_to_trim_low_pct) : pctDistance(c, m.trim_zone_low);
+  m.downside_to_buy_mid_pct = n(m.downside_to_buy_mid_pct) && n(m.downside_to_buy_mid_pct) !== 0 ? n(m.downside_to_buy_mid_pct) : pctDistance(c, m.buy_zone_mid);
+  m.downside_to_stop_pct = n(m.downside_to_stop_pct) && n(m.downside_to_stop_pct) !== 0 ? n(m.downside_to_stop_pct) : pctDistance(c, m.stop_review);
+  m.downside_to_hard_exit_pct = n(m.downside_to_hard_exit_pct) && n(m.downside_to_hard_exit_pct) !== 0 ? n(m.downside_to_hard_exit_pct) : pctDistance(c, m.hard_exit_review);
+  m.recent_range_low = positive(m.recent_range_low) ?? round(c * factors.rangeLow, 2);
+  m.recent_range_high = positive(m.recent_range_high) ?? round(c * factors.rangeHigh, 2);
+  m.recent_accumulation_proxy_low = positive(m.recent_accumulation_proxy_low) ?? round(c * factors.accLow, 2);
+  m.recent_accumulation_proxy_high = positive(m.recent_accumulation_proxy_high) ?? round(c * factors.accHigh, 2);
+  m.zone_method = hasAnyPositiveSourceZone ? 'source_zone_levels_partial' : 'fallback_model_from_current_price';
   return m;
 };
 const zoneStatus = m => {
-  const c = n(m.current_price);
-  const hard = n(m.hard_exit_review);
-  const stop = n(m.stop_review);
-  const buyLow = n(m.buy_zone_low);
-  const buyHigh = n(m.buy_zone_high);
-  const trimLow = n(m.trim_zone_low);
-  const trimHigh = n(m.trim_zone_high);
+  const c = positive(m.current_price);
+  const hard = positive(m.hard_exit_review);
+  const stop = positive(m.stop_review);
+  const buyLow = positive(m.buy_zone_low);
+  const buyHigh = positive(m.buy_zone_high);
+  const trimLow = positive(m.trim_zone_low);
+  const trimHigh = positive(m.trim_zone_high);
   if (![c, hard, stop, buyLow, buyHigh, trimLow, trimHigh].every(Number.isFinite)) return 'unmapped';
   if (c <= hard) return 'below_hard_exit';
   if (c <= stop) return 'below_stop';
@@ -105,11 +110,11 @@ const zoneStatus = m => {
   return 'neutral_hold';
 };
 const zoneBar = m => {
-  const vals = [m.hard_exit_review, m.stop_review, m.buy_zone_low, m.buy_zone_high, m.trim_zone_low, m.trim_zone_high, m.target_resistance, m.current_price].map(n).filter(Number.isFinite);
+  const vals = [m.hard_exit_review, m.stop_review, m.buy_zone_low, m.buy_zone_high, m.trim_zone_low, m.trim_zone_high, m.target_resistance, m.current_price].map(positive).filter(Number.isFinite);
   if (vals.length < 5) return '';
   const min = Math.min(...vals);
   const max = Math.max(...vals);
-  const pos = value => max === min ? 50 : clamp(((n(value) - min) / (max - min)) * 100);
+  const pos = value => max === min ? 50 : clamp(((positive(value) - min) / (max - min)) * 100);
   const seg = (a, b, cls) => `<span class="zone-seg ${cls}" style="left:${pos(a)}%;width:${Math.max(1, pos(b)-pos(a))}%"></span>`;
   return `<div class="zone-bar"><div class="zone-track">${seg(min, m.hard_exit_review, 'hard')}${seg(m.hard_exit_review, m.stop_review, 'risk')}${seg(m.buy_zone_low, m.buy_zone_high, 'buy')}${seg(m.trim_zone_low, m.trim_zone_high, 'trim')}<span class="zone-dot" style="left:${pos(m.current_price)}%"></span></div><div class="zone-scale"><span>${usd(min)}</span><span>${usd(m.current_price)}</span><span>${usd(max)}</span></div></div>`;
 };

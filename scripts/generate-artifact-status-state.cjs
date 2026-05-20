@@ -4,6 +4,10 @@ const read=(name)=>{try{return JSON.parse(fs.readFileSync(path.join(root,'output
 const write=(name,data)=>{const f=path.join(root,'outputs',name);fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,JSON.stringify(data,null,2)+'\n');const p=path.join(root,'public','outputs',name);fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,JSON.stringify(data,null,2)+'\n')};
 const arr=v=>Array.isArray(v)?v:[];const bool=v=>v===true?'valid':'degraded';
 const files=[
+  {key:'collectors',label:'Collectors',file:'research-collector-health-state.json',count:s=>s?.summary?.total||0,changed:s=>false,status:s=>(s?.summary?.degraded||0)>0?'degraded':'valid'},
+  {key:'company_verified',label:'Company Evidence',file:'sec-company-evidence-collection.json',count:s=>arr(s?.records).length,changed:s=>false,status:s=>arr(s?.records).length?'valid':'degraded'},
+  {key:'manager_filings',label:'Manager Filings',file:'manager-filing-index.json',count:s=>arr(s?.records).length,changed:s=>false,status:s=>arr(s?.records).length?'valid':'degraded'},
+  {key:'market_structure',label:'Market Structure',file:'market-structure-collection.json',count:s=>arr(s?.records).length,changed:s=>false,status:s=>bool(s?.render_permission)},
   {key:'strategy',label:'Strategy',file:'strategy-state.json',count:s=>s?.highest_conviction_themes?.length||0,changed:s=>!!s?.changed_since_last_cycle,status:s=>bool(s?.render_permission)},
   {key:'landscape',label:'Landscape',file:'market-landscape-state.json',count:s=>arr(s?.market_focus).length+arr(s?.market_worries).length,changed:s=>s?.state_change_level&&s.state_change_level!=='minor',status:s=>bool(s?.render_permission)},
   {key:'holdings',label:'Holdings',file:'holding-zone-state.json',count:s=>arr(s?.zones).length,changed:s=>false,status:s=>bool(s?.render_permission)},

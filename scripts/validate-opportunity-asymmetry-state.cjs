@@ -16,7 +16,12 @@ function readJson(name) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
   catch (error) { errors.push(`${name} invalid JSON: ${error.message}`); return null; }
 }
-function present(value) { return value !== null && value !== undefined && String(value).trim() !== ''; }
+function present(value) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return true;
+  if (typeof value === 'object') return true;
+  return String(value).trim() !== '';
+}
 function requireField(obj, field, label, severity = 'error') {
   if (!obj || !present(obj[field])) {
     (severity === 'warning' ? warnings : errors).push(`${label} missing ${field}`);
@@ -25,6 +30,10 @@ function requireField(obj, field, label, severity = 'error') {
 function list(value) { return Array.isArray(value) ? value : []; }
 function requiredSeverity(renderPermission) {
   return mode === 'migration' && renderPermission === false ? 'warning' : 'error';
+}
+function numberInRange(value, min = 0, max = 100) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= min && n <= max;
 }
 
 const asymmetry = readJson('opportunity-asymmetry-state.json');
@@ -35,7 +44,17 @@ const evidenceIds = new Set(list(evidenceMap?.evidence).map(ev => ev.id));
 ['as_of','cycle_id','purpose','opportunity_clusters','summary','render_permission'].forEach(field => requireField(asymmetry, field, 'opportunity-asymmetry-state'));
 if (!Array.isArray(asymmetry?.opportunity_clusters) || asymmetry.opportunity_clusters.length === 0) errors.push('opportunity-asymmetry-state.opportunity_clusters must be non-empty');
 
-const promotionStatuses = new Set(['priority_research', 'build_evidence_packet', 'watch_and_compare', 'research_only', 'blocked_no_buy_permission', 'promotion_review', 'exception_review', 'watch_and_collect', 'low_priority_watch']);
+const promotionStatuses = new Set([
+  'priority_research',
+  'build_evidence_packet',
+  'watch_and_compare',
+  'research_only',
+  'blocked_no_buy_permission',
+  'promotion_review',
+  'exception_review',
+  'watch_and_collect',
+  'low_priority_watch'
+]);
 const severity = requiredSeverity(asymmetry?.render_permission);
 
 list(asymmetry?.opportunity_clusters).forEach((cluster, index) => {
@@ -48,8 +67,38 @@ list(asymmetry?.opportunity_clusters).forEach((cluster, index) => {
   if (!Array.isArray(cluster.candidate_tickers) || cluster.candidate_tickers.length === 0) errors.push(`${label} candidate_tickers must be non-empty`);
   list(cluster.candidate_tickers).forEach((candidate, candidateIndex) => {
     const clabel = `${label}.candidate[${candidate?.ticker || candidateIndex}]`;
-    ['ticker','why_this_ticker','what_is_underpriced','opportunity_score','promotion_status','assigned_agent_task','missing_evidence','evidence_ids','action_permission'].forEach(field => requireField(candidate, field, clabel, severity));
+    [
+      'ticker',
+      'why_this_ticker',
+      'what_is_underpriced',
+      'opportunity_score',
+      'promotion_status',
+      'assigned_agent_task',
+      'missing_evidence',
+      'evidence_ids',
+      'action_permission',
+      'evidence_completeness_pct',
+      'evidence_required_pct',
+      'undervaluation_score',
+      'conviction_score',
+      'zone_status',
+      'next_gate'
+    ].forEach(field => requireField(candidate, field, clabel, severity));
     if (!promotionStatuses.has(candidate.promotion_status)) errors.push(`${clabel} invalid promotion_status ${candidate.promotion_status}`);
+    if (!numberInRange(candidate.evidence_completeness_pct)) errors.push(`${clabel} evidence_completeness_pct must be 0..100`);
+    if (!numberInRange(candidate.evidence_required_pct)) errors.push(`${clabel} evidence_required_pct must be 0..100`);
+    if (!numberInRange(candidate.undervaluation_score)) errors.push(`${clabel} undervaluation_score must be 0..100`);
+    if (!numberInRange(candidate.conviction_score)) errors.push(`${clabel} conviction_score must be 0..100`);
+    if (candidate.promotion_status === 'promotion_review' && Number(candidate.evidence_completeness_pct) < 80) {
+      errors.push(`${clabel} promotion_review requires evidence >=80`);
+    }
+    if (candidate.promotion_status === 'exception_review') {
+      const ok = Number(candidate.evidence_completeness_pct) >= 60 &&
+        Number(candidate.evidence_completeness_pct) < 80 &&
+        Number(candidate.undervaluation_score) >= 70 &&
+        Number(candidate.conviction_score) >= 70;
+      if (!ok) errors.push(`${clabel} exception_review requires evidence 60..79 plus undervaluation>=70 and conviction>=70`);
+    }
     if (!Array.isArray(candidate.missing_evidence) || candidate.missing_evidence.length === 0) errors.push(`${clabel} missing_evidence must be non-empty`);
     if (!Array.isArray(candidate.evidence_ids) || candidate.evidence_ids.length === 0) errors.push(`${clabel} evidence_ids must be non-empty`);
     list(candidate.evidence_ids).forEach(id => {

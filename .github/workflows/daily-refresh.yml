@@ -1,20 +1,29 @@
-name: Daily Capital Radar Refresh
+name: Capital Radar 4-Hour Operating Loop
 
 on:
   schedule:
-    # 8:30 AM America/New_York during EDT. Revisit if exact EST handling is required in winter.
-    - cron: '30 12 * * 1-5'
+    # 4-hour operating cycle on market days, America/New_York during EDT.
+    # 09:30, 13:30, 16:15, 20:00 ET. Revisit UTC offsets when EST resumes.
+    - cron: '30 13 * * 1-5'
+    - cron: '30 17 * * 1-5'
+    - cron: '15 20 * * 1-5'
+    - cron: '0 0 * * 2-6'
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'manual/event trigger reason: threshold, macro event, earnings event, or data freshness failure'
+        required: false
+        default: 'manual review'
 
 permissions:
   contents: write
 
 concurrency:
-  group: daily-capital-radar-refresh
+  group: capital-radar-operating-loop
   cancel-in-progress: false
 
 jobs:
-  refresh:
+  operating-loop:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -28,23 +37,39 @@ jobs:
         with:
           node-version: 20
 
-      - name: Regenerate live state
+      - name: Regenerate live data
         run: npm run generate:live
 
-      - name: Regenerate markdown report
-        run: npm run report
+      - name: Generate canonical decision artifacts
+        run: npm run generate:operating-brain
 
-      - name: Show data health
-        run: cat outputs/data-health.json
+      - name: Validate operating brain contracts
+        run: npm run validate:operating-brain
 
-      - name: Commit refreshed radar outputs
+      - name: Build homepage from validated artifacts
+        run: npm run build
+
+      - name: Evaluate deploy gate
+        id: gate
+        run: npm run gate:deploy || test $? -eq 2
+
+      - name: Show operating cadence state
+        run: cat outputs/operating-cadence-state.json
+
+      - name: Commit only meaningful decision-state changes
+        if: steps.gate.outputs.should_deploy == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/report-state.live.json outputs/live-capital-radar.md outputs/data-health.json
+          git add data/report-state.live.json outputs public index.html package.json
           if git diff --cached --quiet; then
-            echo "No refreshed radar output changes to commit."
+            echo "No deployable artifact/homepage changes to commit."
           else
-            git commit -m "Refresh live capital radar data"
+            git commit -m "Run Capital Radar 4-hour operating loop"
             git push origin main
           fi
+
+      - name: Skip deploy when state is unchanged or unsafe
+        if: steps.gate.outputs.should_deploy != 'true'
+        run: |
+          echo "Deploy skipped. meaningful_state_changed=${{ steps.gate.outputs.meaningful_state_changed }} homepage_safe_to_render=${{ steps.gate.outputs.homepage_safe_to_render }}"

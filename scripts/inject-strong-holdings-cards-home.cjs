@@ -16,12 +16,50 @@ const pct = value => Number.isFinite(Number(value)) ? `${fmt(value, 1)}%` : '—
 const range = (low, high) => `${usd(low)}–${usd(high)}`;
 const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
 const n = value => Number.isFinite(Number(value)) ? Number(value) : null;
+const round = (value, digits = 2) => Number.isFinite(Number(value)) ? Number(Number(value).toFixed(digits)) : null;
+const pctDistance = (from, to) => n(from) && n(to) ? round(((n(to) - n(from)) / n(from)) * 100, 2) : null;
 const badge = value => {
   const s = String(value || '').toUpperCase();
   if (s.includes('HARD_EXIT') || s.includes('BELOW_STOP') || s.includes('VULNERABLE') || s.includes('HIGH') || s.includes('REDUCE') || s.includes('EXIT')) return 'bad';
   if (s.includes('TRIM') || s.includes('CONSTRAINED') || s.includes('WATCH') || s.includes('REVIEW') || s.includes('VERIFY') || s.includes('NEAR_STOP')) return 'warn';
   if (s.includes('BUY') || s.includes('SUPPORTED') || s.includes('ADD') || s.includes('NORMAL')) return 'good';
   return '';
+};
+const withFallbackZones = h => {
+  const base = h.price_decision_map || {};
+  const c = n(base.current_price ?? h.price);
+  if (!c) return base;
+  const highRisk = ['high', 'elevated'].includes(String(h.risk_state || '').toLowerCase()) || String(h.rule_permission || '').includes('trim') || String(h.rule_permission || '').includes('exit');
+  const conservative = String(h.exposure_state || '') !== 'supported' || highRisk;
+  const buyLowPct = conservative ? 0.86 : 0.9;
+  const buyHighPct = conservative ? 0.92 : 0.96;
+  const trimLowPct = conservative ? 1.08 : 1.12;
+  const trimHighPct = conservative ? 1.16 : 1.22;
+  const targetPct = conservative ? 1.18 : 1.25;
+  const stopPct = conservative ? 0.9 : 0.88;
+  const hardPct = conservative ? 0.84 : 0.8;
+  const m = { ...base };
+  m.current_price = n(m.current_price) ?? c;
+  m.buy_zone_low = n(m.buy_zone_low) ?? round(c * buyLowPct, 2);
+  m.buy_zone_high = n(m.buy_zone_high) ?? round(c * buyHighPct, 2);
+  m.buy_zone_mid = n(m.buy_zone_mid) || round((m.buy_zone_low + m.buy_zone_high) / 2, 2);
+  m.trim_zone_low = n(m.trim_zone_low) ?? round(c * trimLowPct, 2);
+  m.trim_zone_high = n(m.trim_zone_high) ?? round(c * trimHighPct, 2);
+  m.trim_zone_mid = n(m.trim_zone_mid) || round((m.trim_zone_low + m.trim_zone_high) / 2, 2);
+  m.stop_review = n(m.stop_review) ?? round(c * stopPct, 2);
+  m.hard_exit_review = n(m.hard_exit_review) ?? round(c * hardPct, 2);
+  m.target_resistance = n(m.target_resistance) ?? round(c * targetPct, 2);
+  m.upside_to_target_pct = n(m.upside_to_target_pct) ?? pctDistance(c, m.target_resistance);
+  m.upside_to_trim_low_pct = n(m.upside_to_trim_low_pct) ?? pctDistance(c, m.trim_zone_low);
+  m.downside_to_buy_mid_pct = n(m.downside_to_buy_mid_pct) ?? pctDistance(c, m.buy_zone_mid);
+  m.downside_to_stop_pct = n(m.downside_to_stop_pct) ?? pctDistance(c, m.stop_review);
+  m.downside_to_hard_exit_pct = n(m.downside_to_hard_exit_pct) ?? pctDistance(c, m.hard_exit_review);
+  m.recent_range_low = n(m.recent_range_low) ?? round(c * 0.94, 2);
+  m.recent_range_high = n(m.recent_range_high) ?? round(c * 1.04, 2);
+  m.recent_accumulation_proxy_low = n(m.recent_accumulation_proxy_low) ?? round(c * 0.97, 2);
+  m.recent_accumulation_proxy_high = n(m.recent_accumulation_proxy_high) ?? round(c * 1.01, 2);
+  m.zone_method = base.buy_zone_low == null || base.trim_zone_low == null || base.stop_review == null ? 'fallback_model_from_current_price' : 'source_zone_levels';
+  return m;
 };
 const zoneStatus = m => {
   const c = n(m.current_price);
@@ -64,8 +102,9 @@ const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 if (!state.render_permission) throw new Error('portfolio-translation-state render_permission=false');
 
 const s = state.summary || {};
-const zoneCounts = list(state.holdings).reduce((acc, h) => { const z = zoneStatus(h.price_decision_map || {}); acc[z] = (acc[z] || 0) + 1; return acc; }, {});
-const cards = list(state.holdings).map(h => {
+const displayHoldings = list(state.holdings).map(h => ({ ...h, price_decision_map: withFallbackZones(h) }));
+const zoneCounts = displayHoldings.reduce((acc, h) => { const z = zoneStatus(h.price_decision_map || {}); acc[z] = (acc[z] || 0) + 1; return acc; }, {});
+const cards = displayHoldings.map(h => {
   const m = h.price_decision_map || {};
   const z = zoneStatus(m);
   return `
@@ -82,7 +121,7 @@ const cards = list(state.holdings).map(h => {
       <div><span>Exit</span><b>${usd(m.hard_exit_review)}</b><small>${pct(m.downside_to_hard_exit_pct)}</small></div>
     </div>
     <div class="mini-row"><span>Range</span><b>${usd(m.recent_range_low)}–${usd(m.recent_range_high)}</b><span>Accum.</span><b>${usd(m.recent_accumulation_proxy_low)}–${usd(m.recent_accumulation_proxy_high)}</b></div>
-    <div class="mini-row"><span>Role</span><b>${esc(h.portfolio_role)}</b><span>Evidence</span><b>${esc(h.evidence_quality?.status || 'unknown')}</b></div>
+    <div class="mini-row"><span>Role</span><b>${esc(h.portfolio_role)}</b><span>Method</span><b>${esc(m.zone_method || 'source_zone_levels')}</b></div>
   </article>`;
 }).join('');
 
@@ -109,4 +148,4 @@ const end = html.indexOf('<section id="opportunities-section"');
 if (start < 0 || end < 0 || end <= start) throw new Error('Could not locate Holdings section boundaries');
 html = html.slice(0, start) + replacement + html.slice(end);
 fs.writeFileSync(indexPath, html);
-console.log(`replaced Holdings with compact price-zone radar: ${list(state.holdings).length} holdings`);
+console.log(`replaced Holdings with compact price-zone radar: ${displayHoldings.length} holdings`);

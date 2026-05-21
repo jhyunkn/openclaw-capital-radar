@@ -8,6 +8,12 @@ const reportPath = path.join(outputsDir, 'capital-radar-home-build-report.json')
 
 const stages = [
   {
+    name: 'baseline-home-shell',
+    commands: [
+      'node scripts/render-operating-brain-home.cjs',
+    ],
+  },
+  {
     name: 'decision-brief',
     commands: [
       'node scripts/generate-market-decision-brief-state.cjs',
@@ -119,7 +125,7 @@ function validateNoDuplicateSections() {
 const startedAt = Date.now();
 const report = { stages: [] };
 console.log('Capital Radar canonical homepage build');
-console.log('Policy: one homepage authority; no hidden holdings-orchestrator; legacy Brief/Strategy sections stripped.');
+console.log('Policy: render-operating-brain creates a disposable baseline shell; render-capital-radar-home is the final homepage authority.');
 
 for (const stage of stages) {
   console.log(`\n=== home stage: ${stage.name} ===`);

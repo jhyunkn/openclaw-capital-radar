@@ -1,3 +1,5 @@
+require('./generate-visual-regime-state.cjs');
+require('./inject-visual-regime-home.cjs');
 require('./generate-research-universe-state.cjs');
 require('./run-research-collectors-safe.cjs');
 require('./generate-institutional-source-states.cjs');

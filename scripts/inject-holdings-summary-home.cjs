@@ -1,8 +1,6 @@
-require('./generate-operational-chart-state.cjs');
-require('./generate-market-decision-brief-state.cjs');
-require('./inject-market-decision-brief-home.cjs');
-require('./inject-operational-chart-home.cjs');
-require('./strip-visual-regime-home.cjs');
+// Compatibility wrapper: holdings-only.
+// Homepage orchestration now lives in scripts/render-capital-radar-home.cjs and
+// config/homepage-sections.json. Do not add non-holdings sections here.
 require('./generate-research-universe-state.cjs');
 require('./run-research-collectors-safe.cjs');
 require('./generate-institutional-source-states.cjs');
@@ -10,9 +8,3 @@ require('./generate-holding-zone-state.cjs');
 require('./validate-holding-zone-state.cjs');
 require('./inject-strong-holdings-cards-home.cjs');
 require('./strip-holdings-role-method-home.cjs');
-require('./generate-opportunity-band-state.cjs');
-require('./refine-opportunity-asymmetry-filter.cjs');
-require('./enrich-opportunity-near-miss-diagnostics.cjs');
-require('./inject-opportunity-promotion-board-home.cjs');
-require('./generate-market-tape-state.cjs');
-require('./inject-market-tape-board-home.cjs');

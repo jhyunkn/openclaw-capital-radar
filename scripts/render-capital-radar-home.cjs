@@ -4,65 +4,15 @@ const { spawnSync } = require('child_process');
 
 const root = path.join(__dirname, '..');
 const outputsDir = path.join(root, 'outputs');
+const manifestPath = path.join(root, 'config', 'homepage-sections.json');
 const reportPath = path.join(outputsDir, 'capital-radar-home-build-report.json');
 
-const stages = [
-  {
-    name: 'baseline-home-shell',
-    commands: [
-      'node scripts/render-operating-brain-home.cjs',
-    ],
-  },
-  {
-    name: 'decision-brief',
-    commands: [
-      'node scripts/generate-market-decision-brief-state.cjs',
-      'node scripts/inject-market-decision-brief-home.cjs',
-    ],
-  },
-  {
-    name: 'operational-chart',
-    commands: [
-      'node scripts/generate-operational-chart-state.cjs',
-      'node scripts/inject-operational-chart-home.cjs',
-    ],
-  },
-  {
-    name: 'cleanup-legacy-home-sections',
-    commands: [
-      'node scripts/strip-legacy-brief-strategy-home.cjs',
-      'node scripts/strip-visual-regime-home.cjs',
-    ],
-  },
-  {
-    name: 'holdings',
-    commands: [
-      'node scripts/generate-research-universe-state.cjs',
-      'node scripts/run-research-collectors-safe.cjs',
-      'node scripts/generate-institutional-source-states.cjs',
-      'node scripts/generate-holding-zone-state.cjs',
-      'node scripts/validate-holding-zone-state.cjs',
-      'node scripts/inject-strong-holdings-cards-home.cjs',
-      'node scripts/strip-holdings-role-method-home.cjs',
-    ],
-  },
-  {
-    name: 'opportunity',
-    commands: [
-      'node scripts/generate-opportunity-band-state.cjs',
-      'node scripts/refine-opportunity-asymmetry-filter.cjs',
-      'node scripts/enrich-opportunity-near-miss-diagnostics.cjs',
-      'node scripts/inject-opportunity-promotion-board-home.cjs',
-    ],
-  },
-  {
-    name: 'market-tape',
-    commands: [
-      'node scripts/generate-market-tape-state.cjs',
-      'node scripts/inject-market-tape-board-home.cjs',
-    ],
-  },
-];
+function loadManifest() {
+  if (!fs.existsSync(manifestPath)) throw new Error(`homepage manifest missing: ${path.relative(root, manifestPath)}`);
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  if (!Array.isArray(manifest.sections)) throw new Error('homepage manifest missing sections[]');
+  return manifest;
+}
 
 function fail(message, report) {
   fs.mkdirSync(outputsDir, { recursive: true });
@@ -90,31 +40,35 @@ function run(command) {
   return { command, status: 'OK', durationMs };
 }
 
-function validateNoDuplicateSections() {
+function runGroup(name, commands, report) {
+  console.log(`\n=== home stage: ${name} ===`);
+  const stageStartedAt = Date.now();
+  const results = [];
+  for (const command of commands || []) {
+    console.log(`\n$ ${command}`);
+    const commandResult = run(command);
+    results.push(commandResult);
+    if (commandResult.status !== 'OK') fail(`${name}: ${command} failed`, { stages: report.stages.concat([{ name, commands: results }]) });
+  }
+  report.stages.push({ name, durationMs: Date.now() - stageStartedAt, commands: results });
+}
+
+function validateHomepage(manifest) {
   const indexPath = path.join(root, 'index.html');
   if (!fs.existsSync(indexPath)) return ['index.html missing'];
   const html = fs.readFileSync(indexPath, 'utf8');
-  const checks = [
-    ['decision-brief-section', /id="decision-brief-section"/g, 1],
-    ['operational-chart-section', /id="operational-chart-section"/g, 1],
-    ['holdings-section', /id="holdings-section"/g, 1],
-    ['opportunities-section', /id="opportunities-section"/g, 1],
-    ['market-section', /id="market-section"/g, 1],
-  ];
   const errors = [];
-  for (const [label, regex, expected] of checks) {
-    const count = (html.match(regex) || []).length;
-    if (count !== expected) errors.push(`${label} count ${count}, expected ${expected}`);
+  for (const section of manifest.sections.filter(s => s.enabled !== false && s.required !== false)) {
+    const id = section.id;
+    const count = (html.match(new RegExp(`id=["']${id}["']`, 'g')) || []).length;
+    if (count !== 1) errors.push(`${id} count ${count}, expected 1`);
   }
-  const banned = [
-    'Evidence-backed Market Landscape',
-    'Decision Posture',
-    'Strategy Posture',
-    'market-regine',
-    'visual regime board',
-  ];
-  for (const phrase of banned) {
-    if (html.toLowerCase().includes(phrase.toLowerCase())) errors.push(`legacy phrase still present: ${phrase}`);
+  for (const id of manifest.cleanup?.legacySectionIds || []) {
+    const count = (html.match(new RegExp(`id=["']${id}["']`, 'g')) || []).length;
+    if (count > 0) errors.push(`legacy section still present: ${id}`);
+  }
+  for (const phrase of manifest.cleanup?.bannedPhrases || []) {
+    if (html.toLowerCase().includes(String(phrase).toLowerCase())) errors.push(`legacy phrase still present: ${phrase}`);
   }
   if (html.includes('[object Object]')) errors.push('homepage leaks [object Object]');
   if (!html.includes('Operational Decision Chart')) errors.push('operational decision chart missing');
@@ -124,23 +78,24 @@ function validateNoDuplicateSections() {
 
 const startedAt = Date.now();
 const report = { stages: [] };
+let manifest;
+try { manifest = loadManifest(); } catch (error) { fail(error.message, report); }
+
 console.log('Capital Radar canonical homepage build');
-console.log('Policy: render-operating-brain creates a disposable baseline shell; render-capital-radar-home is the final homepage authority.');
+console.log(`Manifest: ${path.relative(root, manifestPath)} v${manifest.version || 'unknown'}`);
+console.log(manifest.policy || 'Policy: manifest-driven operational homepage assembly.');
 
-for (const stage of stages) {
-  console.log(`\n=== home stage: ${stage.name} ===`);
-  const stageStartedAt = Date.now();
-  const commands = [];
-  for (const command of stage.commands) {
-    console.log(`\n$ ${command}`);
-    const commandResult = run(command);
-    commands.push(commandResult);
-    if (commandResult.status !== 'OK') fail(`${stage.name}: ${command} failed`, { stages: report.stages.concat([{ name: stage.name, commands }]) });
+runGroup('baseline-home-shell', manifest.baseline?.commands || [], report);
+for (const section of manifest.sections) {
+  if (section.enabled === false) {
+    report.stages.push({ name: section.name || section.id, skipped: true, reason: 'disabled in homepage-sections.json' });
+    continue;
   }
-  report.stages.push({ name: stage.name, durationMs: Date.now() - stageStartedAt, commands });
+  runGroup(section.name || section.id, section.commands || [], report);
 }
+runGroup('cleanup-legacy-home-sections', manifest.cleanup?.commands || [], report);
 
-const structuralErrors = validateNoDuplicateSections();
+const structuralErrors = validateHomepage(manifest);
 if (structuralErrors.length) fail(`structural validation failed: ${structuralErrors.join('; ')}`, report);
 
 fs.mkdirSync(outputsDir, { recursive: true });
@@ -148,8 +103,9 @@ const finalReport = {
   generatedAt: new Date().toISOString(),
   status: 'OK',
   totalMs: Date.now() - startedAt,
-  policy: 'canonical Capital Radar homepage render path',
-  sections: ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section', 'market-section'],
+  policy: 'manifest-driven Capital Radar homepage render path',
+  manifest: path.relative(root, manifestPath),
+  sections: manifest.sections.filter(s => s.enabled !== false).map(s => s.id),
   stages: report.stages,
 };
 fs.writeFileSync(reportPath, JSON.stringify(finalReport, null, 2));

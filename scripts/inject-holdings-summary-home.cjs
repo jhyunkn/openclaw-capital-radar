@@ -1,9 +1,11 @@
+require('./generate-research-universe-state.cjs');
 require('./run-research-collectors-safe.cjs');
 require('./generate-institutional-source-states.cjs');
 require('./generate-holding-zone-state.cjs');
 require('./validate-holding-zone-state.cjs');
 require('./inject-strong-holdings-cards-home.cjs');
 require('./strip-holdings-role-method-home.cjs');
+require('./generate-opportunity-band-state.cjs');
 require('./refine-opportunity-asymmetry-filter.cjs');
 require('./inject-opportunity-promotion-board-home.cjs');
 require('./generate-market-tape-state.cjs');

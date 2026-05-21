@@ -1,4 +1,6 @@
 require('./generate-operational-chart-state.cjs');
+require('./generate-market-decision-brief-state.cjs');
+require('./inject-market-decision-brief-home.cjs');
 require('./inject-operational-chart-home.cjs');
 require('./strip-visual-regime-home.cjs');
 require('./generate-research-universe-state.cjs');

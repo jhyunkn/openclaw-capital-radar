@@ -1,0 +1,10 @@
+const fs=require('fs');const path=require('path');
+const root=path.join(__dirname,'..');
+const read=(rel,fb)=>{try{return JSON.parse(fs.readFileSync(path.join(root,rel),'utf8'))}catch{return fb}};
+const write=(name,data)=>{for(const dir of ['outputs','public/outputs']){const f=path.join(root,dir,name);fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,JSON.stringify(data,null,2)+'\n')}};
+const arr=v=>Array.isArray(v)?v:[];const num=v=>Number.isFinite(Number(v))&&Number(v)>0?Number(v):null;const round=(v,d=2)=>Number.isFinite(Number(v))?Number(Number(v).toFixed(d)):null;
+function bandStatus(x){const p=num(x.current_price),lo=num(x.entry_band_low),hi=num(x.entry_band_high),rl=num(x.risk_review_level),el=num(x.exit_review_level),xl=num(x.extension_band_low),xh=num(x.extension_band_high);if(![p,lo,hi,rl,el,xl,xh].every(Number.isFinite))return'unmapped';if(p<=el)return'below_exit_review';if(p<=rl)return'risk_review';if(p>=lo&&p<=hi)return'entry_band';if(p>hi&&(p-hi)/p<=.03)return'near_entry_band';if(p>=xl&&p<=xh)return'extension_band';if(p<xl&&(xl-p)/p<=.03)return'near_extension_band';return'neutral_band'}
+const universe=arr(read('outputs/research-universe-state.json',{universe:[]}).universe).filter(r=>String(r.scope||'').includes('opportunity'));
+const bands=universe.map(r=>{const p=num(r.current_price);const b={ticker:r.ticker,current_price:p,entry_band_low:p?round(p*.88):null,entry_band_high:p?round(p*.95):null,extension_band_low:p?round(p*1.10):null,extension_band_high:p?round(p*1.20):null,upside_reference:p?round(p*1.24):null,risk_review_level:p?round(p*.88):null,exit_review_level:p?round(p*.80):null,band_method:'candidate_price_proxy',band_confidence:p?.35:0,source_quality:'proxy_v1'};b.band_status=bandStatus(b);return b});
+const state={as_of:new Date().toISOString(),artifact:'opportunity-band-state',bands,summary:{bands:bands.length,mapped:bands.filter(b=>b.band_status!=='unmapped').length,unmapped:bands.filter(b=>b.band_status==='unmapped').length},render_permission:true};
+write('opportunity-band-state.json',state);console.log(`opportunity-band-state: bands=${state.summary.bands} mapped=${state.summary.mapped}`);

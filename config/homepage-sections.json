@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator.",
+  "baseline": {
+    "description": "Create disposable HTML shell before operational sections are injected.",
+    "commands": [
+      "node scripts/render-operating-brain-home.cjs"
+    ]
+  },
+  "sections": [
+    {
+      "id": "decision-brief-section",
+      "name": "Market Decision Brief",
+      "enabled": true,
+      "required": true,
+      "description": "Top verdict: what the chart and macro tape are saying.",
+      "commands": [
+        "node scripts/generate-market-decision-brief-state.cjs",
+        "node scripts/inject-market-decision-brief-home.cjs"
+      ]
+    },
+    {
+      "id": "operational-chart-section",
+      "name": "Operational Decision Chart",
+      "enabled": true,
+      "required": true,
+      "description": "Real SPX working chart with OpenClaw action zones and supporting indicators.",
+      "commands": [
+        "node scripts/generate-operational-chart-state.cjs",
+        "node scripts/inject-operational-chart-home.cjs"
+      ]
+    },
+    {
+      "id": "holdings-section",
+      "name": "Holdings",
+      "enabled": true,
+      "required": true,
+      "description": "Portfolio positions mapped to ruled zones and regime support.",
+      "commands": [
+        "node scripts/generate-research-universe-state.cjs",
+        "node scripts/run-research-collectors-safe.cjs",
+        "node scripts/generate-institutional-source-states.cjs",
+        "node scripts/generate-holding-zone-state.cjs",
+        "node scripts/validate-holding-zone-state.cjs",
+        "node scripts/inject-strong-holdings-cards-home.cjs",
+        "node scripts/strip-holdings-role-method-home.cjs"
+      ]
+    },
+    {
+      "id": "opportunities-section",
+      "name": "Opportunity",
+      "enabled": true,
+      "required": true,
+      "description": "Opportunity candidates and near-miss diagnostics, filtered by evidence and asymmetry.",
+      "commands": [
+        "node scripts/generate-opportunity-band-state.cjs",
+        "node scripts/refine-opportunity-asymmetry-filter.cjs",
+        "node scripts/enrich-opportunity-near-miss-diagnostics.cjs",
+        "node scripts/inject-opportunity-promotion-board-home.cjs"
+      ]
+    },
+    {
+      "id": "market-section",
+      "name": "Market Tape",
+      "enabled": true,
+      "required": true,
+      "description": "Confirmation board for signals that support or contradict the chart regime.",
+      "commands": [
+        "node scripts/generate-market-tape-state.cjs",
+        "node scripts/inject-market-tape-board-home.cjs"
+      ]
+    }
+  ],
+  "cleanup": {
+    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected.",
+    "commands": [
+      "node scripts/strip-legacy-brief-strategy-home.cjs",
+      "node scripts/strip-visual-regime-home.cjs"
+    ],
+    "legacySectionIds": [
+      "brief",
+      "strategy-section",
+      "chart-wall-section",
+      "spx-cycle-map-section",
+      "cycle-scenario-section",
+      "visual-regime-section",
+      "artifact-status-section"
+    ],
+    "bannedPhrases": [
+      "Evidence-backed Market Landscape",
+      "Decision Posture",
+      "Strategy Posture",
+      "market-regine",
+      "visual regime board"
+    ]
+  }
+}

@@ -62,7 +62,7 @@ function signalForPermission(signal, dayChangePct, freshness) {
 }
 function sourceForHolding(holding) {
   const dc = holding.dataContract || {};
-  const confidence = confidenceToText(dc.confidence || holding.sourceConfidence || holding.confidence || holding.finviz?.confidence);
+  const confidence = confidenceToText(dc.confidence || holding.sourceConfidence || holding.confidence || holding.finviz?.confidence || (holding.screenshotExtracted ? 'screenshot_ocr_manual_extraction' : null));
   const timestamp = holding.priceAsOf || holding.asOf || holding.finviz?.asOf || dc.sourceAsOf?.forwardPE || dc.sourceAsOf?.fcfYield || null;
   return { confidence, timestamp, freshness: ageState(timestamp) };
 }
@@ -144,6 +144,7 @@ const portfolioState = list(state.holdings).map(holding => {
     ticker: holding.ticker,
     price: num(holding.livePrice ?? holding.price),
     dayChangePct: num(holding.dayChangePct),
+    dayChangeStatus: num(holding.dayChangePct) == null ? (holding.screenshotExtracted ? 'unavailable_in_screenshot' : 'missing') : 'available',
     portfolioWeightPct: num(holding.portfolioWeightPct ?? holding.weight),
     decisionPermission: permission,
     ruleBreaches,
@@ -198,7 +199,7 @@ const opportunityState = rawOpportunities.map(candidate => {
 const sourceMap = {
   marketTape: tape.map(t => ({ symbol: t.symbol, source: t.source || 'market data adapter', asOf: t.asOf || t.priceAsOf || null })),
   ratesCredit: rates.map(r => ({ id: r.id, source: r.source || 'rates/credit adapter', asOf: r.latestDate || r.asOf || null })),
-  holdings: portfolioState.map(h => ({ ticker: h.ticker, sourceTimestamp: h.sourceTimestamp, confidence: h.sourceConfidence }))
+  holdings: portfolioState.map(h => ({ ticker: h.ticker, sourceTimestamp: h.sourceTimestamp, confidence: h.sourceConfidence, dayChangeStatus: h.dayChangeStatus }))
 };
 const staleSources = portfolioState.filter(h => h.dataFreshness === 'stale').map(h => h.ticker);
 const blockedSources = portfolioState.filter(h => h.dataFreshness === 'missing' || h.sourceConfidence === 'missing').map(h => h.ticker);

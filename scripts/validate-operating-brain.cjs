@@ -38,7 +38,9 @@ const permissions = new Set(['ADD_ALLOWED_AT_RULED_ZONE', 'HOLD_VERIFY', 'NO_ADD
 if (!Array.isArray(portfolio) || portfolio.length === 0) errors.push('portfolio-decision-state must be a non-empty array');
 (portfolio || []).forEach((holding, index) => {
   const label = `portfolio[${holding?.ticker || index}]`;
-  ['ticker','price','dayChangePct','portfolioWeightPct','decisionPermission','ruleBreaches','addZone','trimTrigger','exitTrigger','thesisStatus','thesisInvalidation','nextEvidenceRequired','dataFreshness','sourceConfidence','sourceTimestamp','changedSinceLastRun'].forEach(field => requireField(holding, field, label));
+  ['ticker','price','portfolioWeightPct','decisionPermission','ruleBreaches','addZone','trimTrigger','exitTrigger','thesisStatus','thesisInvalidation','nextEvidenceRequired','dataFreshness','sourceConfidence','sourceTimestamp','changedSinceLastRun'].forEach(field => requireField(holding, field, label));
+  if (holding.dayChangePct == null && holding.dayChangeStatus !== 'unavailable_in_screenshot') errors.push(`${label} missing dayChangePct`);
+  if (holding.dayChangePct != null) requireField(holding, 'dayChangePct', label);
   if (!permissions.has(holding.decisionPermission)) errors.push(`${label} has invalid decisionPermission ${holding.decisionPermission}`);
   if (!Array.isArray(holding.ruleBreaches)) errors.push(`${label} ruleBreaches must be an array`);
   noObjectLeak(holding.sourceConfidence, `${label}.sourceConfidence`);

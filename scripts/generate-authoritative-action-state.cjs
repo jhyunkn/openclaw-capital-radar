@@ -13,6 +13,8 @@ const interp = fs.existsSync(interpPath) ? JSON.parse(fs.readFileSync(interpPath
 const coverage = fs.existsSync(coveragePath) ? JSON.parse(fs.readFileSync(coveragePath, 'utf8')) : { holdings: [] };
 const memos = fs.existsSync(memoPath) ? JSON.parse(fs.readFileSync(memoPath, 'utf8')) : { memos: [] };
 const n = v => { if (v === null || v === undefined || v === '') return null; const x = Number(v); return Number.isFinite(x) ? x : null; };
+const precisionFor = v => { const x = Math.abs(Number(v)); if (!Number.isFinite(x)) return 2; if (x < 0.01) return 8; if (x < 1) return 6; if (x < 10) return 3; return 2; };
+const roundLevel = (v, ref) => { const d = precisionFor(ref ?? v); return Number(Number(v).toFixed(d)); };
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 const reactionByTicker = new Map((reaction.reactions || reaction.holdings || []).map(r => [String(r.ticker || '').toUpperCase(), r]));
 const interpByTicker = new Map((interp.interpretations || []).map(i => [String(i.ticker || '').toUpperCase(), i]));
@@ -28,19 +30,19 @@ function levelSet(h, i) {
   const trimHigh = n(fixed.trimHigh ?? fixed.target ?? null);
   const stop = n(fixed.stopReview ?? fixed.stop ?? t.riskReviewPrice ?? null);
   const hardExitRaw = n(fixed.hardExit ?? fixed.exit ?? null);
-  const hardExit = hardExitRaw != null ? hardExitRaw : (stop != null ? Number((stop * 0.97).toFixed(2)) : null);
+  const hardExit = hardExitRaw != null ? hardExitRaw : (stop != null ? roundLevel(stop * 0.97, price ?? stop) : null);
   const pctWidth = (pct, fallback) => Math.max(Math.abs(n(pct) ?? fallback), fallback);
-  const addWidth = price != null ? Number((price * pctWidth(t.addPct, 1.5) / 100 * 0.25).toFixed(2)) : 0;
-  const trimWidth = price != null ? Number((price * pctWidth(t.trimPct, 5) / 100 * 0.2).toFixed(2)) : 0;
+  const addWidth = price != null ? roundLevel(price * pctWidth(t.addPct, 1.5) / 100 * 0.25, price) : 0;
+  const trimWidth = price != null ? roundLevel(price * pctWidth(t.trimPct, 5) / 100 * 0.2, price) : 0;
   return {
     addZone: {
-      low: addLow != null ? Number((addLow - addWidth).toFixed(2)) : null,
-      high: addLow != null ? Number(((addHigh ?? addLow) + addWidth).toFixed(2)) : null,
+      low: addLow != null ? roundLevel(addLow - addWidth, price ?? addLow) : null,
+      high: addLow != null ? roundLevel((addHigh ?? addLow) + addWidth, price ?? addLow) : null,
       source: addLow != null ? 'ticker_specific_volatility_threshold' : 'missing'
     },
     trimZone: {
-      low: trimLow != null ? Number((trimLow - trimWidth).toFixed(2)) : null,
-      high: trimLow != null ? Number(((trimHigh ?? trimLow) + trimWidth).toFixed(2)) : null,
+      low: trimLow != null ? roundLevel(trimLow - trimWidth, price ?? trimLow) : null,
+      high: trimLow != null ? roundLevel((trimHigh ?? trimLow) + trimWidth, price ?? trimLow) : null,
       source: trimLow != null ? 'ticker_specific_volatility_threshold' : 'missing'
     },
     stopReview: stop,

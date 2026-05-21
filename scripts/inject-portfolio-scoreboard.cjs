@@ -113,6 +113,10 @@ const dataGaps = warnings.filter(item => item.factor === 'Data completeness' || 
 const concentration = warnings.filter(item => item.factor === 'Portfolio concentration').slice(0, 4);
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 fs.writeFileSync(outputPath, JSON.stringify({ generatedAt: new Date().toISOString(), reviewQueue, strongest, warnings, dataGaps, concentration, scorecards, policy: 'computedSignal is authoritative over score support labels; EXIT/TRIM/INVESTIGATE cannot appear as Strong support.' }, null, 2));
+if (process.env.CAPITAL_RADAR_SCOREBOARD_JSON_ONLY === '1') {
+  console.log(`Generated portfolio scoreboard JSON: ${scorecards.length} scorecards, ${warnings.length} weak warnings`);
+  process.exit(0);
+}
 function labelFor(item, fallback) { return item.authority?.label || fallback; }
 function cardHtml(item, label) {
   const cardClass = item.authority?.uiClass || (item.composite >= 70 ? 'good' : item.composite >= 45 ? 'warn' : 'bad');

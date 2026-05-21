@@ -1,6 +1,6 @@
 {
-  "version": 9,
-  "policy": "Capital Radar builds trusted market-orientation, evidence-backed landscape, portfolio-translation, opportunity-asymmetry, and strategy-state artifacts before rendering surfaces.",
+  "version": 10,
+  "policy": "Capital Radar builds decision-grade artifacts, then renders the homepage through one canonical operational-home orchestrator. Legacy operating-brain renderers may generate artifacts, but they must not own the final homepage surface.",
   "stages": [
     {
       "name": "base-data",
@@ -75,7 +75,7 @@
     },
     {
       "name": "homepage",
-      "description": "Render the homepage as an evidence-backed strategy, market-landscape, portfolio-translation, and opportunity-asymmetry surface from generated artifacts.",
+      "description": "Legacy compressed homepage composition remains available for compatibility; the ship stage owns the final operational homepage.",
       "commands": [
         "node scripts/finalize-homepage-composition.cjs",
         "node scripts/compose-compressed-homepage.cjs",
@@ -125,18 +125,9 @@
     },
     {
       "name": "ship",
+      "description": "Final homepage authority. This stage must be the only place that decides what index.html looks like in production.",
       "commands": [
-        "node scripts/generate-market-landscape-state.cjs",
-        "node scripts/validate-market-landscape-evidence.cjs",
-        "node scripts/generate-portfolio-translation-state.cjs",
-        "node scripts/validate-portfolio-translation-state.cjs",
-        "node scripts/generate-opportunity-asymmetry-state.cjs",
-        "node scripts/validate-opportunity-asymmetry-state.cjs",
-        "node scripts/generate-strategy-state.cjs",
-        "node scripts/validate-strategy-state.cjs",
-        "node scripts/render-operating-brain-home.cjs",
-        "node scripts/inject-strategy-posture-home.cjs",
-        "node scripts/inject-holdings-summary-home.cjs",
+        "node scripts/render-capital-radar-home.cjs",
         "node scripts/validate-operating-brain.cjs",
         "node scripts/write-build-manifest.cjs",
         "node scripts/inject-build-version.cjs",

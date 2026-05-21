@@ -4,6 +4,7 @@ require('./generate-holding-zone-state.cjs');
 require('./validate-holding-zone-state.cjs');
 require('./inject-strong-holdings-cards-home.cjs');
 require('./strip-holdings-role-method-home.cjs');
+require('./refine-opportunity-asymmetry-filter.cjs');
 require('./inject-opportunity-promotion-board-home.cjs');
 require('./generate-market-tape-state.cjs');
 require('./inject-market-tape-board-home.cjs');

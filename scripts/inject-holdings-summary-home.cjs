@@ -1,4 +1,5 @@
 require('./generate-market-chart-panels.cjs');
+require('./generate-chart-regime-decision-state.cjs');
 require('./inject-market-chart-wall-home.cjs');
 require('./generate-visual-regime-state.cjs');
 require('./inject-visual-regime-home.cjs');

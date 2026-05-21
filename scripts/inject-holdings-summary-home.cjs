@@ -1,10 +1,5 @@
-require('./generate-market-chart-panels.cjs');
-require('./generate-chart-regime-decision-state.cjs');
-require('./inject-market-chart-wall-home.cjs');
-require('./generate-spx-cycle-map-state.cjs');
-require('./inject-spx-cycle-map-home.cjs');
-require('./generate-cycle-scenario-state.cjs');
-require('./inject-cycle-scenario-board-home.cjs');
+require('./generate-operational-chart-state.cjs');
+require('./inject-operational-chart-home.cjs');
 require('./strip-visual-regime-home.cjs');
 require('./generate-research-universe-state.cjs');
 require('./run-research-collectors-safe.cjs');

@@ -1,6 +1,6 @@
 {
-  "version": 16,
-  "policy": "Capital Radar builds decision-grade artifacts, runs a temporary compatibility-artifact-prep bridge for legacy validators, then renders production through the canonical manifest-driven ship orchestrator. Compatibility is non-authoritative and audited manually.",
+  "version": 17,
+  "policy": "Capital Radar builds decision-grade artifacts, runs a temporary compatibility-artifact-prep bridge for legacy validators, then renders production through the canonical manifest-driven ship orchestrator. Compatibility is non-authoritative and audited manually. Decision chart HTML is sanitized immediately before static output so volume/scenario paths cannot leak into the main price pane.",
   "stages": [
     {
       "name": "base-data",
@@ -127,13 +127,14 @@
     },
     {
       "name": "ship",
-      "description": "Final homepage authority. This stage renders and validates the operational homepage before production output.",
+      "description": "Final homepage authority. This stage renders, sanitizes, and validates the operational homepage before production output.",
       "commands": [
         "node scripts/render-capital-radar-home.cjs",
         "node scripts/validate-operating-brain.cjs",
         "node scripts/write-build-manifest.cjs",
         "node scripts/inject-build-version.cjs",
         "node scripts/strip-home-runtime.cjs",
+        "node scripts/sanitize-decision-chart-html.cjs",
         "node scripts/build-vercel.cjs",
         "node scripts/copy-agent-assets-to-public.cjs"
       ]

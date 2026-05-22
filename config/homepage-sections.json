@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
@@ -59,13 +59,14 @@
       "name": "Holdings",
       "enabled": true,
       "required": true,
-      "description": "Portfolio positions mapped to ruled zones and regime support.",
+      "description": "Portfolio positions mapped to ruled zones and regime support, with strategy-route permissions applied.",
       "commands": [
         "node scripts/generate-research-universe-state.cjs",
         "node scripts/run-research-collectors-safe.cjs",
         "node scripts/generate-institutional-source-states.cjs",
         "node scripts/generate-holding-zone-state.cjs",
         "node scripts/annotate-holding-zone-source.cjs",
+        "node scripts/apply-strategy-route-to-holdings.cjs",
         "node scripts/validate-holding-zone-state.cjs",
         "node scripts/inject-strong-holdings-cards-home.cjs",
         "node scripts/strip-holdings-role-method-home.cjs"
@@ -76,10 +77,11 @@
       "name": "Opportunity",
       "enabled": true,
       "required": true,
-      "description": "Opportunity candidates and near-miss diagnostics, filtered by evidence and asymmetry.",
+      "description": "Opportunity candidates and near-miss diagnostics filtered by evidence, asymmetry, and active strategy route.",
       "commands": [
         "node scripts/generate-opportunity-band-state.cjs",
         "node scripts/refine-opportunity-asymmetry-filter.cjs",
+        "node scripts/apply-strategy-route-to-opportunities.cjs",
         "node scripts/enrich-opportunity-near-miss-diagnostics.cjs",
         "node scripts/inject-opportunity-promotion-board-home.cjs"
       ]

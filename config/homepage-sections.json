@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
@@ -30,6 +30,17 @@
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/inject-operational-chart-home.cjs"
+      ]
+    },
+    {
+      "id": "market-lens-section",
+      "name": "Cross-Asset Market Lens",
+      "enabled": true,
+      "required": false,
+      "description": "SPX, QQQ, TLT, BTC and VIX confirmation lenses that support or contradict the decision chart.",
+      "commands": [
+        "node scripts/generate-market-lens-state.cjs",
+        "node scripts/inject-market-lens-home.cjs"
       ]
     },
     {

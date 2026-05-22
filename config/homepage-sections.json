@@ -1,10 +1,10 @@
 {
-  "version": 1,
-  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator.",
+  "version": 2,
+  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections.",
   "baseline": {
-    "description": "Create disposable HTML shell before operational sections are injected.",
+    "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
-      "node scripts/render-operating-brain-home.cjs"
+      "node scripts/render-homepage-shell.cjs"
     ]
   },
   "sections": [
@@ -15,6 +15,8 @@
       "required": true,
       "description": "Top verdict: what the chart and macro tape are saying.",
       "commands": [
+        "node scripts/generate-operational-chart-state.cjs",
+        "node scripts/generate-confirmation-state.cjs",
         "node scripts/generate-market-decision-brief-state.cjs",
         "node scripts/inject-market-decision-brief-home.cjs"
       ]

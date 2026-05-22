@@ -1,43 +1,18 @@
 {
-  "generatedAt": "2026-05-22T11:02:01.441Z",
+  "generatedAt": "2026-05-22T12:21:05.729Z",
   "runMode": "LOCAL_TICKER_GATE_AUDIT_NO_WEB_SEARCH",
   "status": "ACTIVE",
   "policy": "Every ticker must carry primary evidence, price zone, invalidation, risk budget, and portfolio role before promotion. Degraded/local mode blocks missing primary evidence rather than inventing it.",
   "counts": {
-    "tickers": 30,
-    "pass": 4,
-    "blocked": 26,
-    "holdings": 14,
+    "tickers": 27,
+    "pass": 26,
+    "blocked": 1,
+    "holdings": 11,
     "candidates": 16
   },
   "blockedByGate": {
     "primaryEvidence": [
-      "AMZN",
-      "AVGO",
-      "BMNR",
-      "CCJ",
-      "CEG",
-      "DOGE",
-      "ETN",
-      "GEV",
-      "GOOGL",
-      "HIMS",
-      "MA",
-      "META",
-      "MSFT",
-      "NFLX",
-      "NVDA",
-      "NXT",
-      "OKLO",
-      "PLTR",
-      "PWR",
-      "RDDT",
-      "RKLB",
-      "TMDX",
-      "TSNF",
-      "VOYG-35C-2027",
-      "VRT",
-      "VST"
+      "TSNF"
     ],
     "priceZone": [],
     "invalidation": [],
@@ -48,32 +23,48 @@
     {
       "ticker": "AMZN",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001018724.json",
+          "entityName": "AMAZON COM INC",
+          "cik": "0001018724",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-30"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-29"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-14"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 264,
-          "entryLow": 243,
-          "entryHigh": 254,
-          "addBelow": 238,
-          "trimLow": 296,
-          "trimHigh": 317,
-          "stop": 227,
-          "hardExit": 217,
-          "target": 312,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 269,
+          "entryLow": 247,
+          "entryHigh": 258,
+          "addBelow": 242,
+          "trimLow": 301,
+          "trimHigh": 322,
+          "stop": 231,
+          "hardExit": 220,
+          "target": 317,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -101,31 +92,47 @@
     {
       "ticker": "AVGO",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001730168.json",
+          "entityName": "Broadcom Inc.",
+          "cik": "0001730168",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-21"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-06"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-02"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 412,
-          "entryLow": 379,
-          "entryHigh": 396,
-          "addBelow": 371,
-          "trimLow": 462,
-          "trimHigh": 495,
-          "stop": 354,
-          "hardExit": 338,
-          "target": 486,
+          "current": 416,
+          "entryLow": 383,
+          "entryHigh": 399,
+          "addBelow": 374,
+          "trimLow": 466,
+          "trimHigh": 499,
+          "stop": 358,
+          "hardExit": 341,
+          "target": 491,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -154,32 +161,48 @@
     {
       "ticker": "BMNR",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001829311.json",
+          "entityName": "BITMINE IMMERSION TECHNOLOGIES, INC.",
+          "cik": "0001829311",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-18"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-11"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-04"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "spec dynamic band from current price",
-          "current": 19.26,
-          "entryLow": 16.95,
-          "entryHigh": 17.91,
+          "current": 19.67,
+          "entryLow": 17.31,
+          "entryHigh": 18.29,
           "addBelow": null,
-          "trimLow": 20.8,
-          "trimHigh": 22.15,
-          "stop": 17.33,
-          "hardExit": 16.37,
-          "target": 21.96,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "trimLow": 21.24,
+          "trimHigh": 22.62,
+          "stop": 17.7,
+          "hardExit": 16.72,
+          "target": 22.42,
+          "note": "Thesis/liquidity/downside proof required before capital."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -207,31 +230,34 @@
     {
       "ticker": "CCJ",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001009001.json",
+          "entityName": "CAMECO CORP",
+          "cik": "0001009001",
+          "recentMaterialFilings": [],
+          "note": "SEC entity/CIK attached but no recent material filings loaded in local snapshot; full filing/companyfacts fetch still required before promotion."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 104,
-          "entryLow": 95.96,
-          "entryHigh": 100,
-          "addBelow": 93.87,
-          "trimLow": 117,
-          "trimHigh": 125,
-          "stop": 89.7,
-          "hardExit": 85.53,
-          "target": 123,
+          "current": 107,
+          "entryLow": 98.26,
+          "entryHigh": 103,
+          "addBelow": 96.12,
+          "trimLow": 120,
+          "trimHigh": 128,
+          "stop": 91.85,
+          "hardExit": 87.58,
+          "target": 126,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -260,32 +286,48 @@
     {
       "ticker": "CEG",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001868275.json",
+          "entityName": "Constellation Energy Corp",
+          "cik": "0001868275",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-11"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-11"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-01"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "watch dynamic band from current price",
-          "current": 281,
-          "entryLow": 253,
-          "entryHigh": 264,
-          "addBelow": 244,
-          "trimLow": 309,
-          "trimHigh": 326,
-          "stop": 247,
-          "hardExit": 236,
-          "target": 323,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 288,
+          "entryLow": 259,
+          "entryHigh": 271,
+          "addBelow": 251,
+          "trimLow": 317,
+          "trimHigh": 334,
+          "stop": 253,
+          "hardExit": 242,
+          "target": 331,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -313,7 +355,7 @@
     {
       "ticker": "CONL",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -331,7 +373,7 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "fixed tactical levels",
-          "current": 7.79,
+          "current": 7.99,
           "entryLow": 8.2,
           "entryHigh": 8.6,
           "addBelow": 8.2,
@@ -340,7 +382,7 @@
           "stop": 7.8,
           "hardExit": 7.7,
           "target": 10,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "note": "Below entry zone 8.2-8.6; wait for reclaim unless capitulation-bounce rule is explicitly chosen."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -366,86 +408,49 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
-      "ticker": "DOGE",
-      "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
-      "gates": {
-        "primaryEvidence": {
-          "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
-        },
-        "priceZone": {
-          "gate": "priceZone",
-          "status": "PASS",
-          "basis": "fixed tactical levels",
-          "current": 0.1035,
-          "entryLow": 0.105,
-          "entryHigh": 0.115,
-          "addBelow": 0.105,
-          "trimLow": 0.135,
-          "trimHigh": 0.155,
-          "stop": 0.098,
-          "hardExit": 0.092,
-          "target": 0.15,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-        },
-        "invalidation": {
-          "gate": "invalidation",
-          "status": "PASS",
-          "rule": "Meme/liquidity thesis fails.",
-          "source": "strategy rules"
-        },
-        "riskBudget": {
-          "gate": "riskBudget",
-          "status": "PASS",
-          "budgetType": "starter/speculative",
-          "maxPositionPct": 0.5,
-          "maxLossPct": 0.25,
-          "rule": "Research-only. If promoted, start tiny; max loss must be pre-accepted."
-        },
-        "portfolioRole": {
-          "gate": "portfolioRole",
-          "status": "PASS",
-          "role": "Speculative crypto beta; useful only as small risk bucket, not core compounder.",
-          "concentrationCheck": "current holding"
-        }
-      },
-      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
-    },
-    {
       "ticker": "ETN",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001551182.json",
+          "entityName": "Eaton Corp plc",
+          "cik": "0001551182",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-05"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-05"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-23"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 373,
-          "entryLow": 343,
-          "entryHigh": 358,
-          "addBelow": 336,
-          "trimLow": 418,
-          "trimHigh": 448,
-          "stop": 321,
-          "hardExit": 306,
-          "target": 440,
+          "current": 383,
+          "entryLow": 353,
+          "entryHigh": 368,
+          "addBelow": 345,
+          "trimLow": 429,
+          "trimHigh": 460,
+          "stop": 330,
+          "hardExit": 314,
+          "target": 452,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -474,31 +479,47 @@
     {
       "ticker": "GEV",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001996810.json",
+          "entityName": "GE Vernova Inc.",
+          "cik": "0001996810",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-22"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-22"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-02-04"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 1014,
-          "entryLow": 933,
-          "entryHigh": 973,
-          "addBelow": 913,
-          "trimLow": 1136,
-          "trimHigh": 1217,
-          "stop": 872,
-          "hardExit": 831,
-          "target": 1196,
+          "current": 1050,
+          "entryLow": 966,
+          "entryHigh": 1008,
+          "addBelow": 945,
+          "trimLow": 1176,
+          "trimHigh": 1260,
+          "stop": 903,
+          "hardExit": 861,
+          "target": 1239,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -527,31 +548,47 @@
     {
       "ticker": "GOOGL",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001652044.json",
+          "entityName": "Alphabet Inc.",
+          "cik": "0001652044",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-21"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-11"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-30"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 390,
-          "entryLow": 359,
-          "entryHigh": 375,
-          "addBelow": 351,
-          "trimLow": 437,
-          "trimHigh": 468,
-          "stop": 336,
-          "hardExit": 320,
-          "target": 461,
+          "current": 389,
+          "entryLow": 358,
+          "entryHigh": 374,
+          "addBelow": 350,
+          "trimLow": 436,
+          "trimHigh": 467,
+          "stop": 335,
+          "hardExit": 319,
+          "target": 459,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -580,31 +617,47 @@
     {
       "ticker": "HIMS",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001773751.json",
+          "entityName": "Hims & Hers Health, Inc.",
+          "cik": "0001773751",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-21"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-19"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-11"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 22.5,
-          "entryLow": 20.7,
-          "entryHigh": 21.6,
-          "addBelow": 20.25,
-          "trimLow": 25.2,
-          "trimHigh": 27,
-          "stop": 19.35,
-          "hardExit": 18.45,
-          "target": 26.55,
+          "current": 23.97,
+          "entryLow": 22.05,
+          "entryHigh": 23.01,
+          "addBelow": 21.57,
+          "trimLow": 26.85,
+          "trimHigh": 28.76,
+          "stop": 20.61,
+          "hardExit": 19.66,
+          "target": 28.28,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -633,7 +686,7 @@
     {
       "ticker": "IBIT",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -651,15 +704,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 43.46,
-          "entryLow": 39.98,
-          "entryHigh": 41.72,
-          "addBelow": 39.11,
-          "trimLow": 48.68,
-          "trimHigh": 52.15,
-          "stop": 37.38,
-          "hardExit": 35.64,
-          "target": 51.28,
+          "current": 43.91,
+          "entryLow": 40.4,
+          "entryHigh": 42.15,
+          "addBelow": 39.52,
+          "trimLow": 49.18,
+          "trimHigh": 52.69,
+          "stop": 37.76,
+          "hardExit": 36.01,
+          "target": 51.81,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -688,32 +741,48 @@
     {
       "ticker": "MA",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001141391.json",
+          "entityName": "Mastercard Inc",
+          "cik": "0001141391",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-07"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-30"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-30"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 497,
-          "entryLow": 457,
-          "entryHigh": 477,
-          "addBelow": 447,
-          "trimLow": 557,
-          "trimHigh": 596,
-          "stop": 427,
-          "hardExit": 407,
-          "target": 586,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 500,
+          "entryLow": 460,
+          "entryHigh": 480,
+          "addBelow": 450,
+          "trimLow": 561,
+          "trimHigh": 601,
+          "stop": 430,
+          "hardExit": 410,
+          "target": 591,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -741,32 +810,48 @@
     {
       "ticker": "META",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001326801.json",
+          "entityName": "Meta Platforms, Inc.",
+          "cik": "0001326801",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-04"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-30"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-29"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 603,
-          "entryLow": 555,
-          "entryHigh": 579,
-          "addBelow": 543,
-          "trimLow": 676,
-          "trimHigh": 724,
-          "stop": 519,
-          "hardExit": 495,
-          "target": 712,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 607,
+          "entryLow": 559,
+          "entryHigh": 583,
+          "addBelow": 547,
+          "trimLow": 680,
+          "trimHigh": 729,
+          "stop": 522,
+          "hardExit": 498,
+          "target": 717,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -794,32 +879,48 @@
     {
       "ticker": "MSFT",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0000789019.json",
+          "entityName": "MICROSOFT CORP",
+          "cik": "0000789019",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-14"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-29"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-29"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 418,
-          "entryLow": 385,
-          "entryHigh": 402,
-          "addBelow": 377,
-          "trimLow": 469,
-          "trimHigh": 502,
-          "stop": 360,
-          "hardExit": 343,
-          "target": 494,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 420,
+          "entryLow": 386,
+          "entryHigh": 403,
+          "addBelow": 378,
+          "trimLow": 470,
+          "trimHigh": 504,
+          "stop": 361,
+          "hardExit": 344,
+          "target": 496,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -847,32 +948,48 @@
     {
       "ticker": "NFLX",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001065280.json",
+          "entityName": "NETFLIX INC",
+          "cik": "0001065280",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-23"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-17"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-16"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "watch dynamic band from current price",
-          "current": 87.87,
-          "entryLow": 79.08,
-          "entryHigh": 82.6,
-          "addBelow": 76.45,
-          "trimLow": 96.66,
-          "trimHigh": 102,
-          "stop": 77.33,
-          "hardExit": 73.81,
-          "target": 101,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 89.85,
+          "entryLow": 80.86,
+          "entryHigh": 84.46,
+          "addBelow": 78.17,
+          "trimLow": 98.84,
+          "trimHigh": 104,
+          "stop": 79.07,
+          "hardExit": 75.47,
+          "target": 103,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -900,31 +1017,47 @@
     {
       "ticker": "NVDA",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001045810.json",
+          "entityName": "NVIDIA CORP",
+          "cik": "0001045810",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-20"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-20"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-08"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 223,
-          "entryLow": 205,
-          "entryHigh": 214,
-          "addBelow": 200,
-          "trimLow": 249,
-          "trimHigh": 267,
-          "stop": 191,
-          "hardExit": 183,
-          "target": 263,
+          "current": 221,
+          "entryLow": 203,
+          "entryHigh": 212,
+          "addBelow": 199,
+          "trimLow": 247,
+          "trimHigh": 265,
+          "stop": 190,
+          "hardExit": 181,
+          "target": 260,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -953,31 +1086,47 @@
     {
       "ticker": "NXT",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001852131.json",
+          "entityName": "Nextpower Inc.",
+          "cik": "0001852131",
+          "recentMaterialFilings": [
+            {
+              "form": "10-K",
+              "filingDate": "2026-05-19"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-12"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-29"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 130,
-          "entryLow": 119,
-          "entryHigh": 125,
-          "addBelow": 117,
-          "trimLow": 145,
-          "trimHigh": 156,
-          "stop": 112,
-          "hardExit": 106,
-          "target": 153,
+          "current": 123,
+          "entryLow": 113,
+          "entryHigh": 118,
+          "addBelow": 110,
+          "trimLow": 137,
+          "trimHigh": 147,
+          "stop": 105,
+          "hardExit": 100,
+          "target": 145,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1006,31 +1155,47 @@
     {
       "ticker": "OKLO",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001849056.json",
+          "entityName": "Oklo Inc.",
+          "cik": "0001849056",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-13"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-12"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-14"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 56.04,
-          "entryLow": 51.56,
-          "entryHigh": 53.8,
-          "addBelow": 50.44,
-          "trimLow": 62.76,
-          "trimHigh": 67.25,
-          "stop": 48.19,
-          "hardExit": 45.95,
-          "target": 66.13,
+          "current": 67.12,
+          "entryLow": 61.75,
+          "entryHigh": 64.44,
+          "addBelow": 60.41,
+          "trimLow": 75.17,
+          "trimHigh": 80.54,
+          "stop": 57.72,
+          "hardExit": 55.04,
+          "target": 79.2,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1059,31 +1224,47 @@
     {
       "ticker": "PLTR",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001321655.json",
+          "entityName": "Palantir Technologies Inc.",
+          "cik": "0001321655",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-05"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-04"
+            },
+            {
+              "form": "10-K",
+              "filingDate": "2026-02-17"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 135,
-          "entryLow": 124,
-          "entryHigh": 130,
-          "addBelow": 122,
-          "trimLow": 152,
-          "trimHigh": 162,
-          "stop": 116,
-          "hardExit": 111,
-          "target": 160,
+          "current": 138,
+          "entryLow": 127,
+          "entryHigh": 132,
+          "addBelow": 124,
+          "trimLow": 154,
+          "trimHigh": 165,
+          "stop": 118,
+          "hardExit": 113,
+          "target": 163,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1112,31 +1293,47 @@
     {
       "ticker": "PWR",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001050915.json",
+          "entityName": "QUANTA SERVICES, INC.",
+          "cik": "0001050915",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-30"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-30"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-16"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 719,
-          "entryLow": 662,
-          "entryHigh": 690,
-          "addBelow": 647,
-          "trimLow": 805,
-          "trimHigh": 863,
-          "stop": 618,
-          "hardExit": 590,
-          "target": 848,
+          "current": 732,
+          "entryLow": 673,
+          "entryHigh": 703,
+          "addBelow": 659,
+          "trimLow": 820,
+          "trimHigh": 878,
+          "stop": 629,
+          "hardExit": 600,
+          "target": 864,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1165,31 +1362,47 @@
     {
       "ticker": "RDDT",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001713445.json",
+          "entityName": "Reddit, Inc.",
+          "cik": "0001713445",
+          "recentMaterialFilings": [
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-01"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-30"
+            },
+            {
+              "form": "10-K",
+              "filingDate": "2026-02-06"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 156,
-          "entryLow": 143,
-          "entryHigh": 149,
-          "addBelow": 140,
-          "trimLow": 174,
-          "trimHigh": 187,
-          "stop": 134,
-          "hardExit": 128,
-          "target": 184,
+          "current": 150,
+          "entryLow": 138,
+          "entryHigh": 144,
+          "addBelow": 135,
+          "trimLow": 168,
+          "trimHigh": 180,
+          "stop": 129,
+          "hardExit": 123,
+          "target": 177,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1218,31 +1431,47 @@
     {
       "ticker": "RKLB",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001819994.json",
+          "entityName": "Rocket Lab Corp",
+          "cik": "0001819994",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-21"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-20"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-08"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 127,
-          "entryLow": 117,
-          "entryHigh": 122,
-          "addBelow": 115,
-          "trimLow": 143,
-          "trimHigh": 153,
-          "stop": 109,
-          "hardExit": 104,
-          "target": 150,
+          "current": 130,
+          "entryLow": 119,
+          "entryHigh": 125,
+          "addBelow": 117,
+          "trimLow": 145,
+          "trimHigh": 156,
+          "stop": 112,
+          "hardExit": 106,
+          "target": 153,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1271,7 +1500,7 @@
     {
       "ticker": "SPY",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1279,24 +1508,27 @@
         "primaryEvidence": {
           "gate": "primaryEvidence",
           "status": "PASS",
-          "sourceType": "issuer/ETF structure",
-          "source": "SPDR S&P 500 ETF Trust; market proxy instrument",
-          "note": "ETF primary issuer/prospectus evidence should be refreshed in Phase 3, but SPY is treated as benchmark/core proxy."
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0000884394.json",
+          "entityName": "SPDR S&P 500 ETF TRUST",
+          "cik": "0000884394",
+          "recentMaterialFilings": [],
+          "note": "SEC entity/CIK attached but no recent material filings loaded in local snapshot; full filing/companyfacts fetch still required before promotion."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 738,
-          "entryLow": 679,
-          "entryHigh": 709,
-          "addBelow": 665,
-          "trimLow": 827,
-          "trimHigh": 886,
-          "stop": 635,
-          "hardExit": 605,
-          "target": 871,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 746,
+          "entryLow": 686,
+          "entryHigh": 716,
+          "addBelow": 671,
+          "trimLow": 835,
+          "trimHigh": 895,
+          "stop": 642,
+          "hardExit": 612,
+          "target": 880,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1324,31 +1556,47 @@
     {
       "ticker": "TMDX",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001756262.json",
+          "entityName": "TransMedics Group, Inc.",
+          "cik": "0001756262",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-21"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-05-05"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-05-05"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 66.85,
-          "entryLow": 61.5,
-          "entryHigh": 64.18,
-          "addBelow": 60.16,
-          "trimLow": 74.87,
-          "trimHigh": 80.22,
-          "stop": 57.49,
-          "hardExit": 54.82,
-          "target": 78.88,
+          "current": 68,
+          "entryLow": 62.56,
+          "entryHigh": 65.28,
+          "addBelow": 61.2,
+          "trimLow": 76.16,
+          "trimHigh": 81.6,
+          "stop": 58.48,
+          "hardExit": 55.76,
+          "target": 80.24,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1377,7 +1625,7 @@
     {
       "ticker": "TSLT",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1395,7 +1643,7 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "fixed tactical levels",
-          "current": 20.2,
+          "current": 20.77,
           "entryLow": 20.5,
           "entryHigh": 22,
           "addBelow": 20.5,
@@ -1404,7 +1652,7 @@
           "stop": 19,
           "hardExit": 18.25,
           "target": 28,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "note": "Inside entry zone 20.5-22, but action still needs signal/thesis/risk confirmation."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1432,7 +1680,7 @@
     {
       "ticker": "TSNF",
       "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence.",
@@ -1448,16 +1696,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "spec dynamic band from current price",
-          "current": 29.99,
-          "entryLow": 26.39,
-          "entryHigh": 27.89,
+          "current": 31.32,
+          "entryLow": 27.56,
+          "entryHigh": 29.13,
           "addBelow": null,
-          "trimLow": 32.39,
-          "trimHigh": 34.49,
-          "stop": 26.99,
-          "hardExit": 25.49,
-          "target": 34.19,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "trimLow": 33.83,
+          "trimHigh": 36.02,
+          "stop": 28.19,
+          "hardExit": 26.62,
+          "target": 35.7,
+          "note": "Thesis/liquidity/downside proof required before capital."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1483,86 +1731,49 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
-      "ticker": "VOYG-35C-2027",
-      "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
-      "gates": {
-        "primaryEvidence": {
-          "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
-        },
-        "priceZone": {
-          "gate": "priceZone",
-          "status": "PASS",
-          "basis": "fixed tactical levels",
-          "current": 1340,
-          "entryLow": 850,
-          "entryHigh": 980,
-          "addBelow": 850,
-          "trimLow": 1350,
-          "trimHigh": 1600,
-          "stop": 700,
-          "hardExit": 600,
-          "target": 1500,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-        },
-        "invalidation": {
-          "gate": "invalidation",
-          "status": "PASS",
-          "rule": "No clear catalyst plus time decay/IV risk.",
-          "source": "strategy rules"
-        },
-        "riskBudget": {
-          "gate": "riskBudget",
-          "status": "PASS",
-          "budgetType": "starter/speculative",
-          "maxPositionPct": 0.5,
-          "maxLossPct": 0.25,
-          "rule": "Research-only. If promoted, start tiny; max loss must be pre-accepted."
-        },
-        "portfolioRole": {
-          "gate": "portfolioRole",
-          "status": "PASS",
-          "role": "Asymmetric upside through a dated call option; requires underlying VOYG thesis and catalyst path.",
-          "concentrationCheck": "current holding"
-        }
-      },
-      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
-    },
-    {
       "ticker": "VRT",
       "universe": "candidate",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "generatedAt": "2026-05-22T12:21:05.729Z",
+      "gateStatus": "PASS",
+      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
+      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
+          "status": "PASS",
+          "sourceType": "SEC submissions JSON",
+          "sourceUrl": "https://data.sec.gov/submissions/CIK0001674101.json",
+          "entityName": "Vertiv Holdings Co",
+          "cik": "0001674101",
+          "recentMaterialFilings": [
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-27"
+            },
+            {
+              "form": "10-Q",
+              "filingDate": "2026-04-22"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-04-22"
+            }
+          ],
+          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 326,
-          "entryLow": 300,
-          "entryHigh": 313,
-          "addBelow": 293,
-          "trimLow": 365,
-          "trimHigh": 391,
-          "stop": 280,
-          "hardExit": 267,
-          "target": 384,
+          "current": 334,
+          "entryLow": 308,
+          "entryHigh": 321,
+          "addBelow": 301,
+          "trimLow": 374,
+          "trimHigh": 401,
+          "stop": 288,
+          "hardExit": 274,
+          "target": 394,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1584,59 +1795,6 @@
           "status": "PASS",
           "role": "power/grid infrastructure opportunity lane",
           "concentrationCheck": "candidate; must check overlap before promotion"
-        }
-      },
-      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
-    },
-    {
-      "ticker": "VST",
-      "universe": "holding",
-      "generatedAt": "2026-05-22T11:02:01.441Z",
-      "gateStatus": "BLOCKED",
-      "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
-      "gates": {
-        "primaryEvidence": {
-          "gate": "primaryEvidence",
-          "status": "BLOCK",
-          "sourceType": "primary evidence required",
-          "sourceUrl": null,
-          "note": "No SEC/issuer/company primary evidence attached in local state."
-        },
-        "priceZone": {
-          "gate": "priceZone",
-          "status": "PASS",
-          "basis": "watch dynamic band from current price",
-          "current": 144,
-          "entryLow": 129,
-          "entryHigh": 135,
-          "addBelow": 125,
-          "trimLow": 158,
-          "trimHigh": 167,
-          "stop": 127,
-          "hardExit": 121,
-          "target": 165,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-        },
-        "invalidation": {
-          "gate": "invalidation",
-          "status": "PASS",
-          "rule": "Power-demand upside fails to translate into durable earnings/cash-flow or position becomes duplicate CEG exposure without better risk/reward.",
-          "source": "strategy rules"
-        },
-        "riskBudget": {
-          "gate": "riskBudget",
-          "status": "PASS",
-          "budgetType": "starter/research",
-          "maxPositionPct": 1,
-          "maxLossPct": 0.5,
-          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
-        },
-        "portfolioRole": {
-          "gate": "portfolioRole",
-          "status": "PASS",
-          "role": "Power generation and electricity demand exposure tied to data-center/AI load growth; validate valuation, merchant power risk, regulatory exposure, and overlap with CEG.",
-          "concentrationCheck": "current holding"
         }
       },
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."

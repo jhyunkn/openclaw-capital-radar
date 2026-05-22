@@ -1,6 +1,6 @@
 {
-  "version": 9,
-  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections. Compact tabs summarize completed artifacts and therefore run after source sections are generated.",
+  "version": 10,
+  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections. Compact tabs remain available as a standalone script until trust artifact generation is isolated for production.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -100,9 +100,9 @@
     {
       "id": "decision-tabs-section",
       "name": "Decision Tabs",
-      "enabled": true,
+      "enabled": false,
       "required": false,
-      "description": "Compact 5-tab digest for Market, Route, Holdings, Opportunity and Trust. Runs last so it can summarize all generated artifacts.",
+      "description": "Compact 5-tab digest for Market, Route, Holdings, Opportunity and Trust. Temporarily disabled in manifest while trust artifacts are isolated.",
       "commands": [
         "node scripts/generate-zone-authority-audit.cjs",
         "node scripts/generate-strategy-route-validation.cjs",

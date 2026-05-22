@@ -1,6 +1,6 @@
 {
-  "version": 11,
-  "policy": "Capital Radar builds decision-grade artifacts, then renders the homepage through one canonical operational-home orchestrator. Legacy homepage composition scripts are not part of the production path.",
+  "version": 12,
+  "policy": "Capital Radar builds decision-grade artifacts, allows the legacy homepage compatibility stage to satisfy dependent validators, then renders the production homepage through the canonical manifest-driven ship orchestrator.",
   "stages": [
     {
       "name": "base-data",
@@ -74,6 +74,17 @@
       ]
     },
     {
+      "name": "homepage-compatibility",
+      "description": "Compatibility-only stage for legacy validators and artifacts. This stage must not be treated as production homepage authority; ship overwrites the final homepage.",
+      "commands": [
+        "node scripts/finalize-homepage-composition.cjs",
+        "node scripts/compose-compressed-homepage.cjs",
+        "node scripts/inject-market-orientation-homepage.cjs",
+        "node scripts/inject-decision-trust-layer.cjs",
+        "node scripts/inject-proportion-tuning.cjs"
+      ]
+    },
+    {
       "name": "validation",
       "commands": [
         "node scripts/validate-research-engine.cjs",
@@ -101,6 +112,10 @@
         "node scripts/validate-portfolio-translation-state.cjs",
         "node scripts/validate-opportunity-asymmetry-state.cjs",
         "node scripts/validate-strategy-state.cjs",
+        "node scripts/validate-homepage-information-hierarchy.cjs",
+        "node scripts/validate-proportion-tuning.cjs",
+        "node scripts/validate-four-section-homepage.cjs",
+        "node scripts/build-vercel.cjs",
         "node scripts/validate-operational-sections.cjs",
         "node scripts/validate-native-research-engine.cjs",
         "node scripts/validate-ticker-gate-audit.cjs",

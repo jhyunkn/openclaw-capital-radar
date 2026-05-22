@@ -1,6 +1,6 @@
 {
-  "version": 10,
-  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections. Compact tabs remain available as a standalone script until trust artifact generation is isolated for production.",
+  "version": 11,
+  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections. Decision Tabs are intentionally parked; the homepage consolidates through five operating sections plus a lightweight trust strip.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -10,10 +10,10 @@
   "sections": [
     {
       "id": "decision-brief-section",
-      "name": "Market Decision Brief",
+      "name": "Market Regime",
       "enabled": true,
       "required": true,
-      "description": "Top verdict: what the chart and macro tape are saying.",
+      "description": "Top market verdict and macro values.",
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
@@ -23,7 +23,7 @@
     },
     {
       "id": "operational-chart-section",
-      "name": "Operational Decision Chart",
+      "name": "Decision Chart",
       "enabled": true,
       "required": true,
       "description": "Real SPX working chart with OpenClaw action zones and supporting indicators.",
@@ -34,7 +34,7 @@
     },
     {
       "id": "market-lens-section",
-      "name": "Cross-Asset Market Lens",
+      "name": "Cross-Asset Lens",
       "enabled": true,
       "required": false,
       "description": "SPX, QQQ, TLT, BTC and VIX confirmation lenses that support or contradict the decision chart.",
@@ -98,16 +98,14 @@
       ]
     },
     {
-      "id": "decision-tabs-section",
-      "name": "Decision Tabs",
-      "enabled": false,
+      "id": "trust-section",
+      "name": "Trust / Data Quality",
+      "enabled": true,
       "required": false,
-      "description": "Compact 5-tab digest for Market, Route, Holdings, Opportunity and Trust. Temporarily disabled in manifest while trust artifacts are isolated.",
+      "description": "Lightweight trust strip for source authority, route consistency, and promoted-opportunity warnings.",
       "commands": [
-        "node scripts/generate-zone-authority-audit.cjs",
-        "node scripts/generate-strategy-route-validation.cjs",
-        "node scripts/generate-opportunity-reason-map.cjs",
-        "node scripts/inject-decision-tabs-home.cjs"
+        "node scripts/generate-trust-strip-state.cjs",
+        "node scripts/inject-trust-strip-home.cjs"
       ]
     }
   ],
@@ -125,14 +123,16 @@
       "spx-cycle-map-section",
       "cycle-scenario-section",
       "visual-regime-section",
-      "artifact-status-section"
+      "artifact-status-section",
+      "decision-tabs-section"
     ],
     "bannedPhrases": [
       "Evidence-backed Market Landscape",
       "Decision Posture",
       "Strategy Posture",
       "market-regine",
-      "visual regime board"
+      "visual regime board",
+      "Decision Tabs"
     ]
   }
 }

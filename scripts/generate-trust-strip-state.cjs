@@ -1,0 +1,21 @@
+const fs=require('fs');const path=require('path');
+const root=path.join(__dirname,'..');
+const read=(name,fb={})=>{for(const dir of ['outputs','public/outputs']){const f=path.join(root,dir,name);if(fs.existsSync(f)){try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{}}}return fb};
+const write=(name,data)=>{for(const dir of ['outputs','public/outputs']){const f=path.join(root,dir,name);fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,JSON.stringify(data,null,2)+'\n')}};
+const arr=v=>Array.isArray(v)?v:[];
+const holding=read('holding-zone-state.json',{summary:{},zones:[]});
+const opp=read('opportunity-asymmetry-state.json',{summary:{},opportunity_clusters:[]});
+const route=read('strategy-routing-state.json',{});
+const chart=read('operational-chart-state.json',{});
+const authCounts=holding.summary?.zone_source_counts||holding.summary?.authority_counts||{};
+const routePerms=holding.summary?.route_permissions||{};
+let promoted=0, blocked=0, candidates=0;
+for(const c of arr(opp.opportunity_clusters)){for(const t of arr(c.candidate_tickers)){candidates++; if(t.route_promotion_status==='ROUTE_PROMOTED'||t.display_as_opportunity===true)promoted++; if(t.route_promotion_status==='ROUTE_BLOCKED')blocked++;}}
+const warnings=[];
+if((authCounts.PROXY||0)+(authCounts.MISSING||0)>0)warnings.push('Some holding levels are proxy/missing and should not drive adds alone.');
+if((routePerms.ADD_REVIEW||0)>0 && String(route.add_permission||'').includes('blocked'))warnings.push('Route blocks adds but holdings show add review.');
+if(promoted>0 && String(route.opportunity_permission||'').includes('blocked'))warnings.push('Opportunity promoted while route blocks promotion.');
+if(chart.render_permission===false)warnings.push('Operational chart render permission is false.');
+const status=warnings.length?'WATCH':'PASS';
+const state={as_of:new Date().toISOString(),artifact:'trust-strip-state',status,summary:{holding_source_counts:authCounts,holding_route_permissions:routePerms,opportunity_candidates:candidates,opportunity_promoted:promoted,opportunity_blocked:blocked,strategy_route:route.route||null,add_permission:route.add_permission||null,opportunity_permission:route.opportunity_permission||null},warnings,links:['holding-zone-state.json','opportunity-asymmetry-state.json','strategy-routing-state.json','operational-chart-state.json'],render_permission:true};
+write('trust-strip-state.json',state);console.log(`trust-strip-state: ${status} warnings=${warnings.length}`);

@@ -1,0 +1,239 @@
+{
+  "generatedAt": "2026-05-22T10:34:04.919Z",
+  "status": "OK",
+  "totalMs": 18698,
+  "policy": "manifest-driven Capital Radar homepage render path",
+  "manifest": "config\\homepage-sections.json",
+  "sections": [
+    "decision-brief-section",
+    "operational-chart-section",
+    "market-lens-section",
+    "strategy-routing-section",
+    "holdings-section",
+    "opportunities-section",
+    "market-section",
+    "trust-section"
+  ],
+  "stages": [
+    {
+      "name": "baseline-home-shell",
+      "durationMs": 74,
+      "commands": [
+        {
+          "command": "node scripts/render-homepage-shell.cjs",
+          "status": "OK",
+          "durationMs": 74
+        }
+      ]
+    },
+    {
+      "name": "Market Regime",
+      "durationMs": 11725,
+      "commands": [
+        {
+          "command": "node scripts/generate-operational-chart-state.cjs",
+          "status": "OK",
+          "durationMs": 294
+        },
+        {
+          "command": "node scripts/generate-confirmation-state.cjs",
+          "status": "OK",
+          "durationMs": 74
+        },
+        {
+          "command": "node scripts/generate-market-decision-brief-state.cjs",
+          "status": "OK",
+          "durationMs": 11270
+        },
+        {
+          "command": "node scripts/inject-market-decision-brief-home.cjs",
+          "status": "OK",
+          "durationMs": 86
+        }
+      ]
+    },
+    {
+      "name": "Decision Chart",
+      "durationMs": 375,
+      "commands": [
+        {
+          "command": "node scripts/generate-operational-chart-state.cjs",
+          "status": "OK",
+          "durationMs": 286
+        },
+        {
+          "command": "node scripts/inject-operational-chart-home.cjs",
+          "status": "OK",
+          "durationMs": 89
+        }
+      ]
+    },
+    {
+      "name": "Cross-Asset Lens",
+      "durationMs": 442,
+      "commands": [
+        {
+          "command": "node scripts/generate-market-lens-state.cjs",
+          "status": "OK",
+          "durationMs": 352
+        },
+        {
+          "command": "node scripts/inject-market-lens-home.cjs",
+          "status": "OK",
+          "durationMs": 90
+        }
+      ]
+    },
+    {
+      "name": "Strategy Route",
+      "durationMs": 136,
+      "commands": [
+        {
+          "command": "node scripts/generate-strategy-routing-state.cjs",
+          "status": "OK",
+          "durationMs": 69
+        },
+        {
+          "command": "node scripts/inject-strategy-routing-home.cjs",
+          "status": "OK",
+          "durationMs": 67
+        }
+      ]
+    },
+    {
+      "name": "Holdings",
+      "durationMs": 4989,
+      "commands": [
+        {
+          "command": "node scripts/generate-research-universe-state.cjs",
+          "status": "OK",
+          "durationMs": 71
+        },
+        {
+          "command": "node scripts/run-research-collectors-safe.cjs",
+          "status": "OK",
+          "durationMs": 4394
+        },
+        {
+          "command": "node scripts/generate-institutional-source-states.cjs",
+          "status": "OK",
+          "durationMs": 68
+        },
+        {
+          "command": "node scripts/generate-holding-zone-state.cjs",
+          "status": "OK",
+          "durationMs": 71
+        },
+        {
+          "command": "node scripts/annotate-holding-zone-source.cjs",
+          "status": "OK",
+          "durationMs": 72
+        },
+        {
+          "command": "node scripts/apply-strategy-route-to-holdings.cjs",
+          "status": "OK",
+          "durationMs": 70
+        },
+        {
+          "command": "node scripts/validate-holding-zone-state.cjs",
+          "status": "OK",
+          "durationMs": 71
+        },
+        {
+          "command": "node scripts/inject-strong-holdings-cards-home.cjs",
+          "status": "OK",
+          "durationMs": 94
+        },
+        {
+          "command": "node scripts/strip-holdings-role-method-home.cjs",
+          "status": "OK",
+          "durationMs": 78
+        }
+      ]
+    },
+    {
+      "name": "Opportunity",
+      "durationMs": 414,
+      "commands": [
+        {
+          "command": "node scripts/generate-opportunity-band-state.cjs",
+          "status": "OK",
+          "durationMs": 115
+        },
+        {
+          "command": "node scripts/refine-opportunity-asymmetry-filter.cjs",
+          "status": "OK",
+          "durationMs": 72
+        },
+        {
+          "command": "node scripts/apply-strategy-route-to-opportunities.cjs",
+          "status": "OK",
+          "durationMs": 69
+        },
+        {
+          "command": "node scripts/enrich-opportunity-near-miss-diagnostics.cjs",
+          "status": "OK",
+          "durationMs": 71
+        },
+        {
+          "command": "node scripts/inject-opportunity-promotion-board-home.cjs",
+          "status": "OK",
+          "durationMs": 87
+        }
+      ]
+    },
+    {
+      "name": "Market Tape",
+      "durationMs": 139,
+      "commands": [
+        {
+          "command": "node scripts/generate-market-tape-state.cjs",
+          "status": "OK",
+          "durationMs": 67
+        },
+        {
+          "command": "node scripts/inject-market-tape-board-home.cjs",
+          "status": "OK",
+          "durationMs": 72
+        }
+      ]
+    },
+    {
+      "name": "Trust / Data Quality",
+      "durationMs": 141,
+      "commands": [
+        {
+          "command": "node scripts/generate-trust-strip-state.cjs",
+          "status": "OK",
+          "durationMs": 71
+        },
+        {
+          "command": "node scripts/inject-trust-strip-home.cjs",
+          "status": "OK",
+          "durationMs": 70
+        }
+      ]
+    },
+    {
+      "name": "cleanup-legacy-home-sections",
+      "durationMs": 255,
+      "commands": [
+        {
+          "command": "node scripts/strip-legacy-brief-strategy-home.cjs",
+          "status": "OK",
+          "durationMs": 68
+        },
+        {
+          "command": "node scripts/strip-visual-regime-home.cjs",
+          "status": "OK",
+          "durationMs": 69
+        },
+        {
+          "command": "node scripts/normalize-homepage-sections.cjs",
+          "status": "OK",
+          "durationMs": 118
+        }
+      ]
+    }
+  ]
+}

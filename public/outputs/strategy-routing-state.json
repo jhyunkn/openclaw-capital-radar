@@ -1,0 +1,83 @@
+{
+  "as_of": "2026-05-22T10:33:58.889Z",
+  "artifact": "strategy-routing-state",
+  "route_id": "rate_constrained_growth",
+  "route": "rate-constrained growth",
+  "risk_budget": "constrained",
+  "add_permission": "quality_only",
+  "trim_permission": "duration_beta",
+  "opportunity_permission": "quality_discount_only",
+  "confirmation_score": 93,
+  "market_lens_regime": "defensive pressure",
+  "inputs": {
+    "SPX": "SUPPORTIVE",
+    "QQQ": "SUPPORTIVE",
+    "TLT": "DEFENSIVE",
+    "BTC": "DEFENSIVE",
+    "VIX": "CONTAINED",
+    "operational_chart": "Near upper resistance"
+  },
+  "permissions": [
+    {
+      "domain": "Core index / broad equity",
+      "permission": "HOLD / SELECTIVE ADD",
+      "driver": "SPX SUPPORTIVE"
+    },
+    {
+      "domain": "AI / growth compounders",
+      "permission": "SELECTIVE ADD",
+      "driver": "QQQ SUPPORTIVE; TLT DEFENSIVE"
+    },
+    {
+      "domain": "Duration-sensitive growth",
+      "permission": "CONSTRAINED",
+      "driver": "TLT DEFENSIVE"
+    },
+    {
+      "domain": "Speculative liquidity / crypto beta",
+      "permission": "BLOCK",
+      "driver": "BTC DEFENSIVE; VIX CONTAINED"
+    },
+    {
+      "domain": "Opportunity promotion",
+      "permission": "QUALITY DISCOUNT ONLY",
+      "driver": "route rate-constrained growth"
+    }
+  ],
+  "blocks": [
+    "Rate pressure constrains duration/growth multiple expansion."
+  ],
+  "promotes": [
+    "Broad market trend supports holding core exposure.",
+    "Growth leadership supports AI-linked holdings and candidates.",
+    "Contained volatility supports staying invested."
+  ],
+  "action_protocol": [
+    {
+      "rule": "ADD",
+      "permission": "quality_only",
+      "condition": "Only inside ruled buy zones with source tier AUTH/PARTIAL and evidence score high."
+    },
+    {
+      "rule": "HOLD",
+      "permission": "allowed",
+      "condition": "Maintain core holdings while route is not defensive and holding remains above stop/review zone."
+    },
+    {
+      "rule": "TRIM",
+      "permission": "duration_beta",
+      "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
+    },
+    {
+      "rule": "PROMOTE OPPORTUNITY",
+      "permission": "quality_discount_only",
+      "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
+    },
+    {
+      "rule": "DEFEND",
+      "permission": "standby",
+      "condition": "Activate if SPX loses defense line or VIX enters stress."
+    }
+  ],
+  "render_permission": true
+}

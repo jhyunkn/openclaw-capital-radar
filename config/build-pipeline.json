@@ -1,6 +1,6 @@
 {
-  "version": 14,
-  "policy": "Capital Radar builds decision-grade artifacts first. Homepage validation runs only after the canonical manifest renderer has produced the operational homepage; legacy homepage compatibility is removed from the production path.",
+  "version": 15,
+  "policy": "Capital Radar builds decision-grade artifacts first. Compatibility artifact prep is a temporary, non-authoritative dependency bridge; the canonical manifest renderer remains the only production homepage authority.",
   "stages": [
     {
       "name": "base-data",
@@ -74,6 +74,18 @@
       ]
     },
     {
+      "name": "compatibility-artifact-prep",
+      "description": "Temporary dependency bridge for legacy validators/artifacts. This stage is non-authoritative and must not be treated as production homepage rendering.",
+      "commands": [
+        "node scripts/finalize-homepage-composition.cjs",
+        "node scripts/compose-compressed-homepage.cjs",
+        "node scripts/inject-market-orientation-homepage.cjs",
+        "node scripts/inject-decision-trust-layer.cjs",
+        "node scripts/inject-proportion-tuning.cjs",
+        "node scripts/audit-homepage-compatibility-dependencies.cjs"
+      ]
+    },
+    {
       "name": "validation",
       "commands": [
         "node scripts/validate-research-engine.cjs",
@@ -101,6 +113,10 @@
         "node scripts/validate-portfolio-translation-state.cjs",
         "node scripts/validate-opportunity-asymmetry-state.cjs",
         "node scripts/validate-strategy-state.cjs",
+        "node scripts/validate-homepage-information-hierarchy.cjs",
+        "node scripts/validate-proportion-tuning.cjs",
+        "node scripts/validate-four-section-homepage.cjs",
+        "node scripts/build-vercel.cjs",
         "node scripts/validate-operational-sections.cjs",
         "node scripts/validate-native-research-engine.cjs",
         "node scripts/validate-ticker-gate-audit.cjs",

@@ -1,6 +1,6 @@
 {
-  "version": 8,
-  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections.",
+  "version": 9,
+  "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections. Compact tabs summarize completed artifacts and therefore run after source sections are generated.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -8,19 +8,6 @@
     ]
   },
   "sections": [
-    {
-      "id": "decision-tabs-section",
-      "name": "Decision Tabs",
-      "enabled": true,
-      "required": false,
-      "description": "Compact 5-tab digest for Market, Route, Holdings, Opportunity and Trust.",
-      "commands": [
-        "node scripts/generate-zone-authority-audit.cjs",
-        "node scripts/generate-strategy-route-validation.cjs",
-        "node scripts/generate-opportunity-reason-map.cjs",
-        "node scripts/inject-decision-tabs-home.cjs"
-      ]
-    },
     {
       "id": "decision-brief-section",
       "name": "Market Decision Brief",
@@ -108,6 +95,19 @@
       "commands": [
         "node scripts/generate-market-tape-state.cjs",
         "node scripts/inject-market-tape-board-home.cjs"
+      ]
+    },
+    {
+      "id": "decision-tabs-section",
+      "name": "Decision Tabs",
+      "enabled": true,
+      "required": false,
+      "description": "Compact 5-tab digest for Market, Route, Holdings, Opportunity and Trust. Runs last so it can summarize all generated artifacts.",
+      "commands": [
+        "node scripts/generate-zone-authority-audit.cjs",
+        "node scripts/generate-strategy-route-validation.cjs",
+        "node scripts/generate-opportunity-reason-map.cjs",
+        "node scripts/inject-decision-tabs-home.cjs"
       ]
     }
   ],

@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "policy": "Homepage assembly is manifest-driven so sections can be reordered, added, disabled, or validated without rewriting the orchestrator. The baseline shell is clean and contains no legacy operating-brain sections.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
@@ -41,6 +41,17 @@
       "commands": [
         "node scripts/generate-market-lens-state.cjs",
         "node scripts/inject-market-lens-home.cjs"
+      ]
+    },
+    {
+      "id": "strategy-routing-section",
+      "name": "Strategy Route",
+      "enabled": true,
+      "required": false,
+      "description": "Cross-asset lens translated into portfolio permission, risk budget and opportunity promotion rules.",
+      "commands": [
+        "node scripts/generate-strategy-routing-state.cjs",
+        "node scripts/inject-strategy-routing-home.cjs"
       ]
     },
     {

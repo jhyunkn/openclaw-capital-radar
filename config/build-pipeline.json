@@ -1,6 +1,6 @@
 {
-  "version": 12,
-  "policy": "Capital Radar builds decision-grade artifacts, allows the legacy homepage compatibility stage to satisfy dependent validators, then renders the production homepage through the canonical manifest-driven ship orchestrator.",
+  "version": 13,
+  "policy": "Capital Radar builds decision-grade artifacts, then renders production through the canonical manifest-driven homepage orchestrator. Legacy homepage compatibility is removed from the production path.",
   "stages": [
     {
       "name": "base-data",
@@ -71,17 +71,6 @@
         "node scripts/generate-authoritative-action-state.cjs",
         "node scripts/validate-authoritative-action-specificity.cjs",
         "node scripts/inject-authoritative-action-state.cjs"
-      ]
-    },
-    {
-      "name": "homepage-compatibility",
-      "description": "Compatibility-only stage for legacy validators and artifacts. This stage must not be treated as production homepage authority; ship overwrites the final homepage.",
-      "commands": [
-        "node scripts/finalize-homepage-composition.cjs",
-        "node scripts/compose-compressed-homepage.cjs",
-        "node scripts/inject-market-orientation-homepage.cjs",
-        "node scripts/inject-decision-trust-layer.cjs",
-        "node scripts/inject-proportion-tuning.cjs"
       ]
     },
     {

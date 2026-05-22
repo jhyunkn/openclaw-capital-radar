@@ -1,6 +1,6 @@
 {
-  "version": 14,
-  "policy": "Homepage assembly is macro-cycle first. The first operating section identifies the current capital cycle, pressure regime, and allocation posture. Charts are evidence layers below the macro cycle board, not the whole explanation. Deprecated tabs, visual-regime, artifact status, and duplicate market tape surfaces are phased out through cleanup.",
+  "version": 15,
+  "policy": "Homepage assembly is macro-cycle first. The first operating section identifies the current capital cycle, pressure regime, and allocation posture. Charts are evidence layers below the macro cycle board, not the whole explanation. Cleanup remains incremental: do not remove legacy dependency surfaces in the same pass as a new required macro section.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -22,6 +22,19 @@
         "node scripts/generate-trust-strip-state.cjs",
         "node scripts/generate-macro-cycle-state.cjs",
         "node scripts/inject-macro-cycle-board-home.cjs"
+      ]
+    },
+    {
+      "id": "decision-brief-section",
+      "name": "Market Regime",
+      "enabled": true,
+      "required": true,
+      "description": "Top market verdict and macro values retained temporarily as a compatibility layer until Macro Cycle Board fully replaces it.",
+      "commands": [
+        "node scripts/generate-operational-chart-state.cjs",
+        "node scripts/generate-confirmation-state.cjs",
+        "node scripts/generate-market-decision-brief-state.cjs",
+        "node scripts/inject-market-decision-brief-home.cjs"
       ]
     },
     {
@@ -93,6 +106,17 @@
       ]
     },
     {
+      "id": "market-section",
+      "name": "Market Tape",
+      "enabled": true,
+      "required": true,
+      "description": "Temporary compatibility surface. Phase out only after validators and downstream dependencies no longer require it.",
+      "commands": [
+        "node scripts/generate-market-tape-state.cjs",
+        "node scripts/inject-market-tape-board-home.cjs"
+      ]
+    },
+    {
       "id": "trust-section",
       "name": "Trust / Data Quality",
       "enabled": true,
@@ -105,7 +129,7 @@
     }
   ],
   "cleanup": {
-    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. The market tape section is phased out as redundant with Macro Cycle Board + Cross-Asset Lens.",
+    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Cleanup is intentionally conservative while Macro Cycle Board is introduced.",
     "commands": [
       "node scripts/strip-legacy-brief-strategy-home.cjs",
       "node scripts/strip-visual-regime-home.cjs",
@@ -113,15 +137,13 @@
     ],
     "legacySectionIds": [
       "brief",
-      "decision-brief-section",
       "strategy-section",
       "chart-wall-section",
       "spx-cycle-map-section",
       "cycle-scenario-section",
       "visual-regime-section",
       "artifact-status-section",
-      "decision-tabs-section",
-      "market-section"
+      "decision-tabs-section"
     ],
     "bannedPhrases": [
       "Evidence-backed Market Landscape",
@@ -129,8 +151,7 @@
       "Strategy Posture",
       "market-regine",
       "visual regime board",
-      "Decision Tabs",
-      "Market Tape"
+      "Decision Tabs"
     ]
   }
 }

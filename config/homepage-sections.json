@@ -1,6 +1,6 @@
 {
-  "version": 15,
-  "policy": "Homepage assembly is macro-cycle first. The first operating section identifies the current capital cycle, pressure regime, and allocation posture. Charts are evidence layers below the macro cycle board, not the whole explanation. Cleanup remains incremental: do not remove legacy dependency surfaces in the same pass as a new required macro section.",
+  "version": 16,
+  "policy": "Homepage assembly is macro-cycle first visually. Because section injectors place content immediately after the hero header, the Macro Cycle Board intentionally runs last so it lands first on the rendered page. Charts are evidence layers below the macro cycle board, not the whole explanation. Cleanup remains incremental.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -8,22 +8,6 @@
     ]
   },
   "sections": [
-    {
-      "id": "macro-cycle-section",
-      "name": "Macro Cycle Board",
-      "enabled": true,
-      "required": true,
-      "description": "Kostolany-inspired cycle phase, pressure regime, and allocation posture across major asset buckets.",
-      "commands": [
-        "node scripts/generate-operational-chart-state.cjs",
-        "node scripts/generate-confirmation-state.cjs",
-        "node scripts/generate-market-lens-state.cjs",
-        "node scripts/generate-strategy-routing-state.cjs",
-        "node scripts/generate-trust-strip-state.cjs",
-        "node scripts/generate-macro-cycle-state.cjs",
-        "node scripts/inject-macro-cycle-board-home.cjs"
-      ]
-    },
     {
       "id": "decision-brief-section",
       "name": "Market Regime",
@@ -125,6 +109,22 @@
       "commands": [
         "node scripts/generate-trust-strip-state.cjs",
         "node scripts/inject-trust-strip-home.cjs"
+      ]
+    },
+    {
+      "id": "macro-cycle-section",
+      "name": "Macro Cycle Board",
+      "enabled": true,
+      "required": true,
+      "description": "Kostolany-inspired cycle phase, pressure regime, broad allocation posture, and equity subcategory lens. Runs last so it renders first visually.",
+      "commands": [
+        "node scripts/generate-operational-chart-state.cjs",
+        "node scripts/generate-confirmation-state.cjs",
+        "node scripts/generate-market-lens-state.cjs",
+        "node scripts/generate-strategy-routing-state.cjs",
+        "node scripts/generate-trust-strip-state.cjs",
+        "node scripts/generate-macro-cycle-state.cjs",
+        "node scripts/inject-macro-cycle-board-home.cjs"
       ]
     }
   ],

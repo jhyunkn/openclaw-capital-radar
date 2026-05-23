@@ -60,7 +60,8 @@ html = html.replace(/<link rel="stylesheet" href="assets\/kostolany-egg-v3.css">
 html = html.replace(/<link rel="stylesheet" href="assets\/kostolany-egg-v4.css">/g, '');
 html = html.replace(/<link rel="stylesheet" href="assets\/page-tight-overflow.css">/g, '');
 html = html.replace(/<link rel="stylesheet" href="assets\/egg-board-final.css">/g, '');
-html = html.replace('</head>', '<link rel="stylesheet" href="assets/kostolany-egg-v3.css"><link rel="stylesheet" href="assets/kostolany-egg-v4.css"><link rel="stylesheet" href="assets/page-tight-overflow.css"><link rel="stylesheet" href="assets/egg-board-final.css"></head>');
+html = html.replace(/<link rel="stylesheet" href="assets\/egg-svg-refine.css">/g, '');
+html = html.replace('</head>', '<link rel="stylesheet" href="assets/kostolany-egg-v3.css"><link rel="stylesheet" href="assets/kostolany-egg-v4.css"><link rel="stylesheet" href="assets/page-tight-overflow.css"><link rel="stylesheet" href="assets/egg-board-final.css"><link rel="stylesheet" href="assets/egg-svg-refine.css"></head>');
 html = html.replace(/<a href="#kostolany-egg-section">Egg<\/a>/g, '');
 html = html.replace(/<nav class="nav">/, '<nav class="nav"><a href="#kostolany-egg-section">Egg</a>');
 html = removeExistingEggSections(html);

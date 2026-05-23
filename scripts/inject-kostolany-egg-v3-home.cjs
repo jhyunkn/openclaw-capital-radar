@@ -77,7 +77,8 @@ let html = fs.readFileSync(indexPath, 'utf8');
 
 html = html.replace(/<link rel="stylesheet" href="assets\/kostolany-egg-v3.css">/g, '');
 html = html.replace(/<link rel="stylesheet" href="assets\/kostolany-egg-v4.css">/g, '');
-html = html.replace('</head>', '<link rel="stylesheet" href="assets/kostolany-egg-v3.css"><link rel="stylesheet" href="assets/kostolany-egg-v4.css"></head>');
+html = html.replace(/<link rel="stylesheet" href="assets\/page-tight-overflow.css">/g, '');
+html = html.replace('</head>', '<link rel="stylesheet" href="assets/kostolany-egg-v3.css"><link rel="stylesheet" href="assets/kostolany-egg-v4.css"><link rel="stylesheet" href="assets/page-tight-overflow.css"></head>');
 html = html.replace(/<a href="#kostolany-egg-section">Egg<\/a>/g, '');
 html = html.replace(/<nav class="nav">/, '<nav class="nav"><a href="#kostolany-egg-section">Egg</a>');
 

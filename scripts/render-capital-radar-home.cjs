@@ -6,6 +6,10 @@ const root = path.join(__dirname, '..');
 const outputsDir = path.join(root, 'outputs');
 const manifestPath = path.join(root, 'config', 'homepage-sections.json');
 const reportPath = path.join(outputsDir, 'capital-radar-home-build-report.json');
+const bannedActiveCommands = [
+  'node scripts/enhance-decision-chart-v2.cjs',
+  'node scripts/patch-decision-chart-price-scale.cjs',
+];
 
 function loadManifest() {
   if (!fs.existsSync(manifestPath)) throw new Error(`homepage manifest missing: ${path.relative(root, manifestPath)}`);
@@ -53,6 +57,21 @@ function runGroup(name, commands, report) {
   report.stages.push({ name, durationMs: Date.now() - stageStartedAt, commands: results });
 }
 
+function validateManifest(manifest) {
+  const errors = [];
+  const activeCommands = [];
+  for (const section of manifest.sections || []) {
+    if (section.enabled === false) continue;
+    for (const command of section.commands || []) activeCommands.push(command);
+  }
+  for (const command of manifest.baseline?.commands || []) activeCommands.push(command);
+  for (const command of manifest.cleanup?.commands || []) activeCommands.push(command);
+  for (const banned of bannedActiveCommands) {
+    if (activeCommands.includes(banned)) errors.push(`banned active command still present: ${banned}`);
+  }
+  return errors;
+}
+
 function validateHomepage(manifest) {
   const indexPath = path.join(root, 'index.html');
   if (!fs.existsSync(indexPath)) return ['index.html missing'];
@@ -73,6 +92,14 @@ function validateHomepage(manifest) {
   if (html.includes('[object Object]')) errors.push('homepage leaks [object Object]');
   if (!html.includes('Operational Decision Chart')) errors.push('operational decision chart missing');
   if (!html.includes('Market Decision Brief')) errors.push('market decision brief missing');
+  const chartContainerCount = (html.match(/id=["']opclaw-operational-lwc["']/g) || []).length;
+  if (chartContainerCount !== 1) errors.push(`operational chart container count ${chartContainerCount}, expected 1`);
+  const chartRuntimeCount = (html.match(/const payload=\{"series":/g) || []).length;
+  if (chartRuntimeCount !== 1) errors.push(`operational chart runtime count ${chartRuntimeCount}, expected 1`);
+  if (!html.includes('decision-chart-rail')) errors.push('operational chart decision rail missing');
+  if (!html.includes('decision-chart-confirmation-strip')) errors.push('operational chart confirmation strip missing');
+  if (!html.includes('actionable_spx_levels_only')) errors.push('operational chart autoscale policy missing');
+  if (html.includes('scenario path lines removed from main price pane')) errors.push('legacy price-scale patch residue present');
   return errors;
 }
 
@@ -80,6 +107,9 @@ const startedAt = Date.now();
 const report = { stages: [] };
 let manifest;
 try { manifest = loadManifest(); } catch (error) { fail(error.message, report); }
+
+const manifestErrors = validateManifest(manifest);
+if (manifestErrors.length) fail(`manifest validation failed: ${manifestErrors.join('; ')}`, report);
 
 console.log('Capital Radar canonical homepage build');
 console.log(`Manifest: ${path.relative(root, manifestPath)} v${manifest.version || 'unknown'}`);

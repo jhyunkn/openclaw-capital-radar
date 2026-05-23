@@ -12,6 +12,7 @@ const html = `<!doctype html>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>OpenClaw Capital Radar</title>
   <link rel="stylesheet" href="assets/capital-radar.css"/>
+  <link rel="stylesheet" href="assets/homepage-editorial-reset.css"/>
 </head>
 <body>
   <main class="shell">

@@ -1,6 +1,6 @@
 {
-  "version": 22,
-  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. The older Macro Cycle Board remains available as a state/logic generator but is disabled from homepage rendering to avoid duplicate macro diagrams.",
+  "version": 23,
+  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. The older Macro Cycle Board remains available as a state/logic generator but is disabled from homepage rendering to avoid duplicate macro diagrams. Trust Strip is disabled from homepage rendering because trust/source diagnostics are now handled inside the active decision modules rather than as a separate web section.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -97,19 +97,16 @@
       "description": "Temporary compatibility surface. Phase out only after validators and downstream dependencies no longer require it.",
       "commands": [
         "node scripts/generate-market-tape-state.cjs",
-        "node scripts/inject-market-tape-board-home.cjs"
+        "node scripts/inject-market-tape-home-modular.cjs"
       ]
     },
     {
       "id": "trust-section",
       "name": "Trust / Data Quality",
-      "enabled": true,
+      "enabled": false,
       "required": false,
-      "description": "Lightweight trust strip for source authority, route consistency, and promoted-opportunity warnings.",
-      "commands": [
-        "node scripts/generate-trust-strip-state.cjs",
-        "node scripts/inject-trust-strip-home.cjs"
-      ]
+      "description": "Disabled from homepage. Trust/source diagnostics are represented inside Holdings, Opportunity Queue, and Market Tape instead of a separate web section.",
+      "commands": []
     },
     {
       "id": "macro-cycle-section",
@@ -138,7 +135,7 @@
     }
   ],
   "cleanup": {
-    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Cleanup now also treats the older macro-cycle board as legacy when the canonical Egg is present.",
+    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Cleanup now also treats the older macro-cycle board and Trust Strip as legacy when the canonical decision stack is present.",
     "commands": [
       "node scripts/strip-legacy-brief-strategy-home.cjs",
       "node scripts/strip-visual-regime-home.cjs",
@@ -152,6 +149,7 @@
       "cycle-scenario-section",
       "visual-regime-section",
       "macro-cycle-section",
+      "trust-section",
       "artifact-status-section",
       "decision-tabs-section"
     ],

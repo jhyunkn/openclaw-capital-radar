@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { renderKostolanyEggSection } = require('../components/radar/kostolany-egg/render.cjs');
+const { renderKostolanyEggSection } = require('../components/radar/kostolany-egg/render-modular.cjs');
 
 const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');

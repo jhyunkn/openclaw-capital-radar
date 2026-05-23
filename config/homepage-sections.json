@@ -1,6 +1,6 @@
 {
-  "version": 19,
-  "policy": "Homepage assembly is macro-cycle first visually. The approved Kostolany Egg v3 renderer runs last so it lands first on the rendered page and gives the macro-cycle visual before charts, holdings, or opportunities. A1–F notation is visible but secondary to readable macro labels; center action is capital behavior first, stress type second; visual system is restrained to green/red plus neutrals for readability.",
+  "version": 21,
+  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. The older Macro Cycle Board remains available as a state/logic generator but is disabled from homepage rendering to avoid duplicate macro diagrams.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -13,7 +13,7 @@
       "name": "Market Regime",
       "enabled": true,
       "required": true,
-      "description": "Top market verdict and macro values retained temporarily as a compatibility layer until Macro Cycle Board fully replaces it.",
+      "description": "Top market verdict and macro values retained temporarily as a compatibility layer.",
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
@@ -114,25 +114,17 @@
     {
       "id": "macro-cycle-section",
       "name": "Macro Cycle Board",
-      "enabled": true,
-      "required": true,
-      "description": "Kostolany-inspired cycle phase, pressure regime, broad allocation posture, and equity subcategory lens.",
-      "commands": [
-        "node scripts/generate-operational-chart-state.cjs",
-        "node scripts/generate-confirmation-state.cjs",
-        "node scripts/generate-market-lens-state.cjs",
-        "node scripts/generate-strategy-routing-state.cjs",
-        "node scripts/generate-trust-strip-state.cjs",
-        "node scripts/generate-macro-cycle-state.cjs",
-        "node scripts/inject-macro-cycle-board-home.cjs"
-      ]
+      "enabled": false,
+      "required": false,
+      "description": "Disabled from homepage to avoid duplicate macro diagram. Logic generation still occurs inside the Kostolany Egg section commands.",
+      "commands": []
     },
     {
       "id": "kostolany-egg-section",
       "name": "Kostolany Egg Diagram",
       "enabled": true,
       "required": true,
-      "description": "Approved v3 visual capital-cycle egg with A1-F phases, current action, stress type, driver axes, allocation guide, and equity rotation. Runs last so it renders first visually.",
+      "description": "Canonical macro-cycle visual. This is the only macro diagram rendered on the homepage.",
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
@@ -146,7 +138,7 @@
     }
   ],
   "cleanup": {
-    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Cleanup is intentionally conservative while Macro Cycle Board is introduced.",
+    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Cleanup now also treats the older macro-cycle board as legacy when the canonical Egg is present.",
     "commands": [
       "node scripts/strip-legacy-brief-strategy-home.cjs",
       "node scripts/strip-visual-regime-home.cjs",
@@ -159,6 +151,7 @@
       "spx-cycle-map-section",
       "cycle-scenario-section",
       "visual-regime-section",
+      "macro-cycle-section",
       "artifact-status-section",
       "decision-tabs-section"
     ],

@@ -6,6 +6,7 @@ const { renderOperationalChartSection, renderOperationalChartStyle } = require('
 const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
 const statePath = path.join(root, 'outputs', 'operational-chart-state.json');
+const annotationPath = path.join(root, 'outputs', 'decision-chart-annotation-state.json');
 
 function runScript(name) {
   return spawnSync(process.execPath, [path.join(__dirname, name)], { cwd: root, encoding: 'utf8', timeout: 60000 });
@@ -29,11 +30,14 @@ function removeSection(html, id) {
 if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
 if (!fs.existsSync(statePath)) runScript('generate-operational-chart-state.cjs');
 if (!fs.existsSync(statePath)) throw new Error('operational-chart-state missing');
+if (!fs.existsSync(annotationPath)) runScript('generate-decision-chart-annotation-state.cjs');
 
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+const annotationState = fs.existsSync(annotationPath) ? JSON.parse(fs.readFileSync(annotationPath, 'utf8')) : null;
 if (state.render_permission === false) process.exit(0);
 
-const section = renderOperationalChartSection(state);
+const allowedAnnotationState = annotationState && annotationState.render_permission !== false ? annotationState : null;
+const section = renderOperationalChartSection(state, allowedAnnotationState);
 const style = renderOperationalChartStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');
@@ -45,4 +49,4 @@ html = html.replace(/<a href="#operational-chart-section">Decision Chart<\/a>/g,
 html = html.replace(/<nav class="nav">/, '<nav class="nav"><a href="#operational-chart-section">Decision Chart</a>');
 html = html.replace(/(<\/header>)/, `$1${section}`);
 fs.writeFileSync(indexPath, html);
-console.log(`injected modular SPX decision map: ${state.symbol || 'SPX'}`);
+console.log(`injected modular SPX decision map: ${state.symbol || 'SPX'}${allowedAnnotationState ? ' with annotation layer' : ''}`);

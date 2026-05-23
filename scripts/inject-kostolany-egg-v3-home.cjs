@@ -45,9 +45,7 @@ function removeExistingEggSections(source) {
       '<footer',
       '</main>',
     ];
-    const candidates = nextIds
-      .map(token => html.indexOf(token, start + startToken.length))
-      .filter(index => index >= 0);
+    const candidates = nextIds.map(token => html.indexOf(token, start + startToken.length)).filter(index => index >= 0);
     const end = candidates.length ? Math.min(...candidates) : html.length;
     html = html.slice(0, start) + html.slice(end);
     start = html.indexOf(startToken);
@@ -78,7 +76,8 @@ const section = renderKostolanyEggSection(state);
 let html = fs.readFileSync(indexPath, 'utf8');
 
 html = html.replace(/<link rel="stylesheet" href="assets\/kostolany-egg-v3.css">/g, '');
-html = html.replace('</head>', '<link rel="stylesheet" href="assets/kostolany-egg-v3.css"></head>');
+html = html.replace(/<link rel="stylesheet" href="assets\/kostolany-egg-v4.css">/g, '');
+html = html.replace('</head>', '<link rel="stylesheet" href="assets/kostolany-egg-v3.css"><link rel="stylesheet" href="assets/kostolany-egg-v4.css"></head>');
 html = html.replace(/<a href="#kostolany-egg-section">Egg<\/a>/g, '');
 html = html.replace(/<nav class="nav">/, '<nav class="nav"><a href="#kostolany-egg-section">Egg</a>');
 

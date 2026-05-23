@@ -17,22 +17,65 @@ function tone(value) {
   return 'warn';
 }
 
+function buildAutoscalePolicy(bands, overlays, series) {
+  const latest = arr(series).slice(-1)[0] || {};
+  const authorized = [
+    bands.current,
+    arr(bands.add_zone)[0],
+    arr(bands.add_zone)[1],
+    bands.hold_above,
+    arr(bands.trim_zone)[0],
+    arr(bands.trim_zone)[1],
+    bands.defense_below,
+    bands.hard_risk,
+    bands.target,
+    overlays.ma50,
+    overlays.ma200,
+    latest.c,
+  ].map(Number).filter(Number.isFinite).filter(value => value > 0);
+  if (!authorized.length) return null;
+  const low = Math.min(...authorized);
+  const high = Math.max(...authorized);
+  const pad = Math.max((high - low) * 0.18, 250);
+  return {
+    authority: 'actionable_spx_levels_only',
+    scale_affecting: ['candles', 'moving_averages', 'add_zone', 'trim_zone', 'hold_above', 'defense_below', 'hard_risk', 'target', 'current_price'],
+    scale_neutral: ['volume', 'scenario_paths', 'projection_paths', 'annotation_markers', 'decision_rail', 'confirmation_strip'],
+    minValue: low - pad,
+    maxValue: high + pad,
+  };
+}
+
 function buildChartPayload(state) {
   const bands = state.action_bands || {};
   const overlays = state.chart?.overlays || {};
-  const series = arr(state.chart?.series);
+  const sourceSeries = arr(state.chart?.series);
   const events = arr(state.chart?.annotated_events);
+  const series = sourceSeries.map(row => ({
+    time: Math.floor((row.t || 0) / 1000),
+    open: row.o,
+    high: row.h,
+    low: row.l,
+    close: row.c,
+    ma20: pos(row.ma20),
+    ma50: pos(row.ma50),
+    ma200: pos(row.ma200),
+  })).filter(row => row.time && num(row.close) !== null);
+  const bandPayload = {
+    current: bands.current,
+    addLow: arr(bands.add_zone)[0],
+    addHigh: arr(bands.add_zone)[1],
+    holdAbove: bands.hold_above,
+    trimLow: arr(bands.trim_zone)[0],
+    trimHigh: arr(bands.trim_zone)[1],
+    defenseBelow: bands.defense_below,
+    hardRisk: bands.hard_risk,
+    target: bands.target,
+    ma50: overlays.ma50,
+    ma200: overlays.ma200,
+  };
   return {
-    series: series.map(row => ({
-      time: Math.floor((row.t || 0) / 1000),
-      open: row.o,
-      high: row.h,
-      low: row.l,
-      close: row.c,
-      ma20: pos(row.ma20),
-      ma50: pos(row.ma50),
-      ma200: pos(row.ma200),
-    })).filter(row => row.time && num(row.close) !== null),
+    series,
     events: events.map(event => ({
       id: event.id,
       label: event.label,
@@ -40,19 +83,12 @@ function buildChartPayload(state) {
       time: Math.floor((event.time || 0) / 1000),
       price: event.price,
     })),
-    bands: {
-      current: bands.current,
-      addLow: arr(bands.add_zone)[0],
-      addHigh: arr(bands.add_zone)[1],
-      holdAbove: bands.hold_above,
-      trimLow: arr(bands.trim_zone)[0],
-      trimHigh: arr(bands.trim_zone)[1],
-      defenseBelow: bands.defense_below,
-      hardRisk: bands.hard_risk,
-      target: bands.target,
-      ma50: overlays.ma50,
-      ma200: overlays.ma200,
-    }
+    bands: bandPayload,
+    policy: {
+      autoscale: buildAutoscalePolicy(bands, overlays, sourceSeries),
+      scenario_paths: { enabled: false, scale_affecting: false, reason: 'scenario projections remain in cards/labels until explicitly validated as bounded overlays' },
+      volume: { enabled: false, scale_affecting: false, reason: 'volume does not belong on the main SPX price scale' },
+    },
   };
 }
 
@@ -116,7 +152,7 @@ function renderDecisionConfirmationStrip(annotationState) {
 function renderChartRuntime(payload) {
   const data = JSON.stringify(payload);
   const srcTag = '<scr' + 'ipt src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></scr' + 'ipt>';
-  const runtime = `(function(){const payload=${data};function ok(v){return Number.isFinite(Number(v))&&Number(v)>0;}function build(){const el=document.getElementById('${CHART_ID}');if(!el||!window.LightweightCharts)return;const chart=LightweightCharts.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:'#f6f4ee'},textColor:'#2c2a25'},grid:{vertLines:{color:'rgba(44,42,37,.08)'},horzLines:{color:'rgba(44,42,37,.08)'}},rightPriceScale:{borderColor:'rgba(44,42,37,.18)'},timeScale:{borderColor:'rgba(44,42,37,.18)',timeVisible:true},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});const candle=chart.addCandlestickSeries({upColor:'#4f9b82',downColor:'#c76b60',borderUpColor:'#4f9b82',borderDownColor:'#c76b60',wickUpColor:'#4f9b82',wickDownColor:'#c76b60',priceLineVisible:true});candle.setData(payload.series);function line(key,color,width,style){const data=payload.series.filter(d=>ok(d[key])).map(d=>({time:d.time,value:Number(d[key])}));if(!data.length)return;const s=chart.addLineSeries({color,lineWidth:width,lineStyle:style,priceLineVisible:false,lastValueVisible:false});s.setData(data);}line('ma20','rgba(111,106,95,.35)',1,LightweightCharts.LineStyle.Dotted);line('ma50','#6f6a5f',1.4,LightweightCharts.LineStyle.Solid);line('ma200','#4088a8',2.1,LightweightCharts.LineStyle.Solid);const b=payload.bands||{};function pl(price,title,color,style,width){if(!ok(price))return;candle.createPriceLine({price:Number(price),color,lineWidth:width,lineStyle:style,axisLabelVisible:true,title});}pl(b.addLow,'ADD LOW','#2f6f4e',LightweightCharts.LineStyle.Dotted,2);pl(b.addHigh,'ADD HIGH','#2f6f4e',LightweightCharts.LineStyle.Dotted,2);pl(b.trimLow,'TRIM LOW','#ae7c2c',LightweightCharts.LineStyle.Dashed,2);pl(b.trimHigh,'TRIM HIGH','#ae7c2c',LightweightCharts.LineStyle.Dashed,2);pl(b.ma200,'200D DEFENSE','#4088a8',LightweightCharts.LineStyle.Solid,2);pl(b.hardRisk,'HARD RISK','#9f3f35',LightweightCharts.LineStyle.LargeDashed,2);pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,2);const last=payload.series[payload.series.length-1];const markers=[];if(last)markers.push({time:last.time,position:'aboveBar',color:'#2c2a25',shape:'circle',text:'NOW '+Math.round(last.close).toLocaleString()});payload.events.filter(e=>e.id!=='now'&&e.time&&ok(e.price)).slice(0,3).forEach(e=>markers.push({time:e.time,position:last&&e.price>=last.close?'aboveBar':'belowBar',color:e.type==='REAL'?'#2f6f4e':e.type==='PROJ'?'#6f6a5f':'#ae7c2c',shape:e.type==='PROJ'?'arrowUp':'square',text:e.label}));candle.setMarkers(markers);chart.timeScale().fitContent();window.addEventListener('resize',()=>{try{chart.timeScale().fitContent()}catch(e){}});}build();})();`;
+  const runtime = `(function(){const payload=${data};function ok(v){return Number.isFinite(Number(v))&&Number(v)>0;}function applyAutoscale(candle,last,b){try{const policy=payload.policy&&payload.policy.autoscale;if(policy&&Number.isFinite(Number(policy.minValue))&&Number.isFinite(Number(policy.maxValue))){candle.applyOptions({autoscaleInfoProvider:()=>({priceRange:{minValue:Number(policy.minValue),maxValue:Number(policy.maxValue)}})});return;}const vals=[b.addLow,b.addHigh,b.trimLow,b.trimHigh,b.ma50,b.ma200,b.hardRisk,b.target,last&&last.close].map(Number).filter(Number.isFinite);if(vals.length){const lo=Math.min(...vals),hi=Math.max(...vals),pad=Math.max((hi-lo)*0.18,250);candle.applyOptions({autoscaleInfoProvider:()=>({priceRange:{minValue:lo-pad,maxValue:hi+pad}})});}}catch(e){}}function build(){const el=document.getElementById('${CHART_ID}');if(!el||!window.LightweightCharts)return;const chart=LightweightCharts.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:'#f6f4ee'},textColor:'#2c2a25'},grid:{vertLines:{color:'rgba(44,42,37,.08)'},horzLines:{color:'rgba(44,42,37,.08)'}},rightPriceScale:{borderColor:'rgba(44,42,37,.18)'},timeScale:{borderColor:'rgba(44,42,37,.18)',timeVisible:true},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});const candle=chart.addCandlestickSeries({upColor:'#4f9b82',downColor:'#c76b60',borderUpColor:'#4f9b82',borderDownColor:'#c76b60',wickUpColor:'#4f9b82',wickDownColor:'#c76b60',priceLineVisible:true});candle.setData(payload.series);function line(key,color,width,style){const data=payload.series.filter(d=>ok(d[key])).map(d=>({time:d.time,value:Number(d[key])}));if(!data.length)return;const s=chart.addLineSeries({color,lineWidth:width,lineStyle:style,priceLineVisible:false,lastValueVisible:false});s.setData(data);}line('ma20','rgba(111,106,95,.35)',1,LightweightCharts.LineStyle.Dotted);line('ma50','#6f6a5f',1.4,LightweightCharts.LineStyle.Solid);line('ma200','#4088a8',2.1,LightweightCharts.LineStyle.Solid);const b=payload.bands||{};function pl(price,title,color,style,width){if(!ok(price))return;candle.createPriceLine({price:Number(price),color,lineWidth:width,lineStyle:style,axisLabelVisible:true,title});}pl(b.addLow,'ADD LOW','#2f6f4e',LightweightCharts.LineStyle.Dotted,2);pl(b.addHigh,'ADD HIGH','#2f6f4e',LightweightCharts.LineStyle.Dotted,2);pl(b.trimLow,'TRIM LOW','#ae7c2c',LightweightCharts.LineStyle.Dashed,2);pl(b.trimHigh,'TRIM HIGH','#ae7c2c',LightweightCharts.LineStyle.Dashed,2);pl(b.ma200,'200D DEFENSE','#4088a8',LightweightCharts.LineStyle.Solid,2);pl(b.hardRisk,'HARD RISK','#9f3f35',LightweightCharts.LineStyle.LargeDashed,2);pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,2);const last=payload.series[payload.series.length-1];applyAutoscale(candle,last,b);const markers=[];if(last)markers.push({time:last.time,position:'aboveBar',color:'#2c2a25',shape:'circle',text:'NOW '+Math.round(last.close).toLocaleString()});payload.events.filter(e=>e.id!=='now'&&e.time&&ok(e.price)).slice(0,3).forEach(e=>markers.push({time:e.time,position:last&&e.price>=last.close?'aboveBar':'belowBar',color:e.type==='REAL'?'#2f6f4e':e.type==='PROJ'?'#6f6a5f':'#ae7c2c',shape:e.type==='PROJ'?'arrowUp':'square',text:e.label}));candle.setMarkers(markers);chart.timeScale().fitContent();window.addEventListener('resize',()=>{try{chart.timeScale().fitContent();applyAutoscale(candle,last,b)}catch(e){}});}build();})();`;
   return `${srcTag}<scr` + `ipt>${runtime}</scr` + `ipt>`;
 }
 
@@ -143,4 +179,4 @@ function renderOperationalChartStyle() {
   return `<style id="operational-chart-style">#operational-chart-section,.decision-map-compact{max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box}.decision-map-compact *{box-sizing:border-box}.decision-map-compact{margin-top:22px}.decision-map-compact .section-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap;min-width:0}.decision-map-compact h2{font-size:clamp(28px,4vw,42px);line-height:1.02;margin:4px 0 8px}.op-stance{max-width:760px;color:var(--muted);font-size:14px;line-height:1.45}.working-verdict{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.working-verdict article,.level-grid article,.scenario-cards article,.confirmation-row article{border:1px solid var(--rule);border-radius:16px;background:rgba(251,250,246,.10);padding:12px;min-width:0;overflow:hidden}.working-verdict span,.level-grid span,.scenario-cards span,.confirmation-row span{display:block;color:var(--muted);font-size:13px;line-height:1.35;text-transform:uppercase;letter-spacing:.06em}.working-verdict b{display:block;font-size:16px;line-height:1.35;margin-top:5px;overflow-wrap:anywhere}.decision-chart-v2-shell{margin:14px 0}.decision-chart-top-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:10px 0 14px}.decision-chart-top-strip article,.decision-chart-rail article,.decision-chart-confirmation-strip article{border:1px solid var(--rule);border-radius:16px;background:rgba(251,250,246,.12);padding:10px}.decision-chart-top-strip article.good,.decision-chart-confirmation-strip article.good{border-color:rgba(47,111,78,.42)}.decision-chart-top-strip article.warn,.decision-chart-confirmation-strip article.warn{border-color:rgba(174,124,44,.45)}.decision-chart-top-strip article.bad,.decision-chart-confirmation-strip article.bad{border-color:rgba(159,63,53,.45)}.decision-chart-top-strip span,.decision-chart-rail span,.decision-chart-confirmation-strip span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.decision-chart-top-strip b{display:block;font-size:18px;text-transform:uppercase;margin-top:4px;line-height:1.1}.decision-chart-top-strip small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.decision-chart-workboard{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px}.decision-chart-workboard .op-chart-shell{grid-column:1}.decision-chart-rail{grid-column:2;display:grid;gap:8px;align-self:stretch}.decision-chart-rail article.primary{border-color:rgba(44,42,37,.35);background:rgba(44,42,37,.06)}.decision-chart-rail b{display:block;font-size:20px;margin-top:4px}.decision-chart-rail small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.decision-chart-rail p,.decision-chart-confirmation-strip p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.35}.decision-chart-confirmation-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}.decision-chart-confirmation-strip b{display:block;font-size:13px;text-transform:uppercase;margin-top:4px}.op-chart-shell{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:12px;align-items:stretch;margin:12px 0 14px;min-width:0}.lwc-chart{height:880px;border:1px solid var(--rule);border-radius:18px;background:#f6f4ee;overflow:hidden;min-width:0}.op-level-rail{border:1px solid var(--rule);border-radius:18px;background:rgba(251,250,246,.08);padding:12px;min-width:0;overflow:hidden}.op-level-rail h3{font-size:18px;margin:0 0 10px}.level-grid{display:grid;grid-template-columns:1fr;gap:8px;min-width:0}.level-grid b,.scenario-cards b,.confirmation-row b{display:block;font-size:16px;line-height:1.35;margin-top:4px;overflow-wrap:anywhere}.scenario-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.scenario-cards p{display:block;width:100%;font-size:14px;line-height:1.45;color:var(--muted);margin:6px 0 0;white-space:normal;overflow-wrap:anywhere}.confirmation-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:10px}.op-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}.op-badge.real{background:rgba(47,111,78,.16);color:var(--green);border:1px solid rgba(47,111,78,.38)}.op-badge.est{background:rgba(174,124,44,.16);color:var(--warn);border:1px solid rgba(174,124,44,.38)}.op-badge.proj{background:rgba(251,250,246,.10);color:var(--muted);border:1px solid var(--rule)}.scenario-cards .bull{border-color:rgba(47,111,78,.38)}.scenario-cards .base{border-color:rgba(174,124,44,.42)}.scenario-cards .correction{border-color:rgba(159,63,53,.38)}@media(max-width:1180px){.decision-chart-top-strip{grid-template-columns:repeat(3,1fr)}.decision-chart-workboard{grid-template-columns:1fr}.decision-chart-rail{grid-column:1;grid-template-columns:repeat(2,1fr)}.decision-chart-confirmation-strip{grid-template-columns:repeat(2,1fr)}.op-chart-shell{grid-template-columns:1fr}.level-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.working-verdict,.confirmation-row{grid-template-columns:repeat(2,minmax(0,1fr))}.lwc-chart{height:620px}}@media(max-width:760px){.decision-chart-top-strip,.decision-chart-rail,.decision-chart-confirmation-strip,.working-verdict,.scenario-cards,.confirmation-row,.level-grid{grid-template-columns:1fr}.lwc-chart{height:520px}.decision-map-compact h2{font-size:30px}}</style>`;
 }
 
-module.exports = { renderOperationalChartSection, renderOperationalChartStyle, buildChartPayload, renderDecisionTopStrip, renderDecisionRail, renderDecisionConfirmationStrip };
+module.exports = { renderOperationalChartSection, renderOperationalChartStyle, buildChartPayload, buildAutoscalePolicy, renderDecisionTopStrip, renderDecisionRail, renderDecisionConfirmationStrip };

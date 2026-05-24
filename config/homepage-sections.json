@@ -1,6 +1,6 @@
 {
-  "version": 30,
-  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. The older Macro Cycle Board remains available as a state/logic generator but is disabled from homepage rendering to avoid duplicate macro diagrams. Trust Strip is disabled from homepage rendering because trust/source diagnostics are now handled inside the active decision modules rather than as a separate web section. Legacy visual-regime artifacts and old Holdings Role/Method card rows are now rejected by canonical validation rather than silently stripped by cleanup commands.",
+  "version": 31,
+  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. System Health is now the edit-readiness gate for visual and data-display work: it reports registry preview status, data truth integrity, stale/missing artifacts, legacy cleanup state, and zero-value suspicions. Legacy visual-regime artifacts and old Holdings Role/Method card rows are rejected by canonical validation rather than silently stripped by cleanup commands.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -8,6 +8,17 @@
     ]
   },
   "sections": [
+    {
+      "id": "system-health-section",
+      "name": "System / Data Health",
+      "enabled": true,
+      "required": false,
+      "description": "Edit-readiness health artifact and homepage fragment. Required=false until the final visual layout pass chooses permanent placement.",
+      "commands": [
+        "node scripts/generate-capital-radar-health-report.cjs",
+        "node scripts/render-system-health-section.cjs"
+      ]
+    },
     {
       "id": "decision-brief-section",
       "name": "Market Regime",
@@ -103,7 +114,7 @@
       "name": "Trust / Data Quality",
       "enabled": false,
       "required": false,
-      "description": "Disabled from homepage. Trust/source diagnostics are represented inside Holdings, Opportunity Queue, and Market Tape instead of a separate web section.",
+      "description": "Disabled from homepage. Trust/source diagnostics are represented inside Holdings, Opportunity Queue, Market Tape, and System Health instead of a separate legacy web section.",
       "commands": []
     },
     {

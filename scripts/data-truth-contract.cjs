@@ -119,6 +119,25 @@ function countTruthTier(root, tier) {
   return count;
 }
 
+function countUnsafeDataPoints(root, options = {}) {
+  let count = 0;
+  walk(root, (value, path) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+    const hasDataShape = Object.prototype.hasOwnProperty.call(value, 'value') && (
+      Object.prototype.hasOwnProperty.call(value, 'key') ||
+      Object.prototype.hasOwnProperty.call(value, 'label') ||
+      Object.prototype.hasOwnProperty.call(value, 'source') ||
+      Object.prototype.hasOwnProperty.call(value, 'type') ||
+      Object.prototype.hasOwnProperty.call(value, 'truthTier')
+    );
+    if (!hasDataShape) return;
+    const key = value.key || path.at(-1) || '';
+    const normalized = normalizeDataPoint({ ...value, key }, options);
+    if (normalized.truthTier === 'MISSING' || normalized.displaySafe === false) count += 1;
+  });
+  return count;
+}
+
 module.exports = {
   TRUTH_TIERS,
   DEFAULT_ZERO_SUSPICION_KEYS,
@@ -131,4 +150,5 @@ module.exports = {
   formatDataPoint,
   findZeroSuspicions,
   countTruthTier,
+  countUnsafeDataPoints,
 };

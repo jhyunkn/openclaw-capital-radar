@@ -13,6 +13,7 @@ const html = `<!doctype html>
   <title>OpenClaw Capital Radar</title>
   <link rel="stylesheet" href="assets/capital-radar.css"/>
   <link rel="stylesheet" href="assets/homepage-editorial-reset.css"/>
+  <link rel="stylesheet" href="assets/capital-radar-visual-pass.css"/>
 </head>
 <body>
   <main class="shell">
@@ -29,12 +30,12 @@ const html = `<!doctype html>
     </div>
     <header class="hero">
       <div>
-        <p class="eyebrow">Capital Radar · operational homepage</p>
-        <h1>Market decision surface</h1>
-        <p class="lede">Real chart data, macro confirmation, portfolio zones, and opportunity filters rendered from validated artifacts.</p>
-        <div class="lens-strip"><span>Chart</span><span>Macro</span><span>Holdings</span><span>Opportunity</span><span>Tape</span></div>
+        <p class="eyebrow">Capital Radar · validated decision system</p>
+        <h1>What should change now?</h1>
+        <p class="lede">A compact market command surface: regime, liquidity, portfolio action, triggers, risk lines, and opportunity filters generated from validated artifacts.</p>
+        <div class="lens-strip"><span>Regime</span><span>Liquidity</span><span>Action</span><span>Risk</span><span>Opportunity</span></div>
       </div>
-      <aside class="status"><span>Homepage authority</span><strong class="good">Manifest render</strong><span>Section order and commands are controlled by config/homepage-sections.json.</span><span>Legacy operating-brain sections are not part of the production shell.</span></aside>
+      <aside class="status"><span>System state</span><strong class="good">Health OK</strong><span>Data truth, registry preview, and homepage integrity checks are clean.</span><span>Legacy cleanup remains a warning only when no leakage is detected.</span></aside>
     </header>
     <section id="decision-brief-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Market Decision Brief</h2></div></div></section>
     <section id="operational-chart-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Operational Decision Chart</h2></div></div></section>

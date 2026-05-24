@@ -48,6 +48,14 @@ function summarizeLegacyStripReport(report) {
   };
 }
 
+function printLegacyStripSummary(summary) {
+  const status = summary.status || 'UNKNOWN';
+  const bytes = Number(summary.bytes_removed || 0);
+  const operations = Number(summary.total_operations || 0);
+  const signal = summary.retirement_signal || 'unknown';
+  console.log(`Legacy strip report: ${status}; ${bytes} bytes removed; ${operations} operations; retirement_signal=${signal}`);
+}
+
 function fail(message, report) {
   fs.mkdirSync(outputsDir, { recursive: true });
   fs.writeFileSync(reportPath, JSON.stringify({
@@ -191,6 +199,8 @@ const structuralErrors = validateHomepage(manifest);
 if (structuralErrors.length) fail(`structural validation failed: ${structuralErrors.join('; ')}`, report);
 
 const legacyStripReport = readJsonIfExists(legacyStripReportPath);
+const legacyStripSummary = summarizeLegacyStripReport(legacyStripReport);
+printLegacyStripSummary(legacyStripSummary);
 
 fs.mkdirSync(outputsDir, { recursive: true });
 const finalReport = {
@@ -206,7 +216,7 @@ const finalReport = {
     legacy_strip: path.relative(root, legacyStripReportPath),
   },
   cleanup: {
-    legacy_strip: summarizeLegacyStripReport(legacyStripReport),
+    legacy_strip: legacyStripSummary,
   },
   stages: report.stages,
 };

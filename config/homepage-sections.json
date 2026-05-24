@@ -1,6 +1,6 @@
 {
-  "version": 28,
-  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. The older Macro Cycle Board remains available as a state/logic generator but is disabled from homepage rendering to avoid duplicate macro diagrams. Trust Strip is disabled from homepage rendering because trust/source diagnostics are now handled inside the active decision modules rather than as a separate web section. Legacy visual-regime artifacts are now rejected by canonical validation rather than silently stripped by a cleanup command.",
+  "version": 29,
+  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. The older Macro Cycle Board remains available as a state/logic generator but is disabled from homepage rendering to avoid duplicate macro diagrams. Trust Strip is disabled from homepage rendering because trust/source diagnostics are now handled inside the active decision modules rather than as a separate web section. Legacy visual-regime artifacts and old Holdings Role/Method card rows are now rejected by canonical validation rather than silently stripped by cleanup commands.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -69,8 +69,7 @@
         "node scripts/annotate-holding-zone-source.cjs",
         "node scripts/apply-strategy-route-to-holdings.cjs",
         "node scripts/validate-holding-zone-state.cjs",
-        "node scripts/inject-holdings-home-modular.cjs",
-        "node scripts/strip-holdings-role-method-home.cjs"
+        "node scripts/inject-holdings-home-modular.cjs"
       ]
     },
     {
@@ -133,7 +132,7 @@
     }
   ],
   "cleanup": {
-    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Legacy visual-regime artifacts are now rejected by canonical validation instead of stripped here.",
+    "description": "Remove old/legacy homepage sections and duplicate nav links after operational sections are injected. Legacy visual-regime artifacts and old Holdings Role/Method rows are now rejected by canonical validation instead of stripped here.",
     "commands": [
       "node scripts/strip-legacy-brief-strategy-home.cjs",
       "node scripts/normalize-homepage-sections.cjs"

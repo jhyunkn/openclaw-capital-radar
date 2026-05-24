@@ -1,6 +1,6 @@
 {
-  "version": 18,
-  "policy": "Capital Radar builds decision-grade artifacts, runs a temporary compatibility-artifact-prep bridge for legacy validators, then renders production through the canonical manifest-driven ship orchestrator. Compatibility is non-authoritative and audited manually. The homepage renders one macro-cycle visual only: the modular Kostolany Egg component.",
+  "version": 19,
+  "policy": "Capital Radar builds decision-grade artifacts, runs a temporary compatibility-artifact-prep bridge for legacy validators, then renders production through the canonical manifest-driven ship orchestrator. Compatibility is non-authoritative and audited manually. The homepage renders one macro-cycle visual only: the modular Kostolany Egg component. Final ship also writes the Capital Radar health report after production homepage validation so edit-readiness reflects the final rendered index.html.",
   "stages": [
     {
       "name": "base-data",
@@ -127,7 +127,7 @@
     },
     {
       "name": "ship",
-      "description": "Final homepage authority. This stage renders, sanitizes, and validates the operational homepage before production output.",
+      "description": "Final homepage authority. This stage renders, sanitizes, validates, and writes edit-readiness health artifacts before production output.",
       "commands": [
         "node scripts/render-capital-radar-home.cjs",
         "node scripts/validate-operating-brain.cjs",
@@ -135,6 +135,8 @@
         "node scripts/inject-build-version.cjs",
         "node scripts/strip-home-runtime.cjs",
         "node scripts/sanitize-decision-chart-html.cjs",
+        "node scripts/generate-capital-radar-health-report.cjs",
+        "node scripts/render-system-health-section.cjs",
         "node scripts/build-vercel.cjs",
         "node scripts/copy-agent-assets-to-public.cjs"
       ]

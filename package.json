@@ -16,6 +16,8 @@
     "preview:homepage-registry": "node scripts/render-homepage-from-registry-preview.cjs",
     "preview:homepage-registry:strict": "node scripts/render-homepage-from-registry-preview.cjs --strict && node scripts/assert-homepage-registry-preview-ok.cjs",
     "gate:homepage-registry": "node scripts/assert-homepage-registry-preview-ok.cjs",
+    "migrate:homepage-registry:remove-legacy-cleanup": "node scripts/remove-homepage-legacy-cleanup-dependency.cjs",
+    "migrate:homepage-registry:strict": "npm run preview:homepage-registry:strict && npm run migrate:homepage-registry:remove-legacy-cleanup",
     "preflight:thesis": "node scripts/preflight-thesis-dossiers.cjs",
     "build:experimental:thesis": "node scripts/generate-thesis-dossiers.cjs && node scripts/inject-thesis-dossiers-workbenches.cjs && node scripts/validate-thesis-dossiers.cjs",
     "build:experimental:evidence": "node scripts/generate-research-evidence-packets.cjs && node scripts/inject-research-evidence-workbenches.cjs && node scripts/validate-research-evidence-packets.cjs",

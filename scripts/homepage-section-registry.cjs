@@ -31,6 +31,24 @@ function renderer(relativePath, sectionExport, styleExport = null) {
 
 const registry = [
   {
+    id: 'system-health-section',
+    manifestId: 'system-health-section',
+    navLabel: 'Health',
+    previewOrder: 5,
+    states: [state('outputs/capital-radar-health-report.json', { key: 'state', required: false, fallback: {
+      status: 'DEGRADED',
+      verdict: 'Health report has not been generated yet.',
+      registryPreview: { status: 'PENDING_FIRST_RENDER' },
+      production: {},
+      checks: { legacyCleanupActive: true },
+      counts: {}
+    } })],
+    renderer: renderer('components/radar/system-health/render.cjs', 'renderSystemHealthSection', 'renderSystemHealthStyle'),
+    buildArgs({ states }) {
+      return [states.state];
+    },
+  },
+  {
     id: 'kostolany-egg-section',
     manifestId: 'kostolany-egg-section',
     navLabel: 'Egg',

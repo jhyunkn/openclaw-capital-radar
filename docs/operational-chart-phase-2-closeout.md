@@ -6,6 +6,17 @@ Operational Chart Phase 2 is structurally complete.
 
 The chart now has renderer-owned annotation composition, renderer-owned autoscale policy, active-manifest validation, and a machine-readable validation report.
 
+## Conflict resolution status
+
+The prior GitHub contents API conflict was a stale-write conflict during documentation updates, not an unresolved source merge conflict.
+
+Resolution approach:
+
+- verified the validation-report commit exists on `main`
+- verified Phase 2 closeout content exists on `main`
+- re-fetched the current closeout file SHA from `main`
+- committed this update against the current SHA to confirm the contents API path is healthy again
+
 ## Completed implementation commits
 
 1. `75d33b7b38db3db174f25756fe35006a1249e387` — `Fold decision chart enhancement into Operational Chart renderer`

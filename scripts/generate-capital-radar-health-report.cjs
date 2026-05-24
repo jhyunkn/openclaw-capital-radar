@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { findZeroSuspicions, countTruthTier } = require('./data-truth-contract.cjs');
+const { findZeroSuspicions, countTruthTier, countUnsafeDataPoints } = require('./data-truth-contract.cjs');
 
 const root = path.join(__dirname, '..');
 const outputsDir = path.join(root, 'outputs');
@@ -87,13 +87,14 @@ function main() {
       status: value?.status || value?.artifact || (value ? 'PRESENT' : 'MISSING'),
       zeroSuspicions: value ? findZeroSuspicions(value).slice(0, 10) : [],
       missingTierCount: value ? countTruthTier(value, 'MISSING') : 0,
+      unsafeDataPointCount: value ? countUnsafeDataPoints(value) : 0,
       staleTierCount: value ? countTruthTier(value, 'STALE') : 0,
     };
   });
 
   const outputLinks = htmlCount(indexHtml, /\b(?:href|src)=["']outputs\//g);
   const counts = {
-    missingDataCount: artifacts.reduce((sum, item) => sum + (item.exists ? item.missingTierCount : 1), 0),
+    missingDataCount: artifacts.reduce((sum, item) => sum + (item.exists ? item.missingTierCount + item.unsafeDataPointCount : 1), 0),
     staleDataCount: artifacts.reduce((sum, item) => sum + item.staleTierCount, 0),
     zeroValueSuspicionCount: artifacts.reduce((sum, item) => sum + item.zeroSuspicions.length, 0),
     missingArtifactCount: artifacts.filter(item => !item.exists).length,
@@ -120,7 +121,7 @@ function main() {
   const verdict = status === 'OK'
     ? 'Radar is edit-ready: registry preview, data truth, and homepage integrity checks are clean.'
     : status === 'DEGRADED'
-      ? 'Radar is usable for visual/data-display editing, but cleanup migration is not fully retired.'
+      ? 'Radar is usable for visual/data-display editing, but missing/stale source data or cleanup retirement remains unresolved.'
       : 'Radar is blocked: resolve structural or data integrity failures before visual editing.';
 
   const report = {

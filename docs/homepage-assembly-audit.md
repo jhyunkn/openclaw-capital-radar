@@ -2,13 +2,14 @@
 
 ## Status
 
-The homepage is now controlled by a canonical manifest-driven render path:
+The homepage is controlled by a canonical manifest-driven render path:
 
 - `package.json` uses `npm run build:prod` -> `scripts/run-build-pipeline.cjs`.
 - `config/build-pipeline.json` final `ship` stage calls `scripts/render-capital-radar-home.cjs`.
 - `scripts/render-capital-radar-home.cjs` reads `config/homepage-sections.json`, runs section commands, runs cleanup, validates required sections, and writes `outputs/capital-radar-home-build-report.json`.
+- The same canonical build also writes `outputs/operational-chart-validation-report.json`.
 
-This means the correct next step is not to create a new top-level orchestrator. The next step is to reduce the number of legacy mutation scripts underneath the existing orchestrator.
+The top-level orchestrator is correct. The remaining architecture work is to reduce legacy cleanup dependency and eventually move from chained injectors to registry-driven assembly.
 
 ## Current homepage order
 
@@ -28,37 +29,64 @@ Disabled:
 - Trust / Data Quality
 - Macro Cycle Board
 
-## Modularized sections
+## Modularized visible sections
 
-These sections now have modular renderers:
+These sections now have modular renderer paths:
 
+- `components/radar/decision-brief/render.cjs`
 - `components/radar/operational-chart/render.cjs`
+- `components/radar/market-lens/render.cjs`
 - `components/radar/strategy-routing/render.cjs`
 - `components/radar/holdings/render.cjs`
 - `components/radar/opportunities/render.cjs`
 - `components/radar/market-tape/render.cjs`
 - `components/radar/kostolany-egg/render.cjs`
 
-## Remaining active legacy injectors
+## Operational Chart Phase 2 status
 
-These active homepage scripts still mix state loading, HTML rendering, CSS injection, nav mutation, and `index.html` replacement:
+Operational Chart Phase 2 is structurally complete.
 
-- `scripts/inject-market-decision-brief-home.cjs`
-- `scripts/inject-market-lens-home.cjs`
+The Operational Chart renderer now owns:
 
-They should be migrated next into modular renderers:
+- chart section rendering
+- chart runtime generation
+- annotation-state integration
+- top decision strip
+- primary callout
+- side decision rail
+- confirmation strip
+- workboard layout
+- explicit autoscale policy
+- scale-authority classification
 
-- `components/radar/decision-brief/render.cjs`
-- `components/radar/market-lens/render.cjs`
+The active homepage manifest no longer calls these post-render mutation scripts:
 
-## Remaining post-render mutation scripts
+- `node scripts/enhance-decision-chart-v2.cjs`
+- `node scripts/patch-decision-chart-price-scale.cjs`
 
-Operational Chart is modularized, but two active scripts still mutate the chart after rendering:
+The scripts may remain temporarily as rollback/reference artifacts, but they must not be active in `config/homepage-sections.json`.
 
-- `scripts/enhance-decision-chart-v2.cjs`
-- `scripts/patch-decision-chart-price-scale.cjs`
+The canonical homepage build fails if either old chart post-render command reappears in the active manifest.
 
-These should be absorbed into `components/radar/operational-chart/render.cjs` so the chart renderer is the single source of truth.
+## Operational Chart validation report
+
+The build now writes:
+
+- `outputs/operational-chart-validation-report.json`
+
+The report checks and records:
+
+- chart container count
+- chart runtime count
+- annotation layer presence
+- decision rail presence
+- confirmation strip presence
+- autoscale policy presence
+- legacy patch residue presence
+- scale-affecting items
+- scale-neutral items
+- warnings
+- status
 
 ## Cleanup scripts still active
 
@@ -72,39 +100,31 @@ They are useful during transition, but they should eventually become unnecessary
 
 ## Naming debt
 
-The standalone Trust Strip section has been removed, but active modules still use the CSS class `trust-strip` as a generic metric summary layout. This is semantically confusing.
+The standalone Trust Strip section has been removed. A repository search for active `trust-strip` usage returned no current matches at the time of this update. Do not perform blind renames; only rename confirmed active layout usage.
 
-Recommended rename:
+If future active usage appears, recommended rename:
 
 - `trust-strip` -> `metric-strip`
 
-Apply this only after confirming visual parity, because Holdings, Opportunity Queue, and Market Tape rely on this shared layout.
-
 ## Recommended next sequence
 
-### Phase 1 — finish renderer modularity
+### Phase 3 — stabilize and archive
 
-1. Modularize Decision Brief.
-2. Modularize Cross-Asset Lens.
-3. Confirm all enabled visible sections have renderers under `components/radar/*/render.cjs`.
+1. Visual QA the Operational Chart on production.
+2. Keep old chart post-render scripts as rollback references for one or two stable deployments.
+3. Then move them to `scripts/legacy/` or add hard legacy headers if moving files is not worth the churn.
 
-### Phase 2 — absorb chart post-processors
-
-1. Move `enhance-decision-chart-v2.cjs` logic into Operational Chart renderer.
-2. Move `patch-decision-chart-price-scale.cjs` logic into Operational Chart runtime generation.
-3. Remove those two commands from `homepage-sections.json` once visual parity is confirmed.
-
-### Phase 3 — reduce cleanup dependency
+### Phase 4 — reduce cleanup dependency
 
 1. Keep cleanup scripts active while migration continues.
-2. Add explicit duplicate/legacy validation to `render-capital-radar-home.cjs` if needed.
+2. Move more duplicate/legacy checks into canonical validation.
 3. Remove legacy strip scripts only after repeated successful builds.
 
-### Phase 4 — rename metric strip
+### Phase 5 — registry-driven homepage assembly
 
-1. Rename `.trust-strip` to `.metric-strip` in active renderers.
-2. Keep a temporary compatibility alias if needed.
-3. Remove ambiguity between product section and layout class.
+1. Create a section registry that imports renderers.
+2. Assemble the homepage in one deterministic pass.
+3. Convert injectors into compatibility wrappers or retire them.
 
 ## Architecture target
 

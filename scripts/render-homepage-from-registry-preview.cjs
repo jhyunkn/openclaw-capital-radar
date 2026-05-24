@@ -8,22 +8,42 @@ const htmlPath = path.join(outputsDir, 'homepage-registry-preview.html');
 const reportPath = path.join(outputsDir, 'homepage-registry-preview-report.json');
 
 function esc(value) {
-  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
-function readJson(filePath) { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
+
+function escapeRegExp(value) {
+  return String(value ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
 function existsJson(relativePath) {
   const filePath = path.join(root, relativePath);
   return fs.existsSync(filePath) ? { exists: true, value: readJson(filePath) } : { exists: false, value: null };
 }
+
 function countId(html, id) {
-  const safe = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return (html.match(new RegExp(`id=["']${safe}["']`, 'g')) || []).length;
+  const safe = escapeRegExp(id);
+  return (String(html || '').match(new RegExp(`\\bid=["']${safe}["']`, 'g')) || []).length;
 }
+
 function previewHref(href) {
   const value = String(href || '');
   if (!value || value.startsWith('/') || value.startsWith('http://') || value.startsWith('https://')) return value;
   return `../${value.replace(/^\.\//, '')}`;
 }
+
+function normalizePreviewLinks(html) {
+  return String(html || '').replace(/\b(href|src)=(['"])\.?\/?outputs\//g, (_match, attr, quote) => `${attr}=${quote}./`);
+}
+
 function loadState(definition, diagnostics) {
   const primary = existsJson(definition.path);
   if (primary.exists) {
@@ -46,6 +66,7 @@ function loadState(definition, diagnostics) {
   diagnostics.missingStates.push({ key: definition.key, path: definition.path, required: definition.required !== false });
   return undefined;
 }
+
 function loadRenderer(entry, diagnostics) {
   const spec = entry.renderer || {};
   if (!spec.path) {
@@ -74,9 +95,11 @@ function loadRenderer(entry, diagnostics) {
     return null;
   }
 }
+
 function fallbackSection(entry, title, detail) {
   return `<section id="${esc(entry.id)}" class="panel registry-preview-gap"><div class="section-head"><div><p class="eyebrow">Registry preview gap</p><h2>${esc(title)}</h2></div></div><p>${esc(detail)}</p></section>`;
 }
+
 function renderEntry(entry) {
   const diagnostics = {
     id: entry.id,
@@ -111,7 +134,7 @@ function renderEntry(entry) {
   }
   try {
     const args = typeof entry.buildArgs === 'function' ? entry.buildArgs({ states, entry }) : [primaryState];
-    const section = renderer.section(...args);
+    const section = normalizePreviewLinks(renderer.section(...args));
     const style = renderer.style ? renderer.style() : '';
     diagnostics.status = 'OK';
     return { entry, diagnostics, section: String(section || ''), style: String(style || '') };
@@ -121,12 +144,15 @@ function renderEntry(entry) {
     return { entry, diagnostics, section: fallbackSection(entry, entry.navLabel || entry.id, `Render error: ${error.message}`), style: '' };
   }
 }
+
 function buildHtml({ manifest, rendered, styles, cssLinks }) {
   const generatedAt = new Date().toISOString();
   const nav = rendered.map(({ entry }) => `<a href="#${esc(entry.id)}">${esc(entry.navLabel || entry.id)}</a>`).join('');
   const links = ['assets/capital-radar.css', 'assets/homepage-editorial-reset.css', ...cssLinks]
-    .filter(Boolean).filter((value, index, array) => array.indexOf(value) === index)
-    .map(href => `<link rel="stylesheet" href="${esc(previewHref(href))}"/>`).join('\n  ');
+    .filter(Boolean)
+    .filter((value, index, array) => array.indexOf(value) === index)
+    .map(href => `<link rel="stylesheet" href="${esc(previewHref(href))}"/>`)
+    .join('\n  ');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -140,7 +166,7 @@ function buildHtml({ manifest, rendered, styles, cssLinks }) {
 <body>
   <main class="shell">
     <div class="topbar"><div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div><nav class="nav">${nav}</nav><div id="generated">Registry preview · ${esc(generatedAt)}</div></div>
-    <header class="hero"><div><p class="eyebrow">Capital Radar · non-authoritative registry preview</p><h1>Homepage section registry preview</h1><p class="lede">This file renders active manifest sections through a standalone registry snapshot without replacing production index.html or invoking legacy cleanup commands.</p><div class="lens-strip"><span>Registry</span><span>State</span><span>Renderer</span><span>Validation</span></div><div class="registry-preview-banner">Manifest v${esc(manifest.version || 'unknown')} · production output untouched · generated from existing state artifacts only.</div></div><aside class="status"><span>Preview authority</span><strong class="good">Non-production</strong><span>Use outputs/homepage-registry-preview-report.json to decide when registry migration is safe.</span><span>Existing injectors and cleanup scripts remain authoritative for production.</span></aside></header>
+    <header class="hero"><div><p class="eyebrow">Capital Radar · non-authoritative registry preview</p><h1>Homepage section registry preview</h1><p class="lede">This file renders active manifest sections through a standalone registry snapshot without replacing production index.html or invoking legacy cleanup commands.</p><div class="lens-strip"><span>Registry</span><span>State</span><span>Renderer</span><span>Validation</span></div><div class="registry-preview-banner">Manifest v${esc(manifest.version || 'unknown')} · production output untouched · generated from existing state artifacts only.</div></div><aside class="status"><span>Preview authority</span><strong class="good">Non-production</strong><span>Use homepage-registry-preview-report.json to decide when registry migration is safe.</span><span>Existing injectors and cleanup scripts remain authoritative for production.</span></aside></header>
     ${rendered.map(item => item.section).join('\n    ')}
     <footer class="footer">OpenClaw Capital Radar · registry preview generated ${esc(generatedAt)}</footer>
   </main>
@@ -148,6 +174,7 @@ function buildHtml({ manifest, rendered, styles, cssLinks }) {
 </html>
 `;
 }
+
 function validate({ html, manifest, registry, rendered }) {
   const activeIds = manifest.sections.filter(section => section.enabled !== false).map(section => section.id);
   const disabledIds = manifest.sections.filter(section => section.enabled === false).map(section => section.id);
@@ -167,18 +194,29 @@ function validate({ html, manifest, registry, rendered }) {
     disabledSectionLeakage: disabledIds.map(id => ({ id, count: countId(html, id) })).filter(item => item.count > 0),
     bannedPhraseLeakage: (manifest.cleanup?.bannedPhrases || []).filter(phrase => html.toLowerCase().includes(String(phrase).toLowerCase())),
     objectObjectLeakage: html.includes('[object Object]'),
+    previewRelativeOutputLinkLeakage: /\b(?:href|src)=(['"])outputs\//.test(html),
     missingStates: rendered.flatMap(item => item.diagnostics.missingStates.map(state => ({ section: item.entry.id, ...state }))),
     missingRenderers: rendered.flatMap(item => item.diagnostics.missingRenderers.map(renderer => ({ section: item.entry.id, ...renderer }))),
     renderGaps: rendered.filter(item => item.diagnostics.status !== 'OK').map(item => ({ id: item.entry.id, status: item.diagnostics.status, error: item.diagnostics.error })),
   };
-  const blocking = report.missingManifestSections.length + report.sectionCountMismatches.length + report.legacySectionLeakage.length + report.disabledSectionLeakage.length + report.bannedPhraseLeakage.length + report.renderGaps.length + (report.objectObjectLeakage ? 1 : 0);
+  const blocking = report.missingManifestSections.length
+    + report.sectionCountMismatches.length
+    + report.legacySectionLeakage.length
+    + report.disabledSectionLeakage.length
+    + report.bannedPhraseLeakage.length
+    + report.renderGaps.length
+    + (report.objectObjectLeakage ? 1 : 0)
+    + (report.previewRelativeOutputLinkLeakage ? 1 : 0);
   return { status: blocking === 0 ? 'OK' : 'PREVIEW_WITH_GAPS', ...report };
 }
+
 function main() {
   if (!fs.existsSync(manifestPath)) throw new Error(`Missing homepage manifest: ${path.relative(root, manifestPath)}`);
   const manifest = readJson(manifestPath);
   const activeIds = new Set(manifest.sections.filter(section => section.enabled !== false).map(section => section.id));
-  const registry = getHomepageSectionRegistry().filter(entry => activeIds.has(entry.manifestId || entry.id)).sort((a, b) => Number(a.previewOrder || 999) - Number(b.previewOrder || 999));
+  const registry = getHomepageSectionRegistry()
+    .filter(entry => activeIds.has(entry.manifestId || entry.id))
+    .sort((a, b) => Number(a.previewOrder || 999) - Number(b.previewOrder || 999));
   const rendered = registry.map(renderEntry);
   const html = buildHtml({ manifest, rendered, styles: rendered.map(item => item.style).filter(Boolean), cssLinks: registry.flatMap(entry => entry.cssLinks || []) });
   const validation = validate({ html, manifest, registry, rendered });
@@ -200,4 +238,5 @@ function main() {
   console.log(`Wrote ${path.relative(root, reportPath)}`);
   if (process.argv.includes('--strict') && validation.status !== 'OK') process.exit(1);
 }
+
 main();

@@ -1,3 +1,24 @@
+// LEGACY / ROLLBACK ONLY
+//
+// Do not add this script back to config/homepage-sections.json.
+// Operational Chart Phase 2 moved this behavior into:
+//   components/radar/operational-chart/render.cjs
+//
+// Former responsibility:
+// - top decision strip
+// - decision workboard wrapper
+// - primary callout
+// - side rail callouts
+// - confirmation strip
+// - chart layout adjustment
+//
+// Current authority:
+// - The Operational Chart renderer owns annotation composition.
+// - scripts/inject-operational-chart-home.cjs passes decision-chart-annotation-state.json into the renderer.
+// - scripts/render-capital-radar-home.cjs fails the build if this command reappears in the active manifest.
+//
+// Keep this file temporarily as a rollback/reference artifact only.
+
 const fs=require('fs');const path=require('path');
 const root=path.join(__dirname,'..');const indexPath=path.join(root,'index.html');const statePath=path.join(root,'outputs','decision-chart-annotation-state.json');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const arr=v=>Array.isArray(v)?v:[];

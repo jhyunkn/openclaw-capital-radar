@@ -1,0 +1,36 @@
+name: Generate homepage registry preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run strict homepage registry preview
+        run: npm run preview:homepage-registry:strict
+
+      - name: Commit generated preview artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add outputs/homepage-registry-preview.html outputs/homepage-registry-preview-report.json
+          if git diff --cached --quiet; then
+            echo "No homepage registry preview artifact changes to commit."
+          else
+            git commit -m "Generate homepage registry preview artifacts"
+            git push origin main
+          fi

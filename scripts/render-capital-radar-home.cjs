@@ -11,6 +11,15 @@ const bannedActiveCommands = [
   'node scripts/enhance-decision-chart-v2.cjs',
   'node scripts/patch-decision-chart-price-scale.cjs',
 ];
+const bannedLegacySelectors = [
+  'id="regime-section"',
+  "id='regime-section'",
+  'class="panel visual-regime"',
+  "class='panel visual-regime'",
+  '.visual-regime',
+  'href="#regime-section"',
+  "href='#regime-section'",
+];
 
 function loadManifest() {
   if (!fs.existsSync(manifestPath)) throw new Error(`homepage manifest missing: ${path.relative(root, manifestPath)}`);
@@ -121,6 +130,9 @@ function validateHomepage(manifest) {
   }
   for (const phrase of manifest.cleanup?.bannedPhrases || []) {
     if (html.toLowerCase().includes(String(phrase).toLowerCase())) errors.push(`legacy phrase still present: ${phrase}`);
+  }
+  for (const selector of bannedLegacySelectors) {
+    if (html.includes(selector)) errors.push(`legacy visual regime selector still present: ${selector}`);
   }
   if (html.includes('[object Object]')) errors.push('homepage leaks [object Object]');
   if (!html.includes('Operational Decision Chart')) errors.push('operational decision chart missing');

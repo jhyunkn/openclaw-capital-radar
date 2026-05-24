@@ -48,10 +48,10 @@ function escapeRegExp(value) {
   return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function statusFromCounts(counts, checks, registryStatus) {
+function statusFromCounts(counts, registryStatus) {
   if (registryStatus === 'FAILED' || registryStatus === 'PREVIEW_WITH_GAPS') return 'BLOCKED';
   if (counts.bannedPhraseLeakCount > 0 || counts.objectObjectLeakCount > 0 || counts.legacySectionLeakCount > 0) return 'BLOCKED';
-  if (counts.missingDataCount > 0 || counts.staleDataCount > 0 || counts.zeroValueSuspicionCount > 0 || checks.legacyCleanupActive) return 'DEGRADED';
+  if (counts.missingDataCount > 0 || counts.staleDataCount > 0 || counts.zeroValueSuspicionCount > 0) return 'DEGRADED';
   if (registryStatus && registryStatus !== 'OK') return 'DEGRADED';
   return 'OK';
 }
@@ -114,21 +114,22 @@ function main() {
       .filter(section => section.enabled !== false && section.required !== false)
       .every(section => htmlCount(indexHtml, new RegExp(`id=["']${escapeRegExp(section.id)}["']`, 'g')) === 1),
     relativeOutputLinksAllowed: true,
+    cleanupOnlyWarning: Boolean((manifest.cleanup?.commands || []).length) && counts.legacySectionLeakCount === 0 && counts.bannedPhraseLeakCount === 0,
   };
 
   const registryStatus = previewReport?.status || 'PENDING_FIRST_RENDER';
-  const status = statusFromCounts(counts, checks, registryStatus);
+  const status = statusFromCounts(counts, registryStatus);
   const verdict = status === 'OK'
     ? 'Radar is edit-ready: registry preview, data truth, and homepage integrity checks are clean.'
     : status === 'DEGRADED'
-      ? 'Radar is usable for visual/data-display editing, but missing/stale source data or cleanup retirement remains unresolved.'
+      ? 'Radar is usable for visual/data-display editing, but missing/stale source data remains unresolved.'
       : 'Radar is blocked: resolve structural or data integrity failures before visual editing.';
 
   const report = {
     generatedAt,
     status,
     verdict,
-    policy: 'Capital Radar health report is a deployment/edit-readiness gate. Missing source values must not render as zero. Relative outputs/ links are valid static artifact links, not broken links.',
+    policy: 'Capital Radar health report is a deployment/edit-readiness gate. Missing source values must not render as zero. Relative outputs/ links are valid static artifact links, not broken links. Legacy cleanup commands are warnings when validation proves no legacy leakage.',
     truthTiers: ['REAL', 'DERIVED', 'EST', 'PROJ', 'MISSING', 'STALE'],
     production: {
       buildCommit: process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || null,
@@ -142,11 +143,15 @@ function main() {
     },
     checks,
     counts,
+    warnings: {
+      legacyCleanupActive: checks.cleanupOnlyWarning,
+      productionIndexNotWrittenByPreview: checks.productionIndexWrittenByPreview === false,
+    },
     artifacts,
     editReadiness: {
       visualLayer: status !== 'BLOCKED',
       dataDisplayLayer: status !== 'BLOCKED',
-      aggressiveVisualRefactor: status === 'OK' && checks.legacyCleanupActive === false,
+      aggressiveVisualRefactor: status === 'OK',
     },
   };
 

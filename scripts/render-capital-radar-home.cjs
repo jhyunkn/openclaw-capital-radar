@@ -7,6 +7,7 @@ const outputsDir = path.join(root, 'outputs');
 const manifestPath = path.join(root, 'config', 'homepage-sections.json');
 const reportPath = path.join(outputsDir, 'capital-radar-home-build-report.json');
 const chartReportPath = path.join(outputsDir, 'operational-chart-validation-report.json');
+const legacyStripReportPath = path.join(outputsDir, 'homepage-legacy-strip-report.json');
 const bannedActiveCommands = [
   'node scripts/enhance-decision-chart-v2.cjs',
   'node scripts/patch-decision-chart-price-scale.cjs',
@@ -26,6 +27,25 @@ function loadManifest() {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   if (!Array.isArray(manifest.sections)) throw new Error('homepage manifest missing sections[]');
   return manifest;
+}
+
+function readJsonIfExists(filePath) {
+  if (!fs.existsSync(filePath)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    return { status: 'UNREADABLE', error: error.message };
+  }
+}
+
+function summarizeLegacyStripReport(report) {
+  if (!report) return { status: 'MISSING' };
+  return {
+    status: report.status || 'UNKNOWN',
+    bytes_removed: Number(report.bytes_removed || 0),
+    total_operations: Number(report.total_operations || 0),
+    retirement_signal: report.retirement_signal || 'unknown',
+  };
 }
 
 function fail(message, report) {
@@ -170,6 +190,8 @@ runGroup('cleanup-legacy-home-sections', manifest.cleanup?.commands || [], repor
 const structuralErrors = validateHomepage(manifest);
 if (structuralErrors.length) fail(`structural validation failed: ${structuralErrors.join('; ')}`, report);
 
+const legacyStripReport = readJsonIfExists(legacyStripReportPath);
+
 fs.mkdirSync(outputsDir, { recursive: true });
 const finalReport = {
   generatedAt: new Date().toISOString(),
@@ -181,6 +203,10 @@ const finalReport = {
   reports: {
     homepage: path.relative(root, reportPath),
     operational_chart: path.relative(root, chartReportPath),
+    legacy_strip: path.relative(root, legacyStripReportPath),
+  },
+  cleanup: {
+    legacy_strip: summarizeLegacyStripReport(legacyStripReport),
   },
   stages: report.stages,
 };
@@ -188,3 +214,4 @@ fs.writeFileSync(reportPath, JSON.stringify(finalReport, null, 2));
 console.log(`\nCapital Radar homepage build passed in ${(finalReport.totalMs / 1000).toFixed(1)}s`);
 console.log(`Wrote ${path.relative(root, reportPath)}`);
 console.log(`Wrote ${path.relative(root, chartReportPath)}`);
+console.log(`Referenced ${path.relative(root, legacyStripReportPath)}`);

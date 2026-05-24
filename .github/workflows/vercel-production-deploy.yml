@@ -2,6 +2,11 @@ name: Deploy Production to Vercel
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/deploy-trigger/vercel-prebuilt-production.txt'
 
 concurrency:
   group: vercel-production-deploy

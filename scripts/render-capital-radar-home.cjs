@@ -6,6 +6,7 @@ const root = path.join(__dirname, '..');
 const outputsDir = path.join(root, 'outputs');
 const manifestPath = path.join(root, 'config', 'homepage-sections.json');
 const reportPath = path.join(outputsDir, 'capital-radar-home-build-report.json');
+const chartReportPath = path.join(outputsDir, 'operational-chart-validation-report.json');
 const bannedActiveCommands = [
   'node scripts/enhance-decision-chart-v2.cjs',
   'node scripts/patch-decision-chart-price-scale.cjs',
@@ -72,6 +73,38 @@ function validateManifest(manifest) {
   return errors;
 }
 
+function buildOperationalChartReport(html) {
+  const warnings = [];
+  const chartContainerCount = (html.match(/id=["']opclaw-operational-lwc["']/g) || []).length;
+  const runtimeCount = (html.match(/const payload=\{"series":/g) || []).length;
+  const annotationLayerPresent = html.includes('decision-chart-v2-shell');
+  const decisionRailPresent = html.includes('decision-chart-rail');
+  const confirmationStripPresent = html.includes('decision-chart-confirmation-strip');
+  const autoscalePolicyPresent = html.includes('actionable_spx_levels_only');
+  const legacyPatchResiduePresent = html.includes('scenario path lines removed from main price pane');
+  if (chartContainerCount !== 1) warnings.push(`chart_container_count=${chartContainerCount}`);
+  if (runtimeCount !== 1) warnings.push(`runtime_count=${runtimeCount}`);
+  if (!annotationLayerPresent) warnings.push('annotation_layer_missing');
+  if (!decisionRailPresent) warnings.push('decision_rail_missing');
+  if (!confirmationStripPresent) warnings.push('confirmation_strip_missing');
+  if (!autoscalePolicyPresent) warnings.push('autoscale_policy_missing');
+  if (legacyPatchResiduePresent) warnings.push('legacy_price_scale_patch_residue_present');
+  return {
+    generatedAt: new Date().toISOString(),
+    status: warnings.length ? 'FAILED' : 'OK',
+    chart_container_count: chartContainerCount,
+    runtime_count: runtimeCount,
+    annotation_layer_present: annotationLayerPresent,
+    decision_rail_present: decisionRailPresent,
+    confirmation_strip_present: confirmationStripPresent,
+    autoscale_policy_present: autoscalePolicyPresent,
+    legacy_patch_residue_present: legacyPatchResiduePresent,
+    scale_affecting_items: ['candles', 'moving_averages', 'add_zone', 'trim_zone', 'hold_above', 'defense_below', 'hard_risk', 'target', 'current_price'],
+    scale_neutral_items: ['volume', 'scenario_paths', 'projection_paths', 'annotation_markers', 'decision_rail', 'confirmation_strip'],
+    warnings,
+  };
+}
+
 function validateHomepage(manifest) {
   const indexPath = path.join(root, 'index.html');
   if (!fs.existsSync(indexPath)) return ['index.html missing'];
@@ -92,14 +125,11 @@ function validateHomepage(manifest) {
   if (html.includes('[object Object]')) errors.push('homepage leaks [object Object]');
   if (!html.includes('Operational Decision Chart')) errors.push('operational decision chart missing');
   if (!html.includes('Market Decision Brief')) errors.push('market decision brief missing');
-  const chartContainerCount = (html.match(/id=["']opclaw-operational-lwc["']/g) || []).length;
-  if (chartContainerCount !== 1) errors.push(`operational chart container count ${chartContainerCount}, expected 1`);
-  const chartRuntimeCount = (html.match(/const payload=\{"series":/g) || []).length;
-  if (chartRuntimeCount !== 1) errors.push(`operational chart runtime count ${chartRuntimeCount}, expected 1`);
-  if (!html.includes('decision-chart-rail')) errors.push('operational chart decision rail missing');
-  if (!html.includes('decision-chart-confirmation-strip')) errors.push('operational chart confirmation strip missing');
-  if (!html.includes('actionable_spx_levels_only')) errors.push('operational chart autoscale policy missing');
-  if (html.includes('scenario path lines removed from main price pane')) errors.push('legacy price-scale patch residue present');
+
+  fs.mkdirSync(outputsDir, { recursive: true });
+  const chartReport = buildOperationalChartReport(html);
+  fs.writeFileSync(chartReportPath, JSON.stringify(chartReport, null, 2));
+  if (chartReport.status !== 'OK') errors.push(`operational chart validation failed: ${chartReport.warnings.join(', ')}`);
   return errors;
 }
 
@@ -136,8 +166,13 @@ const finalReport = {
   policy: 'manifest-driven Capital Radar homepage render path',
   manifest: path.relative(root, manifestPath),
   sections: manifest.sections.filter(s => s.enabled !== false).map(s => s.id),
+  reports: {
+    homepage: path.relative(root, reportPath),
+    operational_chart: path.relative(root, chartReportPath),
+  },
   stages: report.stages,
 };
 fs.writeFileSync(reportPath, JSON.stringify(finalReport, null, 2));
 console.log(`\nCapital Radar homepage build passed in ${(finalReport.totalMs / 1000).toFixed(1)}s`);
 console.log(`Wrote ${path.relative(root, reportPath)}`);
+console.log(`Wrote ${path.relative(root, chartReportPath)}`);

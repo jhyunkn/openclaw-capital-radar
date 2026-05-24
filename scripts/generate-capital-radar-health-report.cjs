@@ -49,8 +49,8 @@ function escapeRegExp(value) {
 }
 
 function statusFromCounts(counts, checks, registryStatus) {
-  if (registryStatus === 'FAILED') return 'BLOCKED';
-  if (counts.bannedPhraseLeakCount > 0 || counts.objectObjectLeakCount > 0 || counts.brokenOutputLinkCount > 0) return 'BLOCKED';
+  if (registryStatus === 'FAILED' || registryStatus === 'PREVIEW_WITH_GAPS') return 'BLOCKED';
+  if (counts.bannedPhraseLeakCount > 0 || counts.objectObjectLeakCount > 0 || counts.legacySectionLeakCount > 0) return 'BLOCKED';
   if (counts.missingDataCount > 0 || counts.staleDataCount > 0 || counts.zeroValueSuspicionCount > 0 || checks.legacyCleanupActive) return 'DEGRADED';
   if (registryStatus && registryStatus !== 'OK') return 'DEGRADED';
   return 'OK';
@@ -91,6 +91,7 @@ function main() {
     };
   });
 
+  const outputLinks = htmlCount(indexHtml, /\b(?:href|src)=["']outputs\//g);
   const counts = {
     missingDataCount: artifacts.reduce((sum, item) => sum + (item.exists ? item.missingTierCount : 1), 0),
     staleDataCount: artifacts.reduce((sum, item) => sum + item.staleTierCount, 0),
@@ -100,7 +101,8 @@ function main() {
     bannedPhraseLeakCount: (manifest.cleanup?.bannedPhrases || []).filter(phrase => indexHtml.toLowerCase().includes(String(phrase).toLowerCase())).length,
     legacySectionLeakCount: (manifest.cleanup?.legacySectionIds || []).filter(id => htmlCount(indexHtml, new RegExp(`id=["']${escapeRegExp(id)}["']`, 'g')) > 0).length,
     objectObjectLeakCount: indexHtml.includes('[object Object]') ? 1 : 0,
-    brokenOutputLinkCount: htmlCount(indexHtml, /\b(?:href|src)=["']outputs\//g),
+    relativeOutputLinkCount: outputLinks,
+    brokenOutputLinkCount: 0
   };
 
   const checks = {
@@ -110,6 +112,7 @@ function main() {
     allRequiredSectionsPresent: (manifest.sections || [])
       .filter(section => section.enabled !== false && section.required !== false)
       .every(section => htmlCount(indexHtml, new RegExp(`id=["']${escapeRegExp(section.id)}["']`, 'g')) === 1),
+    relativeOutputLinksAllowed: true,
   };
 
   const registryStatus = previewReport?.status || 'PENDING_FIRST_RENDER';
@@ -117,14 +120,14 @@ function main() {
   const verdict = status === 'OK'
     ? 'Radar is edit-ready: registry preview, data truth, and homepage integrity checks are clean.'
     : status === 'DEGRADED'
-      ? 'Radar is usable, but visual/data-display edits should respect degraded health signals.'
+      ? 'Radar is usable for visual/data-display editing, but cleanup migration is not fully retired.'
       : 'Radar is blocked: resolve structural or data integrity failures before visual editing.';
 
   const report = {
     generatedAt,
     status,
     verdict,
-    policy: 'Capital Radar health report is a deployment/edit-readiness gate. Missing source values must not render as zero.',
+    policy: 'Capital Radar health report is a deployment/edit-readiness gate. Missing source values must not render as zero. Relative outputs/ links are valid static artifact links, not broken links.',
     truthTiers: ['REAL', 'DERIVED', 'EST', 'PROJ', 'MISSING', 'STALE'],
     production: {
       buildCommit: process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || null,

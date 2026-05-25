@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "mission": "Define the evidence categories Capital Radar must collect, classify, and expose before rendering decision-grade strategy.",
+  "decision_chain": [
+    "raw_data",
+    "evidence_cluster",
+    "interpretation",
+    "permission",
+    "action",
+    "invalidation",
+    "confidence"
+  ],
+  "visual_principle": {
+    "default": "Preserve the current Capital Radar graphic identity unless information architecture requires a change.",
+    "reference_quality": "OpenAI-style clarity: restrained layout, generous spacing, precise language, low decoration, graphics that explain rather than compete."
+  },
+  "evidence_clusters": [
+    {
+      "id": "macro_regime",
+      "label": "Macro regime",
+      "purpose": "Determine the broad economic and policy environment that frames risk-taking.",
+      "required_fields": [
+        "fed_policy_rate",
+        "fed_expectations",
+        "inflation_trend",
+        "real_rates",
+        "yield_curve",
+        "dollar_trend",
+        "oil_trend",
+        "gold_trend"
+      ],
+      "decision_questions": [
+        "Is policy easing, restrictive, or transitioning?",
+        "Are inflation and real rates supportive or hostile to duration assets?",
+        "Does the macro regime support risk expansion or capital preservation?"
+      ]
+    },
+    {
+      "id": "liquidity_credit",
+      "label": "Liquidity and credit",
+      "purpose": "Measure the availability of capital and stress level in the system.",
+      "required_fields": [
+        "credit_spreads",
+        "high_yield_oas",
+        "investment_grade_spreads",
+        "financial_conditions",
+        "treasury_liquidity",
+        "bank_lending_conditions",
+        "money_market_flows",
+        "stablecoin_or_crypto_liquidity_proxy"
+      ],
+      "decision_questions": [
+        "Is liquidity expanding or contracting?",
+        "Is credit stress contained or rising?",
+        "Does liquidity permit speculative risk or only quality exposure?"
+      ]
+    },
+    {
+      "id": "market_structure",
+      "label": "Market structure",
+      "purpose": "Translate price, breadth, volatility, and positioning into market permission.",
+      "required_fields": [
+        "spx_trend",
+        "qqq_trend",
+        "vix_level",
+        "breadth",
+        "advance_decline",
+        "sector_leadership",
+        "momentum",
+        "volume_confirmation",
+        "positioning_or_sentiment_proxy"
+      ],
+      "decision_questions": [
+        "Is the rally broad or narrow?",
+        "Is volatility confirming or contradicting price?",
+        "Is the market extended, constructive, fragile, or breaking?"
+      ]
+    },
+    {
+      "id": "sector_theme",
+      "label": "Sector and theme rotation",
+      "purpose": "Identify where capital is flowing and whether a theme is fundamentally supported.",
+      "required_fields": [
+        "sector_relative_strength",
+        "theme_momentum",
+        "capex_cycle_evidence",
+        "policy_tailwind",
+        "earnings_revision_trend",
+        "supply_constraint_or_bottleneck",
+        "capital_flow_confirmation"
+      ],
+      "decision_questions": [
+        "Which sectors are leading and why?",
+        "Is a theme supported by real capex/earnings or only narrative?",
+        "Which themes deserve promotion, watch, or rejection?"
+      ]
+    },
+    {
+      "id": "ticker_fundamentals",
+      "label": "Ticker fundamentals",
+      "purpose": "Ground each ticker strategy in company-level operating data.",
+      "required_fields": [
+        "market_cap",
+        "revenue_growth",
+        "eps_growth",
+        "gross_margin",
+        "operating_margin",
+        "net_margin",
+        "free_cash_flow",
+        "cash",
+        "debt",
+        "capex",
+        "share_count_or_dilution",
+        "guidance"
+      ],
+      "decision_questions": [
+        "Is the business improving or deteriorating?",
+        "Is growth high quality or capital intensive?",
+        "Does the balance sheet support risk-taking?"
+      ]
+    },
+    {
+      "id": "valuation_expectations",
+      "label": "Valuation and expectations",
+      "purpose": "Compare price paid against growth, margins, durability, and market expectations.",
+      "required_fields": [
+        "pe_ratio",
+        "forward_pe",
+        "ev_sales",
+        "ev_ebitda",
+        "price_sales",
+        "free_cash_flow_yield",
+        "valuation_vs_history",
+        "valuation_vs_peers",
+        "analyst_revision_trend",
+        "earnings_surprise_history"
+      ],
+      "decision_questions": [
+        "What expectations are embedded in the price?",
+        "Is valuation justified by growth and margins?",
+        "Is the setup asymmetric or merely expensive momentum?"
+      ]
+    },
+    {
+      "id": "ticker_catalyst",
+      "label": "Ticker catalysts",
+      "purpose": "Identify events that could change fundamentals, sentiment, or price discovery.",
+      "required_fields": [
+        "earnings_date",
+        "guidance_update",
+        "product_or_contract_catalyst",
+        "regulatory_catalyst",
+        "mna_or_partnership",
+        "insider_activity",
+        "institutional_ownership_change",
+        "short_interest"
+      ],
+      "decision_questions": [
+        "What event can change the thesis?",
+        "Is the catalyst already priced in?",
+        "Does the catalyst justify action now or only monitoring?"
+      ]
+    },
+    {
+      "id": "technical_entry",
+      "label": "Technical entry and risk boundary",
+      "purpose": "Translate thesis into entry timing, add zone, trim zone, and invalidation.",
+      "required_fields": [
+        "current_price",
+        "support_levels",
+        "resistance_levels",
+        "moving_averages",
+        "trend_strength",
+        "rsi_or_momentum",
+        "volume_confirmation",
+        "add_zone",
+        "trim_zone",
+        "stop_or_invalidation"
+      ],
+      "decision_questions": [
+        "Is this a good company at a good entry?",
+        "Where is the controlled add zone?",
+        "Where is the thesis wrong or timing invalidated?"
+      ]
+    },
+    {
+      "id": "portfolio_context",
+      "label": "Portfolio context",
+      "purpose": "Ensure the strategy fits the user's actual exposure, sizing, and risk budget.",
+      "required_fields": [
+        "current_position_size",
+        "cost_basis",
+        "unrealized_gain_loss",
+        "portfolio_weight",
+        "theme_concentration",
+        "correlation_to_existing_positions",
+        "cash_available",
+        "risk_budget",
+        "max_add_size"
+      ],
+      "decision_questions": [
+        "Does this action improve the portfolio or increase concentration risk?",
+        "Is the position already large enough?",
+        "What size is permitted under the current market regime?"
+      ]
+    }
+  ],
+  "strategy_output_contract": {
+    "required_sections": [
+      "decision",
+      "evidence_for",
+      "evidence_against",
+      "missing_or_weak_evidence",
+      "allowed_action",
+      "blocked_action",
+      "entry_trigger",
+      "invalidation",
+      "position_sizing_logic",
+      "confidence"
+    ],
+    "forbidden_patterns": [
+      "strategy without evidence",
+      "price-only ticker recommendation",
+      "unconditional buy or sell without trigger",
+      "confidence without source quality",
+      "macro conclusion without macro evidence"
+    ]
+  }
+}

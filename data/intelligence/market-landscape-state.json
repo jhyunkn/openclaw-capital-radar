@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-05-22T12:06:12.176Z",
-  "cycle_id": "2026052212",
+  "as_of": "2026-05-25T12:04:00.000Z",
+  "cycle_id": "2026052508",
   "market_focus": [
     {
       "theme": "Index Ballast / Liquidity Beta",
@@ -16,8 +16,8 @@
     },
     {
       "theme": "AI Compute Expansion",
-      "summary": "AI Compute Expansion is currently stressed inside the market-orientation model; this defines macro direction before ticker selection.",
-      "pressure_state": "stressed",
+      "summary": "AI Compute Expansion is currently mixed inside the market-orientation model; this defines macro direction before ticker selection.",
+      "pressure_state": "mixed",
       "evidence_ids": [
         "ev_009",
         "ev_007",
@@ -27,9 +27,9 @@
       "confidence": 0.68
     },
     {
-      "theme": "Streaming / Attention Stack",
-      "summary": "Streaming / Attention Stack is currently mixed inside the market-orientation model; this defines macro direction before ticker selection.",
-      "pressure_state": "mixed",
+      "theme": "Bitcoin Financialization",
+      "summary": "Bitcoin Financialization is currently stressed inside the market-orientation model; this defines macro direction before ticker selection.",
+      "pressure_state": "stressed",
       "evidence_ids": [
         "ev_010",
         "ev_007",
@@ -153,18 +153,52 @@
   },
   "what_changed_since_last_cycle": [
     {
-      "change": "No material macro-direction change detected this cycle.",
-      "prior_state": "previous landscape retained",
-      "current_state": "current landscape consistent",
-      "materiality": "low",
+      "change": "Fetch-only degraded cycle performed without web_search retry; no comprehensive current-news freshness claim is allowed.",
+      "prior_state": "partial web/search degradation already recorded",
+      "current_state": "direct fetch/FRED/local-only evidence used",
+      "materiality": "medium_data_truth_only",
       "evidence_ids": [
-        "ev_007",
-        "ev_001",
-        "ev_002"
+        "ev_017",
+        "ev_018",
+        "ev_019"
+      ]
+    },
+    {
+      "change": "Rates/credit/inflation direct checks reaffirm constrained macro permission rather than a new risk-on promotion.",
+      "prior_state": "DGS10 4.57 and HY OAS 2.78 from prior local/FRED observations",
+      "current_state": "DGS10 4.57, HY OAS 2.78, 10Y breakeven 2.40 latest available observations",
+      "materiality": "low_to_medium",
+      "evidence_ids": [
+        "ev_017"
+      ]
+    },
+    {
+      "change": "Holiday closure gate remains active for U.S. equity tape.",
+      "prior_state": "holiday prior-session tape classified as degraded",
+      "current_state": "holiday gate retained; no live Monday equity inference",
+      "materiality": "medium_data_truth_only",
+      "evidence_ids": [
+        "ev_019"
       ]
     }
   ],
   "contradictions": [
+    {
+      "issue": "Fetch-only evidence is not a full current-news sweep",
+      "implication": "Market posture may be maintained but not promoted; source-confidence and post-holiday live tape are required before deployment.",
+      "evidence_ids": [
+        "ev_017",
+        "ev_018",
+        "ev_019"
+      ]
+    },
+    {
+      "issue": "Holiday tape is not live tape",
+      "implication": "Prior-session prices may be usable for context but cannot authorize new/add decisions or normal deployment.",
+      "evidence_ids": [
+        "ev_015"
+      ]
+    },
     {
       "issue": "Data truth watch: MSFT",
       "implication": "This weakens render confidence until source freshness/confidence recovers.",
@@ -243,12 +277,13 @@
       ]
     }
   ],
-  "state_change_level": "minor",
+  "state_change_level": "minor_data_truth_update",
   "render_permission": true,
   "precedent_framework_ids": [
     "fred_release_metadata",
     "cross_asset_cockpit",
     "risk_committee_packet",
     "chart_decision_map"
-  ]
+  ],
+  "landscape_cycle_note": "Holiday/fetch-only cycle: market posture retained; direct macro/policy/calendar checks did not authorize promotion, and U.S. equity tape remains prior-session."
 }

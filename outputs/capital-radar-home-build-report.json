@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-22T12:21:29.141Z",
+  "generatedAt": "2026-05-25T12:24:17.742Z",
   "status": "OK",
-  "totalMs": 18651,
+  "totalMs": 19188,
   "policy": "manifest-driven Capital Radar homepage render path",
   "manifest": "config\\homepage-sections.json",
   "sections": [
@@ -17,122 +17,137 @@
   "stages": [
     {
       "name": "baseline-home-shell",
-      "durationMs": 71,
+      "durationMs": 74,
       "commands": [
         {
           "command": "node scripts/render-homepage-shell.cjs",
           "status": "OK",
-          "durationMs": 71
+          "durationMs": 74
         }
       ]
     },
     {
       "name": "Market Regime",
-      "durationMs": 11694,
+      "durationMs": 11727,
       "commands": [
         {
           "command": "node scripts/generate-operational-chart-state.cjs",
           "status": "OK",
-          "durationMs": 303
+          "durationMs": 282
         },
         {
           "command": "node scripts/generate-confirmation-state.cjs",
           "status": "OK",
-          "durationMs": 76
+          "durationMs": 74
         },
         {
           "command": "node scripts/generate-market-decision-brief-state.cjs",
           "status": "OK",
-          "durationMs": 11228
+          "durationMs": 11283
         },
         {
           "command": "node scripts/inject-market-decision-brief-home.cjs",
           "status": "OK",
-          "durationMs": 87
+          "durationMs": 86
         }
       ]
     },
     {
       "name": "Decision Chart",
-      "durationMs": 397,
+      "durationMs": 597,
       "commands": [
         {
           "command": "node scripts/generate-operational-chart-state.cjs",
           "status": "OK",
-          "durationMs": 306
+          "durationMs": 286
         },
         {
           "command": "node scripts/inject-operational-chart-home.cjs",
+          "status": "OK",
+          "durationMs": 94
+        },
+        {
+          "command": "node scripts/generate-decision-chart-annotation-state.cjs",
+          "status": "OK",
+          "durationMs": 74
+        },
+        {
+          "command": "node scripts/enhance-decision-chart-v2.cjs",
+          "status": "OK",
+          "durationMs": 74
+        },
+        {
+          "command": "node scripts/patch-decision-chart-price-scale.cjs",
+          "status": "OK",
+          "durationMs": 69
+        }
+      ]
+    },
+    {
+      "name": "Cross-Asset Lens",
+      "durationMs": 466,
+      "commands": [
+        {
+          "command": "node scripts/generate-market-lens-state.cjs",
+          "status": "OK",
+          "durationMs": 375
+        },
+        {
+          "command": "node scripts/inject-market-lens-home.cjs",
           "status": "OK",
           "durationMs": 91
         }
       ]
     },
     {
-      "name": "Cross-Asset Lens",
-      "durationMs": 423,
-      "commands": [
-        {
-          "command": "node scripts/generate-market-lens-state.cjs",
-          "status": "OK",
-          "durationMs": 333
-        },
-        {
-          "command": "node scripts/inject-market-lens-home.cjs",
-          "status": "OK",
-          "durationMs": 90
-        }
-      ]
-    },
-    {
       "name": "Strategy Route",
-      "durationMs": 144,
+      "durationMs": 153,
       "commands": [
         {
           "command": "node scripts/generate-strategy-routing-state.cjs",
           "status": "OK",
-          "durationMs": 71
+          "durationMs": 79
         },
         {
           "command": "node scripts/inject-strategy-routing-home.cjs",
           "status": "OK",
-          "durationMs": 73
+          "durationMs": 74
         }
       ]
     },
     {
       "name": "Holdings",
-      "durationMs": 4988,
+      "durationMs": 5303,
       "commands": [
         {
           "command": "node scripts/generate-research-universe-state.cjs",
           "status": "OK",
-          "durationMs": 73
+          "durationMs": 77
         },
         {
           "command": "node scripts/run-research-collectors-safe.cjs",
           "status": "OK",
-          "durationMs": 4393
+          "durationMs": 4641
         },
         {
           "command": "node scripts/generate-institutional-source-states.cjs",
           "status": "OK",
-          "durationMs": 76
+          "durationMs": 75
         },
         {
           "command": "node scripts/generate-holding-zone-state.cjs",
           "status": "OK",
-          "durationMs": 69
+          "durationMs": 67
         },
         {
           "command": "node scripts/annotate-holding-zone-source.cjs",
           "status": "OK",
-          "durationMs": 69
+          "durationMs": 77
         },
         {
           "command": "node scripts/apply-strategy-route-to-holdings.cjs",
           "status": "OK",
-          "durationMs": 73
+          "durationMs": 67
         },
         {
           "command": "node scripts/validate-holding-zone-state.cjs",
@@ -142,18 +157,18 @@
         {
           "command": "node scripts/inject-strong-holdings-cards-home.cjs",
           "status": "OK",
-          "durationMs": 93
+          "durationMs": 98
         },
         {
           "command": "node scripts/strip-holdings-role-method-home.cjs",
           "status": "OK",
-          "durationMs": 70
+          "durationMs": 129
         }
       ]
     },
     {
       "name": "Opportunity",
-      "durationMs": 414,
+      "durationMs": 365,
       "commands": [
         {
           "command": "node scripts/generate-opportunity-band-state.cjs",
@@ -173,65 +188,65 @@
         {
           "command": "node scripts/enrich-opportunity-near-miss-diagnostics.cjs",
           "status": "OK",
-          "durationMs": 114
+          "durationMs": 71
         },
         {
           "command": "node scripts/inject-opportunity-promotion-board-home.cjs",
           "status": "OK",
-          "durationMs": 92
+          "durationMs": 86
         }
       ]
     },
     {
       "name": "Market Tape",
-      "durationMs": 146,
+      "durationMs": 143,
       "commands": [
         {
           "command": "node scripts/generate-market-tape-state.cjs",
           "status": "OK",
-          "durationMs": 73
+          "durationMs": 69
         },
         {
           "command": "node scripts/inject-market-tape-board-home.cjs",
           "status": "OK",
-          "durationMs": 73
+          "durationMs": 74
         }
       ]
     },
     {
       "name": "Trust / Data Quality",
-      "durationMs": 154,
+      "durationMs": 146,
       "commands": [
         {
           "command": "node scripts/generate-trust-strip-state.cjs",
           "status": "OK",
-          "durationMs": 78
+          "durationMs": 71
         },
         {
           "command": "node scripts/inject-trust-strip-home.cjs",
           "status": "OK",
-          "durationMs": 76
+          "durationMs": 75
         }
       ]
     },
     {
       "name": "cleanup-legacy-home-sections",
-      "durationMs": 214,
+      "durationMs": 209,
       "commands": [
         {
           "command": "node scripts/strip-legacy-brief-strategy-home.cjs",
           "status": "OK",
-          "durationMs": 76
+          "durationMs": 71
         },
         {
           "command": "node scripts/strip-visual-regime-home.cjs",
           "status": "OK",
-          "durationMs": 70
+          "durationMs": 66
         },
         {
           "command": "node scripts/normalize-homepage-sections.cjs",
           "status": "OK",
-          "durationMs": 68
+          "durationMs": 72
         }
       ]
     }

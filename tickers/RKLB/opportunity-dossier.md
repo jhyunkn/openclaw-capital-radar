@@ -1,6 +1,6 @@
 # RKLB Opportunity Dossier
 
-Generated: 2026-05-19T03:38:46.570Z
+Generated: 2026-05-25T12:23:52.967Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,11 +8,11 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Rocket Lab
 - Lane: structural_candidate
-- Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 72
+- Stage: PRIORITY_RESEARCH
+- Opportunity score: 77
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 129.81
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Current price: 134.15
+- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 
 ## Why Now
 
-- RKLB positive 4.04% while broad tape is weak.
+- RKLB positive 6.94% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -61,7 +61,7 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 ## Action Framework
 
 Observation:
-RKLB positive 4.04% while broad tape is weak.
+RKLB positive 6.94% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

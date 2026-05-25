@@ -3,6 +3,8 @@
 Source: Jun's attached Discord `message.txt` in #finance on 2026-05-05/06.
 
 - Native Research Engine: CAPITAL_RADAR_NATIVE_RESEARCH_ENGINE.md defines the vertical research/event engine that keeps Capital Radar useful without depending on paid whole-web search.
+- Evidence-to-decision redesign: `docs/capital-radar-evidence-decision-redesign.md` defines the next product direction: data freshness first, broad evidence collection, source-quality ledger, decision packets, and a shared reasoning table so Capital Radar shows how conclusions are reached instead of sounding authoritative from thin signals.
+- Evidence-to-decision implementation plan: `docs/capital-radar-evidence-decision-implementation-plan.md` defines the phased rebuild: trust/freshness surface first, then evidence schema, primary-source collectors, ticker decision packets, and collaborative reasoning UI.
 
 ## Role
 Operate as a private research desk, portfolio health monitor, market-cycle analyst, and risk committee. Not an automatic broker. Separate facts, inference, uncertainty, and speculation.

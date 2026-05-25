@@ -24,7 +24,7 @@ const innerEggNavCount = count(/class=["']ke-nav["']|class=["'][^"']*\bke-topbar
 const brandCount = count(/OpenClaw Capital Radar/g, text);
 const heroIndex = html.indexOf('<header class="hero"');
 const firstSectionIndex = html.search(/<section\b[^>]*id=["'][^"']+["']/);
-const requiredIds = ['kostolany-egg-section','decision-brief-section','operational-chart-section','holdings-section','opportunities-section','market-section'];
+const requiredIds = ['data-refresh-section','kostolany-egg-section','decision-brief-section','operational-chart-section','holdings-section','opportunities-section','market-section'];
 const sectionCounts = Object.fromEntries(requiredIds.map(id => [id, count(new RegExp(`id=["']${id}["']`, 'g'), html)]));
 const legacyIds = ['today-market-brain-section','brief','strategy-section','regime-section','macro-cycle-section','trust-section'];
 const legacyPresent = legacyIds.filter(id => count(new RegExp(`id=["']${id}["']`, 'g'), html));
@@ -32,6 +32,7 @@ const visibleNotAvailable = count(/not available/g, text);
 const permissionRows = count(/class=["'][^"']*\bpermission-row\b/g, html);
 const zoneCards = count(/class=["'][^"']*\bzone-card\b/g, html);
 const bodyHasExplainer = text.includes('Terms stay familiar: Buy means a buy-zone signal');
+const bodyHasRefreshStrip = text.includes('Data refresh / evidence coverage') && text.includes('What data is this page actually using?');
 if (topbarCount !== 1) errors.push(`topbar_count=${topbarCount}; expected 1`);
 if (mainNavCount !== 1) errors.push(`main_nav_count=${mainNavCount}; expected 1`);
 if (innerEggNavCount !== 0) errors.push(`inner_egg_nav_or_topbar_count=${innerEggNavCount}; expected 0`);
@@ -43,6 +44,7 @@ if (legacyPresent.length) errors.push(`legacy_sections_present=${legacyPresent.j
 if (visibleNotAvailable > 0) errors.push(`visible_not_available_count=${visibleNotAvailable}`);
 if (zoneCards > 0 && permissionRows < zoneCards) errors.push(`permission_rows=${permissionRows}; zone_cards=${zoneCards}`);
 if (!bodyHasExplainer) errors.push('missing_signal_permission_explainer');
+if (!bodyHasRefreshStrip) errors.push('missing_data_refresh_evidence_strip');
 if (/RegimeLiquidityActionRiskOpportunity/.test(text)) errors.push('concatenated_hero_pills_in_text_read');
 report(errors.length ? 'FAILED' : 'OK', errors, {
   topbar_count: topbarCount,

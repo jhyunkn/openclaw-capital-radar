@@ -28,10 +28,11 @@ for (const s of states) {
 const home = path.join(root, 'index.html');
 if (fs.existsSync(home)) {
   const html = fs.readFileSync(home, 'utf8');
+  const integratedHoldings = html.includes('id="holdings-section"') && html.includes('Permission') && html.includes('Terms stay familiar: Buy means a buy-zone signal');
   if (html.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"')) {
-    if (!html.includes('id="holdings"')) errors.push('compressed homepage missing holdings section for authoritative action state');
+    if (!html.includes('id="holdings"') && !html.includes('id="holdings-section"')) errors.push('compressed homepage missing holdings section for authoritative action state');
     if (html.includes('id="authoritative-action-home"')) errors.push('authoritative action layer should be integrated into Holdings, not standalone homepage module');
-  } else if (!html.includes('id="authoritative-action-home"')) {
+  } else if (!html.includes('id="authoritative-action-home"') && !integratedHoldings) {
     errors.push('homepage missing authoritative action layer');
   }
 }

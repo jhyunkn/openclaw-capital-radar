@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T12:04:00.000Z",
+  "generatedAt": "2026-05-25T16:01:00.000Z",
   "sourceMap": {
     "marketTape": [
       {
@@ -297,6 +297,33 @@
         "confidence": "missing",
         "dayChangeStatus": "available"
       }
+    ],
+    "cycleEvidence": [
+      {
+        "id": "ev_020",
+        "source": "Federal Reserve FOMC calendar",
+        "asOf": "2026-05-20"
+      },
+      {
+        "id": "ev_021",
+        "source": "FRED direct CSV checks",
+        "asOf": "DGS10/BAMLH0A0HYM2 2026-05-21; T10YIE 2026-05-22"
+      },
+      {
+        "id": "ev_022",
+        "source": "Yahoo public chart API",
+        "asOf": "Equity ETFs 2026-05-22 close; BTC/DXY intraday 2026-05-25"
+      },
+      {
+        "id": "ev_023",
+        "source": "NYSE holiday context",
+        "asOf": "2026-05-25"
+      },
+      {
+        "id": "ev_024",
+        "source": "DuckDuckGo web_search preflight",
+        "asOf": "2026-05-25T16:01:00.000Z"
+      }
     ]
   },
   "staleSources": [],
@@ -316,7 +343,8 @@
   "fallbackSourcesUsed": [
     "Yahoo Finance chart API public/unofficial endpoint",
     "FRED public CSV endpoint",
-    "SEC submissions JSON public endpoint"
+    "SEC submissions JSON public endpoint",
+    "DuckDuckGo web_search limited preflight"
   ],
   "perTickerFreshness": {
     "MSFT": "aging",
@@ -346,7 +374,7 @@
   },
   "homepageSafeToRender": false,
   "changedSinceLastRun": true,
-  "as_of": "2026-05-25T12:04:00.000Z",
+  "as_of": "2026-05-25T16:01:00.000Z",
   "render_permission": false,
   "degraded_honesty_required": true,
   "deployment_permission": false,
@@ -356,8 +384,7 @@
     "Forward valuation / FCF yield / next catalyst fields are incomplete for several holdings.",
     "No verified brokerage cost basis or user-provided allocation constraints; concentration/risk budget remains approximate.",
     "Community/YouTube alternative-source hypotheses were not promoted because no validated claim changed action posture.",
-    "Comprehensive fresh web-search sweep unavailable after provider bot-detection; no retry performed per operating instruction.",
-    "Recovered comprehensive web/current-news sweep; prior web_search preflight was degraded, so this run used fetch/direct/local evidence only."
+    "Comprehensive fresh web/current-news sweep remains incomplete; this cycle only performed limited web_search preflight plus direct official/fetch checks."
   ],
   "stale_data": [
     "U.S. equity and holding tape remains prior-session data because Monday, May 25, 2026 is a U.S. market holiday; do not treat as live Monday tape."
@@ -366,26 +393,18 @@
     "Any buy/add conclusion from opportunity-asymmetry alone is unsupported and remains blocked.",
     "Any ticker promotion without primary evidence, price zone, invalidation, and risk budget is unsupported.",
     "Any market-regime change inferred from missing Monday equity movement is unsupported during the holiday closure.",
-    "Any freshness/current-news conclusion beyond direct fetch/FRED/local evidence is unsupported in this cycle.",
-    "Any market-regime promotion from fetch-only evidence is unsupported."
+    "Any comprehensive freshness/current-news conclusion beyond limited web_search preflight plus direct official/fetch checks is unsupported in this cycle."
   ],
   "conflicting_evidence": [],
-  "failed_sources": [
-    {
-      "source": "web_search",
-      "reason": "DuckDuckGo bot-detection challenge during market-holiday/current-news query; not retried by protocol",
-      "occurred_at": "2026-05-25T04:09:22.855Z"
-    }
-  ],
+  "failed_sources": [],
   "degraded_states": [
     "market-landscape: holiday data-truth update only; no market posture promotion",
-    "strategy-state: holiday_degraded_observation_only",
-    "portfolio-translation: fresh tape but missing confidence/valuation fields",
+    "strategy-state: holiday_limited_search_degraded_observation_only",
+    "portfolio-translation: prior-session tape plus missing confidence/valuation fields",
+    "web research: limited_web_search_and_fetch_succeeded_but_not_comprehensive; no full freshness claim",
     "blocked holding confidence sources: MSFT, AMZN, CEG, META, TSLT, CONL, SPY, MA, BMNR, TSNF, NFLX",
-    "web research: partial_degraded_search_fetch_used; no comprehensive freshness claim",
-    "web research: fetch_only_degraded_no_web_search_retry; no comprehensive freshness claim",
-    "market-landscape: observation only; no market posture promotion",
-    "strategy-state: holiday_fetch_only_degraded_observation_only"
+    "market-landscape: observation only; no market posture promotion"
   ],
-  "render_permission_reason": "Render only degraded honesty/observation state; U.S. equity markets are closed for Memorial Day, holding confidence/valuation fields remain incomplete, and web/current-news coverage is degraded to fetch/direct/local evidence only. Deployment and new-capital posture stay blocked."
+  "render_permission_reason": "Render only degraded honesty/observation state if surfaced internally; normal deployment is blocked by Memorial Day equity-market closure, prior-session holding tape, missing holding confidence/valuation/risk-budget fields, and only limited web_search/current-news coverage.",
+  "cycle_id": "2026052512"
 }

@@ -6,12 +6,16 @@ const reactionPath = path.join(root, 'outputs', 'live-reaction-state.json');
 const interpPath = path.join(root, 'outputs', 'strategy-interpretations.json');
 const coveragePath = path.join(root, 'outputs', 'portfolio-thesis-coverage-map.json');
 const memoPath = path.join(root, 'outputs', 'ic-decision-memos.json');
+const decisionPath = path.join(root, 'outputs', 'portfolio-decision-state.json');
+const strategyPath = path.join(root, 'outputs', 'strategy-state.json');
 const outPath = path.join(root, 'outputs', 'authoritative-action-state.json');
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 const reaction = fs.existsSync(reactionPath) ? JSON.parse(fs.readFileSync(reactionPath, 'utf8')) : { reactions: [] };
 const interp = fs.existsSync(interpPath) ? JSON.parse(fs.readFileSync(interpPath, 'utf8')) : { interpretations: [] };
 const coverage = fs.existsSync(coveragePath) ? JSON.parse(fs.readFileSync(coveragePath, 'utf8')) : { holdings: [] };
 const memos = fs.existsSync(memoPath) ? JSON.parse(fs.readFileSync(memoPath, 'utf8')) : { memos: [] };
+const decisions = fs.existsSync(decisionPath) ? JSON.parse(fs.readFileSync(decisionPath, 'utf8')) : [];
+const strategy = fs.existsSync(strategyPath) ? JSON.parse(fs.readFileSync(strategyPath, 'utf8')) : {};
 const n = v => { if (v === null || v === undefined || v === '') return null; const x = Number(v); return Number.isFinite(x) ? x : null; };
 const precisionFor = v => { const x = Math.abs(Number(v)); if (!Number.isFinite(x)) return 2; if (x < 0.01) return 8; if (x < 1) return 6; if (x < 10) return 3; return 2; };
 const roundLevel = (v, ref) => { const d = precisionFor(ref ?? v); return Number(Number(v).toFixed(d)); };
@@ -20,9 +24,20 @@ const reactionByTicker = new Map((reaction.reactions || reaction.holdings || [])
 const interpByTicker = new Map((interp.interpretations || []).map(i => [String(i.ticker || '').toUpperCase(), i]));
 const coverageByTicker = new Map((coverage.holdings || []).map(c => [String(c.ticker || '').toUpperCase(), c]));
 const memoByTicker = new Map((memos.memos || []).map(m => [String(m.ticker || '').toUpperCase(), m]));
+const decisionByTicker = new Map((Array.isArray(decisions) ? decisions : []).map(d => [String(d.ticker || '').toUpperCase(), d]));
 function levelSet(h, i) {
   const t = h.signalThresholds || {};
-  const fixed = h.actionBands || h.priceLevels || h.technicalMap || {};
+  const chart = h.analysisChart || {};
+  const fixed = {
+    ...(h.actionBands || h.priceLevels || h.technicalMap || {}),
+    buyZoneLow: chart.buy?.low,
+    buyZoneHigh: chart.buy?.high,
+    trimLow: chart.trim?.low,
+    trimHigh: chart.trim?.high,
+    stopReview: chart.stop?.value,
+    hardExit: chart.hardExit?.value,
+    target: chart.target?.value,
+  };
   const price = n(h.livePrice);
   const addLow = n(fixed.buyLow ?? fixed.buyZoneLow ?? fixed.addLow ?? fixed.addBelow ?? t.addPrice);
   const addHigh = n(fixed.buyHigh ?? fixed.buyZoneHigh ?? fixed.addHigh ?? fixed.buyAbove ?? null);
@@ -68,17 +83,23 @@ function classifyZone(price, levels) {
   if (trimHigh != null && price > trimHigh) return { state: 'ABOVE_TARGET_TRIM', tone: 'caution', label: `Above trim/target ${trimHigh}` };
   return { state: 'BETWEEN_LEVELS', tone: 'neutral', label: 'Between major action levels' };
 }
-function decide(h, reactionRow, i, c, m, levels, zone) {
+function decide(h, reactionRow, i, c, m, d, levels, zone) {
   const signal = String(h.computedSignal || h.signal || '').toUpperCase();
   const reactionState = String(reactionRow?.state || reactionRow?.reactionState || '').toUpperCase();
   const reactionPermission = String(reactionRow?.permission || reactionRow?.actionPermission || '');
   const interpPermission = String(i?.actionPermission?.status || '');
+  const decisionPermission = String(d?.decisionPermission || '').toUpperCase();
+  const ruleBreaches = Array.isArray(d?.ruleBreaches) ? d.ruleBreaches.join(' | ') : '';
+  const globalCapitalBlock = /no_new_capital|observation_only|degraded/i.test(`${strategy.capital_action || ''} ${strategy.overall_posture || ''}`);
   if (zone.state === 'BELOW_HARD_EXIT' || reactionState.includes('HARD_EXIT') || signal.includes('EXIT')) {
-    return { decision: 'EXIT REVIEW', tone: 'danger', urgency: 'IMMEDIATE', allowed: 'Review exit / reduce risk only.', forbidden: 'Do not add or average down.', reason: zone.state === 'BELOW_HARD_EXIT' ? `Price is below hard exit; buy zone is invalidated.` : 'Exit-review signal overrides price proximity.' };
+    return { decision: 'EXIT REVIEW', tone: 'danger', urgency: 'LOSS CONTROL', allowed: 'Loss-minimization review only: prefer staged reduction, rebound/reclaim exit, or thesis-failure exit over panic selling unless risk is broken.', forbidden: 'Do not add or average down.', reason: zone.state === 'BELOW_HARD_EXIT' ? `Price is below hard exit; buy zone is invalidated until a reclaim is proven.` : 'Exit-review signal overrides price proximity; objective is to lower loss intelligently.' };
   }
-  if (signal.includes('TRIM') || reactionState.includes('TRIM')) return { decision: 'TRIM REVIEW', tone: 'danger', urgency: 'THIS WEEK', allowed: 'Review trim / rebalance only.', forbidden: 'Do not add until trim watch clears.', reason: 'Trim-watch state overrides add-zone proximity.' };
+  if (/exit signal present/i.test(ruleBreaches)) return { decision: 'EXIT REVIEW', tone: 'danger', urgency: 'LOSS CONTROL', allowed: 'Loss-minimization review only: map reclaim, rebound, partial-reduction, and hard-failure paths before acting.', forbidden: 'Do not add or average down.', reason: 'Portfolio decision rules report an exit signal; the exit must be smart and loss-aware, not mechanical.' };
+  if (signal.includes('TRIM') || reactionState.includes('TRIM') || decisionPermission.includes('TRIM')) return { decision: 'TRIM REVIEW', tone: 'danger', urgency: 'THIS WEEK', allowed: 'Review staged trim / rebalance / rebound-exit paths only.', forbidden: 'Do not add until trim watch clears.', reason: 'Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling.' };
   if (signal.includes('INVESTIGATE') || /NO ACTION|VERIFY/i.test(`${reactionPermission} ${interpPermission}`)) return { decision: 'VERIFY FIRST', tone: 'caution', urgency: 'SOON', allowed: 'Research / verification only.', forbidden: 'No capital action until verification clears.', reason: 'Investigate or verification state blocks trading action.' };
+  if (decisionPermission.includes('HOLD_VERIFY') || /data freshness aging/i.test(ruleBreaches)) return { decision: 'VERIFY FIRST', tone: 'caution', urgency: 'SOON', allowed: 'Hold and verify live tape, thesis evidence, valuation, and source confidence.', forbidden: 'No new capital from buy-zone proximity alone.', reason: 'Portfolio decision state requires verification before exposure changes.' };
   if (c?.coverageState === 'constrained' || c?.blockedForAction) return { decision: 'CAPITAL BLOCKED', tone: 'danger', urgency: 'SOON', allowed: 'Hold or reduce-risk review only.', forbidden: 'No add until constraint clears.', reason: 'Coverage state is constrained; documentation is not permission.' };
+  if (globalCapitalBlock) return { decision: 'CAPITAL BLOCKED', tone: 'caution', urgency: 'SOON', allowed: 'Hold, verify, and prepare only.', forbidden: 'No new capital while strategy state blocks deployment.', reason: 'Top-level strategy state blocks new capital even if a ticker is near a buy zone.' };
   if (zone.state === 'IN_BUY_REVIEW_ZONE' && /Add review allowed/i.test(interpPermission)) return { decision: 'ADD REVIEW ALLOWED', tone: 'positive', urgency: 'REVIEW', allowed: 'Review add only if thesis/evidence/risk gates remain clean.', forbidden: 'Do not execute automatically from price alone.', reason: 'Price is in buy review zone and permission is open.' };
   if (zone.state === 'BELOW_BUY_ZONE') return { decision: 'WAIT FOR RECLAIM', tone: 'caution', urgency: 'MONITOR', allowed: 'Wait for reclaim or explicit capitulation-bounce rule.', forbidden: 'Do not assume below buy zone means better buy.', reason: 'Price is below buy zone but not below hard exit; reclaim confirmation required.' };
   if (/Hold only/i.test(interpPermission)) return { decision: 'HOLD ONLY', tone: 'caution', urgency: 'MONITOR', allowed: 'Hold and monitor.', forbidden: 'No add due to risk budget or permission block.', reason: 'Strategy interpreter blocks add permission.' };
@@ -105,9 +126,10 @@ const actionStates = holdings.map(h => {
   const i = interpByTicker.get(ticker);
   const c = coverageByTicker.get(ticker);
   const m = memoByTicker.get(ticker);
+  const d = decisionByTicker.get(ticker);
   const levels = levelSet(h, i);
   const zone = classifyZone(price, levels);
-  const authority = decide(h, reactionRow, i, c, m, levels, zone);
+  const authority = decide(h, reactionRow, i, c, m, d, levels, zone);
   return {
     ticker,
     price,
@@ -116,7 +138,14 @@ const actionStates = holdings.map(h => {
     authority,
     levels,
     priceLadder: priceLadder(price, levels, authority),
-    sourceRefs: { reaction: !!reactionRow, strategyInterpretation: !!i, thesisCoverage: !!c, icMemo: !!m },
+    sourceRefs: { reaction: !!reactionRow, strategyInterpretation: !!i, thesisCoverage: !!c, icMemo: !!m, portfolioDecision: !!d },
+    permissionModel: {
+      signalLanguage: zone.state === 'IN_BUY_REVIEW_ZONE' || zone.state === 'BELOW_BUY_ZONE' ? 'BUY_ZONE' : zone.state.includes('TRIM') ? 'TRIM_ZONE' : zone.state.includes('STOP') || zone.state.includes('EXIT') ? 'RISK_ZONE' : 'HOLD_ZONE',
+      executionPermission: authority.decision,
+      capitalAllowed: authority.decision === 'ADD REVIEW ALLOWED',
+      lossMinimizationRequired: authority.decision === 'EXIT REVIEW' || authority.decision === 'TRIM REVIEW',
+      blocker: authority.decision === 'ADD REVIEW ALLOWED' ? null : authority.reason
+    },
     moduleDirective: {
       buyZoneLabel: authority.decision === 'EXIT REVIEW' ? 'Buy zone invalidated' : 'Buy review zone',
       chartBadge: `${authority.decision} · ${authority.urgency}`,
@@ -128,11 +157,13 @@ const actionStates = holdings.map(h => {
 const summary = {
   total: actionStates.length,
   immediate: actionStates.filter(x => x.authority.urgency === 'IMMEDIATE').map(x => x.ticker),
+  lossControl: actionStates.filter(x => x.permissionModel?.lossMinimizationRequired).map(x => x.ticker),
   blocked: actionStates.filter(x => /EXIT|TRIM|VERIFY|BLOCKED|HOLD ONLY|WAIT/i.test(x.authority.decision)).map(x => x.ticker),
   addReviewAllowed: actionStates.filter(x => x.authority.decision === 'ADD REVIEW ALLOWED').map(x => x.ticker),
+  buyZoneSignals: actionStates.filter(x => x.permissionModel?.signalLanguage === 'BUY_ZONE').map(x => x.ticker),
   contradictionsPrevented: actionStates.filter(x => x.moduleDirective.buyZoneLabel.includes('invalidated')).map(x => x.ticker)
 };
-const result = { generatedAt: new Date().toISOString(), layer: 'authoritative-action-state', policy: 'All modules must obey this action state. Price zones are review zones only; exit/hard-stop states override add proximity.', summary, actionStates };
+const result = { generatedAt: new Date().toISOString(), layer: 'authoritative-action-state', policy: 'All modules must obey this action state. Buy/trim/exit terms may remain visible as signal language, but execution permission is separate. Price zones are review zones only; verification, stale data, thesis gaps, risk budget, trim, and exit states override add proximity. Exit strategy must minimize loss intelligently rather than act as a dumb forced sell.', summary, actionStates };
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n');
 console.log(`generated authoritative action state: ${summary.immediate.length} immediate / ${summary.addReviewAllowed.length} add-review / ${summary.blocked.length} blocked`);

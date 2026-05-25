@@ -37,6 +37,43 @@ function classifyRole(h, bucket) {
   return bucket?.id || 'single_name';
 }
 function scoreBool(ok, points) { return ok ? points : 0; }
+function sourceEvidenceStatus(ticker, ev, speculative) {
+  const substantive = ev.filter(item => {
+    const sourceType = String(item.sourceType || '').toLowerCase();
+    const sourceName = String(item.sourceName || '').toLowerCase();
+    const claimType = String(item.claimType || '').toLowerCase();
+    const hasExternalAnchor = Boolean(item.sourceUrl) || /sec|filing|10-k|10-q|8-k|investor|earnings|presentation|transcript|company|exchange|primary/i.test(`${item.sourceName || ''} ${item.notes || ''}`);
+    const governanceOnly = /policy|requirement|warning|governance/i.test(sourceName) || /governance/.test(claimType);
+    if (governanceOnly) return false;
+    if (sourceType === 'internal' && !hasExternalAnchor) return false;
+    return true;
+  });
+  if (!ev.length) return { score: 0, status: 'missing', finding: 'No source evidence packet attached.', substantiveCount: 0, governanceOnlyCount: 0 };
+  if (!substantive.length) return { score: 0, status: 'missing', finding: `${ev.length} packet(s) attached, but none are substantive primary/external thesis evidence.`, substantiveCount: 0, governanceOnlyCount: ev.length };
+  return { score: 18, status: 'covered', finding: `${substantive.length} substantive evidence packet(s) attached.`, substantiveCount: substantive.length, governanceOnlyCount: ev.length - substantive.length };
+}
+function highRiskEvidenceReview({ ticker, h, d, ev, fundamentals, thesisText, invalidation, bucket, overCap }) {
+  const t = String(ticker || '').toUpperCase();
+  if (!['BMNR','TSNF','TSLT','CONL'].includes(t) && !/speculative|levered|crypto/i.test(`${bucket?.label || ''} ${d?.positionRole || ''}`)) return null;
+  const evidenceText = `${JSON.stringify(ev)} ${thesisText} ${JSON.stringify(invalidation)} ${JSON.stringify(fundamentals)} ${h.watch || ''}`.toLowerCase();
+  const requirements = [
+    { id: 'company_thesis', label: 'Company/vehicle thesis', passed: thesisText.length >= 90 && !/potential asymmetry if thesis is real|requiring a human-reviewed thesis/i.test(thesisText), needed: 'Specific source-backed operating/vehicle thesis; not just placeholder optionality.' },
+    { id: 'primary_source_evidence', label: 'Primary/source evidence', passed: ev.some(x => x.sourceUrl || /sec|filing|10-k|10-q|8-k|investor|presentation|transcript|company/i.test(`${x.sourceName || ''} ${x.notes || ''}`)), needed: 'Attach SEC filing, issuer materials, prospectus/holding disclosure, or earnings/IR evidence.' },
+    { id: 'liquidity_balance_sheet', label: 'Liquidity / balance-sheet evidence', passed: /liquidity|cash|debt|working capital|current assets|assets under management|aum|volume|spread/.test(evidenceText), needed: 'Define liquidity runway, trading liquidity, balance-sheet constraints, or ETF liquidity mechanics.' },
+    { id: 'dilution_structural_risk', label: 'Dilution / structural risk', passed: /dilution|atm|share issuance|convertible|warrant|expense ratio|creation|redemption|tracking|structural/.test(evidenceText), needed: 'Identify dilution, issuance, ETF structure, tracking, fees, or embedded decay/structural risks.' },
+    { id: 'downside_invalidation', label: 'Downside / invalidation path', passed: Array.isArray(invalidation) && invalidation.length >= 2 && String(invalidation.join(' ')).length >= 80, needed: 'Two or more concrete invalidation triggers tied to evidence and price/risk behavior.' },
+    { id: 'catalyst_path', label: 'Catalyst path', passed: Boolean(fundamentals.nextEarningsDate) || /catalyst|earnings|filing|rebalance|launch|approval|guidance|staking|holdings|cycle/.test(evidenceText), needed: 'Named catalyst/event path and what evidence would confirm or reject it.' },
+    { id: 'position_size_fit', label: 'Position-size fit', passed: !overCap, needed: 'Exposure must fit speculative/levered risk budget before any add review.' }
+  ];
+  const missing = requirements.filter(r => !r.passed).map(r => ({ id: r.id, label: r.label, needed: r.needed }));
+  return {
+    status: missing.length ? 'insufficient_for_confident_posture' : 'sufficient_for_review_not_execution',
+    passed: requirements.length - missing.length,
+    total: requirements.length,
+    missing,
+    permissionEffect: missing.length ? 'research_only_or_hold_reduce_review' : 'eligible_for_human_review_only'
+  };
+}
 function evaluate(h) {
   const ticker = String(h.ticker || '').toUpperCase();
   const d = dossierByTicker.get(ticker);
@@ -51,7 +88,9 @@ function evaluate(h) {
   const actionPermission = interp?.actionPermission?.status || (speculative ? 'Human review required' : 'Research required');
   const signal = String(h.computedSignal || h.signal || 'Review');
   const overCap = bucket && typeof bucket.capPct === 'number' && n(h.portfolioWeightPct) > bucket.capPct;
+  const sourceEvidence = sourceEvidenceStatus(ticker, ev, speculative);
   const actionBlocked = /No action|No add|exit review|trim watch/i.test(actionPermission) || /INVESTIGATE|EXIT|TRIM/i.test(signal) || overCap;
+  const highRiskReview = highRiskEvidenceReview({ ticker, h, d, ev, fundamentals, thesisText, invalidation, bucket, overCap });
   const categories = {
     businessModel: {
       score: scoreBool(thesisText.length >= 35, 12),
@@ -96,10 +135,10 @@ function evaluate(h) {
       finding: state.meta?.generatedAt && h.priceAsOf ? `Report ${state.meta.generatedAt}; price ${h.priceAsOf}.` : 'Freshness metadata incomplete.'
     },
     sourceEvidence: {
-      score: scoreBool(ev.length > 0, 18),
+      score: sourceEvidence.score,
       max: 18,
-      status: ev.length > 0 ? 'covered' : 'missing',
-      finding: ev.length ? `${ev.length} evidence packet(s) attached.` : 'No source evidence packet attached.'
+      status: sourceEvidence.status,
+      finding: sourceEvidence.finding
     }
   };
   const total = Object.values(categories).reduce((sum, c) => sum + c.score, 0);
@@ -129,6 +168,7 @@ function evaluate(h) {
       actionPermission,
       invalidation: Array.isArray(invalidation) ? invalidation : [String(invalidation || '')].filter(Boolean)
     },
+    highRiskEvidenceReview: highRiskReview,
     nextStep: actionBlocked ? 'Resolve action block before capital movement; coverage alone is not permission.' : (missing.length ? `Attach/define: ${missing.slice(0,3).map(m => m.category).join(', ')}.` : 'Coverage is sufficient for monitoring; still requires human decision for capital action.')
   };
 }

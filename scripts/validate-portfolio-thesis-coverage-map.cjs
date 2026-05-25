@@ -26,7 +26,16 @@ for (const t of ['BMNR','CONL','TSLT']) {
   const row = data.holdings.find(h => h.ticker === t);
   if (row) ok(row.humanReviewRequired === true, `${t} should require human review`);
 }
-ok(html.includes('id="brief"'), 'homepage missing Brief section for compressed thesis synthesis');
+for (const t of ['BMNR','TSNF']) {
+  const row = data.holdings.find(h => h.ticker === t);
+  if (row) {
+    ok(row.highRiskEvidenceReview, `${t} missing high-risk evidence review`);
+    ok(row.highRiskEvidenceReview.status === 'insufficient_for_confident_posture', `${t} should remain insufficient for confident posture until thesis evidence is attached`);
+    ok(row.blockedForAction === true, `${t} should remain blocked for action`);
+    ok(row.categories.sourceEvidence.status !== 'covered', `${t} should not count governance/placeholders as substantive source evidence`);
+  }
+}
+ok(html.includes('id="brief"') || html.includes('id="decision-brief-section"'), 'homepage missing Brief section for compressed thesis synthesis');
 ok(html.includes('thesis') || html.includes('coverage'), 'Brief missing thesis coverage synthesis');
 ok(!html.includes('Underwritten vs constrained holdings') && !html.includes('Underwritten vs merely tracked holdings'), 'legacy thesis coverage chart section still visible');
 console.log(`thesis coverage validated as backend data for Brief: ${data.holdings.length} holdings, avg ${data.summary.averageCoverageScore}%, constrained ${data.summary.constrained}`);

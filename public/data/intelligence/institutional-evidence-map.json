@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-05-25T12:04:00.000Z",
-  "cycle_id": "2026052508",
+  "as_of": "2026-05-25T16:01:00.000Z",
+  "cycle_id": "2026052512",
   "evidence": [
     {
       "id": "ev_001",
@@ -380,26 +380,127 @@
       ],
       "claim_type": "fact",
       "confidence": 0.87
+    },
+    {
+      "id": "ev_020",
+      "source_name": "Federal Reserve Board - FOMC meeting calendar",
+      "source_type": "official_policy_source",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "citation": "Fed FOMC calendar lists April 28-29, 2026 minutes released May 20, 2026; next scheduled meeting June 16-17, 2026.",
+      "publish_date": "2026-05-20",
+      "retrieved_at": "2026-05-25T16:01:00.000Z",
+      "reliability_score": 0.96,
+      "relevance_score": 0.83,
+      "freshness_score": 0.88,
+      "extracted_insight": "The latest official policy document available for this cycle is the May 20 release of the April FOMC minutes; policy risk should remain a macro gate for duration-sensitive and speculative exposure.",
+      "affected_thesis": [
+        "policy regime",
+        "rates pressure",
+        "liquidity-sensitive beta"
+      ],
+      "claim_type": "fact",
+      "confidence": 0.88
+    },
+    {
+      "id": "ev_021",
+      "source_name": "FRED direct CSV checks - rates, credit, breakevens",
+      "source_type": "macro_data",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10,BAMLH0A0HYM2,T10YIE",
+      "citation": "Direct checks returned DGS10 4.57 on 2026-05-21, BAMLH0A0HYM2 2.78 on 2026-05-21, and T10YIE 2.40 on 2026-05-22.",
+      "publish_date": "2026-05-22",
+      "retrieved_at": "2026-05-25T16:01:00.000Z",
+      "reliability_score": 0.95,
+      "relevance_score": 0.9,
+      "freshness_score": 0.82,
+      "extracted_insight": "Rates are still a constraint while high-yield spreads do not show acute credit stress; this supports constrained observation rather than a fresh risk-on promotion.",
+      "affected_thesis": [
+        "rates pressure",
+        "credit stress",
+        "inflation expectations",
+        "risk appetite"
+      ],
+      "claim_type": "fact",
+      "confidence": 0.89
+    },
+    {
+      "id": "ev_022",
+      "source_name": "Yahoo Finance chart API - public/unofficial cross-asset check",
+      "source_type": "market_data",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+      "citation": "Public chart checks at cycle time: SPY 745.64, QQQ 717.54, IWM 285.12 as of 2026-05-22 20:00Z; BTC-USD 77529.97 and DXY 98.969 updated intraday on 2026-05-25.",
+      "publish_date": "2026-05-25",
+      "retrieved_at": "2026-05-25T16:01:00.000Z",
+      "reliability_score": 0.72,
+      "relevance_score": 0.88,
+      "freshness_score": 0.78,
+      "extracted_insight": "Holiday equity tape is prior-session, while 24/7 crypto and FX proxies continue updating; do not infer a Monday U.S. equity regime change from stale ETF prints.",
+      "affected_thesis": [
+        "equity risk appetite",
+        "crypto liquidity",
+        "dollar pressure",
+        "holiday tape gate"
+      ],
+      "claim_type": "fact",
+      "confidence": 0.8
+    },
+    {
+      "id": "ev_023",
+      "source_name": "NYSE trading hours and holidays page",
+      "source_type": "exchange_calendar",
+      "url": "https://www.nyse.com/markets/hours-calendars",
+      "citation": "NYSE hours/holiday page fetched during the cycle; Memorial Day holiday gate retained for Monday, May 25, 2026 based on exchange calendar context and stale equity timestamps.",
+      "publish_date": "2026-05-25",
+      "retrieved_at": "2026-05-25T16:01:00.000Z",
+      "reliability_score": 0.94,
+      "relevance_score": 0.86,
+      "freshness_score": 0.9,
+      "extracted_insight": "U.S. equity market freshness is degraded by the holiday closure; live equity confirmation must wait until the next regular session.",
+      "affected_thesis": [
+        "data freshness",
+        "holiday tape gate",
+        "deployment permission"
+      ],
+      "claim_type": "fact",
+      "confidence": 0.86
+    },
+    {
+      "id": "ev_024",
+      "source_name": "DuckDuckGo web_search preflight - limited policy/current-news query",
+      "source_type": "web_search_preflight",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "citation": "web_search returned official Federal Reserve FOMC calendar plus secondary news results for a May 2026 policy query; this is limited preflight, not a comprehensive market-news sweep.",
+      "publish_date": "2026-05-25",
+      "retrieved_at": "2026-05-25T16:01:00.000Z",
+      "reliability_score": 0.7,
+      "relevance_score": 0.7,
+      "freshness_score": 0.75,
+      "extracted_insight": "Search access was available for this cycle, but only limited preflight was performed; current-news completeness remains insufficient for normal deployment.",
+      "affected_thesis": [
+        "source availability",
+        "current-news coverage",
+        "data truth"
+      ],
+      "claim_type": "fact",
+      "confidence": 0.68
     }
   ],
   "scoring_method": {
-    "reliability": "Primary official sources score highest; public unofficial market-data endpoints are useful but discounted.",
-    "relevance": "Evidence must connect to rates, liquidity, volatility, holdings, or candidate thesis.",
-    "freshness": "Intraday tape preferred for market data; FRED and official releases accepted with their publication lag.",
+    "reliability": "Official sources score highest; public unofficial market-data endpoints are discounted; search snippets are preflight only unless fetched/confirmed.",
+    "relevance": "Evidence must connect to policy, rates, credit, volatility, holdings, candidates, or deployment permission.",
+    "freshness": "Live market data preferred; official macro data accepted with release lag; holiday equity tape is stale by design.",
     "claim_type": "fact/inference/speculation separated; action posture cannot rest on speculation alone.",
-    "confidence": "Composite judgment from reliability, relevance, freshness, and corroboration."
+    "confidence": "Composite of reliability, relevance, freshness, corroboration, and whether the claim can change a decision gate."
   },
   "web_research_state": {
-    "status": "fetch_only_degraded_no_web_search_retry",
-    "retrieved_at": "2026-05-25T12:04:00.000Z",
+    "status": "limited_web_search_and_fetch_succeeded_but_not_comprehensive",
+    "retrieved_at": "2026-05-25T16:01:00.000Z",
     "sources_checked": [
-      "FRED public CSV endpoints direct check for DGS10, BAMLH0A0HYM2, T10YIE",
-      "Federal Reserve monetary policy page direct fetch",
-      "NYSE hours/calendars direct fetch",
-      "Cboe VIX dashboard direct fetch (readable extraction did not expose spot value)",
-      "New York Fed SOFR page direct fetch (readable extraction described SOFR but did not expose latest rate in excerpt)",
-      "Existing local Yahoo Finance public/unofficial chart artifacts for prior-session equity/crypto tape"
+      "Federal Reserve FOMC calendar",
+      "FRED DGS10/BAMLH0A0HYM2/T10YIE CSV endpoints",
+      "NYSE hours/holiday page",
+      "Yahoo Finance public chart API",
+      "DuckDuckGo preflight query"
     ],
-    "note": "Prior web_search preflight was degraded by bot detection, so this run did not retry web_search. This is a fetch/direct/local evidence cycle and must not claim comprehensive current-news freshness. Memorial Day holiday keeps equity tape prior-session."
+    "note": "Freshness/current-research claim remains limited. The run does not claim a complete institutional news sweep and keeps deployment blocked."
   }
 }

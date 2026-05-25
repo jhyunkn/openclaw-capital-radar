@@ -34,7 +34,7 @@ const registry = [
     id: 'system-health-section',
     manifestId: 'system-health-section',
     navLabel: 'Health',
-    previewOrder: 5,
+    previewOrder: 90,
     states: [state('outputs/capital-radar-health-report.json', { key: 'state', required: false, fallback: {
       status: 'DEGRADED',
       verdict: 'Health report has not been generated yet.',
@@ -49,30 +49,34 @@ const registry = [
     },
   },
   {
-    id: 'kostolany-egg-section',
-    manifestId: 'kostolany-egg-section',
-    navLabel: 'Egg',
+    id: 'decision-brief-section',
+    manifestId: 'decision-brief-section',
+    navLabel: 'Brief',
     previewOrder: 10,
-    cssLinks: [
-      'assets/kostolany-egg-v3.css',
-      'assets/kostolany-egg-v4.css',
-      'assets/page-tight-overflow.css',
-      'assets/egg-board-final.css',
-      'assets/egg-svg-refine.css',
-    ],
-    states: [state('outputs/kostolany-egg-state.json', { key: 'state', fallback: 'data/mock/kostolany-egg-state.mock.json' })],
-    renderer: renderer('components/radar/kostolany-egg/render-modular.cjs', 'renderKostolanyEggSection'),
+    states: [state('outputs/market-decision-brief-state.json', { key: 'state' })],
+    renderer: renderer('components/radar/decision-brief/render.cjs', 'renderDecisionBriefSection', 'renderDecisionBriefStyle'),
     buildArgs({ states }) {
       return [states.state];
     },
   },
   {
-    id: 'decision-brief-section',
-    manifestId: 'decision-brief-section',
-    navLabel: 'Brief',
+    id: 'strategy-routing-section',
+    manifestId: 'strategy-routing-section',
+    navLabel: 'Route',
     previewOrder: 20,
-    states: [state('outputs/market-decision-brief-state.json', { key: 'state' })],
-    renderer: renderer('components/radar/decision-brief/render.cjs', 'renderDecisionBriefSection', 'renderDecisionBriefStyle'),
+    states: [state('outputs/strategy-routing-state.json', { key: 'state' })],
+    renderer: renderer('components/radar/strategy-routing/render.cjs', 'renderStrategyRoutingSection', 'renderStrategyRoutingStyle'),
+    buildArgs({ states }) {
+      return [states.state];
+    },
+  },
+  {
+    id: 'market-lens-section',
+    manifestId: 'market-lens-section',
+    navLabel: 'Lens',
+    previewOrder: 30,
+    states: [state('outputs/market-lens-state.json', { key: 'state' })],
+    renderer: renderer('components/radar/market-lens/render.cjs', 'renderMarketLensSection', 'renderMarketLensStyle'),
     buildArgs({ states }) {
       return [states.state];
     },
@@ -81,7 +85,7 @@ const registry = [
     id: 'operational-chart-section',
     manifestId: 'operational-chart-section',
     navLabel: 'Decision Chart',
-    previewOrder: 30,
+    previewOrder: 40,
     states: [
       state('outputs/operational-chart-state.json', { key: 'state' }),
       state('outputs/decision-chart-annotation-state.json', { key: 'annotationState', required: false }),
@@ -93,32 +97,10 @@ const registry = [
     },
   },
   {
-    id: 'market-lens-section',
-    manifestId: 'market-lens-section',
-    navLabel: 'Lens',
-    previewOrder: 40,
-    states: [state('outputs/market-lens-state.json', { key: 'state' })],
-    renderer: renderer('components/radar/market-lens/render.cjs', 'renderMarketLensSection', 'renderMarketLensStyle'),
-    buildArgs({ states }) {
-      return [states.state];
-    },
-  },
-  {
-    id: 'strategy-routing-section',
-    manifestId: 'strategy-routing-section',
-    navLabel: 'Route',
-    previewOrder: 50,
-    states: [state('outputs/strategy-routing-state.json', { key: 'state' })],
-    renderer: renderer('components/radar/strategy-routing/render.cjs', 'renderStrategyRoutingSection', 'renderStrategyRoutingStyle'),
-    buildArgs({ states }) {
-      return [states.state];
-    },
-  },
-  {
     id: 'holdings-section',
     manifestId: 'holdings-section',
     navLabel: 'Holdings',
-    previewOrder: 60,
+    previewOrder: 50,
     states: [
       state('outputs/holding-zone-state.json', { key: 'zoneState' }),
       state('outputs/portfolio-translation-state.json', { key: 'translation', required: false, fallback: { holdings: [] } }),
@@ -133,7 +115,7 @@ const registry = [
     id: 'opportunities-section',
     manifestId: 'opportunities-section',
     navLabel: 'Opportunity',
-    previewOrder: 70,
+    previewOrder: 60,
     states: [state('outputs/opportunity-asymmetry-state.json', { key: 'state' })],
     renderer: renderer('components/radar/opportunities/render.cjs', 'renderOpportunitiesSection', 'renderOpportunitiesStyle'),
     buildArgs({ states }) {
@@ -144,9 +126,27 @@ const registry = [
     id: 'market-section',
     manifestId: 'market-section',
     navLabel: 'Market Tape',
-    previewOrder: 80,
+    previewOrder: 70,
     states: [state('outputs/market-tape-state.json', { key: 'state' })],
     renderer: renderer('components/radar/market-tape/render.cjs', 'renderMarketTapeSection', 'renderMarketTapeStyle'),
+    buildArgs({ states }) {
+      return [states.state];
+    },
+  },
+  {
+    id: 'kostolany-egg-section',
+    manifestId: 'kostolany-egg-section',
+    navLabel: 'Egg',
+    previewOrder: 80,
+    cssLinks: [
+      'assets/kostolany-egg-v3.css',
+      'assets/kostolany-egg-v4.css',
+      'assets/page-tight-overflow.css',
+      'assets/egg-board-final.css',
+      'assets/egg-svg-refine.css',
+    ],
+    states: [state('outputs/kostolany-egg-state.json', { key: 'state', fallback: 'data/mock/kostolany-egg-state.mock.json' })],
+    renderer: renderer('components/radar/kostolany-egg/render-modular.cjs', 'renderKostolanyEggSection'),
     buildArgs({ states }) {
       return [states.state];
     },

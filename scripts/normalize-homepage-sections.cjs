@@ -3,8 +3,6 @@ const root=path.join(__dirname,'..');const indexPath=path.join(root,'index.html'
 
 const brain=spawnSync('node scripts/inject-today-market-brain.cjs',{cwd:root,shell:true,stdio:'inherit'});
 if(brain.status!==0) throw new Error('today market brain injection failed');
-const brainRefine=spawnSync('node scripts/refine-today-market-brain.cjs',{cwd:root,shell:true,stdio:'inherit'});
-if(brainRefine.status!==0) throw new Error('today market brain refinement failed');
 
 if(!fs.existsSync(indexPath)) throw new Error('index.html missing');
 let html=fs.readFileSync(indexPath,'utf8');

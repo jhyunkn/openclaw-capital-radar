@@ -32,7 +32,7 @@ const visibleNotAvailable = count(/not available/g, text);
 const permissionRows = count(/class=["'][^"']*\bpermission-row\b/g, html);
 const zoneCards = count(/class=["'][^"']*\bzone-card\b/g, html);
 const bodyHasExplainer = text.includes('Terms stay familiar: Buy means a buy-zone signal');
-const bodyHasRefreshStrip = text.includes('Data refresh / evidence coverage') && text.includes('What data is this page actually using?');
+const bodyHasRefreshStrip = text.includes('Data refresh / evidence coverage') && (text.includes('What data is this page actually using?') || text.includes('Can Capital Radar trust itself right now?'));
 if (topbarCount !== 1) errors.push(`topbar_count=${topbarCount}; expected 1`);
 if (mainNavCount !== 1) errors.push(`main_nav_count=${mainNavCount}; expected 1`);
 if (innerEggNavCount !== 0) errors.push(`inner_egg_nav_or_topbar_count=${innerEggNavCount}; expected 0`);

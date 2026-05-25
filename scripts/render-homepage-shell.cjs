@@ -20,22 +20,24 @@ const html = `<!doctype html>
     <div class="topbar">
       <div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div>
       <nav class="nav">
-        <a href="#decision-brief-section">Brief</a>
-        <a href="#operational-chart-section">Decision Chart</a>
+        <a href="#data-refresh-section">Trust</a>
+        <a href="#kostolany-egg-section">Egg</a>
+        <a href="#operational-chart-section">Levels</a>
+        <a href="#market-lens-section">Movement</a>
+        <a href="#strategy-routing-section">Route</a>
         <a href="#holdings-section">Holdings</a>
-        <a href="#opportunities-section">Opportunity</a>
-        <a href="#market-section">Market Tape</a>
+        <a href="#opportunities-section">Opportunities</a>
       </nav>
       <div id="generated">Operational render · ${now}</div>
     </div>
     <header class="hero">
       <div>
-        <p class="eyebrow">Capital Radar · validated decision system</p>
-        <h1>What should change now?</h1>
-        <p class="lede">A compact market command surface: regime, liquidity, portfolio action, triggers, risk lines, and opportunity filters generated from validated artifacts.</p>
-        <div class="lens-strip"><span>Regime</span><span>Liquidity</span><span>Action</span><span>Risk</span><span>Opportunity</span></div>
+        <p class="eyebrow">Capital Radar · evidence-first command surface</p>
+        <h1>Trust the sources before the strategy.</h1>
+        <p class="lede">A decision cockpit that shows data freshness, evidence gaps, permission blockers, regime, portfolio action, and invalidation before turning signals into strategy.</p>
+        <div class="lens-strip"><span>Freshness</span><span>Evidence</span><span>Permission</span><span>Risk</span><span>Action</span></div>
       </div>
-      <aside class="status"><span>System state</span><strong class="good">Health OK</strong><span>Data truth, registry preview, and homepage integrity checks are clean.</span><span>Legacy cleanup remains a warning only when no leakage is detected.</span></aside>
+      <aside class="status"><span>Current posture</span><strong class="bad">Research-only</strong><span>Capital action is blocked until source coverage and decision packets are stronger.</span><span>The page now exposes missing evidence instead of hiding it behind confident language.</span></aside>
     </header>
     <section id="decision-brief-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Market Decision Brief</h2></div></div></section>
     <section id="operational-chart-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Operational Decision Chart</h2></div></div></section>

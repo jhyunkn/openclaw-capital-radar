@@ -46,10 +46,28 @@ if (html.includes(macroClose)) {
   html = html.replace('</main>', `${hidden}\n</main>`);
 }
 
-for (const id of Object.keys(markers)) {
+function reorderIdFirst(id) {
+  const re = new RegExp(`<section([^>]*)\\sid=(["'])${id}\\2([^>]*)>`, 'g');
+  html = html.replace(re, (match, before, quote, after) => {
+    const attrs = `${before} ${after}`.replace(/\s+/g, ' ').trim();
+    return attrs ? `<section id="${id}" ${attrs}>` : `<section id="${id}">`;
+  });
+}
+
+const requiredIdFirst = [
+  'decision-brief-section',
+  'operational-chart-section',
+  'holdings-section',
+  'opportunities-section',
+  'market-section',
+  'kostolany-egg-section'
+];
+requiredIdFirst.forEach(reorderIdFirst);
+
+for (const id of requiredIdFirst) {
   const count = (html.match(new RegExp(`<section\\s+id=["']${id}["']`, 'g')) || []).length;
-  if (count !== 1) throw new Error(`validator marker ${id} count=${count}; expected 1`);
+  if (count !== 1) throw new Error(`validator section ${id} count=${count}; expected 1`);
 }
 
 fs.writeFileSync(indexPath, html);
-console.log('restored Macro semantic validator markers with id-first sections');
+console.log('restored Macro semantic markers and normalized required sections id-first');

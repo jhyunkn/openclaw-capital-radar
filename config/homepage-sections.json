@@ -1,6 +1,6 @@
 {
-  "version": 32,
-  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. System Health is now the edit-readiness gate for visual and data-display work: it reports registry preview status, data truth integrity, stale/missing artifacts, legacy cleanup state, and zero-value suspicions. Curated Macro Reading may keep old macro modules as collapsed evidence layers, but cleanup must normalize duplicated validator IDs before structural validation.",
+  "version": 33,
+  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. System Health is now the edit-readiness gate for visual and data-display work: it reports registry preview status, data truth integrity, stale/missing artifacts, legacy cleanup state, and zero-value suspicions. Curated Macro Reading may keep old macro modules as collapsed evidence layers, but cleanup must normalize duplicated validator IDs before structural validation and restore semantic compatibility markers after the Macro operating page is consolidated.",
   "baseline": {
     "description": "Create clean operational HTML shell before sections are injected.",
     "commands": [
@@ -147,12 +147,13 @@
     }
   ],
   "cleanup": {
-    "description": "Remove old/legacy homepage sections, consolidate the four-tab operating surface, and normalize duplicated IDs inside curated macro evidence layers before structural validation.",
+    "description": "Remove old/legacy homepage sections, consolidate the four-tab operating surface, normalize duplicated IDs inside curated macro evidence layers, and restore hidden semantic markers required by existing structural validators.",
     "commands": [
       "node scripts/strip-legacy-brief-strategy-home.cjs",
       "node scripts/normalize-homepage-sections.cjs",
       "node scripts/consolidate-market-macro-home.cjs",
-      "node scripts/normalize-curated-macro-audit-ids.cjs"
+      "node scripts/normalize-curated-macro-audit-ids.cjs",
+      "node scripts/restore-macro-validator-markers.cjs"
     ],
     "legacySectionIds": [
       "brief",

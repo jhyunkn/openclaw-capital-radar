@@ -23,29 +23,24 @@ function scoreAxis(state, id, fallback) { return Object.values(state.axis || {})
 function axisTone(axis) { return Number(axis.score) < 50 ? 'bad' : Number(axis.score) > 70 ? 'good' : 'warn'; }
 
 function renderMeter(label, axis) {
-  const bad = Number(axis.score) < 50;
   const width = Math.max(0, Math.min(100, Number(axis.score) || 0));
-  return `<div class="ke-score"><div class="row"><span>${esc(label)}</span><span class="value ${bad ? 'red' : ''}">${esc(axis.score)} <small>/100</small></span></div><div class="bar"><div class="fill ${bad ? 'red' : ''}" style="width:${width}%"></div></div><div class="ke-score-note">${esc(axis.read || '')}</div></div>`;
+  const tone = axisTone(axis);
+  return `<article class="ke-axis-box ${tone}"><span>${esc(label)}</span><b>${esc(axis.score)} /100</b><div class="ke-axis-bar"><i style="width:${width}%"></i></div><p>${esc(axis.read || '')}</p></article>`;
 }
 
 function renderAllocationRows(items) {
   const assetOrder = ['Cash', 'Bonds / TLT', 'Gold', 'Oil / energy', 'SPX core', 'QQQ / growth', 'BTC / crypto beta', 'Small caps', 'New opportunities'];
   return arr(items).sort((a,b) => orderIndex(assetOrder, a.asset) - orderIndex(assetOrder, b.asset)).map(item => {
     const st = stance(`${item.posture || ''} ${item.tilt || ''}`);
-    return `<tr><td>${esc(item.asset)}</td><td class="${st[1]}">${esc(st[0])}</td></tr>`;
+    return `<article><span>${esc(item.asset)}</span><b class="${st[1]}">${esc(st[0])}</b></article>`;
   }).join('');
 }
 
 function renderEquityRows(items) {
   const eqOrder = ['Quality growth', 'AI / semis', 'Dividend / income', 'Defensive sectors', 'Healthcare', 'Utilities', 'Value', 'Cyclicals', 'Financials', 'Small caps', 'Speculative growth', 'Energy equities'];
-  const sorted = arr(items).sort((a,b) => orderIndex(eqOrder, a.bucket) - orderIndex(eqOrder, b.bucket));
-  const half = Math.ceil(sorted.length / 2);
-  return Array.from({ length: half }).map((_, i) => {
-    const a = sorted[i];
-    const b = sorted[i + half];
-    const ca = a ? stance(`${a.posture || ''} ${a.tilt || ''}`) : ['', ''];
-    const cb = b ? stance(`${b.posture || ''} ${b.tilt || ''}`) : ['', ''];
-    return `<tr>${a ? `<td>${esc(a.bucket)}</td><td class="${ca[1]}">${esc(ca[0])}</td>` : '<td></td><td></td>'}${b ? `<td>${esc(b.bucket)}</td><td class="${cb[1]}">${esc(cb[0])}</td>` : '<td></td><td></td>'}</tr>`;
+  return arr(items).sort((a,b) => orderIndex(eqOrder, a.bucket) - orderIndex(eqOrder, b.bucket)).map(item => {
+    const st = stance(`${item.posture || ''} ${item.tilt || ''}`);
+    return `<article><span>${esc(item.bucket)}</span><b class="${st[1]}">${esc(st[0])}</b></article>`;
   }).join('');
 }
 
@@ -85,22 +80,26 @@ function renderEggSvg(current) {
 
 function renderAxisSummary(axes) {
   const rows = [
-    ['Monetary', axes.mon, 'Rate pressure and policy backdrop'],
-    ['Liquidity', axes.liq, 'Risk appetite and funding support'],
-    ['Psychology', axes.psy, 'Crowd behavior and sentiment pressure'],
-    ['Structure', axes.str, 'Trend, breadth, and technical confirmation'],
-    ['Valuation', axes.val, 'Expectation and multiple pressure'],
+    ['Monetary', axes.mon],
+    ['Liquidity', axes.liq],
+    ['Psychology', axes.psy],
+    ['Structure', axes.str],
+    ['Valuation', axes.val],
   ];
-  return `<div class="ke-axis-board">${rows.map(([label, axis, help]) => `<article class="${axisTone(axis)}"><span>${esc(label)}</span><b>${esc(axis.score)} /100</b><p>${esc(axis.read || help)}</p><small>${esc(help)}</small></article>`).join('')}</div>`;
+  return `<div class="ke-axis-board">${rows.map(([label, axis]) => renderMeter(label, axis)).join('')}</div>`;
 }
 
-function renderStrategySummary(state, axes) {
+function renderStrategySummary(state) {
   return `<div class="ke-strategy-board">
-    <article class="ke-strategy-primary"><span>Cycle decision</span><b>${esc(state.capital_action)}</b><p>${esc(state.phase_market_meaning)}. Egg defines allocation bias, then Movement and Route decide whether that bias becomes action.</p></article>
+    <article class="ke-strategy-primary"><span>Cycle decision</span><b>${esc(state.capital_action)}</b><p>${esc(state.phase_market_meaning)}. Egg defines allocation bias. Movement confirms the tape. Route decides permission.</p></article>
     <article><span>Phase</span><b>${esc(state.phase_code)} · ${esc(state.macro_phase)}</b><small>Cycle location, not a prediction.</small></article>
     <article><span>Stress type</span><b>${esc(state.stress_type)}</b><small>Primary constraint on risk-taking.</small></article>
-    <article><span>Invalidation</span><b>${esc(state.invalidation)}</b><small>What breaks the current phase read.</small></article>
-  </div>${renderAxisSummary(axes)}`;
+    <article><span>Invalidation</span><b>${esc(state.invalidation)}</b><small>What breaks the phase read.</small></article>
+  </div>`;
+}
+
+function renderPhaseRail(current) {
+  return `<div class="ke-phase-rail">${['A1','A2','B','C','D','E','F'].map(c => `<article class="${c === current ? 'active' : ''}"><span>${c}</span><b>${c === current ? 'Current' : 'Watch'}</b></article>`).join('')}</div>`;
 }
 
 function renderKostolanyEggSection(state) {
@@ -115,7 +114,27 @@ function renderKostolanyEggSection(state) {
     val: scoreAxis(state, 'valuation', { label: 'Valuation', score: 50, read: 'mixed' }),
   };
   const asOf = esc(new Date(state.as_of || Date.now()).toISOString().slice(0, 16).replace('T', ' '));
-  return `<section id="kostolany-egg-section" class="kostolany-egg-v3 egg-strategy-instrument"><div class="ke-exact-app"><section class="ke-masthead"><div class="ke-hero"><p class="ke-eyebrow">Egg</p><h1>Cycle allocation instrument</h1><p class="ke-cycle-sub">Kostolany phase logic translated into strategy bias, constraints, and invalidation.</p></div><div class="ke-operational"><span class="ke-dot"></span>Operational render<br>${asOf} UTC</div></section>${renderStrategySummary(state, axes)}<details class="ke-instrument-collapse" open><summary>Inspect cycle map</summary><section class="ke-grid-top"><article class="ke-card"><div class="ke-egg-wrap"><div class="ke-egg-caption">Kostolany Egg · Allocation Cycle</div>${renderEggSvg(current)}</div></article><article class="ke-card ke-current-read"><h3>Current Read</h3><div class="ke-read-box"><div class="label">Market meaning</div><div class="value">${esc(state.phase_market_meaning)}</div></div><div class="ke-read-box"><div class="label">Capital action</div><div class="value">${esc(state.capital_action)}</div></div><div class="ke-read-box"><div class="label">Invalidation</div><div class="value">${esc(state.invalidation)}</div></div>${renderMeter('Monetary score', axes.mon)}${renderMeter('Liquidity score', axes.liq)}${renderMeter('Psychology score', axes.psy)}${renderMeter('Structure score', axes.str)}${renderMeter('Valuation score', axes.val)}<div class="ke-score-note">Scores reflect relative macro conditions vs history.</div></article></section></details><details class="ke-instrument-collapse"><summary>Allocation and rotation guide</summary><section class="ke-grid-mid"><article class="ke-card"><h3>Broad Allocation Guide</h3><table><thead><tr><th>Asset</th><th>Stance</th></tr></thead><tbody>${broadRows}</tbody></table></article><article class="ke-card"><h3>Equity Rotation Guide</h3><table><thead><tr><th>Sector / Theme</th><th>Stance</th><th>Sector / Theme</th><th>Stance</th></tr></thead><tbody>${equityRows}</tbody></table></article></section></details><section class="ke-mini-grid"><article class="ke-card"><h3>Regime Signal</h3><div class="ke-regime-pill">${esc(state.phase_label || state.phase_code)}</div><div class="ke-phase-dots">${['A1','A2','B','C','D','E','F'].map(c => `<div class="${c === current ? 'active' : ''}"><i></i>${c}</div>`).join('')}</div></article><article class="ke-card"><h3>Route handoff</h3><p class="ke-handoff">Egg does not give a buy signal. It tells Route whether the cycle favors defense, verification, accumulation, expansion, or distribution.</p></article><article class="ke-card"><h3>Decision use</h3><p class="ke-handoff">Use this section to size the posture; use Movement to confirm the tape; use Route to decide capital permission.</p></article></section><div class="ke-footnote"><span class="ke-info">i</span> This is a macro allocation framework, not a prediction. Use with risk management and scenario planning.</div></div></section>`;
+  return `<section id="kostolany-egg-section" class="kostolany-egg-v3 egg-strategy-instrument">
+    <div class="ke-exact-app">
+      <section class="ke-masthead">
+        <div class="ke-hero"><p class="ke-eyebrow">Egg</p><h1>Kostolany Egg Diagram</h1><p class="ke-cycle-sub">Cycle allocation instrument: phase, allocation bias, stress type, and invalidation before any ticker-level decision.</p></div>
+        <div class="ke-operational"><span class="ke-dot"></span>Operational render<br>${asOf} UTC</div>
+      </section>
+      ${renderStrategySummary(state)}
+      ${renderAxisSummary(axes)}
+      ${renderPhaseRail(current)}
+      <section class="ke-allocation-row">
+        <article class="ke-card"><h3>Broad allocation guide</h3><div class="ke-rect-grid">${broadRows}</div></article>
+        <article class="ke-card"><h3>Equity rotation guide</h3><div class="ke-rect-grid ke-rect-grid-wide">${equityRows}</div></article>
+      </section>
+      <section class="ke-decision-use">
+        <article><span>Route handoff</span><b>Bias is not permission.</b><p>Egg tells Route whether the cycle favors defense, verification, accumulation, expansion, or distribution.</p></article>
+        <article><span>Decision use</span><b>Size the posture.</b><p>Use Egg for allocation bias, Movement for tape confirmation, and Route for capital permission.</p></article>
+      </section>
+      <details class="ke-instrument-collapse"><summary>Inspect cycle map</summary><section class="ke-grid-top"><article class="ke-card"><div class="ke-egg-wrap"><div class="ke-egg-caption">Kostolany Egg · Allocation Cycle</div>${renderEggSvg(current)}</div></article><article class="ke-card ke-current-read"><h3>Current read</h3><div class="ke-read-box"><div class="label">Market meaning</div><div class="value">${esc(state.phase_market_meaning)}</div></div><div class="ke-read-box"><div class="label">Capital action</div><div class="value">${esc(state.capital_action)}</div></div><div class="ke-read-box"><div class="label">Invalidation</div><div class="value">${esc(state.invalidation)}</div></div></article></section></details>
+      <div class="ke-footnote"><span class="ke-info">i</span> This macro allocation framework is not a prediction. It defines bias, constraints, and invalidation for downstream strategy.</div>
+    </div>
+  </section>`;
 }
 
 module.exports = { renderKostolanyEggSection };

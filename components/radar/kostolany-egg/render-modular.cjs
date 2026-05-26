@@ -120,6 +120,10 @@ function renderKostolanyEggSection(state) {
         <div class="ke-hero"><p class="ke-eyebrow">Egg</p><h1>Kostolany Egg Diagram</h1><p class="ke-cycle-sub">Cycle allocation instrument: phase, allocation bias, stress type, and invalidation before any ticker-level decision.</p></div>
         <div class="ke-operational"><span class="ke-dot"></span>Operational render<br>${asOf} UTC</div>
       </section>
+      <section class="ke-cycle-stage">
+        <article class="ke-cycle-map-card"><div class="ke-egg-caption">Where are we in the cycle?</div>${renderEggSvg(current)}</article>
+        <article class="ke-current-read"><h3>What this phase tells us</h3><div class="ke-read-box"><div class="label">Market meaning</div><div class="value">${esc(state.phase_market_meaning)}</div></div><div class="ke-read-box"><div class="label">Capital action</div><div class="value">${esc(state.capital_action)}</div></div><div class="ke-read-box"><div class="label">Invalidation</div><div class="value">${esc(state.invalidation)}</div></div></article>
+      </section>
       ${renderStrategySummary(state)}
       ${renderAxisSummary(axes)}
       ${renderPhaseRail(current)}
@@ -131,7 +135,6 @@ function renderKostolanyEggSection(state) {
         <article><span>Route handoff</span><b>Bias is not permission.</b><p>Egg tells Route whether the cycle favors defense, verification, accumulation, expansion, or distribution.</p></article>
         <article><span>Decision use</span><b>Size the posture.</b><p>Use Egg for allocation bias, Movement for tape confirmation, and Route for capital permission.</p></article>
       </section>
-      <details class="ke-instrument-collapse"><summary>Inspect cycle map</summary><section class="ke-grid-top"><article class="ke-card"><div class="ke-egg-wrap"><div class="ke-egg-caption">Kostolany Egg · Allocation Cycle</div>${renderEggSvg(current)}</div></article><article class="ke-card ke-current-read"><h3>Current read</h3><div class="ke-read-box"><div class="label">Market meaning</div><div class="value">${esc(state.phase_market_meaning)}</div></div><div class="ke-read-box"><div class="label">Capital action</div><div class="value">${esc(state.capital_action)}</div></div><div class="ke-read-box"><div class="label">Invalidation</div><div class="value">${esc(state.invalidation)}</div></div></article></section></details>
       <div class="ke-footnote"><span class="ke-info">i</span> This macro allocation framework is not a prediction. It defines bias, constraints, and invalidation for downstream strategy.</div>
     </div>
   </section>`;

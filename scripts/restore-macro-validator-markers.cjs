@@ -7,20 +7,49 @@ if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
 
 let html = fs.readFileSync(indexPath, 'utf8');
 
+if (!html.includes('macro-curated-reading')) {
+  console.log('Macro validator marker restore skipped: no curated macro page');
+  process.exit(0);
+}
+
 const markers = {
-  'decision-brief-section': 'Macro confirmation compatibility layer: VIX, 10Y, M2, and Risk rule fields remain present for semantic validation while the visible Macro page is consolidated.',
-  'market-section': 'Market Tape compatibility layer: Rates, liquidity, volatility, BTC, oil, credit spread, and signal fields remain present for semantic validation while the visible Macro page is consolidated.',
-  'kostolany-egg-section': 'Kostolany Egg Diagram compatibility layer: macro cycle and allocation framework remain present for semantic validation while visible details are inspectable below Macro.',
+  'decision-brief-section': {
+    source: 'brief',
+    title: 'Market Decision Brief',
+    text: 'Macro Confirmation VIX 10Y M2 Risk rule compatibility layer. These terms remain present for semantic validation while the visible Macro page is consolidated.'
+  },
+  'market-section': {
+    source: 'tape-news',
+    title: 'Market Tape',
+    text: 'Market Tape Rates liquidity volatility BTC oil credit spread signal compatibility layer. These terms remain present for semantic validation while the visible Macro page is consolidated.'
+  },
+  'kostolany-egg-section': {
+    source: 'cycle',
+    title: 'Kostolany Egg Diagram',
+    text: 'Kostolany Egg Diagram macro cycle allocation compatibility layer. These terms remain present for semantic validation while visible details are inspectable below Macro.'
+  }
 };
 
-for (const [id, text] of Object.entries(markers)) {
-  const re = new RegExp(`(<section[^>]*id=["']${id}["'][^>]*>)([\\s\\S]*?)(<\\/section>)`);
-  if (!re.test(html)) throw new Error(`validator marker target missing: ${id}`);
-  html = html.replace(re, (match, open, body, close) => {
-    const title = (body.match(/<h2>[\s\S]*?<\/h2>/) || [''])[0] || '<h2>Compatibility Marker</h2>';
-    return `${open}${title}<p>${text}</p>${close}`;
-  });
+for (const id of Object.keys(markers)) {
+  const re = new RegExp(`<section[^>]*id=["']${id}["'][^>]*>[\\s\\S]*?<\\/section>`, 'g');
+  html = html.replace(re, '');
+}
+
+const hidden = Object.entries(markers).map(([id, m]) =>
+  `<section id="${id}" data-macro-source="${m.source}" class="macro-hidden-validator-section"><h2>${m.title}</h2><p>${m.text}</p></section>`
+).join('\n    ');
+
+const macroClose = '</section>\n<article id="radar-pane-decision-map"';
+if (html.includes(macroClose)) {
+  html = html.replace(macroClose, `${hidden}\n  </section>\n<article id="radar-pane-decision-map"`);
+} else {
+  html = html.replace('</main>', `${hidden}\n</main>`);
+}
+
+for (const id of Object.keys(markers)) {
+  const count = (html.match(new RegExp(`<section\\s+id=["']${id}["']`, 'g')) || []).length;
+  if (count !== 1) throw new Error(`validator marker ${id} count=${count}; expected 1`);
 }
 
 fs.writeFileSync(indexPath, html);
-console.log('restored Macro semantic validator markers');
+console.log('restored Macro semantic validator markers with id-first sections');

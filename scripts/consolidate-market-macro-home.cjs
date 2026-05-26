@@ -13,14 +13,24 @@ function count(sectionHtml, pattern) { return (String(sectionHtml || '').match(p
 function tone(value) { const s = String(value || '').toLowerCase(); if (/support|healthy|contained|positive|risk-on|improv|allowed|pass|fresh|hold/.test(s)) return 'good'; if (/block|defensive|stale|missing|avoid|worsen|constrain|no add|risk/.test(s)) return 'bad'; return 'warn'; }
 
 function findSection(source, id) {
-  const match = source.match(new RegExp(`<section[^>]*id=["']${id}["'][^>]*>[\\s\\S]*?<\\/section>`, 'i'));
-  if (!match) return { html: '' };
-  return { html: match[0], start: match.index, end: match.index + match[0].length };
+  let start = source.indexOf(`<section id="${id}"`);
+  if (start < 0) start = source.indexOf(`<section id='${id}'`);
+  if (start < 0) {
+    const broad = source.search(new RegExp(`<section[^>]*id=["']${id}["']`, 'i'));
+    if (broad < 0) return null;
+    start = broad;
+  }
+  const candidates = [
+    source.indexOf('<section id="', start + 1),
+    source.indexOf("<section id='", start + 1),
+    source.indexOf('<footer', start + 1),
+    source.indexOf('</main>', start + 1),
+  ].filter(i => i >= 0);
+  const end = candidates.length ? Math.min(...candidates) : source.length;
+  return { html: source.slice(start, end).trim(), start, end };
 }
-function removeAllManagedSections(source) {
-  const ids = ['data-refresh-section','kostolany-egg-section','market-lens-section','strategy-routing-section','decision-brief-section','market-section','operational-chart-section','holdings-section','opportunities-section'];
-  for (const id of ids) source = source.replace(new RegExp(`<section[^>]*id=["']${id}["'][^>]*>[\\s\\S]*?<\\/section>`, 'gi'), '');
-  source = source.replace(/<section id="capital-radar-operating-surface"[\s\S]*?<\/section>/gi, '');
+function removeRanges(source, ranges) {
+  for (const range of ranges.filter(Boolean).sort((a, b) => b.start - a.start)) source = source.slice(0, range.start) + source.slice(range.end);
   return source;
 }
 function metric(label, value, note) { return `<article><span>${esc(label)}</span><b class="${tone(value + ' ' + note)}">${esc(value)}</b><small>${esc(note)}</small></article>`; }
@@ -29,12 +39,15 @@ function permission(theme, state, reason) { return `<tr><th>${esc(theme)}</th><t
 function engine(title, state, evidence, implication, invalidation) { return `<article class="macro-engine ${tone(state + ' ' + implication)}"><span>${esc(title)}</span><b>${esc(state)}</b><p><strong>Evidence</strong> ${esc(evidence)}</p><p><strong>Decision</strong> ${esc(implication)}</p><p><strong>Invalidation</strong> ${esc(invalidation)}</p></article>`; }
 function bullets(items, cls) { return `<ul>${items.map(item => `<li class="${cls}">${esc(item)}</li>`).join('')}</ul>`; }
 
-const trust = findSection(html, 'data-refresh-section').html;
-const brief = findSection(html, 'decision-brief-section').html;
-const egg = findSection(html, 'kostolany-egg-section').html;
-const movement = findSection(html, 'market-lens-section').html;
-const route = findSection(html, 'strategy-routing-section').html;
-const tape = findSection(html, 'market-section').html;
+const managedIds = ['data-refresh-section','kostolany-egg-section','market-lens-section','strategy-routing-section','decision-brief-section','market-section','operational-chart-section','holdings-section','opportunities-section'];
+const ranges = Object.fromEntries(managedIds.map(id => [id, findSection(html, id)]));
+
+const trust = ranges['data-refresh-section']?.html || '';
+const brief = ranges['decision-brief-section']?.html || '';
+const egg = ranges['kostolany-egg-section']?.html || '';
+const movement = ranges['market-lens-section']?.html || '';
+const route = ranges['strategy-routing-section']?.html || '';
+const tape = ranges['market-section']?.html || '';
 
 const decisionMode = first(trust, /<span>Current decision mode<\/span>\s*<strong>([\s\S]*?)<\/strong>/i, 'Research-only / no capital adds');
 const readiness = first(trust, /<span>Source readiness<\/span>\s*<strong>([\s\S]*?)<\/strong>/i, '65%');
@@ -50,7 +63,8 @@ const cautions = count(movement, />DEFENSIVE</g) + count(movement, />EXTENDED</g
 const confirming = first(tape, /<span>Confirming<\/span>\s*<b>([\s\S]*?)<\/b>/i, '—');
 const contradicting = first(tape, /<span>Contradicting<\/span>\s*<b>([\s\S]*?)<\/b>/i, '—');
 
-html = removeAllManagedSections(html);
+html = removeRanges(html, Object.values(ranges));
+html = html.replace(/<section id="capital-radar-operating-surface"[\s\S]*?<\/section>/gi, '');
 
 const macro = `<section id="data-refresh-section" class="panel macro-root-page">
   <div class="macro-hero-read">
@@ -87,4 +101,4 @@ html = html.replace('</head>', `${style}\n</head>`);
 html = html.replace(/<script id="capital-radar-operating-surface-script">[\s\S]*?<\/script>/g, '');
 
 fs.writeFileSync(indexPath, html);
-console.log('simplified Macro page into top-level operating surface');
+console.log('simplified Macro page into top-level operating surface with range-safe cleanup');

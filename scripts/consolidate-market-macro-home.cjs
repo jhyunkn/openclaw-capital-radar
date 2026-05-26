@@ -46,6 +46,7 @@ const ids = [
   'market-lens-section',
   'strategy-routing-section',
   'decision-brief-section',
+  'market-section',
   'operational-chart-section',
   'holdings-section',
   'opportunities-section',
@@ -53,31 +54,32 @@ const ids = [
 
 const ranges = Object.fromEntries(ids.map(id => [id, findSection(html, id)]));
 const missing = ids.filter(id => !ranges[id]);
-if (missing.length) throw new Error(`Cannot consolidate market macro; missing sections: ${missing.join(', ')}`);
+if (missing.length) throw new Error(`Cannot consolidate Capital Radar homepage; missing sections: ${missing.join(', ')}`);
 
 for (const range of Object.values(ranges).sort((a, b) => b.start - a.start)) html = removeRange(html, range);
 
 const panes = [
   {
     id: 'macro-reading',
-    label: 'Macro reading',
+    label: 'Macro Reading',
     kicker: 'Data driven & news-aware',
-    title: 'What is the market saying before we touch positions?',
-    body: 'Combines source freshness, macro-cycle phase, cross-asset movement, route permission, and the market brief into one reading.',
+    title: 'What is the market saying before we touch capital?',
+    body: 'A single macro read built from source trust, cycle phase, cross-asset movement, route permission, market brief, and tape/news-catalyst status.',
     content: [
       normalizeInnerSection(ranges['data-refresh-section'].html, 'trust'),
-      normalizeInnerSection(ranges['kostolany-egg-section'].html, 'egg'),
+      normalizeInnerSection(ranges['decision-brief-section'].html, 'brief'),
+      normalizeInnerSection(ranges['kostolany-egg-section'].html, 'cycle'),
       normalizeInnerSection(ranges['market-lens-section'].html, 'movement'),
       normalizeInnerSection(ranges['strategy-routing-section'].html, 'route'),
-      normalizeInnerSection(ranges['decision-brief-section'].html, 'brief'),
+      normalizeInnerSection(ranges['market-section'].html, 'tape-news'),
     ].join('\n'),
   },
   {
     id: 'decision-map',
-    label: 'Decision map',
+    label: 'Decision Map',
     kicker: 'Chart-specific values',
     title: 'Where are the actual market levels?',
-    body: 'SPX working chart, confirmation, risk lines, supports, resistance, and decision values used to keep the macro read grounded.',
+    body: 'The SPX working chart, price zones, confirmation strip, support, resistance, target, and invalidation values that ground the macro read.',
     content: normalizeInnerSection(ranges['operational-chart-section'].html, 'decision-map'),
   },
   {
@@ -85,85 +87,91 @@ const panes = [
     label: 'Holdings',
     kicker: 'Portfolio translation',
     title: 'What does the macro read permit inside the existing book?',
-    body: 'Current holdings translated into zones, action permission, blockers, and source authority.',
+    body: 'Current holdings translated into buy, hold, trim, loss-control, verification, and source-authority states.',
     content: normalizeInnerSection(ranges['holdings-section'].html, 'holdings'),
   },
   {
     id: 'opportunity-asymmetry',
-    label: 'Opportunity asymmetry',
-    kicker: 'New risk only if asymmetry clears',
-    title: 'Which opportunities deserve research attention now?',
-    body: 'New ideas filtered by evidence, asymmetric upside/downside, route permission, and current market regime.',
+    label: 'Opportunity Asymmetry',
+    kicker: 'Asymmetric research queue',
+    title: 'Which ideas deserve research attention, not automatic capital?',
+    body: 'New ideas filtered by evidence quality, route permission, valuation gap, downside control, and asymmetric upside/downside.',
     content: normalizeInnerSection(ranges['opportunities-section'].html, 'opportunity-asymmetry'),
   },
 ];
 
-const tabButtons = panes.map((pane, index) => `<button type="button" class="macro-tab${index === 0 ? ' active' : ''}" data-macro-tab="${pane.id}" aria-controls="macro-pane-${pane.id}" aria-selected="${index === 0 ? 'true' : 'false'}"><span>${esc(pane.kicker)}</span><b>${esc(pane.label)}</b></button>`).join('\n');
-const tabPanes = panes.map((pane, index) => `<article id="macro-pane-${pane.id}" class="macro-pane${index === 0 ? ' active' : ''}" data-macro-pane="${pane.id}">
-        <div class="macro-pane-head">
+const tabButtons = panes.map((pane, index) => `<button type="button" class="radar-tab${index === 0 ? ' active' : ''}" data-radar-tab="${pane.id}" aria-controls="radar-pane-${pane.id}" aria-selected="${index === 0 ? 'true' : 'false'}"><span>${esc(pane.kicker)}</span><b>${esc(pane.label)}</b></button>`).join('\n');
+const tabPanes = panes.map((pane, index) => `<article id="radar-pane-${pane.id}" class="radar-pane${index === 0 ? ' active' : ''}" data-radar-pane="${pane.id}">
+        <div class="radar-pane-head">
           <p class="eyebrow">${esc(pane.kicker)}</p>
           <h3>${esc(pane.title)}</h3>
           <p>${esc(pane.body)}</p>
         </div>
-        <div class="macro-pane-content">${pane.content}</div>
+        <div class="radar-pane-content">${pane.content}</div>
       </article>`).join('\n');
 
-const macroSection = `
-    <section id="market-macro-section" class="panel market-macro-section">
-      <div class="section-head market-macro-head">
+const productSection = `
+    <section id="capital-radar-operating-surface" class="panel capital-radar-operating-surface">
+      <div class="section-head radar-product-head">
         <div>
-          <p class="eyebrow">Market macro command section</p>
-          <h2>One read: sources, cycle, levels, portfolio, asymmetry.</h2>
+          <p class="eyebrow">Capital Radar operating surface</p>
+          <h2>Four tabs. One decision chain.</h2>
         </div>
-        <p class="market-macro-read">Trust, Egg, Movement, Route, and Brief now operate as one macro narrative instead of separate dashboard islands. The tabs move from market truth → chart values → holdings → new opportunity risk.</p>
+        <p class="radar-product-read">The page is organized around the product chain: macro truth first, market levels second, portfolio translation third, and asymmetric opportunity research last.</p>
       </div>
-      <div class="macro-tabs" role="tablist" aria-label="Capital Radar macro sections">
+      <div class="radar-product-chain" aria-label="Capital Radar decision chain">
+        <span>Data</span><span>Evidence</span><span>Interpretation</span><span>Permission</span><span>Action</span><span>Invalidation</span>
+      </div>
+      <div class="radar-tabs" role="tablist" aria-label="Capital Radar sections">
         ${tabButtons}
       </div>
-      <div class="macro-tab-panes">
+      <div class="radar-tab-panes">
         ${tabPanes}
       </div>
     </section>`;
 
 const insertAt = (() => {
-  const firstRemaining = html.search(/<section id="(market-section|system-health-section)"/);
-  if (firstRemaining >= 0) return firstRemaining;
   const footer = html.indexOf('<footer');
   if (footer >= 0) return footer;
   const mainEnd = html.indexOf('</main>');
   return mainEnd >= 0 ? mainEnd : html.length;
 })();
-html = html.slice(0, insertAt) + macroSection + '\n    ' + html.slice(insertAt);
+html = html.slice(0, insertAt) + productSection + '\n    ' + html.slice(insertAt);
 
-html = html.replace(/<nav class="nav">[\s\S]*?<\/nav>/, '<nav class="nav"><a href="#macro-pane-macro-reading" data-macro-link="macro-reading">Macro reading</a><a href="#macro-pane-decision-map" data-macro-link="decision-map">Decision map</a><a href="#macro-pane-holdings" data-macro-link="holdings">Holdings</a><a href="#macro-pane-opportunity-asymmetry" data-macro-link="opportunity-asymmetry">Opportunity asymmetry</a></nav>');
+html = html.replace(/<nav class="nav">[\s\S]*?<\/nav>/, '<nav class="nav"><a href="#radar-pane-macro-reading" data-radar-link="macro-reading">Macro Reading</a><a href="#radar-pane-decision-map" data-radar-link="decision-map">Decision Map</a><a href="#radar-pane-holdings" data-radar-link="holdings">Holdings</a><a href="#radar-pane-opportunity-asymmetry" data-radar-link="opportunity-asymmetry">Opportunity Asymmetry</a></nav>');
 
-const style = `<style id="market-macro-tabs-style">
-.market-macro-section{background:rgba(251,250,246,.12);padding-top:54px}.market-macro-head{border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:0}.market-macro-read{max-width:720px;color:var(--muted);line-height:1.45}.macro-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:24px}.macro-tab{appearance:none;text-align:left;border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.16);padding:16px 16px 18px;color:var(--ink);cursor:pointer;transition:background .18s ease}.macro-tab span{display:inline-flex;width:max-content;max-width:100%;border:1px solid var(--rule);border-radius:999px;padding:6px 9px;background:rgba(251,250,246,.22);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);line-height:1}.macro-tab b{display:block;margin-top:14px;font-size:clamp(20px,2vw,32px);line-height:1;letter-spacing:-.045em;font-weight:500}.macro-tab:hover,.macro-tab.active{background:rgba(251,250,246,.48)}.macro-tab.active{box-shadow:inset 0 -2px 0 rgba(36,35,31,.72)}.macro-tab-panes{border-left:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.10)}.macro-pane{display:none}.macro-pane.active{display:block}.macro-pane-head{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(0,1.1fr);gap:24px;align-items:end;padding:22px;border-bottom:1px solid var(--rule);background:rgba(251,250,246,.18)}.macro-pane-head h3{font-size:clamp(30px,3.2vw,56px);line-height:.98;letter-spacing:-.055em;font-weight:500;margin:0}.macro-pane-head p:last-child{max-width:760px;color:rgba(36,35,31,.72);font-size:14px}.macro-pane-content>.macro-inner-panel{border-bottom:1px solid var(--rule);padding:28px 22px;margin:0}.macro-pane-content>.macro-inner-panel:last-child{border-bottom:0}.macro-pane-content .section-head{margin-bottom:20px}.macro-pane-content .section-head h2{font-size:clamp(28px,3vw,48px)}.macro-pane-content .ke-exact-app{max-width:none}.macro-pane-content .ke-masthead{padding-top:0}.macro-pane-content .data-refresh-panel{border-top:0;background:transparent}.macro-pane-content .hero{display:none}.macro-pane-content .topbar{display:none}@media(max-width:1100px){.macro-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.macro-pane-head{grid-template-columns:1fr}.macro-pane-content>.macro-inner-panel{padding:24px 16px}}@media(max-width:680px){.macro-tabs{grid-template-columns:1fr}.macro-tab b{font-size:24px}}
+const style = `<style id="capital-radar-operating-surface-style">
+.capital-radar-operating-surface{background:rgba(251,250,246,.10);padding-top:54px}.radar-product-head{border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:0}.radar-product-read{max-width:760px;color:var(--muted);line-height:1.45}.radar-product-chain{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:22px}.radar-product-chain span{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:10px 12px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em;background:rgba(251,250,246,.12)}.radar-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-top:18px}.radar-tab{appearance:none;text-align:left;border:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.14);padding:18px 18px 20px;color:var(--ink);cursor:pointer;transition:background .18s ease}.radar-tab span{display:inline-flex;width:max-content;max-width:100%;border:1px solid var(--rule);border-radius:999px;padding:6px 9px;background:rgba(251,250,246,.24);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);line-height:1}.radar-tab b{display:block;margin-top:18px;font-size:clamp(21px,2.2vw,34px);line-height:.98;letter-spacing:-.052em;font-weight:500}.radar-tab:hover,.radar-tab.active{background:rgba(251,250,246,.48)}.radar-tab.active{box-shadow:inset 0 -2px 0 rgba(36,35,31,.74)}.radar-tab-panes{border-left:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:rgba(251,250,246,.08)}.radar-pane{display:none}.radar-pane.active{display:block}.radar-pane-head{display:grid;grid-template-columns:minmax(260px,.92fr) minmax(0,1.08fr);gap:24px;align-items:end;padding:24px 22px;border-bottom:1px solid var(--rule);background:rgba(251,250,246,.18)}.radar-pane-head h3{font-size:clamp(32px,3.5vw,60px);line-height:.96;letter-spacing:-.06em;font-weight:500;margin:0}.radar-pane-head p:last-child{max-width:780px;color:rgba(36,35,31,.72);font-size:14px;line-height:1.45}.radar-pane-content>.macro-inner-panel{border-bottom:1px solid var(--rule);padding:30px 22px;margin:0}.radar-pane-content>.macro-inner-panel:last-child{border-bottom:0}.radar-pane-content .section-head{margin-bottom:20px}.radar-pane-content .section-head h2{font-size:clamp(28px,3vw,48px)}.radar-pane-content .data-refresh-panel{border-top:0;background:transparent}.radar-pane-content .command-brief{margin-top:0}.radar-pane-content .ke-exact-app{max-width:none}.radar-pane-content .ke-masthead{padding-top:0}.radar-pane-content .market-lens,.radar-pane-content .strategy-routing{margin-top:0}.radar-pane-content .tape-board{margin-top:12px}.radar-pane-content .hero,.radar-pane-content .topbar{display:none}@media(max-width:1100px){.radar-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.radar-product-chain{grid-template-columns:repeat(3,minmax(0,1fr))}.radar-pane-head{grid-template-columns:1fr}.radar-pane-content>.macro-inner-panel{padding:24px 16px}}@media(max-width:680px){.radar-tabs,.radar-product-chain{grid-template-columns:1fr}.radar-tab b{font-size:25px}}
 </style>`;
 html = html.replace(/<style id="market-macro-tabs-style">[\s\S]*?<\/style>/g, '');
+html = html.replace(/<style id="capital-radar-operating-surface-style">[\s\S]*?<\/style>/g, '');
 html = html.replace('</head>', `${style}\n</head>`);
 
-const script = `<script id="market-macro-tabs-script">
+const script = `<script id="capital-radar-operating-surface-script">
 (function(){
   function activate(id){
-    document.querySelectorAll('[data-macro-tab]').forEach(function(btn){var on=btn.getAttribute('data-macro-tab')===id;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',on?'true':'false');});
-    document.querySelectorAll('[data-macro-pane]').forEach(function(pane){pane.classList.toggle('active',pane.getAttribute('data-macro-pane')===id);});
+    document.querySelectorAll('[data-radar-tab]').forEach(function(btn){var on=btn.getAttribute('data-radar-tab')===id;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',on?'true':'false');});
+    document.querySelectorAll('[data-radar-pane]').forEach(function(pane){pane.classList.toggle('active',pane.getAttribute('data-radar-pane')===id);});
   }
   document.addEventListener('click',function(event){
-    var btn=event.target.closest('[data-macro-tab], [data-macro-link]');
+    var btn=event.target.closest('[data-radar-tab], [data-radar-link]');
     if(!btn)return;
-    var id=btn.getAttribute('data-macro-tab')||btn.getAttribute('data-macro-link');
+    var id=btn.getAttribute('data-radar-tab')||btn.getAttribute('data-radar-link');
     if(!id)return;
+    event.preventDefault();
     activate(id);
+    var pane=document.getElementById('radar-pane-'+id);
+    if(pane) history.replaceState(null,'','#radar-pane-'+id);
   });
   if(location.hash){
-    var pane=document.querySelector(location.hash+'[data-macro-pane], '+location.hash+' [data-macro-pane]');
-    if(pane)activate(pane.getAttribute('data-macro-pane'));
+    var hashId=location.hash.replace('#radar-pane-','');
+    if(document.querySelector('[data-radar-pane="'+hashId+'"]')) activate(hashId);
   }
 })();
 </script>`;
 html = html.replace(/<script id="market-macro-tabs-script">[\s\S]*?<\/script>/g, '');
+html = html.replace(/<script id="capital-radar-operating-surface-script">[\s\S]*?<\/script>/g, '');
 html = html.replace('</body>', `${script}\n</body>`);
 
 fs.writeFileSync(indexPath, html);
-console.log('consolidated Trust/Egg/Movement/Route/Brief, Decision Map, Holdings, and Opportunities into one macro tab section');
+console.log('consolidated Capital Radar homepage into four decision tabs: Macro Reading, Decision Map, Holdings, Opportunity Asymmetry');

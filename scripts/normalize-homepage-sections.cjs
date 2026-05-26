@@ -5,12 +5,13 @@ if(!fs.existsSync(indexPath)) throw new Error('index.html missing');
 let html=fs.readFileSync(indexPath,'utf8');
 
 // Production visual pass: keep one coherent product shell and no legacy Brain mini-app.
-const ids=['kostolany-egg-section','operational-chart-section','market-lens-section','strategy-routing-section','decision-brief-section','holdings-section','opportunities-section','market-section','system-health-section'];
+const ids=['data-refresh-section','kostolany-egg-section','operational-chart-section','market-lens-section','strategy-routing-section','decision-brief-section','holdings-section','opportunities-section','market-section','system-health-section'];
 
 function findSections(source,id){const token=`<section id="${id}"`;const found=[];let start=source.indexOf(token);while(start>=0){let next=source.indexOf('<section id="',start+token.length);let footer=source.indexOf('<footer',start+token.length);let mainEnd=source.indexOf('</main>',start+token.length);let candidates=[next,footer,mainEnd].filter(i=>i>=0);let end=candidates.length?Math.min(...candidates):source.length;found.push({start,end,text:source.slice(start,end)});start=source.indexOf(token,end);}return found;}
 function removeSection(source,id){const token=`<section id="${id}"`;let out=source;let start=out.indexOf(token);while(start>=0){let next=out.indexOf('<section id="',start+token.length);let footer=out.indexOf('<footer',start+token.length);let mainEnd=out.indexOf('</main>',start+token.length);let candidates=[next,footer,mainEnd].filter(i=>i>=0);let end=candidates.length?Math.min(...candidates):out.length;out=out.slice(0,start)+out.slice(end);start=out.indexOf(token);}return out;}
 function reorderSections(source){const collected=[];let out=source;for(const id of ids){const found=findSections(out,id);if(!found.length)continue;collected.push({id,text:found[0].text});out=removeSection(out,id);}if(!collected.length)return out;const ordered=ids.map(id=>collected.find(item=>item.id===id)).filter(Boolean).map(item=>item.text).join('\n    ');const footer=out.indexOf('<footer');const mainEnd=out.indexOf('</main>');const insertAt=footer>=0?footer:(mainEnd>=0?mainEnd:out.length);return out.slice(0,insertAt)+ordered+'\n    '+out.slice(insertAt);}
 function rebuildNav(source){const labels={
+  'data-refresh-section':'Trust',
   'kostolany-egg-section':'Egg',
   'decision-brief-section':'Brief',
   'market-lens-section':'Movement',

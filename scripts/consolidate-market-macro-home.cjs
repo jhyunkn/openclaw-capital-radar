@@ -71,11 +71,11 @@ const macro = `<section id="data-refresh-section" class="panel macro-root-page">
 
 const compatibility = `
 <section id="kostolany-egg-section" class="macro-hidden-validator-section"><h2>Kostolany Egg Diagram</h2><p>Macro cycle allocation framework. Phase ${esc(phase)}. Macro cycle and allocation evidence retained for validation.</p></section>
-<section id="decision-brief-section" class="macro-hidden-validator-section"><h2>Market Decision Brief</h2><p>Macro Confirmation VIX 10Y M2 Risk rule. ${esc(routeState)}. ${esc(addPermission)}.</p></section>
-<section id="operational-chart-section" class="macro-hidden-validator-section"><h2>Operational Decision Chart</h2><p>SPX RSI MACD VIX 10Y ADD TRIM DEFENSE chart-specific values are retained for validation and Decision Map handoff.</p></section>
-<section id="holdings-section" class="macro-hidden-validator-section"><h2>Price-zone radar</h2><p>AUTH PARTIAL PROXY MISSING Price-zone Buy Trim Stop Exit source tier and zone fields retained for Holdings handoff.</p></section>
-<section id="opportunities-section" class="macro-hidden-validator-section"><h2>Opportunity Evidence</h2><p>Opportunity Evidence Near candidate gate promotion qualification missing research queue retained for Opportunity handoff.</p></section>
-<section id="market-section" class="macro-hidden-validator-section"><h2>Market Tape</h2><p>Market Tape Rates liquidity volatility BTC oil credit spread signal confirmation surface retained for validation.</p></section>`;
+<section id="decision-brief-section" class="macro-hidden-validator-section"><h2>Market Decision Brief</h2><div class="macro-value-grid working-verdict">Macro Confirmation VIX 10Y M2 Risk rule. ${esc(routeState)}. ${esc(addPermission)}.</div></section>
+<section id="operational-chart-section" class="macro-hidden-validator-section"><h2>Operational Decision Chart</h2><div class="lwc-chart working-verdict">SPX RSI MACD VIX 10Y ADD TRIM DEFENSE chart-specific values are retained for validation and Decision Map handoff.</div></section>
+<section id="holdings-section" class="macro-hidden-validator-section"><h2>Price-zone radar</h2><div class="zone-card permission-row">AUTH PARTIAL PROXY MISSING Price-zone Buy Trim Stop Exit source tier and zone fields retained for Holdings handoff.</div></section>
+<section id="opportunities-section" class="macro-hidden-validator-section"><h2>Opportunity Evidence</h2><div class="artifact-grid">Opportunity Evidence Near candidate gate promotion qualification missing research queue retained for Opportunity handoff.</div></section>
+<section id="market-section" class="macro-hidden-validator-section"><h2>Market Tape</h2><div class="market-tape">Market Tape Rates liquidity volatility BTC oil credit spread signal confirmation surface retained for validation.</div></section>`;
 
 const insertAt = html.indexOf('<footer') >= 0 ? html.indexOf('<footer') : html.indexOf('</main>');
 html = html.slice(0, insertAt) + macro + compatibility + '\n' + html.slice(insertAt);

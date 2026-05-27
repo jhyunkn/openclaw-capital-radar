@@ -1,46 +1,114 @@
 {
-  "version": 1,
+  "version": 2,
   "mission": "asset-class-data-foundation",
   "macroGate": {
-    "completeMatrixRequires": [
-      "all_asset_classes_declared",
-      "all_core_datasets_declared",
-      "all_dataset_sources_declared",
-      "freshness_rules_declared",
-      "confidence_labels_declared",
-      "missing_evidence_visible"
+    "levels": {
+      "PARTIAL": {
+        "label": "Asset-Class Research Matrix: PARTIAL DATA COVERAGE",
+        "allowedUse": "May display partial asset-class reads only with explicit missing-evidence and confidence caveats.",
+        "requires": [
+          "all_asset_classes_declared",
+          "all_core_datasets_declared",
+          "all_dataset_sources_declared",
+          "freshness_rules_declared",
+          "confidence_labels_declared",
+          "missing_evidence_visible"
+        ]
+      },
+      "CORE": {
+        "label": "Asset-Class Research Matrix: CORE MACRO SPINE COVERAGE",
+        "allowedUse": "May generate a serious first Macro landscape read, but cannot claim full cross-asset completeness.",
+        "requiresAssetClasses": [
+          "money_cash",
+          "duration",
+          "credit",
+          "equity_ownership",
+          "fx_dollar",
+          "volatility_insurance"
+        ],
+        "requires": [
+          "each_core_spine_asset_class_has_at_least_partial_validated_coverage",
+          "no_stale_core_dataset_silently_used",
+          "portfolio_implication_includes_missing_evidence_caveat"
+        ]
+      },
+      "FULL": {
+        "label": "Asset-Class Research Matrix: FULL DATA COVERAGE",
+        "allowedUse": "May claim full asset-class matrix coverage if all required asset classes have at least partial validated data and no stale core data.",
+        "requires": [
+          "all_asset_classes_have_at_least_partial_validated_coverage",
+          "all_core_datasets_are_AUTH_VERIFIED_PROXY_or_explicitly_MISSING",
+          "no_stale_core_dataset_silently_used",
+          "all_missing_evidence_visible"
+        ]
+      }
+    }
+  },
+  "phasePolicy": {
+    "phase1CoreSpine": [
+      "money_cash",
+      "duration",
+      "credit",
+      "equity_ownership",
+      "fx_dollar",
+      "volatility_insurance"
     ],
-    "partialLabel": "Asset-Class Research Matrix: PARTIAL DATA COVERAGE",
-    "completeLabel": "Asset-Class Research Matrix: FULL DATA COVERAGE"
+    "phase2Expansion": [
+      "long_duration_growth_innovation",
+      "commodities_inputs",
+      "real_assets",
+      "monetary_alternatives"
+    ],
+    "phase2ManualOrHardToAutomate": [
+      "cap_rates",
+      "rent_growth",
+      "vacancy_occupancy",
+      "private_credit_stress",
+      "central_bank_gold_purchases",
+      "cross_currency_basis",
+      "shipping_rates",
+      "fund_flows",
+      "earnings_revisions"
+    ]
   },
   "assetClasses": {
     "money_cash": {
       "label": "Money / Cash",
+      "phase": 1,
       "primaryQuestion": "Is capital being paid to wait, or is capital being forced out on the risk curve?",
       "requiredDatasets": [
         { "id": "tbill_3m_yield", "label": "3-month T-bill yield", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "effective_fed_funds", "label": "Effective fed funds rate", "tier": "CORE", "sourceFamily": "fred" },
+        { "id": "real_fed_funds", "label": "Real fed funds rate", "tier": "CORE", "sourceFamily": "derived" },
         { "id": "cpi_inflation", "label": "CPI inflation", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "real_cash_yield", "label": "Real cash yield", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
         { "id": "money_market_assets", "label": "Money-market fund assets", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "bank_reserves", "label": "Bank reserves", "tier": "CONFIRMING", "sourceFamily": "fred" },
         { "id": "m2", "label": "M2 / broad money", "tier": "CONFIRMING", "sourceFamily": "fred" },
+        { "id": "financial_conditions", "label": "Financial conditions index", "tier": "CONFIRMING", "sourceFamily": "fred" },
+        { "id": "liquidity_impulse", "label": "Liquidity impulse", "tier": "DERIVED_CONFIRMING", "sourceFamily": "derived" },
         { "id": "tga", "label": "Treasury cash balance / TGA", "tier": "CONTEXT", "sourceFamily": "treasury_fiscaldata" },
-        { "id": "reverse_repo", "label": "Reverse repo", "tier": "CONTEXT", "sourceFamily": "fred" }
+        { "id": "reverse_repo", "label": "Reverse repo", "tier": "CONTEXT", "sourceFamily": "fred" },
+        { "id": "tbill_supply", "label": "Treasury bill supply", "tier": "CONTEXT", "sourceFamily": "treasury_fiscaldata" },
+        { "id": "sofr", "label": "SOFR", "tier": "CONTEXT", "sourceFamily": "fred" }
       ],
       "generator": "scripts/generate-money-cash-state.cjs",
       "output": "outputs/money-cash-state.json"
     },
     "duration": {
       "label": "Sovereign Bonds / Duration",
+      "phase": 1,
       "primaryQuestion": "Is the price of time helping or punishing long-duration claims?",
       "requiredDatasets": [
         { "id": "treasury_2y", "label": "2-year Treasury yield", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "treasury_10y", "label": "10-year Treasury yield", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "tips_10y_real_yield", "label": "10-year TIPS real yield", "tier": "CORE", "sourceFamily": "fred" },
+        { "id": "term_premium", "label": "Treasury term premium", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "curve_2s10s", "label": "2s10s curve", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
         { "id": "curve_3m10y", "label": "3m10y curve", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
         { "id": "inflation_breakevens", "label": "Inflation breakevens / expectations", "tier": "CORE", "sourceFamily": "fred" },
+        { "id": "treasury_issuance_pressure", "label": "Treasury issuance / supply pressure", "tier": "CONTEXT", "sourceFamily": "treasury_fiscaldata" },
+        { "id": "fiscal_deficit_pressure", "label": "Fiscal deficit pressure", "tier": "CONTEXT", "sourceFamily": "treasury_fiscaldata" },
         { "id": "move_index", "label": "MOVE index", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
         { "id": "tlt_price", "label": "TLT price trend", "tier": "PROXY", "sourceFamily": "market_price_provider" }
       ],
@@ -49,63 +117,83 @@
     },
     "credit": {
       "label": "Credit",
+      "phase": 1,
       "primaryQuestion": "Does the market trust borrowers broadly enough for risk to broaden?",
       "requiredDatasets": [
         { "id": "hy_oas", "label": "High-yield OAS", "tier": "CORE", "sourceFamily": "fred" },
+        { "id": "hy_oas_momentum", "label": "High-yield spread momentum", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
         { "id": "ig_oas", "label": "Investment-grade OAS", "tier": "CORE", "sourceFamily": "fred" },
+        { "id": "ig_oas_momentum", "label": "Investment-grade spread momentum", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
         { "id": "ccc_spread", "label": "CCC / weakest-credit spread", "tier": "CONFIRMING", "sourceFamily": "fred" },
         { "id": "default_rate", "label": "Default rate", "tier": "CORE", "sourceFamily": "manual_research" },
+        { "id": "loan_delinquency_rates", "label": "Loan delinquency rates", "tier": "CONFIRMING", "sourceFamily": "fred" },
+        { "id": "bank_charge_offs", "label": "Bank charge-offs", "tier": "CONFIRMING", "sourceFamily": "fred" },
         { "id": "lending_standards", "label": "Bank lending standards", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "bank_credit_growth", "label": "Bank credit growth", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "hyg_price", "label": "HYG price trend", "tier": "PROXY", "sourceFamily": "market_price_provider" },
-        { "id": "lqd_price", "label": "LQD price trend", "tier": "PROXY", "sourceFamily": "market_price_provider" }
+        { "id": "lqd_price", "label": "LQD price trend", "tier": "PROXY", "sourceFamily": "market_price_provider" },
+        { "id": "private_credit_stress", "label": "Private credit / leveraged loan stress", "tier": "CONTEXT", "sourceFamily": "manual_research", "phase": 2 }
       ],
       "generator": "scripts/generate-credit-state.cjs",
       "output": "outputs/credit-state.json"
     },
     "equity_ownership": {
       "label": "Equity Ownership",
+      "phase": 1,
       "primaryQuestion": "Is capital broadly buying productive enterprise or only a narrow group of winners?",
       "requiredDatasets": [
         { "id": "spx_price", "label": "SPX price trend", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "equal_weight_vs_cap_weight", "label": "Equal-weight SPX vs cap-weight SPX", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "stocks_above_moving_average", "label": "% above 50/200 DMA", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "advance_decline", "label": "Advance/decline line", "tier": "CORE", "sourceFamily": "market_price_provider" },
-        { "id": "earnings_revisions", "label": "Earnings revisions", "tier": "CORE", "sourceFamily": "manual_research" },
-        { "id": "margin_trend", "label": "Margin trend", "tier": "CORE", "sourceFamily": "sec_edgar" },
+        { "id": "earnings_yield_vs_bond_yield", "label": "Earnings yield vs bond yield", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
+        { "id": "equity_risk_premium", "label": "Equity risk premium", "tier": "CORE", "sourceFamily": "derived" },
+        { "id": "free_cash_flow_yield", "label": "Free-cash-flow yield", "tier": "CORE", "sourceFamily": "manual_research" },
+        { "id": "profit_margin_cycle", "label": "Profit-margin cycle", "tier": "CORE", "sourceFamily": "sec_edgar" },
+        { "id": "earnings_revisions", "label": "Earnings revisions", "tier": "CORE", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "valuation_multiple", "label": "Valuation multiple", "tier": "CORE", "sourceFamily": "manual_research" },
-        { "id": "sector_participation", "label": "Sector participation", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" }
+        { "id": "sector_participation", "label": "Sector participation", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
+        { "id": "ipo_secondary_issuance", "label": "IPO / secondary issuance", "tier": "CONTEXT", "sourceFamily": "manual_research", "phase": 2 }
       ],
       "generator": "scripts/generate-equity-ownership-state.cjs",
       "output": "outputs/equity-ownership-state.json"
     },
-    "innovation_growth": {
-      "label": "Innovation / Growth Themes",
+    "long_duration_growth_innovation": {
+      "label": "Long-Duration Growth / Innovation Optionality",
+      "phase": 2,
       "primaryQuestion": "Is the market rationally underwriting future growth, or overpaying for narrative duration?",
       "requiredDatasets": [
         { "id": "qqq_price", "label": "QQQ price trend", "tier": "CORE_PROXY", "sourceFamily": "market_price_provider" },
         { "id": "growth_vs_value", "label": "Growth vs value relative strength", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "ai_semiconductor_basket", "label": "AI / semiconductor basket relative strength", "tier": "CONTEXT", "sourceFamily": "market_price_provider" },
+        { "id": "price_sales_premium", "label": "Price/sales premium", "tier": "CORE", "sourceFamily": "manual_research" },
+        { "id": "forward_revenue_revision_trend", "label": "Forward revenue revision trend", "tier": "CORE", "sourceFamily": "manual_research" },
         { "id": "leader_revenue_growth", "label": "Revenue growth for leaders", "tier": "CORE", "sourceFamily": "sec_edgar" },
-        { "id": "earnings_revision_breadth", "label": "Earnings revision breadth", "tier": "CORE", "sourceFamily": "manual_research" },
+        { "id": "earnings_revision_breadth", "label": "Earnings revision breadth", "tier": "CORE", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "valuation_premium", "label": "Valuation premium vs market", "tier": "CORE", "sourceFamily": "manual_research" },
-        { "id": "leader_concentration", "label": "Concentration among leaders", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "leader_concentration", "label": "Concentration among leaders", "tier": "CORE", "sourceFamily": "etf_index_holdings_provider" },
+        { "id": "unprofitable_tech_participation", "label": "Unprofitable tech participation", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
+        { "id": "venture_funding_cycle", "label": "Venture funding cycle", "tier": "CONTEXT", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "capex_cycle", "label": "Capex cycle", "tier": "CONTEXT", "sourceFamily": "sec_edgar" }
       ],
-      "generator": "scripts/generate-innovation-themes-state.cjs",
-      "output": "outputs/innovation-themes-state.json"
+      "generator": "scripts/generate-long-duration-growth-innovation-state.cjs",
+      "output": "outputs/long-duration-growth-innovation-state.json"
     },
     "real_assets": {
       "label": "Real Assets",
+      "phase": 2,
       "primaryQuestion": "Does capital prefer tangible collateral and income durability, or is real collateral being repriced by rates and leverage?",
       "requiredDatasets": [
         { "id": "reit_price", "label": "REIT / VNQ price trend", "tier": "PROXY", "sourceFamily": "market_price_provider" },
+        { "id": "reit_sector_split", "label": "Public REIT sector split", "tier": "CONFIRMING", "sourceFamily": "etf_index_holdings_provider" },
         { "id": "mortgage_rates", "label": "Mortgage rates", "tier": "CORE", "sourceFamily": "fred" },
-        { "id": "cap_rates", "label": "Cap rates", "tier": "CORE", "sourceFamily": "manual_research" },
-        { "id": "rent_growth", "label": "Rent growth", "tier": "CORE", "sourceFamily": "manual_research" },
-        { "id": "vacancy_occupancy", "label": "Vacancy / occupancy", "tier": "CORE", "sourceFamily": "manual_research" },
+        { "id": "debt_service_coverage", "label": "Debt-service coverage", "tier": "CORE", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "cre_refinancing_maturities", "label": "CRE refinancing maturities", "tier": "CONTEXT", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "cap_rates", "label": "Cap rates", "tier": "CORE", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "rent_growth", "label": "Rent growth", "tier": "CORE", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "vacancy_occupancy", "label": "Vacancy / occupancy", "tier": "CORE", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "construction_costs", "label": "Construction costs", "tier": "CONFIRMING", "sourceFamily": "fred" },
-        { "id": "property_price_index", "label": "Property price index", "tier": "CONTEXT", "sourceFamily": "fred" },
+        { "id": "property_price_index", "label": "Property price index", "tier": "CONTEXT", "sourceFamily": "fhfa_case_shiller" },
         { "id": "infrastructure_utility_proxy", "label": "Infrastructure / utility proxy", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" }
       ],
       "generator": "scripts/generate-real-assets-state.cjs",
@@ -113,15 +201,21 @@
     },
     "commodities_inputs": {
       "label": "Commodities / Inputs",
+      "phase": 2,
       "primaryQuestion": "Is the physical economy imposing scarcity constraints on financial claims?",
       "requiredDatasets": [
         { "id": "oil_price", "label": "Oil price", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "oil_inventories", "label": "Oil inventories", "tier": "CORE", "sourceFamily": "eia" },
         { "id": "natural_gas_price", "label": "Natural gas price", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "copper_price", "label": "Copper price", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "copper_inventories", "label": "Copper inventories", "tier": "CONFIRMING", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "broad_commodity_index", "label": "Broad commodity index", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "pmi_industrial_demand", "label": "PMI / industrial demand", "tier": "CONFIRMING", "sourceFamily": "manual_research" },
+        { "id": "china_credit_impulse", "label": "China credit impulse", "tier": "CONTEXT", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "geopolitical_risk_premium", "label": "Geopolitical risk premium", "tier": "CONTEXT", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "energy_crack_spreads", "label": "Energy crack spreads", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
         { "id": "grains_food_basket", "label": "Grains / food basket", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
-        { "id": "shipping_rates", "label": "Shipping rates", "tier": "CONFIRMING", "sourceFamily": "manual_research" },
-        { "id": "inventories", "label": "Inventories", "tier": "CORE", "sourceFamily": "manual_research" },
+        { "id": "shipping_rates", "label": "Shipping rates", "tier": "CONFIRMING", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "futures_curve", "label": "Futures curve", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "cftc_positioning", "label": "CFTC positioning", "tier": "CONTEXT", "sourceFamily": "cftc_cot" }
       ],
@@ -130,15 +224,20 @@
     },
     "monetary_alternatives": {
       "label": "Monetary Alternatives",
+      "phase": 2,
       "primaryQuestion": "Is capital questioning sovereign money, or merely reaching for speculative beta?",
       "requiredDatasets": [
         { "id": "gold_price", "label": "Gold price", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "gold_vs_real_yields", "label": "Gold vs real yields", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
+        { "id": "gold_vs_dollar", "label": "Gold vs dollar", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
         { "id": "silver_price", "label": "Silver price", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
         { "id": "bitcoin_price", "label": "Bitcoin price", "tier": "CORE_PROXY", "sourceFamily": "market_price_provider" },
+        { "id": "btc_vs_nasdaq_correlation", "label": "BTC vs Nasdaq correlation", "tier": "DERIVED_CONFIRMING", "sourceFamily": "derived" },
+        { "id": "btc_vs_global_liquidity", "label": "BTC vs global liquidity", "tier": "DERIVED_CONFIRMING", "sourceFamily": "derived" },
         { "id": "real_yields", "label": "Real yields", "tier": "CORE", "sourceFamily": "fred" },
         { "id": "dollar_strength", "label": "Dollar strength", "tier": "CORE", "sourceFamily": "market_price_provider" },
-        { "id": "central_bank_gold_purchases", "label": "Central-bank gold purchases", "tier": "CONFIRMING", "sourceFamily": "manual_research" },
-        { "id": "stablecoin_supply", "label": "Stablecoin supply", "tier": "CONTEXT", "sourceFamily": "market_price_provider" },
+        { "id": "central_bank_gold_purchases", "label": "Central-bank gold purchases", "tier": "CONFIRMING", "sourceFamily": "manual_research", "phase": 2 },
+        { "id": "stablecoin_supply", "label": "Stablecoin supply", "tier": "CONTEXT", "sourceFamily": "crypto_liquidity_provider" },
         { "id": "gold_btc_risk_correlation", "label": "Gold/BTC correlation to risk assets", "tier": "DERIVED_CONFIRMING", "sourceFamily": "derived" }
       ],
       "generator": "scripts/generate-monetary-alternatives-state.cjs",
@@ -146,14 +245,17 @@
     },
     "fx_dollar": {
       "label": "FX / Dollar",
+      "phase": 1,
       "primaryQuestion": "Is the dollar easing global liquidity or tightening global financial conditions?",
       "requiredDatasets": [
         { "id": "dxy", "label": "DXY", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "real_effective_exchange_rate", "label": "Real effective exchange rate", "tier": "CONFIRMING", "sourceFamily": "fred" },
         { "id": "eurusd", "label": "EUR/USD", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "usdjpy", "label": "USD/JPY", "tier": "CORE", "sourceFamily": "market_price_provider" },
+        { "id": "yen_carry_stress", "label": "Yen carry stress", "tier": "CONTEXT", "sourceFamily": "derived" },
         { "id": "em_fx_basket", "label": "EM FX basket", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "dollar_funding_stress", "label": "Dollar funding stress", "tier": "CORE", "sourceFamily": "fred" },
-        { "id": "cross_currency_basis", "label": "Cross-currency basis", "tier": "CONFIRMING", "sourceFamily": "manual_research" },
+        { "id": "cross_currency_basis", "label": "Cross-currency basis", "tier": "CONFIRMING", "sourceFamily": "manual_research", "phase": 2 },
         { "id": "global_liquidity_proxy", "label": "Global liquidity proxy", "tier": "CONFIRMING", "sourceFamily": "derived" },
         { "id": "carry_trade_proxy", "label": "Carry-trade proxy", "tier": "CONTEXT", "sourceFamily": "market_price_provider" }
       ],
@@ -162,15 +264,19 @@
     },
     "volatility_insurance": {
       "label": "Volatility / Insurance",
+      "phase": 1,
       "primaryQuestion": "Is the market underpricing or overpricing disorder?",
       "requiredDatasets": [
         { "id": "vix", "label": "VIX", "tier": "CORE", "sourceFamily": "fred" },
+        { "id": "vvix", "label": "VVIX", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
         { "id": "move", "label": "MOVE", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "skew", "label": "Skew", "tier": "CORE", "sourceFamily": "market_price_provider" },
         { "id": "put_call_ratio", "label": "Put/call ratio", "tier": "CONFIRMING", "sourceFamily": "market_price_provider" },
         { "id": "realized_volatility", "label": "Realized volatility", "tier": "CORE", "sourceFamily": "derived" },
         { "id": "implied_vs_realized", "label": "Implied vs realized volatility spread", "tier": "DERIVED_CORE", "sourceFamily": "derived" },
-        { "id": "credit_hedges_proxy", "label": "Credit hedges / CDS proxy", "tier": "CONFIRMING", "sourceFamily": "fred" },
+        { "id": "correlation_spike", "label": "Correlation spike", "tier": "CONFIRMING", "sourceFamily": "derived" },
+        { "id": "drawdown_breadth", "label": "Equity drawdown breadth", "tier": "CONFIRMING", "sourceFamily": "derived" },
+        { "id": "credit_volatility_proxy", "label": "Credit volatility proxy", "tier": "CONFIRMING", "sourceFamily": "fred" },
         { "id": "vol_term_structure", "label": "Volatility term structure", "tier": "CORE", "sourceFamily": "market_price_provider" }
       ],
       "generator": "scripts/generate-volatility-insurance-state.cjs",

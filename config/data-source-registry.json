@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "mission": "asset-class-data-foundation",
+  "rule": "No asset-class read can graduate into Macro unless its source family, dataset status, freshness rule, and confidence label are declared.",
+  "confidenceLabels": [
+    "AUTH",
+    "VERIFIED_PROXY",
+    "PARTIAL",
+    "STALE",
+    "MISSING",
+    "CONFLICTED",
+    "MANUAL_REQUIRED"
+  ],
+  "sourceFamilies": {
+    "fred": {
+      "name": "FRED / St. Louis Fed",
+      "role": "Official and institutional macro time series backbone for yields, rates, money, reserves, spreads, inflation, and selected volatility data.",
+      "access": "api_key_required",
+      "priority": 1
+    },
+    "treasury_fiscaldata": {
+      "name": "U.S. Treasury FiscalData",
+      "role": "Treasury cash balance and federal fiscal/liquidity context where endpoint support is validated.",
+      "access": "public_api",
+      "priority": 1
+    },
+    "sec_edgar": {
+      "name": "SEC EDGAR APIs",
+      "role": "Company facts, filings, fundamentals, revenue, margins, capex and ticker-level financial statement data.",
+      "access": "public_api_with_user_agent",
+      "priority": 1
+    },
+    "cftc_cot": {
+      "name": "CFTC Commitments of Traders",
+      "role": "Futures positioning context for commodities, rates, FX, metals, and energy.",
+      "access": "public_files",
+      "priority": 2
+    },
+    "market_price_provider": {
+      "name": "Market Price Provider",
+      "role": "ETF, index, commodity, FX, precious metal, crypto, sector, and basket price data.",
+      "access": "provider_required",
+      "priority": 1
+    },
+    "manual_research": {
+      "name": "Manual Research Layer",
+      "role": "Temporary declared manual layer for datasets not yet available through a free or stable automated source.",
+      "access": "manual",
+      "priority": 3
+    }
+  },
+  "freshnessDefaults": {
+    "market_price_provider": "1 trading day",
+    "fred": "7 calendar days unless source frequency is lower",
+    "treasury_fiscaldata": "7 calendar days unless source frequency is lower",
+    "sec_edgar": "latest filing period",
+    "cftc_cot": "10 calendar days",
+    "manual_research": "30 calendar days with visible stale warning"
+  }
+}

@@ -10,7 +10,7 @@ function fail(message) {
   process.exit(1);
 }
 
-function tail(value, max = 8000) {
+function tail(value, max = 10000) {
   const text = String(value || '').trim();
   if (!text) return '';
   return text.length > max ? text.slice(text.length - max) : text;
@@ -27,20 +27,16 @@ if (requestedStage && stages.length === 0) fail(`unknown stage: ${requestedStage
 
 const startedAt = Date.now();
 const results = [];
-
-console.log(`Capital Radar build pipeline v${manifest.version || 'unknown'}`);
-console.log(manifest.policy || 'Manifest-driven build pipeline.');
+console.log(`Capital Radar build pipeline v${manifest.version || 'unknown'} · quiet mode`);
 
 for (const stage of stages) {
   if (!stage || !stage.name) fail('stage missing name');
   if (!Array.isArray(stage.commands) || stage.commands.length === 0) fail(`${stage.name} has no commands`);
 
   const stageStartedAt = Date.now();
-  console.log(`\n=== stage: ${stage.name} ===`);
-  if (stage.description) console.log(stage.description);
+  console.log(`stage: ${stage.name}`);
 
   for (const command of stage.commands) {
-    const commandStartedAt = Date.now();
     const result = spawnSync(command, {
       cwd: root,
       shell: true,
@@ -48,34 +44,22 @@ for (const stage of stages) {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
     });
-    const duration = ((Date.now() - commandStartedAt) / 1000).toFixed(1);
 
     if (result.error || result.status !== 0) {
-      console.error(`\n$ ${command}`);
-      if (result.stdout) console.error(`--- stdout tail ---\n${tail(result.stdout)}`);
-      if (result.stderr) console.error(`--- stderr tail ---\n${tail(result.stderr)}`);
+      console.error(`FAILED COMMAND: ${command}`);
+      if (result.stdout) console.error(`STDOUT TAIL:\n${tail(result.stdout)}`);
+      if (result.stderr) console.error(`STDERR TAIL:\n${tail(result.stderr)}`);
       if (result.error) fail(`${stage.name}: ${command}: ${result.error.message}`);
       fail(`${stage.name}: ${command}: exit ${result.status}`);
     }
-
-    console.log(`✓ ${command} (${duration}s)`);
   }
 
-  const durationMs = Date.now() - stageStartedAt;
-  results.push({ stage: stage.name, durationMs });
-  console.log(`=== completed: ${stage.name} (${(durationMs / 1000).toFixed(1)}s) ===`);
+  results.push({ stage: stage.name, durationMs: Date.now() - stageStartedAt });
 }
 
 const totalMs = Date.now() - startedAt;
-const report = {
-  generatedAt: new Date().toISOString(),
-  requestedStage: requestedStage || 'all',
-  totalMs,
-  stages: results,
-};
-
+const report = { generatedAt: new Date().toISOString(), requestedStage: requestedStage || 'all', totalMs, stages: results };
 const outPath = path.join(root, 'outputs', 'build-pipeline-last-run.json');
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(report, null, 2));
-console.log(`\nBuild pipeline completed in ${(totalMs / 1000).toFixed(1)}s`);
-console.log(`Wrote ${path.relative(root, outPath)}`);
+console.log(`Build pipeline completed in ${(totalMs / 1000).toFixed(1)}s`);

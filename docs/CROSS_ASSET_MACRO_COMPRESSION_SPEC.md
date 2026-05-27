@@ -15,35 +15,95 @@ It should begin with evidence.
 The correct structure is:
 
 ```text
-Asset Class -> Dataset -> Signal Method -> Cycle State -> Analysis -> Ontological Market Landscape Read -> Portfolio Implication
+Asset Class -> Dataset -> Analysis -> Synthesis
 ```
 
-The prior versions were still too interpretive. They read like cards. This version must read like a research engine.
+Where synthesis has two possible outputs:
+
+```text
+1. Ontological market landscape
+2. Historical cycle narrative
+```
+
+## Required analytical chain
+
+Every asset class must follow this chain:
+
+```text
+1. Asset class
+2. Associated datasets
+3. Signal method
+4. Asset-class analysis
+5. Cycle state
+6. Cross-asset relationship
+7. Ontological market landscape read
+8. Historical narrative / prior-cycle comparison
+9. Portfolio implication
+10. Missing evidence / confidence
+```
+
+This is the core law of Mission 2.
 
 ## Why this matters
 
-An asset class is not singular. It is cyclical.
+An asset class cannot generate useful Macro analysis unless the system knows what data is being used to evaluate it.
 
-The same asset class can perform different market roles depending on regime:
-
-- cash can be dead weight in liquidity expansion, but power in contraction
-- bonds can be safe collateral, duration upside, or inflation casualty
-- equities can represent productive ownership, speculative beta, or over-owned narrative
-- commodities can signal inflation, scarcity, war risk, or weak demand
-- gold/Bitcoin can behave as escape assets, liquidity assets, or speculative beta
-- volatility can be cheap insurance, panic premium, or complacency warning
-
-Therefore the system should not ask:
+A serious read cannot jump directly from:
 
 ```text
-Is this asset class good or bad?
+Bonds down
 ```
 
-It should ask:
+to:
 
 ```text
-What cycle state is this asset class in, what data proves that, and what does that reveal about the market landscape?
+Market is defensive.
 ```
+
+It must pass through:
+
+```text
+Which bond data?
+Which part of the bond market?
+Nominal yields, real yields, curve, inflation expectations, credit spreads, MOVE?
+What cycle state does that imply?
+How does that relate to equities, cash, credit, commodities, FX, and volatility?
+How does this compare to earlier bond cycles?
+```
+
+## The two synthesis outputs
+
+### 1. Ontological market landscape
+
+This asks:
+
+```text
+How are the asset classes related to one another in producing the current market condition?
+```
+
+Example:
+
+```text
+Equity ownership remains supported, but sovereign duration is still pressuring valuation multiples. Credit confirmation is missing, volatility remains contained, and speculative liquidity is not validating broad risk expansion. This means the current landscape is selective risk, not full liquidity expansion.
+```
+
+This is not a single-asset read. It is a relationship map.
+
+### 2. Historical cycle narrative
+
+This asks:
+
+```text
+How is the current asset-class configuration situated compared to prior cycles of asset movement?
+```
+
+Example:
+
+```text
+The current setup resembles a late-liquidity or narrow-leadership phase more than an early broad-risk expansion. Equities can continue rising, but the absence of credit, duration, and liquidity confirmation means the move has not yet matured into a full-cycle Add regime.
+```
+
+This is not a prediction. It is a historical-context read.
 
 ## Web outcome
 
@@ -56,15 +116,17 @@ Holdings
 Opportunity
 ```
 
-Inside Macro, the visible subpanel should eventually show a compressed version of a deeper dataset-backed matrix.
+Inside Macro, the visible subpanel should eventually show a compressed version of the deeper matrix.
 
 The user-facing surface may look compact, but the underlying model must be:
 
 ```text
 Asset Class
 Dataset Coverage
+Analysis
 Cycle State
-Signal Read
+Relationship to Other Asset Classes
+Historical Cycle Comparison
 Landscape Meaning
 Portfolio Implication
 Missing Evidence
@@ -75,22 +137,29 @@ Example visible output:
 ```text
 ASSET-CLASS RESEARCH MATRIX
 
-Overall landscape: Liquidity is not broad enough to justify full risk expansion.
+Macro landscape: Selective risk / incomplete confirmation
+Historical posture: Narrow leadership, not broad-cycle expansion
 
-Asset class              Dataset coverage              Cycle state              Landscape read                       Portfolio implication
-Money / Cash             T-bills, reserves, liquidity   Optionality cycle        Dry powder still has value             Do not exhaust risk budget
-Sovereign Bonds          yields, real rates, curve      Duration pressure        Discount-rate relief not confirmed     Avoid valuation chase
-Credit                   spreads, lending, defaults     Confirmation missing     Risk broadening unproven               Cap Add permission
-Equity Ownership         breadth, earnings, leadership  Narrow productive risk   Index strength hides concentration     Own core / probe zones
-Innovation Themes        valuation, momentum, flows     Crowded narrative cycle  Future priced aggressively             Avoid chase
-Real Assets              cap rates, rents, REITs        Rate-sensitive split     Quality income beats leverage          Underwrite selectively
-Commodities / Inputs     energy, metals, shipping       Bottleneck watch         Physical scarcity not decisive yet     Watch inflation impulse
-Monetary Alternatives    gold, BTC, real yields, USD    Trust/liquidity split    Escape bid not fully confirmed         Cap size
-FX / Dollar              DXY, funding, global liquidity Missing confirmation     Global liquidity read incomplete       Cap confidence
-Volatility / Insurance   VIX, skew, spreads             Complacency/containment  Disorder is priced as contained        Hold risk but keep discipline
+Asset class              Dataset basis                  Analysis                         Cycle state                  Landscape role
+Money / Cash             T-bills, reserves, liquidity   Optionality still has value       Optionality cycle            Cash still competes with risk
+Sovereign Bonds          yields, real yields, curve      Rate relief not confirmed         Duration pressure            Limits valuation expansion
+Credit                   spreads, lending, defaults     Confirmation missing              Unknown / watch              Blocks broad-risk upgrade
+Equity Ownership         breadth, earnings, leadership  Index strength remains narrow     Narrow productive risk       Supports core, not blind beta
+Innovation Themes        valuation, momentum, flows     Future growth priced aggressively Crowded narrative cycle      Avoid chase
+Real Assets              cap rates, rents, REITs        Quality income matters most       Rate-sensitive split         Selective collateral only
+Commodities / Inputs     energy, metals, shipping       Scarcity signal not decisive      Bottleneck watch             Watch inflation impulse
+Monetary Alternatives    gold, BTC, real yields, USD    Escape bid not fully confirmed    Trust/liquidity split        Cap size
+FX / Dollar              DXY, funding, liquidity        Dataset missing                   Missing confirmation         Global liquidity incomplete
+Volatility / Insurance   VIX, skew, spreads             Disorder priced as contained      Contained risk               Hold risk with discipline
 
-Landscape conclusion:
-Equity ownership is still being rewarded, but the cycle has not broadened across credit, duration, liquidity, FX, and real assets. Treat the regime as selective rather than expansionary.
+Ontological read:
+Risk is being rewarded through equity and innovation, but the confirmation has not broadened through credit, duration, liquidity, FX, and real assets.
+
+Historical narrative:
+This behaves more like a selective/narrow-leadership phase than a durable broad-risk expansion.
+
+Portfolio implication:
+Own core. Probe only at ruled zones. Do not upgrade to Add until credit, liquidity, breadth, or duration confirms.
 ```
 
 ## Required matrix fields
@@ -102,9 +171,11 @@ Each asset class must have these fields before it can generate a serious Macro r
 | Asset class | Timeless capital primitive |
 | Dataset | Concrete data inputs used to evaluate it |
 | Signal method | How the data is interpreted |
+| Analysis | What the dataset says now |
 | Cycle state | Where the asset class appears in its own cycle |
-| Analysis | What the data says now |
+| Cross-asset relationship | How this asset class confirms, contradicts, or leads other asset classes |
 | Ontological landscape read | What this reveals about capital behavior broadly |
+| Historical narrative | How the current configuration compares to prior cycles |
 | Portfolio implication | What Capital Radar should do with exposure |
 | Missing evidence | What is not yet known |
 | Confidence | AUTH / PROXY / PARTIAL / MISSING / STALE / CONFLICTED |
@@ -128,7 +199,7 @@ Core datasets:
 
 Signal method:
 
-- compare cash yield against inflation, equity risk premium, credit spreads, and liquidity conditions.
+- Compare cash yield against inflation, equity risk premium, credit spreads, and liquidity conditions.
 
 Cycle states:
 
@@ -140,6 +211,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether capital is being paid to wait or forced to seek risk.
+
+Historical narrative:
+
+- Compare current cash yield and liquidity impulse to prior periods when cash either competed with risk assets or became redeployment power after stress.
 
 ### 2. Sovereign Bonds / Duration
 
@@ -158,7 +233,7 @@ Core datasets:
 
 Signal method:
 
-- evaluate whether duration is compressing or expanding valuation multiples.
+- Evaluate whether duration is compressing or expanding valuation multiples.
 
 Cycle states:
 
@@ -171,6 +246,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether the price of time is helping or punishing long-duration claims.
+
+Historical narrative:
+
+- Compare current duration behavior to prior rising-rate, falling-rate, inflation-shock, recession-hedge, and policy-pivot cycles.
 
 ### 3. Credit
 
@@ -190,7 +269,7 @@ Core datasets:
 
 Signal method:
 
-- evaluate whether risk can broaden beyond the strongest equity leaders.
+- Evaluate whether risk can broaden beyond the strongest equity leaders.
 
 Cycle states:
 
@@ -203,6 +282,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether the market trusts borrowers broadly, not just winners.
+
+Historical narrative:
+
+- Compare current spreads and lending conditions to prior credit-expansion, late-cycle, and stress-repair phases.
 
 ### 4. Equity Ownership
 
@@ -222,7 +305,7 @@ Core datasets:
 
 Signal method:
 
-- separate productive-risk confirmation from index concentration.
+- Separate productive-risk confirmation from index concentration.
 
 Cycle states:
 
@@ -235,6 +318,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether capital is broadly buying productive enterprise or only crowding into a few winners.
+
+Historical narrative:
+
+- Compare current equity behavior to prior broad bull markets, narrow-leadership markets, earnings-led expansions, and speculative peaks.
 
 ### 5. Innovation / Growth Themes
 
@@ -255,7 +342,7 @@ Core datasets:
 
 Signal method:
 
-- evaluate whether future growth is underpriced, fairly priced, or over-capitalized.
+- Evaluate whether future growth is underpriced, fairly priced, or over-capitalized.
 
 Cycle states:
 
@@ -268,6 +355,10 @@ Cycle states:
 Ontological read:
 
 - Shows how far into the future capital is willing to pay.
+
+Historical narrative:
+
+- Compare current innovation leadership to prior railroad, electricity, autos, telecom, internet, cloud, and AI-style capital concentration cycles.
 
 ### 6. Real Assets
 
@@ -288,7 +379,7 @@ Core datasets:
 
 Signal method:
 
-- evaluate whether real collateral is supported by income, inflation, or leverage.
+- Evaluate whether real collateral is supported by income, inflation, or leverage.
 
 Cycle states:
 
@@ -301,6 +392,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether capital prefers tangible collateral and cash flow over financial duration.
+
+Historical narrative:
+
+- Compare current real-asset behavior to prior inflationary, rate-shock, credit-tightening, and income-durability cycles.
 
 ### 7. Commodities / Inputs
 
@@ -320,7 +415,7 @@ Core datasets:
 
 Signal method:
 
-- distinguish scarcity leadership from weak-demand collapse.
+- Distinguish scarcity leadership from weak-demand collapse.
 
 Cycle states:
 
@@ -333,6 +428,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether the physical economy is imposing constraints on financial claims.
+
+Historical narrative:
+
+- Compare current commodity behavior to prior demand booms, oil shocks, war premiums, inventory squeezes, and recessionary demand collapses.
 
 ### 8. Monetary Alternatives
 
@@ -352,7 +451,7 @@ Core datasets:
 
 Signal method:
 
-- separate escape bid from speculative beta.
+- Separate escape bid from speculative beta.
 
 Cycle states:
 
@@ -365,6 +464,10 @@ Cycle states:
 Ontological read:
 
 - Shows whether capital is questioning sovereign money or merely reaching for beta.
+
+Historical narrative:
+
+- Compare current monetary-alternative behavior to prior gold bull markets, dollar-trust crises, real-yield drawdowns, crypto-liquidity cycles, and debasement narratives.
 
 ### 9. FX / Dollar
 
@@ -383,7 +486,7 @@ Core datasets:
 
 Signal method:
 
-- evaluate whether dollar strength is tightening global financial conditions.
+- Evaluate whether dollar strength is tightening global financial conditions.
 
 Cycle states:
 
@@ -396,6 +499,10 @@ Cycle states:
 Ontological read:
 
 - Shows where global capital seeks monetary safety and funding access.
+
+Historical narrative:
+
+- Compare current dollar behavior to prior global funding squeezes, reserve-preference episodes, carry expansions, and EM-stress cycles.
 
 ### 10. Volatility / Insurance
 
@@ -414,7 +521,7 @@ Core datasets:
 
 Signal method:
 
-- evaluate whether insurance is cheap, expensive, complacent, or panic-priced.
+- Evaluate whether insurance is cheap, expensive, complacent, or panic-priced.
 
 Cycle states:
 
@@ -428,6 +535,10 @@ Ontological read:
 
 - Shows whether the market is underpricing or overpricing disorder.
 
+Historical narrative:
+
+- Compare current volatility behavior to prior complacency phases, pre-shock underpricing, panic-premium episodes, and post-shock normalization.
+
 ## Analysis method
 
 Each asset class should be evaluated in this order:
@@ -436,10 +547,11 @@ Each asset class should be evaluated in this order:
 1. Dataset coverage: what do we actually know?
 2. Signal direction: what is the data doing?
 3. Cycle state: where is this asset class in its own cycle?
-4. Cross-cycle relation: does it confirm or contradict other asset classes?
-5. Landscape read: what capital behavior does this reveal?
-6. Portfolio implication: what action is permitted or forbidden?
-7. Invalidation: what data would change the conclusion?
+4. Cross-asset relation: does it confirm, contradict, or lead other asset classes?
+5. Ontological landscape read: what capital behavior does this reveal?
+6. Historical narrative: what prior cycle does this resemble or diverge from?
+7. Portfolio implication: what action is permitted or forbidden?
+8. Invalidation: what data would change the conclusion?
 ```
 
 ## Cyclical rather than singular
@@ -455,6 +567,7 @@ They can be:
 - duration tailwind
 - inflation casualty
 - safe collateral
+- fiscal stress casualty
 - policy-pivot anticipation
 - credit-stress refuge
 
@@ -517,7 +630,10 @@ It should display:
 - the asset classes currently covered by proxy data
 - the missing asset classes requiring datasets
 - the cycle state inferred from available data
-- the landscape implication
+- the cross-asset relationship
+- the ontological market landscape read
+- the historical narrative / prior-cycle comparison
+- the portfolio implication
 - confidence level
 
 Minimum rows:
@@ -539,13 +655,14 @@ After implementation:
 
 1. Homepage still has exactly four visible sections.
 2. Macro contains an Asset-Class Research Matrix, not a card-like Cross-Asset Lens.
-3. Each visible asset class shows dataset coverage, cycle state, analysis, landscape implication, and portfolio implication.
+3. Each visible asset class shows dataset coverage, analysis, cycle state, cross-asset relationship, ontological landscape read, historical narrative, and portfolio implication.
 4. Missing asset-class datasets are explicitly marked, not hallucinated.
 5. The system distinguishes asset class from proxy instrument.
 6. The system distinguishes cycle state from static label.
-7. `market-lens-section` remains disabled as a standalone section unless explicitly changed later.
-8. `npm run build:fast` passes.
-9. `scripts/validate-four-section-homepage.cjs` passes as part of the build path.
+7. The system distinguishes ontological market landscape from historical cycle narrative.
+8. `market-lens-section` remains disabled as a standalone section unless explicitly changed later.
+9. `npm run build:fast` passes.
+10. `scripts/validate-four-section-homepage.cjs` passes as part of the build path.
 
 ## Final decision law
 
@@ -553,4 +670,4 @@ Capital Radar should not ask whether an asset class is simply good or bad.
 
 It should ask:
 
-> What data defines this asset class cycle, what phase is it in, what does that reveal about the market landscape, and what portfolio action does that permit?
+> What data defines this asset-class cycle, what analysis follows from that data, how do the asset classes relate to produce the current market condition, and how does the current setup compare with prior cycles of asset movement?

@@ -1,0 +1,127 @@
+{
+  "version": 2,
+  "mission": "asset-class-data-foundation",
+  "rule": "No asset-class read can graduate into Macro unless its source family, dataset status, freshness rule, and confidence label are declared.",
+  "marketPriceProviderStatus": "UNRESOLVED_DEPENDENCY",
+  "marketPriceProviderRule": "Mission 4 may use the safest available free provider only after it is explicitly selected and documented. Until then, market_price_provider remains a required dependency, not a hidden assumption.",
+  "confidenceLabels": [
+    "AUTH",
+    "VERIFIED_PROXY",
+    "PARTIAL",
+    "STALE",
+    "MISSING",
+    "CONFLICTED",
+    "MANUAL_REQUIRED",
+    "UNRESOLVED_DEPENDENCY"
+  ],
+  "sourceFamilies": {
+    "fred": {
+      "name": "FRED / St. Louis Fed",
+      "role": "Official and institutional macro time series backbone for yields, rates, money, reserves, spreads, inflation, financial conditions, and selected volatility data.",
+      "access": "api_key_required",
+      "priority": 1
+    },
+    "federal_reserve": {
+      "name": "Federal Reserve",
+      "role": "Policy rates, balance sheet, reserves, financial conditions, lending standards, and banking-system data.",
+      "access": "public_or_fred_mirror",
+      "priority": 1
+    },
+    "bls": {
+      "name": "Bureau of Labor Statistics",
+      "role": "Inflation, labor, producer prices, and construction cost context where available.",
+      "access": "public_api_or_fred_mirror",
+      "priority": 1
+    },
+    "bea": {
+      "name": "Bureau of Economic Analysis",
+      "role": "GDP, income, profits, and macro growth context where needed.",
+      "access": "public_api_or_fred_mirror",
+      "priority": 2
+    },
+    "eia": {
+      "name": "U.S. Energy Information Administration",
+      "role": "Oil, natural gas, energy inventories, supply, and energy-system stress.",
+      "access": "public_api",
+      "priority": 1
+    },
+    "treasury_fiscaldata": {
+      "name": "U.S. Treasury FiscalData",
+      "role": "Treasury cash balance, debt issuance, and federal fiscal/liquidity context where endpoint support is validated.",
+      "access": "public_api",
+      "priority": 1
+    },
+    "sec_edgar": {
+      "name": "SEC EDGAR APIs",
+      "role": "Company facts, filings, fundamentals, revenue, margins, capex, and ticker-level financial statement data.",
+      "access": "public_api_with_user_agent",
+      "priority": 1
+    },
+    "cftc_cot": {
+      "name": "CFTC Commitments of Traders",
+      "role": "Futures positioning context for commodities, rates, FX, metals, and energy.",
+      "access": "public_files",
+      "priority": 2
+    },
+    "fhfa_case_shiller": {
+      "name": "FHFA / Case-Shiller Housing Data",
+      "role": "Property price and housing-cycle context for real assets.",
+      "access": "public_or_fred_mirror",
+      "priority": 2
+    },
+    "market_price_provider": {
+      "name": "Market Price Provider",
+      "role": "ETF, index, commodity, FX, precious metal, crypto, sector, and basket price data.",
+      "access": "unresolved_dependency",
+      "candidateProviders": [
+        "Stooq",
+        "Yahoo Finance unofficial",
+        "Alpha Vantage",
+        "Twelve Data",
+        "Nasdaq Data Link",
+        "manual CSV"
+      ],
+      "priority": 1
+    },
+    "crypto_liquidity_provider": {
+      "name": "Crypto Liquidity Provider",
+      "role": "Bitcoin, stablecoin supply, crypto liquidity, and crypto-risk correlation data.",
+      "access": "unresolved_dependency",
+      "priority": 2
+    },
+    "etf_index_holdings_provider": {
+      "name": "ETF / Index Holdings Provider",
+      "role": "Index concentration, leader weights, sector weights, and basket construction.",
+      "access": "unresolved_dependency_or_manual",
+      "priority": 2
+    },
+    "manual_research": {
+      "name": "Manual Research Layer",
+      "role": "Temporary declared manual layer for datasets not yet available through a free or stable automated source.",
+      "access": "manual",
+      "priority": 3
+    },
+    "derived": {
+      "name": "Derived Calculation",
+      "role": "Series calculated from declared source datasets, such as real cash yield, curves, momentum, spreads, correlations, and risk premia.",
+      "access": "internal_calculation",
+      "priority": 1
+    }
+  },
+  "freshnessDefaults": {
+    "market_price_provider": "1 trading day",
+    "crypto_liquidity_provider": "1 trading day unless source frequency is lower",
+    "fred": "7 calendar days unless source frequency is lower",
+    "federal_reserve": "7 calendar days unless source frequency is lower",
+    "bls": "latest release period",
+    "bea": "latest release period",
+    "eia": "7 calendar days unless source frequency is lower",
+    "treasury_fiscaldata": "7 calendar days unless source frequency is lower",
+    "sec_edgar": "latest filing period",
+    "cftc_cot": "10 calendar days",
+    "fhfa_case_shiller": "latest release period",
+    "etf_index_holdings_provider": "30 calendar days unless source is live",
+    "manual_research": "30 calendar days with visible stale warning",
+    "derived": "inherits strictest freshness of input datasets"
+  }
+}

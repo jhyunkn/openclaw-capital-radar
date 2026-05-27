@@ -10,6 +10,12 @@ function fail(message) {
   process.exit(1);
 }
 
+function tail(value, max = 8000) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  return text.length > max ? text.slice(text.length - max) : text;
+}
+
 if (!fs.existsSync(manifestPath)) fail('config/build-pipeline.json missing');
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -34,16 +40,25 @@ for (const stage of stages) {
   if (stage.description) console.log(stage.description);
 
   for (const command of stage.commands) {
-    console.log(`\n$ ${command}`);
+    const commandStartedAt = Date.now();
     const result = spawnSync(command, {
       cwd: root,
       shell: true,
-      stdio: 'inherit',
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
     });
+    const duration = ((Date.now() - commandStartedAt) / 1000).toFixed(1);
 
-    if (result.error) fail(`${stage.name}: ${command}: ${result.error.message}`);
-    if (result.status !== 0) fail(`${stage.name}: ${command}: exit ${result.status}`);
+    if (result.error || result.status !== 0) {
+      console.error(`\n$ ${command}`);
+      if (result.stdout) console.error(`--- stdout tail ---\n${tail(result.stdout)}`);
+      if (result.stderr) console.error(`--- stderr tail ---\n${tail(result.stderr)}`);
+      if (result.error) fail(`${stage.name}: ${command}: ${result.error.message}`);
+      fail(`${stage.name}: ${command}: exit ${result.status}`);
+    }
+
+    console.log(`✓ ${command} (${duration}s)`);
   }
 
   const durationMs = Date.now() - stageStartedAt;

@@ -6,6 +6,9 @@ const indexPath = path.join(root, 'index.html');
 const errors = [];
 const warnings = [];
 
+const FOUR_SECTION_IDS = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
+const RETIRED_VISIBLE_IDS = ['market-section', 'system-health-section', 'market-lens-section', 'strategy-routing-section', 'kostolany-egg-section', 'macro-cycle-section', 'trust-section', 'data-refresh-section'];
+
 function readJson(name, required = true) {
   const file = path.join(outputs, name);
   if (!fs.existsSync(file)) {
@@ -23,6 +26,10 @@ function countMatches(html, regex) { return (html.match(regex) || []).length; }
 function requireOne(html, label, regex) {
   const count = countMatches(html, regex);
   if (count !== 1) errors.push(`${label} count ${count}; expected 1`);
+}
+function requireZero(html, label, regex) {
+  const count = countMatches(html, regex);
+  if (count !== 0) errors.push(`${label} count ${count}; expected 0`);
 }
 function requireAbsent(html, phrase) {
   if (html.toLowerCase().includes(String(phrase).toLowerCase())) errors.push(`legacy phrase present: ${phrase}`);
@@ -57,7 +64,7 @@ if (!fs.existsSync(indexPath)) {
   requireOne(html, 'Operational Decision Chart section', /id="operational-chart-section"/g);
   requireOne(html, 'Holdings section', /id="holdings-section"/g);
   requireOne(html, 'Opportunity section', /id="opportunities-section"/g);
-  requireOne(html, 'Market Tape section', /id="market-section"/g);
+  for (const id of RETIRED_VISIBLE_IDS) requireZero(html, `${id} retired section`, new RegExp(`id=["']${id}["']`, 'g'));
 
   ['Evidence-backed Market Landscape', 'Decision Posture', 'Strategy Posture', 'visual regime board', 'transition_or_distribution_watch'].forEach(phrase => requireAbsent(html, phrase));
   if (html.includes('[object Object]')) errors.push('homepage leaks [object Object]');
@@ -74,4 +81,4 @@ if (errors.length) {
   process.exit(1);
 }
 if (warnings.length) for (const warning of warnings) console.warn(`warning: ${warning}`);
-console.log('Operational homepage validation passed');
+console.log('Operational homepage validation passed: Macro / Decision chart / Holdings / Opportunity');

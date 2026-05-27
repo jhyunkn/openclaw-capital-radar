@@ -11,11 +11,22 @@ function readJson(filePath) {
 }
 
 function replaceSection(html, id, nextId, section) {
-  const open = '<sec' + 'tion id="';
-  const start = html.indexOf(open + id + '"');
-  const end = html.indexOf(open + nextId + '"');
-  if (start < 0 || end < 0 || end <= start) throw new Error('Could not locate ' + id + ' section boundaries');
-  return html.slice(0, start) + section + html.slice(end);
+  const open = '<sec' + 'tion';
+  const close = '</sec' + 'tion>';
+  const idDouble = 'id="' + id + '"';
+  const idSingle = "id='" + id + "'";
+  const start = html.indexOf(open, Math.max(0, html.indexOf(idDouble) >= 0 ? html.indexOf(idDouble) - 80 : html.indexOf(idSingle) - 80));
+  if (start >= 0) {
+    const endOfSection = html.indexOf(close, start);
+    if (endOfSection > start) return html.slice(0, start) + section + html.slice(endOfSection + close.length);
+  }
+
+  const legacyOpen = '<sec' + 'tion id="';
+  const legacyStart = html.indexOf(legacyOpen + id + '"');
+  const legacyEnd = nextId ? html.indexOf(legacyOpen + nextId + '"') : -1;
+  if (legacyStart >= 0 && legacyEnd > legacyStart) return html.slice(0, legacyStart) + section + html.slice(legacyEnd);
+
+  throw new Error('Could not locate ' + id + ' section boundaries');
 }
 
 if (!fs.existsSync(indexPath)) throw new Error('index.html missing');

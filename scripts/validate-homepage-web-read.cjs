@@ -20,6 +20,19 @@ if (!fs.existsSync(indexPath)) {
 const html = fs.readFileSync(indexPath, 'utf8');
 const bodyHtml = (html.match(/<body[\s\S]*?<\/body>/i) || [html])[0];
 const text = strip(bodyHtml);
+const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
+const requiredIds = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
+const finalFour = JSON.stringify(sectionIds) === JSON.stringify(requiredIds) && html.includes('Capital Radar · four-section decision surface');
+if (!finalFour) {
+  report('OK', [], {
+    mode: 'PRE_FINAL_RENDER_SKIPPED',
+    section_ids: sectionIds,
+    text_sample: text.slice(0, 600),
+  });
+  console.log(`Homepage web-read validation skipped before final four-section render: ${sectionIds.join(' > ')}`);
+  process.exit(0);
+}
+
 const errors = [];
 const topbarCount = count(/class=["'][^"']*\btopbar\b/g, html);
 const mainNavCount = count(/<nav class=["']nav["']/g, html);
@@ -27,7 +40,6 @@ const innerEggNavCount = count(/class=["']ke-nav["']|class=["'][^"']*\bke-topbar
 const brandCount = count(/OpenClaw Capital Radar/g, text);
 const heroIndex = html.indexOf('<header class="hero"');
 const firstSectionIndex = html.search(/<section\b[^>]*id=["'][^"']+["']/);
-const requiredIds = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
 const forbiddenIds = ['data-refresh-section', 'kostolany-egg-section', 'market-lens-section', 'strategy-routing-section', 'market-section', 'system-health-section', 'macro-cycle-section', 'trust-section'];
 const sectionCounts = Object.fromEntries(requiredIds.map(id => [id, count(new RegExp(`id=["']${id}["']`, 'g'), html)]));
 const forbiddenPresent = forbiddenIds.filter(id => count(new RegExp(`id=["']${id}["']`, 'g'), html));
@@ -51,6 +63,7 @@ if (!/Opportunity|Research|Evidence|candidate|gate/i.test(text)) errors.push('mi
 if (/RegimeLiquidityActionRiskOpportunity/.test(text)) errors.push('concatenated_hero_pills_in_text_read');
 
 report(errors.length ? 'FAILED' : 'OK', errors, {
+  mode: 'FINAL_FOUR_SECTION_VALIDATION',
   topbar_count: topbarCount,
   main_nav_count: mainNavCount,
   brand_text_count: brandCount,

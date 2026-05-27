@@ -10,7 +10,7 @@ function fail(message) {
   process.exit(1);
 }
 
-function tail(value, max = 10000) {
+function tail(value, max = 12000) {
   const text = String(value || '').trim();
   if (!text) return '';
   return text.length > max ? text.slice(text.length - max) : text;
@@ -27,15 +27,13 @@ if (requestedStage && stages.length === 0) fail(`unknown stage: ${requestedStage
 
 const startedAt = Date.now();
 const results = [];
-console.log(`Capital Radar build pipeline v${manifest.version || 'unknown'} · quiet mode`);
+console.log(`Capital Radar build pipeline v${manifest.version || 'unknown'} · silent diagnostics`);
 
 for (const stage of stages) {
   if (!stage || !stage.name) fail('stage missing name');
   if (!Array.isArray(stage.commands) || stage.commands.length === 0) fail(`${stage.name} has no commands`);
 
   const stageStartedAt = Date.now();
-  console.log(`stage: ${stage.name}`);
-
   for (const command of stage.commands) {
     const result = spawnSync(command, {
       cwd: root,
@@ -46,6 +44,7 @@ for (const stage of stages) {
     });
 
     if (result.error || result.status !== 0) {
+      console.error(`FAILED STAGE: ${stage.name}`);
       console.error(`FAILED COMMAND: ${command}`);
       if (result.stdout) console.error(`STDOUT TAIL:\n${tail(result.stdout)}`);
       if (result.stderr) console.error(`STDERR TAIL:\n${tail(result.stderr)}`);

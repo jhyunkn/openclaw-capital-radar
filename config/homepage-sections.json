@@ -1,21 +1,19 @@
 {
-  "version": 33,
-  "policy": "Homepage assembly uses one macro-cycle visual only. The modular Kostolany Egg component is the canonical macro diagram. System Health is now the edit-readiness gate for visual and data-display work: it reports registry preview status, data truth integrity, stale/missing artifacts, legacy cleanup state, and zero-value suspicions. Curated Macro Reading may keep old macro modules as collapsed evidence layers, but cleanup must normalize duplicated validator IDs before structural validation and restore semantic compatibility markers after the Macro operating page is consolidated.",
+  "version": 34,
+  "policy": "The Capital Radar homepage is a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Supporting modules such as System Health, Cross-Asset Lens, Strategy Route, Market Tape, and Kostolany Egg are data/evidence inputs, not standalone visible web sections. Visible information must support action, invalidation, evidence quality, or portfolio permission.",
   "baseline": {
-    "description": "Create clean operational HTML shell before sections are injected.",
+    "description": "Create clean four-section operational HTML shell before sections are injected.",
     "commands": [
-      "node scripts/render-homepage-shell.cjs",
-      "node scripts/generate-data-refresh-state.cjs",
-      "node scripts/inject-data-refresh-home.cjs"
+      "node scripts/render-homepage-shell.cjs"
     ]
   },
   "sections": [
     {
       "id": "system-health-section",
       "name": "System / Data Health",
-      "enabled": true,
+      "enabled": false,
       "required": false,
-      "description": "Edit-readiness health artifact and homepage fragment. Required=false until the final visual layout pass chooses permanent placement.",
+      "description": "Disabled from the visible homepage. Health remains an internal edit-readiness artifact, not a product section.",
       "commands": [
         "node scripts/generate-capital-radar-health-report.cjs",
         "node scripts/render-system-health-section.cjs"
@@ -23,10 +21,10 @@
     },
     {
       "id": "decision-brief-section",
-      "name": "Market Regime",
+      "name": "Macro",
       "enabled": true,
       "required": true,
-      "description": "Top market verdict and macro values retained temporarily as a compatibility layer.",
+      "description": "Root market permission page. Macro absorbs regime, liquidity, rates, credit, confirmation, source quality, and invalidation logic.",
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
@@ -36,10 +34,10 @@
     },
     {
       "id": "operational-chart-section",
-      "name": "Market Regime Map",
+      "name": "Decision chart",
       "enabled": true,
       "required": true,
-      "description": "Real SPX working chart with OpenClaw action zones and supporting indicators as evidence for the macro cycle board.",
+      "description": "SPX working chart, price zones, confirmation strip, support, resistance, target, and invalidation levels.",
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-decision-chart-annotation-state.cjs",
@@ -49,9 +47,9 @@
     {
       "id": "market-lens-section",
       "name": "Cross-Asset Lens",
-      "enabled": true,
+      "enabled": false,
       "required": false,
-      "description": "SPX, QQQ, TLT, BTC and VIX confirmation lenses that support or contradict the regime map.",
+      "description": "Disabled as a visible section. Its signals should be summarized inside Macro.",
       "commands": [
         "node scripts/generate-market-lens-state.cjs",
         "node scripts/inject-market-lens-home-modular.cjs"
@@ -60,9 +58,9 @@
     {
       "id": "strategy-routing-section",
       "name": "Asset Allocation Route",
-      "enabled": true,
+      "enabled": false,
       "required": false,
-      "description": "Cross-asset lens translated into risk budget, add permission, and opportunity promotion rules.",
+      "description": "Disabled as a visible section. Its permission logic should be summarized inside Macro, Holdings, and Opportunity.",
       "commands": [
         "node scripts/generate-strategy-routing-state.cjs",
         "node scripts/inject-strategy-routing-home-modular.cjs"
@@ -70,10 +68,10 @@
     },
     {
       "id": "holdings-section",
-      "name": "Holdings Translation",
+      "name": "Holdings",
       "enabled": true,
       "required": true,
-      "description": "Existing portfolio positions mapped to ruled zones, route permissions, and source authority.",
+      "description": "Existing portfolio positions mapped to ruled zones, source authority, sizing implications, and invalidation rules.",
       "commands": [
         "node scripts/generate-research-universe-state.cjs",
         "node scripts/run-research-collectors-safe.cjs",
@@ -89,10 +87,10 @@
     },
     {
       "id": "opportunities-section",
-      "name": "Opportunity Queue",
+      "name": "Opportunity",
       "enabled": true,
       "required": true,
-      "description": "New ideas allowed only when cycle, route, evidence, asymmetry, and downside control align.",
+      "description": "Asymmetric research queue. Ideas are research candidates, not automatic capital allocations.",
       "commands": [
         "node scripts/generate-opportunity-band-state.cjs",
         "node scripts/refine-opportunity-asymmetry-filter.cjs",
@@ -104,9 +102,9 @@
     {
       "id": "market-section",
       "name": "Market Tape",
-      "enabled": true,
-      "required": true,
-      "description": "Temporary compatibility surface. Phase out only after validators and downstream dependencies no longer require it.",
+      "enabled": false,
+      "required": false,
+      "description": "Disabled as a visible section. Tape signals should be folded into Macro confirmation and contradiction logic.",
       "commands": [
         "node scripts/generate-market-tape-state.cjs",
         "node scripts/inject-market-tape-home-modular.cjs"
@@ -117,7 +115,7 @@
       "name": "Trust / Data Quality",
       "enabled": false,
       "required": false,
-      "description": "Disabled from homepage. Trust/source diagnostics are represented inside Holdings, Opportunity Queue, Market Tape, and System Health instead of a separate legacy web section.",
+      "description": "Disabled from homepage. Trust/source diagnostics are represented inside the four canonical sections.",
       "commands": []
     },
     {
@@ -125,15 +123,15 @@
       "name": "Macro Cycle Board",
       "enabled": false,
       "required": false,
-      "description": "Disabled from homepage to avoid duplicate macro diagram. Logic generation still occurs inside the Kostolany Egg section commands.",
+      "description": "Disabled from homepage to avoid duplicate macro diagrams.",
       "commands": []
     },
     {
       "id": "kostolany-egg-section",
       "name": "Kostolany Egg Diagram",
-      "enabled": true,
-      "required": true,
-      "description": "Canonical macro-cycle visual. This is the only macro diagram rendered on the homepage.",
+      "enabled": false,
+      "required": false,
+      "description": "Disabled as a visible section. Cycle logic should be summarized in Macro rather than shown as a standalone diagram.",
       "commands": [
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
@@ -147,13 +145,10 @@
     }
   ],
   "cleanup": {
-    "description": "Remove old/legacy homepage sections, consolidate the four-tab operating surface, normalize duplicated IDs inside curated macro evidence layers, and restore hidden semantic markers required by existing structural validators.",
+    "description": "Remove legacy sections and normalize the four visible homepage sections only.",
     "commands": [
       "node scripts/strip-legacy-brief-strategy-home.cjs",
-      "node scripts/normalize-homepage-sections.cjs",
-      "node scripts/consolidate-market-macro-home.cjs",
-      "node scripts/normalize-curated-macro-audit-ids.cjs",
-      "node scripts/restore-macro-validator-markers.cjs"
+      "node scripts/normalize-homepage-sections.cjs"
     ],
     "legacySectionIds": [
       "brief",
@@ -166,7 +161,13 @@
       "macro-cycle-section",
       "trust-section",
       "artifact-status-section",
-      "decision-tabs-section"
+      "decision-tabs-section",
+      "system-health-section",
+      "data-refresh-section",
+      "market-lens-section",
+      "strategy-routing-section",
+      "market-section",
+      "kostolany-egg-section"
     ],
     "bannedPhrases": [
       "Evidence-backed Market Landscape",

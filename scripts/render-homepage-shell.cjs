@@ -20,30 +20,26 @@ const html = `<!doctype html>
     <div class="topbar">
       <div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div>
       <nav class="nav">
-        <a href="#data-refresh-section">Trust</a>
-        <a href="#kostolany-egg-section">Egg</a>
-        <a href="#operational-chart-section">Levels</a>
-        <a href="#market-lens-section">Movement</a>
-        <a href="#strategy-routing-section">Route</a>
+        <a href="#decision-brief-section">Macro</a>
+        <a href="#operational-chart-section">Decision chart</a>
         <a href="#holdings-section">Holdings</a>
-        <a href="#opportunities-section">Opportunities</a>
+        <a href="#opportunities-section">Opportunity</a>
       </nav>
       <div id="generated">Operational render · ${now}</div>
     </div>
     <header class="hero">
       <div>
-        <p class="eyebrow">Capital Radar · evidence-first command surface</p>
-        <h1>Trust the sources before the strategy.</h1>
-        <p class="lede">A decision cockpit that shows data freshness, evidence gaps, permission blockers, regime, portfolio action, and invalidation before turning signals into strategy.</p>
-        <div class="lens-strip"><span>Freshness</span><span>Evidence</span><span>Permission</span><span>Risk</span><span>Action</span></div>
+        <p class="eyebrow">Capital Radar · four-section decision surface</p>
+        <h1>Macro first. Price second. Portfolio third. Opportunity last.</h1>
+        <p class="lede">A cleaned investment operating page: Macro sets permission, Decision chart defines levels, Holdings translates exposure, and Opportunity stays a research queue.</p>
+        <div class="lens-strip"><span>Macro</span><span>Decision chart</span><span>Holdings</span><span>Opportunity</span></div>
       </div>
-      <aside class="status"><span>Current posture</span><strong class="bad">Research-only</strong><span>Capital action is blocked until source coverage and decision packets are stronger.</span><span>The page now exposes missing evidence instead of hiding it behind confident language.</span></aside>
+      <aside class="status"><span>Current surface</span><strong class="good">Four sections</strong><span>Supporting diagnostics are inputs, not standalone web sections.</span><span>Every visible block should support action, invalidation, or evidence quality.</span></aside>
     </header>
-    <section id="decision-brief-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Market Decision Brief</h2></div></div></section>
-    <section id="operational-chart-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Operational Decision Chart</h2></div></div></section>
+    <section id="decision-brief-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Macro</h2></div></div></section>
+    <section id="operational-chart-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Decision chart</h2></div></div></section>
     <section id="holdings-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Holdings</h2></div></div></section>
     <section id="opportunities-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Opportunity</h2></div></div></section>
-    <section id="market-section" class="panel"><div class="section-head"><div><p class="eyebrow">Loading</p><h2>Market Tape</h2></div></div></section>
     <footer class="footer">OpenClaw Capital Radar · generated ${now}</footer>
   </main>
 </body>
@@ -51,4 +47,4 @@ const html = `<!doctype html>
 `;
 
 fs.writeFileSync(indexPath, html);
-console.log('Rendered clean homepage shell');
+console.log('Rendered four-section homepage shell');

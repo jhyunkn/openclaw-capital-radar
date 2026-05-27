@@ -6,6 +6,78 @@ Compress the latent Cross-Asset Lens module into the Macro section as a decision
 
 This is a specification-only mission. It does not implement UI or modify the live homepage.
 
+## What this yields on the actual web
+
+This change should yield one small Macro subpanel, not a new homepage section.
+
+The final page should still read as:
+
+```text
+Macro
+Decision chart
+Holdings
+Opportunity
+```
+
+Inside Macro, the user would see a compact block similar to this:
+
+```text
+CROSS-ASSET CONFIRMATION
+
+Overall read: LIMITING
+Cross-asset evidence is limiting new exposure because growth leadership is extended while rate pressure and speculative liquidity remain defensive. Volatility containment supports holding risk, but does not justify chasing size.
+
+Broad market     SUPPORTIVE      Hold core; add only at ruled zones.
+Growth / AI      EXTENDED        Avoid chasing AI beta.
+Rates            DEFENSIVE       Do not assume valuation expansion.
+Crypto liquidity DEFENSIVE       Treat risk appetite as fragile.
+Volatility       CONTAINED       Supports holding risk.
+
+Implication: Probe only at ruled zones. Do not upgrade to Add unless rates and speculative liquidity confirm.
+```
+
+This is the practical web implication:
+
+- Macro becomes more decision-aware.
+- The old Cross-Asset Lens does not come back as a separate visible section.
+- The user sees why Macro permission is limited, not just what the equity chart says.
+- The dashboard gains an evidence bridge between market regime and portfolio action.
+
+## Before / after implication
+
+### Before
+
+Macro can say the broad regime is constructive or defensive, but supporting cross-asset evidence is either hidden, disabled, or too separate from the main decision.
+
+### After
+
+Macro can say:
+
+```text
+The equity regime is supportive, but cross-asset confirmation is incomplete: growth is extended, TLT remains defensive, BTC/risk appetite is fragile, while VIX is contained. Therefore the action state stays Probe/Hold, not Add.
+```
+
+This makes the web more useful because it explains why Capital Radar is not simply chasing the chart.
+
+## Current source evidence
+
+The existing market-lens artifact already contains enough information to support a compressed Macro summary.
+
+Current state example from `outputs/market-lens-state.json`:
+
+- artifact: `market-lens-state`
+- regime: `defensive pressure`
+- supportive signals: 2
+- defensive signals: 2
+- stances include `SUPPORTIVE`, `EXTENDED`, `DEFENSIVE`, and `CONTAINED`
+- SPX read: `Broad regime supports holding core risk.`
+- QQQ read: `Growth leadership is stretched.`
+- TLT read: `Bond weakness keeps rate pressure on valuations.`
+- BTC read: `Speculative liquidity is deteriorating.`
+- VIX action: `Volatility contained: supports holding risk.`
+
+The visible Macro layer should compress those reads into a decision verdict, not display the whole old module.
+
 ## Why this module should return
 
 Cross-Asset Lens is useful because macro permission is not determined by equity price alone. Rates, credit, dollar/liquidity conditions, crypto/risk appetite, breadth, and volatility can either confirm or contradict the headline equity regime.
@@ -64,38 +136,38 @@ It should be visually subordinate to the main Macro decision brief.
 
 ## Evidence cells
 
-Preferred cells:
+Preferred cells based on existing artifact fields:
 
-1. Rates
-2. Dollar / liquidity
-3. Credit
-4. Volatility
-5. Breadth / leadership
-6. Crypto / risk appetite
+1. Broad market
+2. Growth / AI leadership
+3. Rates
+4. Crypto / speculative liquidity
+5. Volatility
 
-If only four cells are practical, use:
+Optional future cells if available:
 
-1. Rates
-2. Liquidity
-3. Credit
-4. Volatility
+1. Dollar / liquidity
+2. Credit
+3. Breadth
+
+Do not invent unavailable cells. If a cell has no reliable state, mark it `MISSING` or omit it.
 
 ## Cell contract
 
 Each cell should show:
 
 - label
-- current state
-- directional implication
+- stance
+- compressed read/action
 - confirmation status
 
 Example structure:
 
 ```text
 Rates
-Pressure easing
-Supports selective risk
-CONFIRMING
+DEFENSIVE
+Do not assume valuation expansion.
+LIMITING
 ```
 
 Status vocabulary:
@@ -117,15 +189,15 @@ Cross-asset evidence is [confirming / contradicting / limiting / neutral] the Ma
 Examples:
 
 ```text
-Cross-asset evidence is confirming selective risk because rates pressure is easing and volatility remains contained.
+Cross-asset evidence is confirming selective risk because broad market strength and volatility containment agree.
 ```
 
 ```text
-Cross-asset evidence is limiting new exposure because credit and volatility are not confirming the equity advance.
+Cross-asset evidence is limiting new exposure because growth leadership is stretched while rates and speculative liquidity remain defensive.
 ```
 
 ```text
-Cross-asset evidence is contradicting the rally because dollar strength and rising yields are tightening liquidity conditions.
+Cross-asset evidence is contradicting the rally because rate pressure and speculative liquidity are deteriorating despite equity strength.
 ```
 
 ## Action translation
@@ -202,7 +274,7 @@ Identify the smallest reliable data contract for a compressed Macro summary.
 
 Preferred approach:
 
-- create a small helper inside the Macro renderer or a nearby utility that converts market-lens state into 4-6 cells plus verdict.
+- create a small helper inside the Macro renderer or a nearby utility that converts market-lens state into cells plus verdict.
 
 Avoid:
 
@@ -239,9 +311,9 @@ Avoid:
 Prefer:
 
 - “Rates are limiting confirmation.”
-- “Credit is not yet validating new exposure.”
-- “Volatility containment permits Probe, not Add.”
-- “Liquidity contradiction blocks size expansion.”
+- “Growth leadership is extended; avoid chasing AI beta.”
+- “Volatility containment permits Hold/Probe, not automatic Add.”
+- “Speculative liquidity weakness blocks size expansion.”
 
 ## Final decision law
 

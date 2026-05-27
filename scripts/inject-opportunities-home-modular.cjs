@@ -15,10 +15,14 @@ function replaceSection(html, id, nextId, section) {
   const close = '</sec' + 'tion>';
   const idDouble = 'id="' + id + '"';
   const idSingle = "id='" + id + "'";
-  const start = html.indexOf(open, Math.max(0, html.indexOf(idDouble) >= 0 ? html.indexOf(idDouble) - 80 : html.indexOf(idSingle) - 80));
-  if (start >= 0) {
-    const endOfSection = html.indexOf(close, start);
-    if (endOfSection > start) return html.slice(0, start) + section + html.slice(endOfSection + close.length);
+  const idDoubleIndex = html.indexOf(idDouble);
+  const idSingleIndex = html.indexOf(idSingle);
+  const idIndex = idDoubleIndex >= 0 ? idDoubleIndex : idSingleIndex;
+
+  if (idIndex >= 0) {
+    const start = html.lastIndexOf(open, idIndex);
+    const endOfSection = html.indexOf(close, idIndex);
+    if (start >= 0 && endOfSection > start) return html.slice(0, start) + section + html.slice(endOfSection + close.length);
   }
 
   const legacyOpen = '<sec' + 'tion id="';

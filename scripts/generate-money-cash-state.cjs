@@ -10,6 +10,39 @@ const HISTORY_WINDOWS = [
   { id: 'full', years: null, label: 'full available history' }
 ];
 
+const HISTORICAL_SET_POINTS = [
+  {
+    id: 'gfc_2008',
+    date: '2008-09-15',
+    label: '2008 crisis set point',
+    note: 'Lehman failure / global credit crisis reference point.'
+  },
+  {
+    id: 'late_cycle_2018',
+    date: '2018-12-19',
+    label: '2018 late-cycle tightening set point',
+    note: 'Fed hike / late-cycle risk tightening reference point.'
+  },
+  {
+    id: 'covid_liquidity_2020',
+    date: '2020-03-16',
+    label: '2020 emergency-liquidity set point',
+    note: 'COVID shock / emergency policy response reference point.'
+  },
+  {
+    id: 'zero_rate_2021',
+    date: '2021-12-15',
+    label: '2021 zero-rate liquidity set point',
+    note: 'Near-zero-rate / abundant-liquidity reference point.'
+  },
+  {
+    id: 'hiking_cycle_2022',
+    date: '2022-06-15',
+    label: '2022 hiking-cycle set point',
+    note: 'Inflation shock / accelerated hiking-cycle reference point.'
+  }
+];
+
 function write(rel, data) {
   const file = path.join(root, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -28,6 +61,13 @@ function daysOld(dateString, now = new Date()) {
   const d = new Date(`${dateString}T00:00:00Z`);
   if (!Number.isFinite(d.getTime())) return null;
   return Math.max(0, Math.floor((now.getTime() - d.getTime()) / 86400000));
+}
+
+function dateDistanceDays(a, b) {
+  const da = new Date(`${a}T00:00:00Z`);
+  const db = new Date(`${b}T00:00:00Z`);
+  if (!Number.isFinite(da.getTime()) || !Number.isFinite(db.getTime())) return null;
+  return Math.abs(Math.round((da.getTime() - db.getTime()) / 86400000));
 }
 
 function freshnessLabel(latest, maxDays) {
@@ -131,6 +171,54 @@ function yoySeries(indexSeries) {
     if (!prior || !prior.value) return { date: row.date, value: null };
     return { date: row.date, value: rounded(((row.value - prior.value) / prior.value) * 100) };
   }).filter(row => row.date && Number.isFinite(row.value));
+}
+
+function nearestObservation(rows, targetDate, maxDistanceDays = 45) {
+  const valid = [...(rows || [])].filter(row => row.date && Number.isFinite(row.value));
+  if (!valid.length) return null;
+  let best = null;
+  for (const row of valid) {
+    const distance = dateDistanceDays(row.date, targetDate);
+    if (!Number.isFinite(distance)) continue;
+    if (!best || distance < best.distance_days) best = { ...row, distance_days: distance };
+  }
+  return best && best.distance_days <= maxDistanceDays ? best : null;
+}
+
+function historicalSetPointAnnotations({ chartId, seriesRows, currentBySeries, maxDistanceDays = 45 }) {
+  const annotations = [];
+  for (const point of HISTORICAL_SET_POINTS) {
+    const values = {};
+    const comparisons = {};
+    for (const [seriesId, rows] of Object.entries(seriesRows)) {
+      const eventValue = nearestObservation(rows, point.date, maxDistanceDays);
+      const currentValue = currentBySeries[seriesId];
+      values[seriesId] = eventValue ? {
+        date: eventValue.date,
+        value: rounded(eventValue.value),
+        distance_days: eventValue.distance_days
+      } : null;
+      comparisons[seriesId] = eventValue && Number.isFinite(currentValue) ? {
+        current_value: rounded(currentValue),
+        event_value: rounded(eventValue.value),
+        difference_from_event: rounded(currentValue - eventValue.value),
+        comparison_basis: 'current minus historical set-point value'
+      } : null;
+    }
+
+    annotations.push({
+      id: `${chartId}_${point.id}`,
+      chart_id: chartId,
+      type: 'historical_set_point',
+      target_date: point.date,
+      label: point.label,
+      note: point.note,
+      values,
+      current_comparison: comparisons,
+      render_hint: 'vertical marker with point labels on each visible series'
+    });
+  }
+  return annotations;
 }
 
 const SERIES = {
@@ -281,15 +369,91 @@ async function main() {
     };
   }
 
-  const tbill = datasets.tbill_3m_yield?.latest_value;
+  const tbillRows = seriesByKey.get('tbill_3m_yield')?.observations || [];
+  const effrRows = seriesByKey.get('effective_fed_funds')?.observations || [];
   const cpiSeries = seriesByKey.get('cpi_inflation');
   const cpiYoYRows = yoySeries(cpiSeries);
   const cpiYoY = cpiYoYRows[cpiYoYRows.length - 1]?.value ?? null;
-  const realCashYieldRows = seriesFromDerived(seriesByKey.get('tbill_3m_yield')?.observations, cpiYoYRows, (tbillValue, cpiValue) => tbillValue - cpiValue);
+  const realCashYieldRows = seriesFromDerived(tbillRows, cpiYoYRows, (tbillValue, cpiValue) => tbillValue - cpiValue);
+  const realFedFundsRows = seriesFromDerived(effrRows, cpiYoYRows, (effrValue, cpiValue) => effrValue - cpiValue);
+  const tbill = datasets.tbill_3m_yield?.latest_value;
   const effr = datasets.effective_fed_funds?.latest_value;
-  const realFedFundsRows = seriesFromDerived(seriesByKey.get('effective_fed_funds')?.observations, cpiYoYRows, (effrValue, cpiValue) => effrValue - cpiValue);
   const realCashYield = Number.isFinite(tbill) && Number.isFinite(cpiYoY) ? pct(tbill - cpiYoY) : null;
   const realFedFunds = Number.isFinite(effr) && Number.isFinite(cpiYoY) ? pct(effr - cpiYoY) : null;
+
+  const chart_series = {
+    money_cash_main: {
+      chart_id: 'money_cash_main',
+      title: '3M T-bill yield vs CPI YoY vs real cash yield',
+      y_axis: 'percent',
+      series: {
+        tbill_3m_yield: tbillRows.map(row => ({ date: row.date, value: row.value })),
+        cpi_yoy: cpiYoYRows,
+        real_cash_yield: realCashYieldRows
+      }
+    },
+    front_end_rates: {
+      chart_id: 'front_end_rates',
+      title: 'Fed funds vs SOFR vs 3M T-bill',
+      y_axis: 'percent',
+      series: {
+        effective_fed_funds: effrRows.map(row => ({ date: row.date, value: row.value })),
+        sofr: (seriesByKey.get('sofr')?.observations || []).map(row => ({ date: row.date, value: row.value })),
+        tbill_3m_yield: tbillRows.map(row => ({ date: row.date, value: row.value }))
+      }
+    },
+    liquidity_plumbing: {
+      chart_id: 'liquidity_plumbing',
+      title: 'Bank reserves, reverse repo, M2, and financial conditions',
+      y_axis: 'native units / index',
+      series: {
+        bank_reserves: (seriesByKey.get('bank_reserves')?.observations || []).map(row => ({ date: row.date, value: row.value })),
+        reverse_repo: (seriesByKey.get('reverse_repo')?.observations || []).map(row => ({ date: row.date, value: row.value })),
+        m2: (seriesByKey.get('m2')?.observations || []).map(row => ({ date: row.date, value: row.value })),
+        financial_conditions: (seriesByKey.get('financial_conditions')?.observations || []).map(row => ({ date: row.date, value: row.value }))
+      }
+    }
+  };
+
+  const latestBySeries = {
+    tbill_3m_yield: tbill,
+    cpi_yoy: cpiYoY,
+    real_cash_yield: realCashYield,
+    effective_fed_funds: effr,
+    sofr: datasets.sofr?.latest_value,
+    bank_reserves: datasets.bank_reserves?.latest_value,
+    reverse_repo: datasets.reverse_repo?.latest_value,
+    m2: datasets.m2?.latest_value,
+    financial_conditions: datasets.financial_conditions?.latest_value
+  };
+
+  const annotation_spec = {
+    historical_set_points: HISTORICAL_SET_POINTS,
+    charts: {
+      money_cash_main: historicalSetPointAnnotations({
+        chartId: 'money_cash_main',
+        seriesRows: chart_series.money_cash_main.series,
+        currentBySeries: latestBySeries
+      }),
+      front_end_rates: historicalSetPointAnnotations({
+        chartId: 'front_end_rates',
+        seriesRows: chart_series.front_end_rates.series,
+        currentBySeries: latestBySeries
+      }),
+      liquidity_plumbing: historicalSetPointAnnotations({
+        chartId: 'liquidity_plumbing',
+        seriesRows: chart_series.liquidity_plumbing.series,
+        currentBySeries: latestBySeries
+      })
+    },
+    current_markers: Object.entries(latestBySeries).map(([seriesId, value]) => ({
+      id: `current_${seriesId}`,
+      type: 'current_value_marker',
+      series_id: seriesId,
+      value: rounded(value),
+      label: `Current ${seriesId}: ${Number.isFinite(value) ? rounded(value) : 'n/a'}`
+    }))
+  };
 
   const historical_reference = {
     tbill_3m_yield: {
@@ -367,8 +531,9 @@ async function main() {
 
   const web_summary = {
     section_title: 'Money / Cash',
-    display_mode: 'current_vs_historical_reference',
-    headline: analysis.cycle_state,
+    display_mode: 'raw_chart_with_historical_set_point_annotations',
+    primary_chart: 'money_cash_main',
+    chart_order: ['money_cash_main', 'front_end_rates', 'liquidity_plumbing'],
     current_reading: {
       real_cash_yield: derived.real_cash_yield.value,
       tbill_3m_yield: datasets.tbill_3m_yield.latest_value,
@@ -381,6 +546,7 @@ async function main() {
       tbill_3m_10y_zone: historical_reference.tbill_3m_yield.windows?.['10y']?.relative_zone || 'unknown',
       financial_conditions_10y_zone: historical_reference.financial_conditions.windows?.['10y']?.relative_zone || 'unknown'
     },
+    annotation_policy: 'Show raw data first. Overlay historical set points and current-vs-set-point values. Keep interpretation secondary.',
     inference: analysis.ontological_landscape_read,
     historical_narrative: analysis.historical_cycle_narrative,
     portfolio_implication: analysis.portfolio_implication
@@ -388,7 +554,7 @@ async function main() {
 
   const output = {
     artifact: 'money-cash-state',
-    version: 2,
+    version: 3,
     as_of: generatedAt,
     asset_class: 'Money / Cash',
     coverage,
@@ -396,6 +562,8 @@ async function main() {
     primary_question: 'Is capital being paid to wait, or is capital being forced out on the risk curve?',
     datasets,
     derived,
+    chart_series,
+    annotation_spec,
     historical_reference,
     web_summary,
     missing_evidence: requiredButMissing.concat(errors.map(e => `${e.dataset} failed: ${e.error}`)),
@@ -404,10 +572,12 @@ async function main() {
       path: 'scripts/generate-money-cash-state.cjs',
       sources: ['FRED public CSV endpoint'],
       historical_windows: HISTORY_WINDOWS.map(w => w.id),
+      historical_set_points: HISTORICAL_SET_POINTS.map(p => p.id),
       limitations: [
         'No market-price provider is used in this generator.',
         'Treasury bill supply is not implemented until FiscalData plumbing is added.',
         'Stablecoin supply is not implemented until a crypto liquidity provider is selected.',
+        'Historical set points are reference markers, not causal explanations by themselves.',
         'Historical reference uses available FRED history for relative percentile/range context; it is not a causal forecast.'
       ]
     }

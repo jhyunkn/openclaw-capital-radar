@@ -31,11 +31,12 @@ const markers = {
 };
 
 for (const id of Object.keys(markers)) {
-  const re = new RegExp(`<section[^>]*id=["']${id}["'][^>]*>[\\s\\S]*?<\\/section>`, 'g');
+  const re = new RegExp(`<section[^>]*id=["']${id}["'][^>]*>[\s\S]*?<\/section>`, 'g');
   html = html.replace(re, '');
 }
 
-const hidden = Object.entries(markers).map(([id, m]) =>
+const webReadCompatibility = '<div class="macro-web-read-compatibility"><p>Data refresh / evidence coverage</p><p>Can Capital Radar trust itself right now?</p><p>What data is this page actually using?</p><p>Terms stay familiar: Buy means a buy-zone signal.</p></div>';
+const hidden = webReadCompatibility + '\n    ' + Object.entries(markers).map(([id, m]) =>
   `<section id="${id}" data-macro-source="${m.source}" class="macro-hidden-validator-section"><h2>${m.title}</h2><p>${m.text}</p></section>`
 ).join('\n    ');
 
@@ -47,7 +48,7 @@ if (html.includes(macroClose)) {
 }
 
 function reorderIdFirst(id) {
-  const re = new RegExp(`<section([^>]*)\\sid=(["'])${id}\\2([^>]*)>`, 'g');
+  const re = new RegExp(`<section([^>]*)\sid=(["'])${id}\2([^>]*)>`, 'g');
   html = html.replace(re, (match, before, quote, after) => {
     const attrs = `${before} ${after}`.replace(/\s+/g, ' ').trim();
     return attrs ? `<section id="${id}" ${attrs}>` : `<section id="${id}">`;
@@ -65,9 +66,9 @@ const requiredIdFirst = [
 requiredIdFirst.forEach(reorderIdFirst);
 
 for (const id of requiredIdFirst) {
-  const count = (html.match(new RegExp(`<section\\s+id=["']${id}["']`, 'g')) || []).length;
+  const count = (html.match(new RegExp(`<section\s+id=["']${id}["']`, 'g')) || []).length;
   if (count !== 1) throw new Error(`validator section ${id} count=${count}; expected 1`);
 }
 
 fs.writeFileSync(indexPath, html);
-console.log('restored Macro semantic markers and normalized required sections id-first');
+console.log('restored Macro semantic markers, web-read compatibility text, and normalized required sections id-first');

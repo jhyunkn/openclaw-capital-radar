@@ -8,9 +8,10 @@ function assert(condition,message){ if(!condition) fail(message); }
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
 if (html.includes('id="operational-chart-section"')) {
-  for (const token of ['operational-chart-section','decision-brief-section','holdings-section','opportunities-section','market-section']) assert(html.includes(token), `operational homepage missing ${token}`);
-  assert(/lwc-chart|working-verdict|macro-value-grid|zone-card|artifact-grid|market-tape/i.test(html), 'operational homepage missing proportion-critical classes');
-  console.log('proportion tuning validated for operational homepage surface');
+  for (const token of ['operational-chart-section','decision-brief-section','holdings-section','opportunities-section']) assert(html.includes(token), `operational homepage missing ${token}`);
+  for (const removed of ['market-section','kostolany-egg-section','market-lens-section','strategy-routing-section','system-health-section']) assert(!html.includes(`id="${removed}"`), `removed section still present: ${removed}`);
+  assert(/lwc-chart|working-verdict|macro-value-grid|zone-card|artifact-grid|decision-brief-text|permission-matrix/i.test(html), 'four-section homepage missing proportion-critical classes');
+  console.log('proportion tuning validated for four-section operational homepage surface');
   process.exit(0);
 }
 assert(fs.existsSync(cssPath), 'assets/proportion-tuning.css missing');

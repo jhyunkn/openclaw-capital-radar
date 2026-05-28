@@ -1,1 +1,1 @@
-require('./generate-money-cash-state-v2.cjs');
+require('./generate-money-cash-state-fast.cjs');

@@ -4,18 +4,24 @@ const https = require('https');
 
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'data', 'cache', 'money-cash-series.json');
+const timeoutMs = Number(process.env.FRED_FETCH_TIMEOUT_MS || 30000);
+const retries = Number(process.env.FRED_FETCH_RETRIES || 3);
+
 const SERIES = {
   DTB3: { label: '3-Month Treasury Bill Secondary Market Rate', source_url: 'https://fred.stlouisfed.org/series/DTB3' },
   CPIAUCSL: { label: 'Consumer Price Index for All Urban Consumers: All Items in U.S. City Average', source_url: 'https://fred.stlouisfed.org/series/CPIAUCSL' },
   DFF: { label: 'Effective Federal Funds Rate', source_url: 'https://fred.stlouisfed.org/series/DFF' }
 };
 
-function get(url, timeoutMs = Number(process.env.FRED_FETCH_TIMEOUT_MS || 20000)) {
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+function get(url, redirectsRemaining = 4) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { headers: { 'User-Agent': 'CapitalRadar/1.0' } }, res => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         res.resume();
-        return resolve(get(res.headers.location, timeoutMs));
+        if (redirectsRemaining <= 0) return reject(new Error(`too many redirects for ${url}`));
+        return resolve(get(res.headers.location, redirectsRemaining - 1));
       }
       if (res.statusCode !== 200) {
         res.resume();
@@ -31,6 +37,20 @@ function get(url, timeoutMs = Number(process.env.FRED_FETCH_TIMEOUT_MS || 20000)
   });
 }
 
+async function getWithRetry(url) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await get(url);
+    } catch (error) {
+      lastError = error;
+      console.warn(`fetch attempt ${attempt}/${retries} failed for ${url}: ${error.message}`);
+      await sleep(1000 * attempt);
+    }
+  }
+  throw lastError;
+}
+
 function parseFredCsv(csv, id) {
   const lines = String(csv || '').trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return [];
@@ -44,20 +64,49 @@ function parseFredCsv(csv, id) {
   }).filter(row => row.date && Number.isFinite(row.value));
 }
 
-async function fetchSeries(id) {
-  const csv = await get(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${encodeURIComponent(id)}`);
-  const rows = parseFredCsv(csv, id);
-  if (rows.length < 24) throw new Error(`${id} returned only ${rows.length} rows`);
+function parseFredTxt(txt) {
+  const lines = String(txt || '').split(/\r?\n/);
+  const rows = [];
+  for (const line of lines) {
+    const m = line.trim().match(/^(\d{4}-\d{2}-\d{2})\s+(-?\d+(?:\.\d+)?)$/);
+    if (!m) continue;
+    const n = Number(m[2]);
+    if (Number.isFinite(n)) rows.push({ date: m[1], value: n });
+  }
   return rows;
+}
+
+async function fetchSeries(id) {
+  const endpoints = [
+    { name: 'fredgraph-csv', url: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${encodeURIComponent(id)}`, parser: body => parseFredCsv(body, id) },
+    { name: 'fred-data-txt', url: `https://fred.stlouisfed.org/data/${encodeURIComponent(id)}.txt`, parser: parseFredTxt }
+  ];
+  const failures = [];
+  for (const endpoint of endpoints) {
+    try {
+      const body = await getWithRetry(endpoint.url);
+      const rows = endpoint.parser(body);
+      if (rows.length >= 24) {
+        return { rows, endpoint: endpoint.name, url: endpoint.url };
+      }
+      failures.push(`${endpoint.name}: only ${rows.length} rows`);
+    } catch (error) {
+      failures.push(`${endpoint.name}: ${error.message || String(error)}`);
+    }
+  }
+  throw new Error(`${id} failed all endpoints: ${failures.join(' | ')}`);
 }
 
 async function main() {
   const series = {};
+  const refresh_meta = {};
   const errors = [];
   for (const id of Object.keys(SERIES)) {
     try {
-      series[id] = await fetchSeries(id);
-      console.log(`fetched ${id}: ${series[id].length} rows, latest=${series[id].at(-1)?.date}`);
+      const result = await fetchSeries(id);
+      series[id] = result.rows;
+      refresh_meta[id] = { endpoint: result.endpoint, url: result.url, rows: result.rows.length, latest_date: result.rows.at(-1)?.date || null };
+      console.log(`fetched ${id}: ${result.rows.length} rows, latest=${result.rows.at(-1)?.date}, endpoint=${result.endpoint}`);
     } catch (error) {
       errors.push({ id, error: error.message || String(error) });
     }
@@ -68,11 +117,12 @@ async function main() {
   }
   const cache = {
     artifact: 'money-cash-series-cache',
-    version: 2,
+    version: 3,
     cache_status: 'FRED_REFRESHED',
     created_at: new Date().toISOString(),
-    source_policy: 'Refreshed from FRED public CSV endpoint. Homepage build reads this cache and does not fetch FRED live.',
+    source_policy: 'Refreshed from FRED public endpoints. Homepage build reads this cache and does not fetch FRED live.',
     sources: SERIES,
+    refresh_meta,
     series,
     limitations: [
       'Cache contains the first Money / Cash visual-pass series: DTB3, CPIAUCSL, and DFF.',

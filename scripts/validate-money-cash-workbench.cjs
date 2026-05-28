@@ -36,13 +36,19 @@ if (state) {
   const cpiRows = validRows(main.cpi_yoy);
   const realRows = validRows(main.real_cash_yield);
   const supportedAnnotations = arr(state.annotation_spec?.charts?.money_cash_main);
+  const cacheStatus = state.cache?.status || 'UNKNOWN';
+  const isCompactSeed = cacheStatus === 'SEED_COMPACT';
+
+  const minimumRawRows = isCompactSeed ? 24 : 60;
+  const minimumDerivedRows = isCompactSeed ? 12 : 60;
 
   if (state.coverage === 'MISSING') errors.push('coverage is MISSING');
-  if (tbillRows.length < 24) errors.push(`tbill_3m_yield chart rows too low: ${tbillRows.length}`);
-  if (cpiRows.length < 24) errors.push(`cpi_yoy chart rows too low: ${cpiRows.length}`);
-  if (realRows.length < 24) errors.push(`real_cash_yield chart rows too low: ${realRows.length}`);
+  if (tbillRows.length < minimumRawRows) errors.push(`tbill_3m_yield chart rows too low: ${tbillRows.length}`);
+  if (cpiRows.length < minimumDerivedRows) errors.push(`cpi_yoy chart rows too low: ${cpiRows.length}`);
+  if (realRows.length < minimumDerivedRows) errors.push(`real_cash_yield chart rows too low: ${realRows.length}`);
   if (!Number.isFinite(Number(state.derived?.real_cash_yield?.value))) errors.push('derived real_cash_yield missing');
   if (supportedAnnotations.length < 3) warnings.push(`supported money_cash_main annotations low: ${supportedAnnotations.length}`);
+  if (isCompactSeed) warnings.push('validated against compact seed cache; live FRED refresh is still required before production-grade analysis');
 }
 
 if (!fs.existsSync(indexPath)) {

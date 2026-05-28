@@ -10,6 +10,7 @@ const retries = Number(process.env.FRED_FETCH_RETRIES || 3);
 const forceIpv4 = process.env.FRED_FORCE_IPV4 !== '0';
 const useCurlFirst = process.env.FRED_USE_CURL !== '0';
 const forceCurlHttp11 = process.env.FRED_CURL_HTTP11 !== '0';
+const fredApiKey = process.env.FRED_API_KEY || '';
 
 const SERIES = {
   DTB3: { label: '3-Month Treasury Bill Secondary Market Rate', source_url: 'https://fred.stlouisfed.org/series/DTB3' },
@@ -27,7 +28,7 @@ function curlGet(url) {
     '--connect-timeout', String(Math.ceil(timeoutMs / 1000)),
     '--max-time', String(Math.ceil(timeoutMs / 1000)),
     '-A', 'CapitalRadar/1.0',
-    '-H', 'Accept: text/plain,text/csv,*/*'
+    '-H', 'Accept: application/json,text/plain,text/csv,*/*'
   ];
   if (forceCurlHttp11) args.unshift('--http1.1');
   if (forceIpv4) args.unshift('-4');
@@ -45,7 +46,7 @@ function nodeGet(url, redirectsRemaining = 4) {
     const requestOptions = {
       headers: {
         'User-Agent': 'CapitalRadar/1.0',
-        'Accept': 'text/plain,text/csv,*/*',
+        'Accept': 'application/json,text/plain,text/csv,*/*',
         'Connection': 'close'
       },
       family: forceIpv4 ? 4 : undefined
@@ -57,8 +58,11 @@ function nodeGet(url, redirectsRemaining = 4) {
         return resolve(nodeGet(res.headers.location, redirectsRemaining - 1));
       }
       if (res.statusCode !== 200) {
-        res.resume();
-        return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', d => { body += d; });
+        res.on('end', () => reject(new Error(`HTTP ${res.statusCode} for ${url}${body ? `: ${body.slice(0, 240)}` : ''}`)));
+        return;
       }
       let body = '';
       res.setEncoding('utf8');
@@ -105,6 +109,15 @@ async function fetchBody(url) {
   throw new Error(failures.join(' | '));
 }
 
+function parseFredApiJson(body) {
+  const json = JSON.parse(body);
+  const observations = Array.isArray(json.observations) ? json.observations : [];
+  return observations.map(row => {
+    const n = Number(row.value);
+    return { date: row.date, value: Number.isFinite(n) ? n : null };
+  }).filter(row => row.date && Number.isFinite(row.value));
+}
+
 function parseFredCsv(csv, id) {
   const lines = String(csv || '').trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return [];
@@ -130,18 +143,44 @@ function parseFredTxt(txt) {
   return rows;
 }
 
-async function fetchSeries(id) {
-  const endpoints = [
+function endpointList(id) {
+  const endpoints = [];
+  if (fredApiKey) {
+    const params = new URLSearchParams({
+      series_id: id,
+      api_key: fredApiKey,
+      file_type: 'json'
+    });
+    endpoints.push({
+      name: 'fred-api-json',
+      url: `https://api.stlouisfed.org/fred/series/observations?${params.toString()}`,
+      parser: parseFredApiJson,
+      redacted_url: `https://api.stlouisfed.org/fred/series/observations?series_id=${id}&api_key=***&file_type=json`
+    });
+  }
+  endpoints.push(
     { name: 'fredgraph-csv', url: `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${encodeURIComponent(id)}`, parser: body => parseFredCsv(body, id) },
     { name: 'fred-data-txt', url: `https://fred.stlouisfed.org/data/${encodeURIComponent(id)}.txt`, parser: parseFredTxt }
-  ];
+  );
+  return endpoints;
+}
+
+async function fetchSeries(id) {
   const failures = [];
-  for (const endpoint of endpoints) {
+  for (const endpoint of endpointList(id)) {
     try {
       const fetched = await fetchBody(endpoint.url);
       const rows = endpoint.parser(fetched.body);
       if (rows.length >= 24) {
-        return { rows, endpoint: endpoint.name, url: endpoint.url, force_ipv4: forceIpv4, force_curl_http11: forceCurlHttp11, transport: fetched.transport };
+        return {
+          rows,
+          endpoint: endpoint.name,
+          url: endpoint.redacted_url || endpoint.url,
+          force_ipv4: forceIpv4,
+          force_curl_http11: forceCurlHttp11,
+          transport: fetched.transport,
+          used_api_key: endpoint.name === 'fred-api-json'
+        };
       }
       failures.push(`${endpoint.name}: only ${rows.length} rows via ${fetched.transport}`);
     } catch (error) {
@@ -155,13 +194,22 @@ async function main() {
   const series = {};
   const refresh_meta = {};
   const errors = [];
-  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}, useCurlFirst=${useCurlFirst}, forceCurlHttp11=${forceCurlHttp11}`);
+  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}, useCurlFirst=${useCurlFirst}, forceCurlHttp11=${forceCurlHttp11}, apiKeyPresent=${Boolean(fredApiKey)}`);
   for (const id of Object.keys(SERIES)) {
     try {
       const result = await fetchSeries(id);
       series[id] = result.rows;
-      refresh_meta[id] = { endpoint: result.endpoint, url: result.url, rows: result.rows.length, latest_date: result.rows.at(-1)?.date || null, force_ipv4: result.force_ipv4, force_curl_http11: result.force_curl_http11, transport: result.transport };
-      console.log(`fetched ${id}: ${result.rows.length} rows, latest=${result.rows.at(-1)?.date}, endpoint=${result.endpoint}, transport=${result.transport}`);
+      refresh_meta[id] = {
+        endpoint: result.endpoint,
+        url: result.url,
+        rows: result.rows.length,
+        latest_date: result.rows.at(-1)?.date || null,
+        force_ipv4: result.force_ipv4,
+        force_curl_http11: result.force_curl_http11,
+        transport: result.transport,
+        used_api_key: result.used_api_key
+      };
+      console.log(`fetched ${id}: ${result.rows.length} rows, latest=${result.rows.at(-1)?.date}, endpoint=${result.endpoint}, transport=${result.transport}, usedApiKey=${result.used_api_key}`);
     } catch (error) {
       errors.push({ id, error: error.message || String(error) });
     }
@@ -172,10 +220,10 @@ async function main() {
   }
   const cache = {
     artifact: 'money-cash-series-cache',
-    version: 6,
+    version: 7,
     cache_status: 'FRED_REFRESHED',
     created_at: new Date().toISOString(),
-    source_policy: 'Refreshed from FRED public endpoints. Homepage build reads this cache and does not fetch FRED live.',
+    source_policy: 'Refreshed from the official FRED API when FRED_API_KEY is present; otherwise from public FRED endpoints. Homepage build reads this cache and does not fetch FRED live.',
     sources: SERIES,
     refresh_meta,
     series,

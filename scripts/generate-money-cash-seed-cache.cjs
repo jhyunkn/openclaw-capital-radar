@@ -3,6 +3,22 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'data', 'cache', 'money-cash-series.json');
 
+function readJson(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return null; }
+}
+
+function validCache(cache) {
+  const s = cache?.series || {};
+  const count = id => Array.isArray(s[id]) ? s[id].filter(row => row && row.date && Number.isFinite(Number(row.value))).length : 0;
+  return count('DTB3') >= 24 && count('CPIAUCSL') >= 24 && count('DFF') >= 24;
+}
+
+const existing = readJson(out);
+if (validCache(existing) && existing.cache_status !== 'SEED_COMPACT') {
+  console.log(`kept existing Money / Cash cache: ${existing.cache_status || 'UNKNOWN'}`);
+  process.exit(0);
+}
+
 const rows = [
   ['1980-12-31',11.51,82.4,13.35], ['1981-12-31',14.03,90.9,16.39], ['1982-12-31',10.69,96.5,12.24],
   ['1994-12-31',4.27,148.2,4.68], ['2000-12-31',5.82,172.2,6.24], ['2008-12-31',1.37,215.3,1.92],

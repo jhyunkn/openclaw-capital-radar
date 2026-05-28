@@ -1,0 +1,24 @@
+const fs=require('fs');
+const path=require('path');
+const root=path.join(__dirname,'..');
+const statePath=path.join(root,'outputs','duration-state.json');
+const publicPath=path.join(root,'public','outputs','duration-state.json');
+const libraryPath=path.join(root,'config','historical-set-points.json');
+const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
+function write(f,d){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,JSON.stringify(d,null,2)+'\n');}
+const n=v=>Number.isFinite(Number(v))?Number(v):null;
+const r=(v,d=3)=>n(v)==null?null:Number(n(v).toFixed(d));
+function dist(a,b){const x=new Date(`${a}T00:00:00Z`).getTime(),y=new Date(`${b}T00:00:00Z`).getTime();return Number.isFinite(x)&&Number.isFinite(y)?Math.abs(Math.round((x-y)/86400000)):null;}
+function near(rows,date,max=65){let best=null;for(const row of rows||[]){if(!row?.date||n(row.value)==null)continue;const d=dist(row.date,date);if(d==null)continue;if(!best||d<best.distance_days)best={...row,value:n(row.value),distance_days:d};}return best&&best.distance_days<=max?best:null;}
+function between(rows,start,end){const a=new Date(`${start}T00:00:00Z`).getTime(),b=new Date(`${end||new Date().toISOString().slice(0,10)}T00:00:00Z`).getTime();return(rows||[]).filter(row=>{const t=new Date(`${row.date}T00:00:00Z`).getTime();return Number.isFinite(t)&&t>=a&&t<=b&&n(row.value)!=null;});}
+function summary(rows){const vals=rows.map(x=>n(x.value)).filter(x=>x!=null);if(!vals.length)return null;return{start_date:rows[0]?.date||null,end_date:rows.at(-1)?.date||null,observations:vals.length,min:r(Math.min(...vals)),max:r(Math.max(...vals)),average:r(vals.reduce((a,b)=>a+b,0)/vals.length),start_value:r(rows[0]?.value),end_value:r(rows.at(-1)?.value)};}
+function current(seriesId,state){const d=state?.derived?.[seriesId];if(d&&n(d.value)!=null)return n(d.value);const ds=state?.datasets?.[seriesId];if(ds?.current&&n(ds.current.value)!=null)return n(ds.current.value);return null;}
+function relevant(lib){return(lib.setPoints||[]).filter(p=>(p.relevant_asset_classes||[]).includes('Duration'));}
+function build(point,chartId,chart,state){const values={},cmp={};let supported=false;for(const [seriesId,rows]of Object.entries(chart.series||{})){const cur=current(seriesId,state);if(point.date_end||point.annotation_type==='regime_band'){const s=summary(between(rows,point.date_start,point.date_end));values[seriesId]=s;if(s){supported=true;cmp[seriesId]=cur==null?null:{current_value:r(cur),regime_average:s.average,difference_from_regime_average:r(cur-s.average),comparison_basis:'current minus historical regime average'};}else cmp[seriesId]=null;}else{const e=near(rows,point.date_start);values[seriesId]=e?{date:e.date,value:r(e.value),distance_days:e.distance_days}:null;if(e){supported=true;cmp[seriesId]=cur==null?null:{current_value:r(cur),event_value:r(e.value),difference_from_event:r(cur-e.value),comparison_basis:'current minus historical set-point value'};}else cmp[seriesId]=null;}}
+if(!supported)return{supported:false,suppressed:{id:`${chartId}_${point.id}`,chart_id:chartId,historical_set_point_id:point.id,label:point.label,reason:'No chart series covered this historical set point.'}};
+return{supported:true,annotation:{id:`${chartId}_${point.id}`,chart_id:chartId,type:point.annotation_type||'historical_set_point',historical_set_point_id:point.id,label:point.label,date_start:point.date_start,date_end:point.date_end||null,era:point.era,category:point.category,confidence:point.confidence,why_it_matters:point.why_it_matters,values,current_comparison:cmp,render_hint:point.date_end?'regime band':'vertical marker'}};}
+const state=read(statePath),lib=read(libraryPath),points=relevant(lib),charts={},suppressed=[];
+for(const[chartId,chart]of Object.entries(state.chart_series||{})){charts[chartId]=[];for(const point of points){const result=build(point,chartId,chart,state);if(result.supported)charts[chartId].push(result.annotation);else suppressed.push(result.suppressed);}}
+const markers=Object.entries(state.historical_reference||{}).map(([seriesId,ref])=>({id:`current_${seriesId}`,type:'current_value_marker',series_id:seriesId,value:r(ref?.current),label:`Current ${seriesId}: ${r(ref?.current)??'n/a'}`}));
+const next={...state,version:Math.max(Number(state.version||0),2),annotation_spec:{source:'config/historical-set-points.json',policy:lib.rule,historical_set_points_considered:points.map(p=>p.id),charts,suppressed,current_markers:markers},generator:{...(state.generator||{}),annotation_source:'config/historical-set-points.json',annotation_policy:'Annotate supported Duration set points; suppress unsupported points rather than inventing values.'}};
+write(statePath,next);write(publicPath,next);console.log(`generated duration annotations: ${points.length} considered, ${suppressed.length} suppressed`);

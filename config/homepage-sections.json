@@ -1,5 +1,5 @@
 {
-  "version": 37,
+  "version": 38,
   "policy": "The Capital Radar homepage is a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Supporting modules such as System Health, Cross-Asset Lens, Strategy Route, Market Tape, and Kostolany Egg are data/evidence inputs, not standalone visible web sections. Visible information must support action, invalidation, evidence quality, or portfolio permission.",
   "baseline": {
     "description": "Create clean four-section operational HTML shell before sections are injected.",
@@ -28,11 +28,13 @@
       "commands": [
         "node scripts/generate-money-cash-state.cjs",
         "node scripts/generate-money-cash-annotations.cjs",
+        "node scripts/generate-duration-state.cjs",
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
         "node scripts/generate-market-decision-brief-state.cjs",
         "node scripts/inject-market-decision-brief-home-modular.cjs",
         "node scripts/inject-money-cash-workbench-home.cjs",
+        "node scripts/inject-duration-workbench-home.cjs",
         "node scripts/validate-money-cash-workbench.cjs"
       ]
     },
@@ -88,98 +90,6 @@
         "node scripts/inject-holdings-home-modular.cjs",
         "node scripts/validate-holdings-home-output.cjs"
       ]
-    },
-    {
-      "id": "opportunities-section",
-      "name": "Opportunity",
-      "enabled": true,
-      "required": true,
-      "description": "Asymmetric research queue. Ideas are research candidates, not automatic capital allocations.",
-      "commands": [
-        "node scripts/generate-opportunity-band-state.cjs",
-        "node scripts/refine-opportunity-asymmetry-filter.cjs",
-        "node scripts/apply-strategy-route-to-opportunities.cjs",
-        "node scripts/enrich-opportunity-near-miss-diagnostics.cjs",
-        "node scripts/inject-opportunities-home-modular.cjs"
-      ]
-    },
-    {
-      "id": "market-section",
-      "name": "Market Tape",
-      "enabled": false,
-      "required": false,
-      "description": "Disabled as a visible section. Tape signals should be folded into Macro confirmation and contradiction logic.",
-      "commands": [
-        "node scripts/generate-market-tape-state.cjs",
-        "node scripts/inject-market-tape-home-modular.cjs"
-      ]
-    },
-    {
-      "id": "trust-section",
-      "name": "Trust / Data Quality",
-      "enabled": false,
-      "required": false,
-      "description": "Disabled from homepage. Trust/source diagnostics are represented inside the four canonical sections.",
-      "commands": []
-    },
-    {
-      "id": "macro-cycle-section",
-      "name": "Macro Cycle Board",
-      "enabled": false,
-      "required": false,
-      "description": "Disabled from homepage to avoid duplicate macro diagrams.",
-      "commands": []
-    },
-    {
-      "id": "kostolany-egg-section",
-      "name": "Kostolany Egg Diagram",
-      "enabled": false,
-      "required": false,
-      "description": "Disabled as a visible section. Cycle logic should be summarized in Macro rather than shown as a standalone diagram.",
-      "commands": [
-        "node scripts/generate-operational-chart-state.cjs",
-        "node scripts/generate-confirmation-state.cjs",
-        "node scripts/generate-market-lens-state.cjs",
-        "node scripts/generate-strategy-routing-state.cjs",
-        "node scripts/generate-trust-strip-state.cjs",
-        "node scripts/generate-macro-cycle-state.cjs",
-        "node scripts/generate-kostolany-egg-state.cjs",
-        "node scripts/inject-kostolany-egg-v3-home.cjs"
-      ]
     }
-  ],
-  "cleanup": {
-    "description": "Remove legacy sections and normalize the four visible homepage sections only.",
-    "commands": [
-      "node scripts/strip-legacy-brief-strategy-home.cjs",
-      "node scripts/normalize-homepage-sections.cjs"
-    ],
-    "legacySectionIds": [
-      "brief",
-      "strategy-section",
-      "chart-wall-section",
-      "spx-cycle-map-section",
-      "cycle-scenario-section",
-      "visual-regime-section",
-      "regime-section",
-      "macro-cycle-section",
-      "trust-section",
-      "artifact-status-section",
-      "decision-tabs-section",
-      "system-health-section",
-      "data-refresh-section",
-      "market-lens-section",
-      "strategy-routing-section",
-      "market-section",
-      "kostolany-egg-section"
-    ],
-    "bannedPhrases": [
-      "Evidence-backed Market Landscape",
-      "Decision Posture",
-      "Strategy Posture",
-      "market-regine",
-      "visual regime board",
-      "Decision Tabs"
-    ]
-  }
+  ]
 }

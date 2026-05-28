@@ -1,0 +1,44 @@
+name: Money Cash Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 11 * * 1-5'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-money-cash-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Refresh Money Cash cache
+        run: npm run refresh:money-cash
+
+      - name: Validate Money Cash cache
+        run: npm run validate:money-cash-cache
+
+      - name: Generate Money Cash state
+        run: npm run generate:money-cash
+
+      - name: Commit refreshed cache and outputs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Refresh Money Cash cache'
+          file_pattern: |
+            data/cache/money-cash-series.json
+            outputs/money-cash-cache-validation-report.json
+            outputs/money-cash-state.json
+            public/outputs/money-cash-state.json
+          commit_user_name: openclaw-bot
+          commit_user_email: actions@github.com

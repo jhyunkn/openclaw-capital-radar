@@ -1,5 +1,5 @@
 {
-  "version": 34,
+  "version": 37,
   "policy": "The Capital Radar homepage is a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Supporting modules such as System Health, Cross-Asset Lens, Strategy Route, Market Tape, and Kostolany Egg are data/evidence inputs, not standalone visible web sections. Visible information must support action, invalidation, evidence quality, or portfolio permission.",
   "baseline": {
     "description": "Create clean four-section operational HTML shell before sections are injected.",
@@ -24,12 +24,16 @@
       "name": "Macro",
       "enabled": true,
       "required": true,
-      "description": "Root market permission page. Macro absorbs regime, liquidity, rates, credit, confirmation, source quality, and invalidation logic.",
+      "description": "Root market permission page. Macro absorbs regime, liquidity, rates, credit, confirmation, source quality, invalidation logic, and data-backed asset-class workbenches.",
       "commands": [
+        "node scripts/generate-money-cash-state.cjs",
+        "node scripts/generate-money-cash-annotations.cjs",
         "node scripts/generate-operational-chart-state.cjs",
         "node scripts/generate-confirmation-state.cjs",
         "node scripts/generate-market-decision-brief-state.cjs",
-        "node scripts/inject-market-decision-brief-home-modular.cjs"
+        "node scripts/inject-market-decision-brief-home-modular.cjs",
+        "node scripts/inject-money-cash-workbench-home.cjs",
+        "node scripts/validate-money-cash-workbench.cjs"
       ]
     },
     {

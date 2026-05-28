@@ -9,6 +9,7 @@ const timeoutMs = Number(process.env.FRED_FETCH_TIMEOUT_MS || 30000);
 const retries = Number(process.env.FRED_FETCH_RETRIES || 3);
 const forceIpv4 = process.env.FRED_FORCE_IPV4 !== '0';
 const useCurlFirst = process.env.FRED_USE_CURL !== '0';
+const forceCurlHttp11 = process.env.FRED_CURL_HTTP11 !== '0';
 
 const SERIES = {
   DTB3: { label: '3-Month Treasury Bill Secondary Market Rate', source_url: 'https://fred.stlouisfed.org/series/DTB3' },
@@ -28,6 +29,7 @@ function curlGet(url) {
     '-A', 'CapitalRadar/1.0',
     '-H', 'Accept: text/plain,text/csv,*/*'
   ];
+  if (forceCurlHttp11) args.unshift('--http1.1');
   if (forceIpv4) args.unshift('-4');
   args.push(url);
   const result = spawnSync('curl', args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
@@ -86,7 +88,10 @@ async function fetchBody(url) {
   const failures = [];
   if (useCurlFirst) {
     try {
-      return { body: curlGet(url), transport: forceIpv4 ? 'curl-ipv4' : 'curl' };
+      const transportParts = ['curl'];
+      if (forceIpv4) transportParts.push('ipv4');
+      if (forceCurlHttp11) transportParts.push('http1.1');
+      return { body: curlGet(url), transport: transportParts.join('-') };
     } catch (error) {
       failures.push(`curl: ${error.message || String(error)}`);
       console.warn(`curl fetch failed for ${url}: ${error.message || String(error)}`);
@@ -136,7 +141,7 @@ async function fetchSeries(id) {
       const fetched = await fetchBody(endpoint.url);
       const rows = endpoint.parser(fetched.body);
       if (rows.length >= 24) {
-        return { rows, endpoint: endpoint.name, url: endpoint.url, force_ipv4: forceIpv4, transport: fetched.transport };
+        return { rows, endpoint: endpoint.name, url: endpoint.url, force_ipv4: forceIpv4, force_curl_http11: forceCurlHttp11, transport: fetched.transport };
       }
       failures.push(`${endpoint.name}: only ${rows.length} rows via ${fetched.transport}`);
     } catch (error) {
@@ -150,12 +155,12 @@ async function main() {
   const series = {};
   const refresh_meta = {};
   const errors = [];
-  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}, useCurlFirst=${useCurlFirst}`);
+  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}, useCurlFirst=${useCurlFirst}, forceCurlHttp11=${forceCurlHttp11}`);
   for (const id of Object.keys(SERIES)) {
     try {
       const result = await fetchSeries(id);
       series[id] = result.rows;
-      refresh_meta[id] = { endpoint: result.endpoint, url: result.url, rows: result.rows.length, latest_date: result.rows.at(-1)?.date || null, force_ipv4: result.force_ipv4, transport: result.transport };
+      refresh_meta[id] = { endpoint: result.endpoint, url: result.url, rows: result.rows.length, latest_date: result.rows.at(-1)?.date || null, force_ipv4: result.force_ipv4, force_curl_http11: result.force_curl_http11, transport: result.transport };
       console.log(`fetched ${id}: ${result.rows.length} rows, latest=${result.rows.at(-1)?.date}, endpoint=${result.endpoint}, transport=${result.transport}`);
     } catch (error) {
       errors.push({ id, error: error.message || String(error) });
@@ -167,7 +172,7 @@ async function main() {
   }
   const cache = {
     artifact: 'money-cash-series-cache',
-    version: 5,
+    version: 6,
     cache_status: 'FRED_REFRESHED',
     created_at: new Date().toISOString(),
     source_policy: 'Refreshed from FRED public endpoints. Homepage build reads this cache and does not fetch FRED live.',

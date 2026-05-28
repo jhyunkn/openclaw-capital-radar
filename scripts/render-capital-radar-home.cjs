@@ -8,6 +8,9 @@ const manifestPath = path.join(root, 'config', 'homepage-sections.json');
 const reportPath = path.join(outputsDir, 'capital-radar-home-build-report.json');
 const chartReportPath = path.join(outputsDir, 'operational-chart-validation-report.json');
 const legacyStripReportPath = path.join(outputsDir, 'homepage-legacy-strip-report.json');
+const buildManifestPath = path.join(outputsDir, 'build-manifest.json');
+const moneyCashStatePath = path.join(outputsDir, 'money-cash-state.json');
+const moneyCashValidationPath = path.join(outputsDir, 'money-cash-workbench-validation-report.json');
 const bannedActiveCommands = [
   'node scripts/enhance-decision-chart-v2.cjs',
   'node scripts/patch-decision-chart-price-scale.cjs',
@@ -56,14 +59,45 @@ function printLegacyStripSummary(summary) {
   console.log(`Legacy strip report: ${status}; ${bytes} bytes removed; ${operations} operations; retirement_signal=${signal}`);
 }
 
+function moneyCashDiagnostic() {
+  const state = readJsonIfExists(moneyCashStatePath);
+  const validation = readJsonIfExists(moneyCashValidationPath);
+  const main = state?.chart_series?.money_cash_main?.series || {};
+  const countRows = rows => Array.isArray(rows) ? rows.filter(row => row && row.date && Number.isFinite(Number(row.value))).length : 0;
+  return {
+    state_present: Boolean(state),
+    validation_present: Boolean(validation),
+    coverage: state?.coverage || null,
+    validation_status: validation?.status || null,
+    validation_errors: validation?.errors || [],
+    validation_warnings: validation?.warnings || [],
+    chart_rows: {
+      tbill_3m_yield: countRows(main.tbill_3m_yield),
+      cpi_yoy: countRows(main.cpi_yoy),
+      real_cash_yield: countRows(main.real_cash_yield)
+    },
+    missing_evidence: state?.missing_evidence || []
+  };
+}
+
 function fail(message, report) {
   fs.mkdirSync(outputsDir, { recursive: true });
-  fs.writeFileSync(reportPath, JSON.stringify({
+  const failureReport = {
     generatedAt: new Date().toISOString(),
     status: 'FAILED',
     error: message,
+    money_cash: moneyCashDiagnostic(),
     ...report,
-  }, null, 2));
+  };
+  fs.writeFileSync(reportPath, JSON.stringify(failureReport, null, 2));
+  fs.writeFileSync(buildManifestPath, JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    mode: 'homepage-build-failure-diagnostics',
+    status: 'FAILED',
+    error: message,
+    money_cash: failureReport.money_cash,
+    homepage_report: path.relative(root, reportPath)
+  }, null, 2) + '\n');
   console.error(`CAPITAL RADAR HOME BUILD FAILED: ${message}`);
   process.exit(1);
 }
@@ -210,6 +244,7 @@ const finalReport = {
   policy: 'manifest-driven Capital Radar homepage render path',
   manifest: path.relative(root, manifestPath),
   sections: manifest.sections.filter(s => s.enabled !== false).map(s => s.id),
+  money_cash: moneyCashDiagnostic(),
   reports: {
     homepage: path.relative(root, reportPath),
     operational_chart: path.relative(root, chartReportPath),

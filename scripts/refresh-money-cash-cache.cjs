@@ -6,6 +6,7 @@ const root = path.join(__dirname, '..');
 const out = path.join(root, 'data', 'cache', 'money-cash-series.json');
 const timeoutMs = Number(process.env.FRED_FETCH_TIMEOUT_MS || 30000);
 const retries = Number(process.env.FRED_FETCH_RETRIES || 3);
+const forceIpv4 = process.env.FRED_FORCE_IPV4 !== '0';
 
 const SERIES = {
   DTB3: { label: '3-Month Treasury Bill Secondary Market Rate', source_url: 'https://fred.stlouisfed.org/series/DTB3' },
@@ -17,7 +18,15 @@ function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 function get(url, redirectsRemaining = 4) {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: { 'User-Agent': 'CapitalRadar/1.0' } }, res => {
+    const requestOptions = {
+      headers: {
+        'User-Agent': 'CapitalRadar/1.0',
+        'Accept': 'text/plain,text/csv,*/*',
+        'Connection': 'close'
+      },
+      family: forceIpv4 ? 4 : undefined
+    };
+    const req = https.get(url, requestOptions, res => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         res.resume();
         if (redirectsRemaining <= 0) return reject(new Error(`too many redirects for ${url}`));
@@ -87,7 +96,7 @@ async function fetchSeries(id) {
       const body = await getWithRetry(endpoint.url);
       const rows = endpoint.parser(body);
       if (rows.length >= 24) {
-        return { rows, endpoint: endpoint.name, url: endpoint.url };
+        return { rows, endpoint: endpoint.name, url: endpoint.url, force_ipv4: forceIpv4 };
       }
       failures.push(`${endpoint.name}: only ${rows.length} rows`);
     } catch (error) {
@@ -101,12 +110,13 @@ async function main() {
   const series = {};
   const refresh_meta = {};
   const errors = [];
+  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}`);
   for (const id of Object.keys(SERIES)) {
     try {
       const result = await fetchSeries(id);
       series[id] = result.rows;
-      refresh_meta[id] = { endpoint: result.endpoint, url: result.url, rows: result.rows.length, latest_date: result.rows.at(-1)?.date || null };
-      console.log(`fetched ${id}: ${result.rows.length} rows, latest=${result.rows.at(-1)?.date}, endpoint=${result.endpoint}`);
+      refresh_meta[id] = { endpoint: result.endpoint, url: result.url, rows: result.rows.length, latest_date: result.rows.at(-1)?.date || null, force_ipv4: result.force_ipv4 };
+      console.log(`fetched ${id}: ${result.rows.length} rows, latest=${result.rows.at(-1)?.date}, endpoint=${result.endpoint}, forceIpv4=${result.force_ipv4}`);
     } catch (error) {
       errors.push({ id, error: error.message || String(error) });
     }
@@ -117,7 +127,7 @@ async function main() {
   }
   const cache = {
     artifact: 'money-cash-series-cache',
-    version: 3,
+    version: 4,
     cache_status: 'FRED_REFRESHED',
     created_at: new Date().toISOString(),
     source_policy: 'Refreshed from FRED public endpoints. Homepage build reads this cache and does not fetch FRED live.',

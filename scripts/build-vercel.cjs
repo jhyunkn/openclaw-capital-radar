@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const { writeDataHealthFromFile } = require('../lib/data-health.cjs');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'public');
@@ -186,8 +187,16 @@ function normalizeLiveState() {
   writeDataHealthFromFile(statePath, path.join(root, 'outputs', 'data-health.json'));
 }
 
+function injectDurationEvidenceReceipt() {
+  const script = path.join(root, 'scripts', 'inject-duration-evidence-banner.cjs');
+  if (!fs.existsSync(script)) return;
+  const result = spawnSync('node scripts/inject-duration-evidence-banner.cjs', { cwd: root, shell: true, stdio: 'inherit' });
+  if (result.error || result.status !== 0) throw new Error('Duration evidence receipt injection failed before Vercel copy');
+}
+
 archiveLiveReport();
 normalizeLiveState();
+injectDurationEvidenceReceipt();
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {

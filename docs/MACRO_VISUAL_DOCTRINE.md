@@ -17,6 +17,14 @@ Raw data
 
 Text is allowed only when it labels the visual evidence, names the dataset, identifies missing evidence, or states the permitted portfolio action. Text should not replace the chart.
 
+## Section responsibility
+
+Macro is responsible for market landscape evidence.
+
+Holdings is responsible for portfolio translation.
+
+Macro should show what the asset-class landscape is doing. Holdings should show what that landscape implies for existing positions, sizing, ruled zones, invalidation, and portfolio action. Do not over-load Macro with portfolio implication logic if the same decision belongs more precisely in Holdings.
+
 ## Forbidden default pattern
 
 ```text

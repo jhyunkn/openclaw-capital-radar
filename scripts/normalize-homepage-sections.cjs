@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
 
@@ -106,4 +107,11 @@ for (const id of visibleIds) {
 html = reorderSections(html);
 html = rebuildNav(html);
 fs.writeFileSync(indexPath, html);
+
+const durationBanner = path.join(root, 'scripts', 'inject-duration-evidence-banner.cjs');
+if (fs.existsSync(durationBanner)) {
+  const result = spawnSync('node scripts/inject-duration-evidence-banner.cjs', { cwd: root, shell: true, stdio: 'inherit' });
+  if (result.status !== 0) throw new Error('duration evidence banner injection failed after normalization');
+}
+
 console.log('homepage section normalization complete: Macro / Decision chart / Holdings / Opportunity');

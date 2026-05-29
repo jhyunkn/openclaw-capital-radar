@@ -187,16 +187,17 @@ function normalizeLiveState() {
   writeDataHealthFromFile(statePath, path.join(root, 'outputs', 'data-health.json'));
 }
 
-function injectDurationEvidenceReceipt() {
-  const script = path.join(root, 'scripts', 'inject-duration-evidence-banner.cjs');
+function runFinalInjector(scriptName, errorMessage) {
+  const script = path.join(root, 'scripts', scriptName);
   if (!fs.existsSync(script)) return;
-  const result = spawnSync('node scripts/inject-duration-evidence-banner.cjs', { cwd: root, shell: true, stdio: 'inherit' });
-  if (result.error || result.status !== 0) throw new Error('Duration evidence receipt injection failed before Vercel copy');
+  const result = spawnSync(`node scripts/${scriptName}`, { cwd: root, shell: true, stdio: 'inherit' });
+  if (result.error || result.status !== 0) throw new Error(errorMessage);
 }
 
 archiveLiveReport();
 normalizeLiveState();
-injectDurationEvidenceReceipt();
+runFinalInjector('inject-chart-driven-market-map.cjs', 'Chart-driven Market State Map injection failed before Vercel copy');
+runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence receipt injection failed before Vercel copy');
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {

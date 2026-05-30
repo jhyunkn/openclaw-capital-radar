@@ -1,6 +1,6 @@
 {
-  "version": 22,
-  "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage.",
+  "version": 23,
+  "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage. The evidence annotation layer is injected after canonical render so raw data -> annotation -> configuration is visible in production.",
   "stages": [
     {
       "name": "base-data",
@@ -129,9 +129,10 @@
     },
     {
       "name": "ship",
-      "description": "Final homepage authority. This stage renders, sanitizes, validates, and writes edit-readiness health artifacts before production output.",
+      "description": "Final homepage authority. This stage renders, injects the evidence annotation prototype, sanitizes, validates, and writes edit-readiness health artifacts before production output.",
       "commands": [
         "node scripts/render-capital-radar-home.cjs",
+        "node scripts/inject-evidence-annotation-layer.cjs",
         "node scripts/validate-operating-brain.cjs",
         "node scripts/write-build-manifest.cjs",
         "node scripts/inject-build-version.cjs",

@@ -199,6 +199,7 @@ function verifyFinalOutput() {
   const htmlPath = path.join(out, 'index.html');
   if (!fs.existsSync(htmlPath)) throw new Error('public/index.html missing after Vercel build');
   const html = fs.readFileSync(htmlPath, 'utf8');
+  if (!html.includes('id="market-diagnosis-board"')) throw new Error('Market Diagnosis Board missing from final public/index.html');
   if (!html.includes('id="relationship-intelligence"')) throw new Error('Relationship Intelligence layer missing from final public/index.html');
 }
 
@@ -206,6 +207,7 @@ archiveLiveReport();
 normalizeLiveState();
 runFinalInjector('inject-chart-driven-market-map.cjs', 'Chart-driven Market State Map injection failed before Vercel copy');
 runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence receipt injection failed before Vercel copy');
+runFinalInjector('inject-market-diagnosis-board.cjs', 'Market Diagnosis Board injection failed before Vercel copy');
 runFinalInjector('inject-evidence-annotation-layer.cjs', 'Evidence Annotation layer injection failed before Vercel copy');
 runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed before Vercel copy');
 rm(out);
@@ -214,6 +216,7 @@ for (const entry of copyEntries) {
   const src = path.join(root, entry);
   if (fs.existsSync(src)) copy(src, path.join(out, entry));
 }
+runFinalInjector('inject-market-diagnosis-board.cjs', 'Market Diagnosis Board injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));

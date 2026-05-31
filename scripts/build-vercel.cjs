@@ -213,7 +213,6 @@ function verifyFinalOutput() {
 
 archiveLiveReport();
 normalizeLiveState();
-runFinalInjector('inject-chart-driven-market-map.cjs', 'Chart-driven Market State Map injection failed before Vercel copy');
 runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence receipt injection failed before Vercel copy');
 runFinalInjector('inject-market-diagnosis-board.cjs', 'Market Diagnosis Board injection failed before Vercel copy');
 runFinalInjector('inject-macro-configuration-board.cjs', 'Macro Configuration Board injection failed before Vercel copy');

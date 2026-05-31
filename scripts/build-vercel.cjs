@@ -198,6 +198,8 @@ archiveLiveReport();
 normalizeLiveState();
 runFinalInjector('inject-chart-driven-market-map.cjs', 'Chart-driven Market State Map injection failed before Vercel copy');
 runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence receipt injection failed before Vercel copy');
+runFinalInjector('inject-evidence-annotation-layer.cjs', 'Evidence Annotation layer injection failed before Vercel copy');
+runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed before Vercel copy');
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {

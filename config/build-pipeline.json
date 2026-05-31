@@ -1,6 +1,6 @@
 {
-  "version": 25,
-  "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage. The Macro chain is required: diagnosis -> configuration -> relationships -> historical memory -> portfolio translation -> evidence audit. Decision Chart is restored immediately before legacy operating-brain validation so integration injectors cannot accidentally leave the four-section surface incomplete.",
+  "version": 26,
+  "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage. The Macro chain is required: diagnosis -> configuration -> relationships -> historical memory -> portfolio translation -> evidence audit. Decision Chart is restored immediately before legacy operating-brain validation, then homepage order is normalized so the four-section surface remains Macro -> Decision chart -> Holdings -> Opportunity.",
   "stages": [
     {
       "name": "base-data",
@@ -129,12 +129,13 @@
     },
     {
       "name": "ship",
-      "description": "Final homepage authority. This stage renders, injects integrated Macro intelligence, restores canonical decision chart, sanitizes, validates, and writes edit-readiness health artifacts before production output.",
+      "description": "Final homepage authority. This stage renders, injects integrated Macro intelligence, restores canonical decision chart, normalizes four-section order, validates, and writes edit-readiness health artifacts before production output.",
       "commands": [
         "node scripts/render-capital-radar-home.cjs",
         "node scripts/inject-evidence-annotation-layer.cjs",
         "node scripts/inject-relationship-intelligence-layer.cjs",
         "node scripts/inject-operational-chart-home.cjs",
+        "node scripts/normalize-homepage-sections.cjs",
         "node scripts/validate-operating-brain.cjs",
         "node scripts/write-build-manifest.cjs",
         "node scripts/inject-build-version.cjs",

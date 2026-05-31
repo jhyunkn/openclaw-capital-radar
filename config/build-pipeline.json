@@ -1,6 +1,6 @@
 {
-  "version": 24,
-  "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage. The evidence annotation and relationship intelligence layers are injected after canonical render so raw data -> annotation -> relationship comparison -> configuration is visible in production.",
+  "version": 25,
+  "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage. The Macro chain is required: diagnosis -> configuration -> relationships -> historical memory -> portfolio translation -> evidence audit. Decision Chart is restored immediately before legacy operating-brain validation so integration injectors cannot accidentally leave the four-section surface incomplete.",
   "stages": [
     {
       "name": "base-data",
@@ -65,7 +65,7 @@
     },
     {
       "name": "architecture-audit",
-      "description": "Generate holistic Capital Radar layer/evidence coverage map for OpenClaw reliability work before rendering.",
+      "description": "Generate holistic Capital Radar layer/evidence coverage map for reliability work before rendering.",
       "commands": [
         "node scripts/generate-capital-radar-architecture-audit.cjs"
       ]
@@ -129,11 +129,12 @@
     },
     {
       "name": "ship",
-      "description": "Final homepage authority. This stage renders, injects the evidence annotation and relationship intelligence prototypes, sanitizes, validates, and writes edit-readiness health artifacts before production output.",
+      "description": "Final homepage authority. This stage renders, injects integrated Macro intelligence, restores canonical decision chart, sanitizes, validates, and writes edit-readiness health artifacts before production output.",
       "commands": [
         "node scripts/render-capital-radar-home.cjs",
         "node scripts/inject-evidence-annotation-layer.cjs",
         "node scripts/inject-relationship-intelligence-layer.cjs",
+        "node scripts/inject-operational-chart-home.cjs",
         "node scripts/validate-operating-brain.cjs",
         "node scripts/write-build-manifest.cjs",
         "node scripts/inject-build-version.cjs",

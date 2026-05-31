@@ -187,11 +187,19 @@ function normalizeLiveState() {
   writeDataHealthFromFile(statePath, path.join(root, 'outputs', 'data-health.json'));
 }
 
-function runFinalInjector(scriptName, errorMessage) {
+function runFinalInjector(scriptName, errorMessage, args = []) {
   const script = path.join(root, 'scripts', scriptName);
   if (!fs.existsSync(script)) return;
-  const result = spawnSync(`node scripts/${scriptName}`, { cwd: root, shell: true, stdio: 'inherit' });
+  const command = `node scripts/${scriptName}${args.length ? ' ' + args.map(arg => JSON.stringify(arg)).join(' ') : ''}`;
+  const result = spawnSync(command, { cwd: root, shell: true, stdio: 'inherit' });
   if (result.error || result.status !== 0) throw new Error(errorMessage);
+}
+
+function verifyFinalOutput() {
+  const htmlPath = path.join(out, 'index.html');
+  if (!fs.existsSync(htmlPath)) throw new Error('public/index.html missing after Vercel build');
+  const html = fs.readFileSync(htmlPath, 'utf8');
+  if (!html.includes('id="relationship-intelligence"')) throw new Error('Relationship Intelligence layer missing from final public/index.html');
 }
 
 archiveLiveReport();
@@ -206,5 +214,7 @@ for (const entry of copyEntries) {
   const src = path.join(root, entry);
   if (fs.existsSync(src)) copy(src, path.join(out, entry));
 }
+runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed after Vercel copy', ['public/index.html']);
+verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

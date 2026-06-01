@@ -200,6 +200,7 @@ function verifyFinalOutput() {
   if (!fs.existsSync(htmlPath)) throw new Error('public/index.html missing after Vercel build');
   const html = fs.readFileSync(htmlPath, 'utf8');
   const requiredIds = [
+    'current-market-state',
     'market-diagnosis-board',
     'macro-configuration-board',
     'relationship-intelligence',
@@ -214,6 +215,7 @@ function verifyFinalOutput() {
 archiveLiveReport();
 normalizeLiveState();
 runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence receipt injection failed before Vercel copy');
+runFinalInjector('inject-current-market-state-board.cjs', 'Current Market State Board injection failed before Vercel copy');
 runFinalInjector('inject-market-diagnosis-board.cjs', 'Market Diagnosis Board injection failed before Vercel copy');
 runFinalInjector('inject-macro-configuration-board.cjs', 'Macro Configuration Board injection failed before Vercel copy');
 runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed before Vercel copy');
@@ -227,6 +229,7 @@ for (const entry of copyEntries) {
   const src = path.join(root, entry);
   if (fs.existsSync(src)) copy(src, path.join(out, entry));
 }
+runFinalInjector('inject-current-market-state-board.cjs', 'Current Market State Board injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-market-diagnosis-board.cjs', 'Market Diagnosis Board injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-macro-configuration-board.cjs', 'Macro Configuration Board injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed after Vercel copy', ['public/index.html']);

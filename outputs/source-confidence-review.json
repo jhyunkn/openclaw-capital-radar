@@ -1,0 +1,93 @@
+{
+  "artifact": "source-confidence-review",
+  "generated_at": "2026-06-02T01:52:48.870Z",
+  "recommendation": "READY_FOR_DECISION_SUPPORT",
+  "decision_label": "Capital Radar may upgrade from research-only to decision-support language.",
+  "gates": {
+    "news_wired": true,
+    "news_fresh": true,
+    "news_has_high_materiality": true,
+    "xbrl_collected": true,
+    "xbrl_ok_coverage": true,
+    "strict_gate_clear": true,
+    "banned_marker_count": 0,
+    "numeric_levels_coverage_pct": 100,
+    "numeric_levels_complete": true,
+    "primary_sources_count": 3,
+    "has_primary_evidence_sources": true
+  },
+  "blockers": [],
+  "upgrade_conditions": [
+    {
+      "condition": "News collector is wired and fresh (<6h)",
+      "met": true
+    },
+    {
+      "condition": "XBRL fundamentals collected for ≥5 equity tickers",
+      "met": true
+    },
+    {
+      "condition": "Strict gate: zero banned language markers",
+      "met": true
+    },
+    {
+      "condition": "Numeric price levels ≥80% of holdings",
+      "met": true
+    },
+    {
+      "condition": "≥2 primary-evidence sources in reliability ledger",
+      "met": true
+    }
+  ],
+  "strict_gate": {
+    "total_banned_markers": 0,
+    "files_scanned": 6,
+    "detail": {
+      "data/report-state.live.json": {
+        "status": "scanned",
+        "hits_count": 0,
+        "hits": []
+      },
+      "outputs/data-truth-state.json": {
+        "status": "scanned",
+        "hits_count": 0,
+        "hits": []
+      },
+      "outputs/authoritative-action-state.json": {
+        "status": "scanned",
+        "hits_count": 0,
+        "hits": []
+      },
+      "outputs/live-reaction-state.json": {
+        "status": "scanned",
+        "hits_count": 0,
+        "hits": []
+      },
+      "outputs/opportunity-asymmetry-state.json": {
+        "status": "scanned",
+        "hits_count": 0,
+        "hits": []
+      },
+      "outputs/portfolio-translation-state.json": {
+        "status": "scanned",
+        "hits_count": 0,
+        "hits": []
+      }
+    }
+  },
+  "source_confidence_standard": {
+    "research_only_posture": "Default until: (1) news is live, (2) XBRL fundamentals collected, (3) strict language gate clear, (4) numeric price levels filled.",
+    "decision_support_posture": "Permitted when all upgrade conditions above are met simultaneously.",
+    "capital_action_posture": "Requires decision-support posture PLUS: defined risk budget per position, primary-source evidence for each candidate, explicit invalidation levels.",
+    "language_rules": {
+      "research_only": [
+        "Use: \"research-only\", \"observe\", \"watch\", \"verify before acting\".",
+        "Forbidden: \"buy now\", \"recommended action\", \"entry signal confirmed\", \"strong conviction add\"."
+      ],
+      "decision_support": [
+        "Permitted: \"evidence supports add-review near [zone]\", \"invalidation at [level]\", \"thesis gate cleared\".",
+        "Still forbidden: \"buy now\", \"guaranteed\", \"certain outcome\"."
+      ]
+    }
+  }
+}

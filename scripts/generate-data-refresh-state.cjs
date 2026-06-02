@@ -28,6 +28,8 @@ function freshness(ts, staleAfterHours) {
 const report = readJson('data/report-state.live.json', {});
 const dataHealth = readJson('outputs/data-health.json', {});
 const ledger = readJson('outputs/source-reliability-ledger.json', {});
+const newsCatalyst = readJson('outputs/news-catalyst-state.json', null);
+const xbrlFundamentals = readJson('outputs/sec-xbrl-fundamentals.json', null);
 const architecture = readJson('outputs/capital-radar-architecture-audit.json', {});
 const actionState = readJson('outputs/authoritative-action-state.json', {});
 const coverage = readJson('outputs/portfolio-thesis-coverage-map.json', {});
@@ -97,14 +99,24 @@ const state = {
       staleAfterHours: 24
     },
     {
+      id: 'sec-xbrl-fundamentals',
+      label: 'SEC XBRL fundamentals',
+      value: xbrlFundamentals?.generated_at || 'not collected',
+      detail: xbrlFundamentals
+        ? `${xbrlFundamentals.summary?.ok ?? 0} tickers enriched; ${xbrlFundamentals.summary?.thin ?? 0} thin; ${xbrlFundamentals.summary?.skipped ?? 0} skipped (ETF/leveraged)`
+        : 'Run: npm run collect:xbrl',
+      source: 'SEC EDGAR XBRL company-facts API',
+      ...freshness(xbrlFundamentals?.generated_at, 48)
+    },
+    {
       id: 'news-catalysts',
       label: 'News / catalysts',
-      value: 'not wired yet',
-      detail: 'Materiality-scored news/catalyst scan is not yet powering decisions',
-      source: 'future source collector',
-      status: 'missing',
-      ageHours: null,
-      staleAfterHours: 24
+      value: newsCatalyst?.scanned_at || 'not collected',
+      detail: newsCatalyst
+        ? `${newsCatalyst.summary?.total_items ?? 0} items scanned | HIGH=${newsCatalyst.summary?.high_materiality ?? 0} MEDIUM=${newsCatalyst.summary?.medium_materiality ?? 0} | can_promote=${newsCatalyst.summary?.can_influence_promotion ?? 0}`
+        : 'Run: npm run collect:news',
+      source: 'Yahoo Finance RSS (materiality-scored)',
+      ...freshness(newsCatalyst?.scanned_at, 6)
     }
   ],
   coverage: {
@@ -118,8 +130,8 @@ const state = {
     capitalBlocked: blockedActions
   },
   blockers: [
-    'SEC/XBRL primary-source collector not fully wired',
-    'News/catalyst materiality collector not wired',
+    ...(xbrlFundamentals ? [] : ['SEC XBRL fundamentals not collected — run: npm run collect:xbrl']),
+    ...(newsCatalyst ? [] : ['News/catalyst scan not collected — run: npm run collect:news']),
     'Field-level evidence ledger pending',
     'BMNR/TSNF decision packets not yet evidence-complete'
   ],

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-26T02:30:08.748Z",
+  "generatedAt": "2026-06-02T01:54:25.073Z",
   "runMode": "LOCAL_SOURCE_RELIABILITY_NO_WEB_SEARCH",
   "status": "ACTIVE",
   "policy": "Sources can discover opportunities, but candidate promotion requires primary evidence, freshness, invalidation, price zone, risk budget, and portfolio role.",
@@ -233,6 +233,54 @@
         "eventTypes": []
       },
       "promotionPolicy": "Can support facts and action-gate inputs when fresh."
+    },
+    {
+      "sourceId": "yahoo-finance-rss-news",
+      "name": "Yahoo Finance RSS headline feed (materiality-scored)",
+      "sourceType": "news",
+      "trustTier": "medium",
+      "reliabilityScore": 54,
+      "reliabilityClass": "weak-context-only",
+      "allowedUses": [
+        "market_signal",
+        "background"
+      ],
+      "refreshCadence": "every run of collect:news; stale after 6h",
+      "storagePolicy": "store_materiality_scored_headlines_with_timestamps",
+      "failureMode": "news gate inactive; HIGH-materiality promotion evidence unavailable",
+      "requiresCrossCheck": true,
+      "usage": {
+        "eventRefs": 0,
+        "highSeverityRefs": 0,
+        "researchRefs": 0,
+        "tickers": [],
+        "eventTypes": []
+      },
+      "promotionPolicy": "Do not use for promotion; sentiment/background only."
+    },
+    {
+      "sourceId": "sec-xbrl-companyfacts",
+      "name": "SEC EDGAR XBRL company-facts API",
+      "sourceType": "filing",
+      "trustTier": "primary",
+      "reliabilityScore": 98,
+      "reliabilityClass": "primary-evidence",
+      "allowedUses": [
+        "fact",
+        "background"
+      ],
+      "refreshCadence": "every run of collect:xbrl; stale after 48h",
+      "storagePolicy": "store_extracted_fundamentals_only_not_full_companyfacts_json",
+      "failureMode": "fundamentals absent; holding and candidate valuation evidence thin",
+      "requiresCrossCheck": false,
+      "usage": {
+        "eventRefs": 0,
+        "highSeverityRefs": 0,
+        "researchRefs": 0,
+        "tickers": [],
+        "eventTypes": []
+      },
+      "promotionPolicy": "Can support facts and action-gate inputs when fresh."
     }
   ],
   "evidenceStatusByCandidate": [
@@ -414,9 +462,9 @@
     }
   ],
   "aggregate": {
-    "sourceCount": 8,
-    "primaryEvidenceSources": 3,
-    "crossCheckRequiredSources": 4,
+    "sourceCount": 10,
+    "primaryEvidenceSources": 4,
+    "crossCheckRequiredSources": 5,
     "eventRefs": 25,
     "candidatesBlockedFromPromotion": 16
   },

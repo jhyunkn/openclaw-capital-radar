@@ -131,5 +131,37 @@
     "failureMode": "learning loop impaired; current action gates unaffected",
     "lastCheckedAt": "2026-05-26T02:30:08.496Z",
     "notes": "Stores prior decisions, market reads, candidate promotions/rejections, and lessons learned."
+  },
+  {
+    "sourceId": "yahoo-finance-rss-news",
+    "sourceType": "news",
+    "name": "Yahoo Finance RSS headline feed (materiality-scored)",
+    "baseUrl": "https://feeds.finance.yahoo.com/rss/2.0/headline",
+    "trustTier": "medium",
+    "allowedUses": [
+      "market_signal",
+      "background"
+    ],
+    "refreshCadence": "every run of collect:news; stale after 6h",
+    "storagePolicy": "store_materiality_scored_headlines_with_timestamps",
+    "failureMode": "news gate inactive; HIGH-materiality promotion evidence unavailable",
+    "promotionPolicy": "Only items scored >= 8 (HIGH materiality) may support candidate promotion. Must be cross-checked with primary source (SEC filing or IR release) before acting.",
+    "notes": "Covers all holdings and candidates. Materiality scoring prevents ordinary headlines from influencing promotion decisions. Score 8-10 = HIGH (earnings surprise, M&A, guidance change, executive departure). Score 5-7 = MEDIUM (analyst action, partnership). Score 1-4 = LOW (commentary, general market)."
+  },
+  {
+    "sourceId": "sec-xbrl-companyfacts",
+    "sourceType": "filing",
+    "name": "SEC EDGAR XBRL company-facts API",
+    "baseUrl": "https://data.sec.gov/api/xbrl/companyfacts/",
+    "trustTier": "primary",
+    "allowedUses": [
+      "fact",
+      "background"
+    ],
+    "refreshCadence": "every run of collect:xbrl; stale after 48h",
+    "storagePolicy": "store_extracted_fundamentals_only_not_full_companyfacts_json",
+    "failureMode": "fundamentals absent; holding and candidate valuation evidence thin",
+    "promotionPolicy": "XBRL-derived fundamentals (revenue, EPS, margins, FCF, dilution) are primary evidence for company-level thesis gates. ETF and leveraged tickers are not applicable.",
+    "notes": "Extracts: revenue (annual), revenue growth YoY, net income, gross margin, EPS diluted, FCF, long-term debt, dilution flag. Skips SPY, TSLT, CONL, IBIT (no GAAP XBRL). Requires cross-check with 10-K for material decisions."
   }
 ]

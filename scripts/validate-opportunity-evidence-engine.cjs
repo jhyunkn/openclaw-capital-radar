@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { hasFourSectionSurface, hasSection } = require('./lib/homepage-section-contract.cjs');
 const root = path.join(__dirname, '..');
 const read = rel => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -18,7 +19,7 @@ check(ledger.status === 'ACTIVE', 'source reliability ledger not active');
 check(ledger.aggregate?.sourceCount >= 6, 'source ledger source count too low');
 check(ledger.aggregate?.candidatesBlockedFromPromotion >= 1, 'promotion blockers not enforced');
 check(!html.includes('id="opportunity-evidence-engine"'), 'opportunity engine telemetry should not be a top-level homepage section after compression');
-check(html.includes('id="opportunity"'), 'homepage missing compressed Opportunity section');
+check(hasSection(html, 'opportunity'), 'homepage missing canonical Opportunity section');
 check(!publicHtml.includes('id="opportunity-evidence-engine"'), 'public homepage still exposes opportunity evidence telemetry panel');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'opportunity-evidence-packets.json')), 'public opportunity packets missing');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'source-reliability-ledger.json')), 'public source reliability ledger missing');
@@ -31,8 +32,8 @@ const output = {
     priorityQueue: list(packets.priorityQueue).length,
     sourceCount: ledger.aggregate?.sourceCount || 0,
     candidatesBlockedFromPromotion: ledger.aggregate?.candidatesBlockedFromPromotion || 0,
-    dashboardPanel: html.includes('id="opportunity"'),
-    publicSync: publicHtml.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"')
+    dashboardPanel: hasSection(html, 'opportunity'),
+    publicSync: !publicHtml || hasFourSectionSurface(publicHtml)
   },
   failures
 };

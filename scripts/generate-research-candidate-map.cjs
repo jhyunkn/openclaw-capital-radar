@@ -48,8 +48,8 @@ function classify(c){
   return { ...base, nearTermScore: Number(nearTermScore.toFixed(1)), longTermScore: Number(longTermScore.toFixed(1)), category: nearTermScore >= longTermScore ? 'ticker_of_the_moment' : 'long_term_macro_fit' };
 }
 const mapped = candidates.filter(c => c && c.ticker && c.thesis && !/^TBD/i.test(String(c.ticker))).map(classify);
-const tickerOfMoment = mapped.filter(x => x.nearTermScore >= 45 || x.category === 'ticker_of_the_moment').sort((a,b) => b.nearTermScore - a.nearTermScore).slice(0,5);
-const longTermMacroFit = mapped.filter(x => x.longTermScore >= 45 || x.category === 'long_term_macro_fit').sort((a,b) => b.longTermScore - a.longTermScore).slice(0,5);
+const tickerOfMoment = mapped.filter(x => x.nearTermScore >= 45 || x.category === 'ticker_of_the_moment').sort((a,b) => b.nearTermScore - a.nearTermScore).slice(0,8);
+const longTermMacroFit = mapped.filter(x => x.longTermScore >= 45 || x.category === 'long_term_macro_fit').sort((a,b) => b.longTermScore - a.longTermScore).slice(0,8);
 const result = {
   generatedAt: new Date().toISOString(),
   purpose: 'Split research candidates into near-term tactical setups and long-term macro/portfolio-balance candidates.',

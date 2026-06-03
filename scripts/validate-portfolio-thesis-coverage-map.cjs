@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { hasSection } = require('./lib/homepage-section-contract.cjs');
 const root = path.join(__dirname, '..');
 const mapPath = path.join(root, 'outputs', 'portfolio-thesis-coverage-map.json');
 const indexPath = path.join(root, 'index.html');
@@ -35,7 +36,7 @@ for (const t of ['BMNR','TSNF']) {
     ok(row.categories.sourceEvidence.status !== 'covered', `${t} should not count governance/placeholders as substantive source evidence`);
   }
 }
-ok(html.includes('id="brief"') || html.includes('id="decision-brief-section"'), 'homepage missing Brief section for compressed thesis synthesis');
-ok(html.includes('thesis') || html.includes('coverage'), 'Brief missing thesis coverage synthesis');
+ok(hasSection(html, 'macro'), 'homepage missing Macro section for compressed thesis synthesis');
+ok(html.includes('thesis') || html.includes('coverage'), 'Macro missing thesis coverage synthesis');
 ok(!html.includes('Underwritten vs constrained holdings') && !html.includes('Underwritten vs merely tracked holdings'), 'legacy thesis coverage chart section still visible');
-console.log(`thesis coverage validated as backend data for Brief: ${data.holdings.length} holdings, avg ${data.summary.averageCoverageScore}%, constrained ${data.summary.constrained}`);
+console.log(`thesis coverage validated as backend data for Macro: ${data.holdings.length} holdings, avg ${data.summary.averageCoverageScore}%, constrained ${data.summary.constrained}`);

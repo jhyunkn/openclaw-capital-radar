@@ -106,6 +106,32 @@ const sources = [
     failureMode: 'learning loop impaired; current action gates unaffected',
     lastCheckedAt: now,
     notes: 'Stores prior decisions, market reads, candidate promotions/rejections, and lessons learned.'
+  },
+  {
+    sourceId: 'yahoo-finance-rss-news',
+    sourceType: 'news',
+    name: 'Yahoo Finance RSS headline feed (materiality-scored)',
+    baseUrl: 'https://feeds.finance.yahoo.com/rss/2.0/headline',
+    trustTier: 'medium',
+    allowedUses: ['market_signal', 'background'],
+    refreshCadence: 'every collect:news run; stale after 6h',
+    storagePolicy: 'store_materiality_scored_headlines_with_timestamps',
+    failureMode: 'news gate inactive; HIGH-materiality promotion evidence unavailable',
+    lastCheckedAt: now,
+    notes: 'Covers all holdings and candidates. Score ≥8 = HIGH (earnings surprise, M&A, guidance). Score 5-7 = MEDIUM. Score 1-4 = LOW. Only HIGH items can support promotion evidence.'
+  },
+  {
+    sourceId: 'sec-xbrl-companyfacts',
+    sourceType: 'filing',
+    name: 'SEC EDGAR XBRL company-facts API',
+    baseUrl: 'https://data.sec.gov/api/xbrl/companyfacts/',
+    trustTier: 'primary',
+    allowedUses: ['fact', 'background'],
+    refreshCadence: 'every collect:xbrl run; stale after 48h',
+    storagePolicy: 'store_extracted_fundamentals_only',
+    failureMode: 'fundamentals absent; holding and candidate valuation evidence thin',
+    lastCheckedAt: now,
+    notes: 'Extracts: revenue, revenue growth YoY, net income, gross margin, EPS diluted, FCF, long-term debt, dilution flag. Skips ETF/leveraged tickers.'
   }
 ];
 for (const rel of ['data/research/source-registry.json', 'public/data/research/source-registry.json']) {

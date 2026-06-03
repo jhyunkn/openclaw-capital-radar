@@ -1,14 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const { sectionHtml } = require('./lib/homepage-section-contract.cjs');
 const root = path.join(__dirname, '..');
 const interpPath = path.join(root, 'outputs', 'strategy-interpretations.json');
 const indexPath = path.join(root, 'index.html');
 function fail(message){ console.error(`STRATEGY INTERPRETATION VALIDATION FAILED: ${message}`); process.exit(1); }
 function assert(condition, message){ if(!condition) fail(message); }
-function getSection(html, id) {
-  const match = html.match(new RegExp(`<section[^>]*id=["']${id}["'][\\s\\S]*?<\\/section>`, 'i'));
-  return match ? match[0] : '';
-}
 assert(fs.existsSync(interpPath), 'outputs/strategy-interpretations.json missing');
 const data = JSON.parse(fs.readFileSync(interpPath, 'utf8'));
 assert(Array.isArray(data.interpretations), 'interpretations array missing');
@@ -24,7 +21,7 @@ for (const item of data.interpretations) {
 }
 if (fs.existsSync(indexPath)) {
   const html = fs.readFileSync(indexPath, 'utf8');
-  const holdingsHtml = getSection(html, 'holdings');
+  const holdingsHtml = sectionHtml(html, 'holdings');
   assert(holdingsHtml, 'homepage missing Holdings section');
   assert(!html.includes('[object Object]'), 'homepage rendered an object directly; normalize confidence/trust values to text');
   assert(!html.includes('Interpreted decision cards'), 'legacy Interpreted decision cards heading still visible');

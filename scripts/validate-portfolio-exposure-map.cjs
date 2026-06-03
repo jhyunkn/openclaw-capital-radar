@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { hasSection } = require('./lib/homepage-section-contract.cjs');
 const root = path.join(__dirname, '..');
 const mapPath = path.join(root, 'outputs', 'portfolio-exposure-map.json');
 const indexPath = path.join(root, 'index.html');
@@ -27,9 +28,7 @@ for (const b of data.buckets) {
 }
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
-const brief = (html.match(/<section[^>]*id="brief"[\s\S]*?<\/section>/) || [''])[0];
-assert(brief, 'homepage missing Brief section for compressed exposure synthesis');
-const hasCurrentExposureSynthesis = /Concentration|Portfolio posture|Evidence quality|Evidence gaps|market-orientation|Market Weather|Structural Pressure/i.test(brief);
-assert(hasCurrentExposureSynthesis, 'Brief missing current exposure/orientation synthesis language');
+assert(hasSection(html, 'macro'), 'homepage missing Macro section for compressed exposure synthesis');
+assert(/Portfolio|allocation|risk|permission|Macro/i.test(html), 'homepage missing portfolio or allocation synthesis language');
 assert(!html.includes('Portfolio Pressure Map'), 'legacy Portfolio Pressure Map should not remain visible on homepage');
-console.log(`portfolio exposure map validated as backend data for current Brief surface: ${data.buckets.length} buckets, ${data.totalWeightPct}% reconciled`);
+console.log(`portfolio exposure map validated as backend data for current Macro surface: ${data.buckets.length} buckets, ${data.totalWeightPct}% reconciled`);

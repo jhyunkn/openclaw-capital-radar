@@ -103,13 +103,27 @@ let html = fs.readFileSync(indexPath, 'utf8');
 html = html.replace(/<style id="current-market-state-style">[\s\S]*?<\/style>/g, '');
 html = html.replace(/<section class="current-market-state" id="current-market-state">[\s\S]*?<\/section>/g, '');
 html = html.replace('</head>', style + '</head>');
-const macro = html.indexOf('id="decision-brief-section"');
-if (macro >= 0) {
-  const openEnd = html.indexOf('>', macro);
-  html = html.slice(0, openEnd + 1) + section + html.slice(openEnd + 1);
+// Insert as a sibling section — before operational-chart or holdings, not nested inside decision-brief.
+// Inserting inside decision-brief-section destroys its content structure.
+function findTopSection(html, ...ids) {
+  for (const id of ids) {
+    let s = 0;
+    while (s < html.length) {
+      const i = html.indexOf('<section', s);
+      if (i < 0) break;
+      const j = html.indexOf('>', i);
+      if (html.slice(i, j + 1).includes(`id="${id}"`)) return i;
+      s = i + 1;
+    }
+  }
+  return -1;
+}
+const anchor = findTopSection(html, 'operational-chart-section', 'holdings-section', 'opportunities-section');
+if (anchor >= 0) {
+  html = html.slice(0, anchor) + section + html.slice(anchor);
 } else {
-  const firstEnd = html.indexOf('</section>');
-  html = html.slice(0, firstEnd + 10) + section + html.slice(firstEnd + 10);
+  const mainClose = html.lastIndexOf('</main>');
+  html = html.slice(0, mainClose) + section + html.slice(mainClose);
 }
 fs.writeFileSync(indexPath, html);
 if (!html.includes('id="current-market-state"')) throw new Error('Current Market State Board injection verification failed');

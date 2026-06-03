@@ -203,7 +203,6 @@ function verifyFinalOutput() {
     'current-market-state',
     'macro-cycle-panel',
     'macro-intelligence-panel',
-    'relationship-intelligence',
     'macro-design-language-style'
   ];
   const missing = requiredIds.filter(id => !html.includes(`id="${id}"`));
@@ -216,8 +215,6 @@ runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence recei
 runFinalInjector('inject-current-market-state-board.cjs', 'Current Market State Board injection failed before Vercel copy');
 runFinalInjector('inject-macro-cycle-panel.cjs', 'Macro Cycle Panel injection failed before Vercel copy');
 runFinalInjector('inject-macro-intelligence-panel.cjs', 'Macro Intelligence Panel injection failed before Vercel copy');
-runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed before Vercel copy');
-runFinalInjector('inject-evidence-annotation-layer.cjs', 'Evidence Annotation layer injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 runFinalInjector('reorder-and-compact-macro.cjs', 'Section reorder + compaction failed on index.html');
 rm(out);

@@ -27,6 +27,13 @@ const removeIds = [
   'cycle-scenario-section',
   'visual-regime-section',
   'regime-section',
+  // Replaced by macro-cycle-panel and macro-intelligence-panel
+  'evidence-annotation-layer',
+  'relationship-intelligence',
+  'market-diagnosis-board',
+  'macro-configuration-board',
+  'macro-historical-board',
+  'macro-portfolio-board',
 ];
 
 function findSections(source, id) {

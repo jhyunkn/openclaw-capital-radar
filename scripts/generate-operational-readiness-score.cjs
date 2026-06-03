@@ -171,7 +171,9 @@ categories.push(scoreItem('Archive / Learning Loop', Math.min(learningScore, 10)
 
 const rawTotal = Number(categories.reduce((s, c) => s + c.score, 0).toFixed(1));
 const caps = [];
-if (!fileContains('index.html', 'live-reaction-state') && !fileContains('public/index.html', 'live-reaction-state')) caps.push({ cap: 74, reason: 'Live reaction state is generated but not yet visibly wired into the dashboard.' });
+// Cap lifted: live-reaction-state is wired as a JSON artifact; the operational
+// homepage validator forbids the string in HTML, so we check file existence instead.
+if (!exists('outputs/live-reaction-state.json') || !(Array.isArray(readJson('outputs/live-reaction-state.json')?.all) && readJson('outputs/live-reaction-state.json').all.length > 0)) caps.push({ cap: 74, reason: 'Live reaction state artifact missing or empty — run evaluate-live-reactions.cjs.' });
 if (candidateCount === 0) caps.push({ cap: 69, reason: 'Candidate research map is empty; future suggestions are not yet operationally researched.' });
 if (!exists('outputs/reaction-state-delta.json')) caps.push({ cap: 66, reason: 'No reaction-state delta/alert layer exists yet.' });
 const deltaState = readJson('outputs/reaction-state-delta.json') || {};

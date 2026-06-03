@@ -44,6 +44,21 @@ if (!zoneState?.render_permission) throw new Error('holding-zone-state render_pe
 const translation = readJson(translationPath, { holdings: [] });
 const decision = readJson(decisionPath, []);
 
+// Attach high-materiality news to translation holdings for badge display
+const newsState = readJson(path.join(root, 'outputs', 'news-catalyst-state.json'), { items: [] });
+const highNewsByTicker = {};
+for (const item of (newsState.items || []).filter(n => n.materiality_score >= 8)) {
+  const t = String(item.ticker || '').toUpperCase();
+  if (!highNewsByTicker[t]) highNewsByTicker[t] = [];
+  highNewsByTicker[t].push(item);
+}
+if (translation.holdings) {
+  translation.holdings = translation.holdings.map(h => ({
+    ...h,
+    high_materiality_news: highNewsByTicker[String(h.ticker || '').toUpperCase()] || null
+  }));
+}
+
 const section = renderHoldingsSection({ zoneState, translation, decision });
 const style = renderHoldingsStyle();
 let html = fs.readFileSync(indexPath, 'utf8');

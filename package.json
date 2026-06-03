@@ -5,6 +5,7 @@
   "description": "OpenClaw Capital Radar - live investing blueprint and market landscape report.",
   "scripts": {
     "generate:live": "node live-data-adapter.cjs",
+    "generate:live:partial": "node live-data-adapter.cjs --allow-stale-fred",
     "validate": "node validate-report.cjs data/report-state.live.json",
     "validate:action-specificity": "node scripts/validate-authoritative-action-specificity.cjs",
     "report": "node generate-daily-report.cjs data/report-state.live.json outputs/live-capital-radar.md",
@@ -38,6 +39,8 @@
     "validate:operating-brain": "node scripts/validate-operating-brain.cjs",
     "gate:deploy": "node scripts/deploy-gate-meaningful-change.cjs",
     "validate:intelligence": "node scripts/validate-intelligence-artifacts.cjs",
+    "generate:delta": "node scripts/generate-delta-brief.cjs",
+    "generate:ranking": "node scripts/generate-candidate-ranking.cjs",
     "collect:news": "node scripts/collect-news-catalysts.cjs",
     "collect:xbrl": "node scripts/collect-sec-xbrl-fundamentals.cjs",
     "collect:all": "npm run collect:news && npm run collect:xbrl",

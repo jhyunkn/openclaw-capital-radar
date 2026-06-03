@@ -132,21 +132,32 @@ html = html.replace(/<section class="macro-cycle-panel"[\s\S]*?<\/section>/g, ''
 
 html = html.replace('</head>', style + '</head>');
 
-// Insert before relationship-intelligence or evidence-annotation-layer, otherwise before first workbench
-const anchors = ['id="relationship-intelligence"', 'id="evidence-annotation-layer"', 'id="macro-historical-board"', 'id="macro-portfolio-board"'];
-let inserted = false;
-for (const anchor of anchors) {
-  const idx = html.indexOf(anchor);
-  if (idx >= 0) {
-    const secStart = html.lastIndexOf('<section', idx);
-    html = html.slice(0, secStart) + section + html.slice(secStart);
-    inserted = true;
-    break;
+// Insert before decision-brief-section or current-market-state (whichever comes first).
+// These are reliable top-level anchors that don't require depth tracking.
+function findTopLevelSection(html, ...ids) {
+  let best = -1;
+  for (const id of ids) {
+    const search = (s, start = 0) => {
+      while (start < s.length) {
+        const sec = s.indexOf('<section', start);
+        if (sec < 0) return -1;
+        const close = s.indexOf('>', sec);
+        if (s.slice(sec, close + 1).includes(`id="${id}"`)) return sec;
+        start = sec + 1;
+      }
+      return -1;
+    };
+    const pos = search(html);
+    if (pos >= 0 && (best < 0 || pos < best)) best = pos;
   }
+  return best;
 }
-if (!inserted) {
-  const firstEnd = html.indexOf('</section>');
-  html = html.slice(0, firstEnd + 10) + section + html.slice(firstEnd + 10);
+
+const insertAt = findTopLevelSection(html, 'decision-brief-section', 'current-market-state', 'market-diagnosis-board');
+if (insertAt >= 0) {
+  html = html.slice(0, insertAt) + section + html.slice(insertAt);
+} else {
+  html = html.slice(0, html.lastIndexOf('</main>')) + section + html.slice(html.lastIndexOf('</main>'));
 }
 
 fs.writeFileSync(indexPath, html);

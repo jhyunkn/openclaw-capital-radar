@@ -219,16 +219,15 @@ runFinalInjector('inject-macro-intelligence-panel.cjs', 'Macro Intelligence Pane
 runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed before Vercel copy');
 runFinalInjector('inject-evidence-annotation-layer.cjs', 'Evidence Annotation layer injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
+runFinalInjector('reorder-and-compact-macro.cjs', 'Section reorder + compaction failed on index.html');
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {
   const src = path.join(root, entry);
   if (fs.existsSync(src)) copy(src, path.join(out, entry));
 }
-runFinalInjector('inject-current-market-state-board.cjs', 'Current Market State Board injection failed after Vercel copy', ['public/index.html']);
-runFinalInjector('inject-macro-cycle-panel.cjs', 'Macro Cycle Panel injection failed after Vercel copy', ['public/index.html']);
-runFinalInjector('inject-macro-intelligence-panel.cjs', 'Macro Intelligence Panel injection failed after Vercel copy', ['public/index.html']);
-runFinalInjector('inject-relationship-intelligence-layer.cjs', 'Relationship Intelligence layer injection failed after Vercel copy', ['public/index.html']);
+// Macro panels (cycle, intelligence) are already reordered in index.html before the copy.
+// Only re-run injectors that must target public/index.html for Vercel-specific paths.
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));

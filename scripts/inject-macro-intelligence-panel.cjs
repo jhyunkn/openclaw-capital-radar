@@ -145,23 +145,31 @@ html = html.replace(/<section class="macro-intelligence-panel"[\s\S]*?<\/section
 
 html = html.replace('</head>', style + '</head>');
 
-// Insert after macro-cycle-panel, or after relationship-intelligence, or after decision-brief
-const anchors = ['id="macro-cycle-panel"', 'id="relationship-intelligence"', 'id="evidence-annotation-layer"'];
-let inserted = false;
-for (const anchor of anchors) {
-  const idx = html.indexOf(anchor);
-  if (idx >= 0) {
-    const secEnd = html.indexOf('</section>', idx);
-    if (secEnd >= 0) {
-      html = html.slice(0, secEnd + 10) + section + html.slice(secEnd + 10);
-      inserted = true;
-      break;
+// Insert before operational-chart-section or holdings-section — just before the chart,
+// which reliably marks the end of the macro content area.
+function findTopLevelSection(html, ...ids) {
+  let best = -1;
+  for (const id of ids) {
+    let start = 0;
+    while (start < html.length) {
+      const sec = html.indexOf('<section', start);
+      if (sec < 0) break;
+      const close = html.indexOf('>', sec);
+      if (html.slice(sec, close + 1).includes(`id="${id}"`)) {
+        if (best < 0 || sec < best) best = sec;
+        break;
+      }
+      start = sec + 1;
     }
   }
+  return best;
 }
-if (!inserted) {
-  const firstEnd = html.indexOf('</section>');
-  html = html.slice(0, firstEnd + 10) + section + html.slice(firstEnd + 10);
+
+const insertAt = findTopLevelSection(html, 'operational-chart-section', 'holdings-section');
+if (insertAt >= 0) {
+  html = html.slice(0, insertAt) + section + html.slice(insertAt);
+} else {
+  html = html.slice(0, html.lastIndexOf('</main>')) + section + html.slice(html.lastIndexOf('</main>'));
 }
 
 fs.writeFileSync(indexPath, html);

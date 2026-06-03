@@ -104,6 +104,13 @@ function eventTriggers(state, holdings) {
 
 const state = readJson(statePath, {});
 const generatedAt = new Date().toISOString();
+
+// Load XBRL fundamentals — keyed by ticker for O(1) lookup
+const xbrlData = readJson(path.join(outputsDir, 'sec-xbrl-fundamentals.json'), { results: [] });
+const xbrlByTicker = Object.fromEntries(
+  (xbrlData.results || []).filter(r => r.ticker && r.fundamentals).map(r => [r.ticker.toUpperCase(), r.fundamentals])
+);
+
 const previousRegime = readJson(path.join(outputsDir, 'market-regime-state.json'));
 const previousPortfolio = readJson(path.join(outputsDir, 'portfolio-decision-state.json'), []);
 const previousOpportunity = readJson(path.join(outputsDir, 'opportunity-promotion-state.json'), []);
@@ -157,7 +164,11 @@ const portfolioState = list(state.holdings).map(holding => {
     dataFreshness: source.freshness,
     sourceConfidence: source.confidence,
     sourceTimestamp: source.timestamp,
-    changedSinceLastRun: false
+    changedSinceLastRun: false,
+    role: holding.role || null,
+    portfolio_role: holding.portfolio_role || holding.role || null,
+    exposureBucket: holding.exposureBucket || null,
+    xbrl_fundamentals: holding.xbrl_fundamentals || xbrlByTicker[String(holding.ticker || '').toUpperCase()] || null
   };
   if (!PERMISSIONS.has(row.decisionPermission)) row.decisionPermission = 'HOLD_VERIFY';
   const prev = previousPortfolioMap[row.ticker];

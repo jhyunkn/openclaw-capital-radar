@@ -36,6 +36,26 @@ function buildLookup(rows, key = 'ticker') {
   return Object.fromEntries(arr(rows).map(item => [String(item[key] || '').toUpperCase(), item]));
 }
 
+function fmtPct(v) { return num(v) === null ? null : (num(v) > 0 ? '+' : '') + num(v).toFixed(1) + '%'; }
+function fmtM(v)   { return num(v) === null ? null : (Math.abs(num(v)) >= 1000 ? (num(v)/1000).toFixed(1)+'B' : num(v).toFixed(0)+'M'); }
+
+function fundamentalsRow(holding) {
+  const xbrl = holding.xbrl_fundamentals || null;
+  const role = holding.portfolio_role || holding.linked_macro_theme || null;
+  const strength = typeof holding.holding_strength_score === 'number' ? holding.holding_strength_score : null;
+  const parts = [];
+  if (role) parts.push(`<span class="fund-role">${esc(role)}</span>`);
+  if (xbrl) {
+    if (xbrl.revenue_growth_pct != null) parts.push(`<span>Rev ${fmtPct(xbrl.revenue_growth_pct)}</span>`);
+    if (xbrl.gross_margin_pct != null)   parts.push(`<span>GM ${fmtPct(xbrl.gross_margin_pct)}</span>`);
+    if (xbrl.fcf_usd_millions != null)   parts.push(`<span>FCF ${fmtM(xbrl.fcf_usd_millions)}</span>`);
+    if (xbrl.dilution_flag && xbrl.dilution_flag !== 'low') parts.push(`<span class="dil-warn">Dil: ${esc(xbrl.dilution_flag)}</span>`);
+  }
+  if (strength !== null) parts.push(`<span class="strength-badge ${strength >= 60 ? 'good' : strength >= 40 ? 'warn' : 'bad'}">${strength}/100</span>`);
+  if (!parts.length) return '';
+  return `<div class="zone-fundamentals">${parts.join('')}</div>`;
+}
+
 function renderZoneCard(zone, translationByTicker, decisionByTicker) {
   const ticker = String(zone.ticker || '').toUpperCase();
   const holding = translationByTicker[ticker] || {};
@@ -47,6 +67,7 @@ function renderZoneCard(zone, translationByTicker, decisionByTicker) {
   return `<article class="zone-card ${badge(zone.zone_status)} ${soft ? 'soft-source' : ''}">
     <div class="zone-head"><div><span>${esc(zone.zone_status || 'zone')}</span><h3>${esc(ticker)}</h3></div><b>${esc(tier)}</b></div>
     <p class="zone-source">${esc(sourceLabel(zone))}</p>
+    ${fundamentalsRow(holding)}
     ${zoneBar(zone)}
     <div class="zone-metrics">
       <div><span>Now</span><b>${usd(zone.current_price)}</b></div>
@@ -90,7 +111,7 @@ function renderHoldingsSection({ zoneState, translation, decision }) {
 }
 
 function renderHoldingsStyle() {
-  return `<style id="holdings-compact-style">.zone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.zone-card{border:1px solid var(--rule);border-radius:14px;background:rgba(251,250,246,.18);padding:14px;min-width:0;overflow:hidden}.zone-card.soft-source{opacity:.8}.zone-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.zone-head span,.zone-metrics span,.permission-row span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.zone-head h3{font-size:24px;margin:3px 0 0}.zone-head>b{font-size:12px;color:var(--green)}.zone-source,.zone-note{font-size:12px!important;color:var(--muted);line-height:1.35;margin:8px 0 0}.zone-bar{margin:12px 0}.zone-track{position:relative;height:10px;border:1px solid var(--rule);border-radius:999px;background:rgba(251,250,246,.3);overflow:hidden}.zone-seg{position:absolute;top:0;bottom:0}.zone-seg.hard{background:rgba(80,31,31,.62)}.zone-seg.risk{background:rgba(159,63,53,.55)}.zone-seg.buy{background:rgba(47,111,78,.58)}.zone-seg.trim{background:rgba(174,124,44,.62)}.zone-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:999px;background:var(--ink);border:2px solid var(--paper);transform:translate(-50%,-50%)}.zone-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule)}.zone-metrics div{padding:8px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}.zone-metrics b{display:block;font-size:15px;line-height:1.2;margin-top:3px;overflow-wrap:anywhere}.permission-row{margin-top:10px;border:1px solid var(--rule);border-radius:12px;padding:9px;background:rgba(251,250,246,.12)}.permission-row b{display:block;font-size:13px;line-height:1.2;margin-top:3px}.permission-row em{display:block;font-style:normal;font-size:11px;color:var(--muted);margin-top:3px}.permission-row.allow b{color:var(--green)}.permission-row.loss b{color:var(--red)}.permission-row.block b{color:var(--warn)}.trust-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}.trust-strip article{border:1px solid var(--rule);border-radius:12px;padding:10px;background:rgba(251,250,246,.16)}.trust-strip span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.trust-strip b{font-size:16px}</style>`;
+  return `<style id="holdings-compact-style">.zone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.zone-card{border:1px solid var(--rule);border-radius:14px;background:rgba(251,250,246,.18);padding:14px;min-width:0;overflow:hidden}.zone-card.soft-source{opacity:.8}.zone-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.zone-head span,.zone-metrics span,.permission-row span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.zone-head h3{font-size:24px;margin:3px 0 0}.zone-head>b{font-size:12px;color:var(--green)}.zone-source,.zone-note{font-size:12px!important;color:var(--muted);line-height:1.35;margin:8px 0 0}.zone-bar{margin:12px 0}.zone-track{position:relative;height:10px;border:1px solid var(--rule);border-radius:999px;background:rgba(251,250,246,.3);overflow:hidden}.zone-seg{position:absolute;top:0;bottom:0}.zone-seg.hard{background:rgba(80,31,31,.62)}.zone-seg.risk{background:rgba(159,63,53,.55)}.zone-seg.buy{background:rgba(47,111,78,.58)}.zone-seg.trim{background:rgba(174,124,44,.62)}.zone-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:999px;background:var(--ink);border:2px solid var(--paper);transform:translate(-50%,-50%)}.zone-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule)}.zone-metrics div{padding:8px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}.zone-metrics b{display:block;font-size:15px;line-height:1.2;margin-top:3px;overflow-wrap:anywhere}.permission-row{margin-top:10px;border:1px solid var(--rule);border-radius:12px;padding:9px;background:rgba(251,250,246,.12)}.permission-row b{display:block;font-size:13px;line-height:1.2;margin-top:3px}.permission-row em{display:block;font-style:normal;font-size:11px;color:var(--muted);margin-top:3px}.permission-row.allow b{color:var(--green)}.permission-row.loss b{color:var(--red)}.permission-row.block b{color:var(--warn)}.trust-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}.trust-strip article{border:1px solid var(--rule);border-radius:12px;padding:10px;background:rgba(251,250,246,.16)}.trust-strip span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.trust-strip b{font-size:16px}.zone-fundamentals{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 4px}.zone-fundamentals span{font-size:10px;line-height:1;border:1px solid var(--rule);border-radius:999px;padding:4px 7px;color:var(--muted);background:rgba(251,250,246,.10)}.zone-fundamentals .fund-role{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;letter-spacing:.04em}.zone-fundamentals .dil-warn{border-color:rgba(174,124,44,.42);color:var(--warn)}.strength-badge{font-weight:600}.strength-badge.good{border-color:rgba(47,111,78,.36);color:var(--green);background:rgba(47,111,78,.08)}.strength-badge.warn{border-color:rgba(174,124,44,.38);color:var(--warn)}.strength-badge.bad{border-color:rgba(159,63,53,.38);color:var(--red)}</style>`;
 }
 
 module.exports = { renderHoldingsSection, renderHoldingsStyle };

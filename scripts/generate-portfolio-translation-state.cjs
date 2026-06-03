@@ -124,6 +124,22 @@ function holdingStrengthScore(row, theme) {
   if (theme.evidence_ids.length) score += 10;
   if (String(row.dataFreshness || '').toLowerCase() === 'fresh') score += 5;
   if (list(row.ruleBreaches).length) score -= Math.min(20, list(row.ruleBreaches).length * 7);
+  // XBRL fundamentals bonus/penalty
+  const xbrl = row.xbrl_fundamentals || null;
+  if (xbrl) {
+    const growth = xbrl.revenue_growth_pct;
+    const fcf    = xbrl.fcf_usd_millions;
+    const gm     = xbrl.gross_margin_pct;
+    const dil    = xbrl.dilution_flag;
+    if (typeof growth === 'number' && growth > 15)  score += 8;
+    else if (typeof growth === 'number' && growth > 5) score += 4;
+    else if (typeof growth === 'number' && growth < 0) score -= 6;
+    if (typeof fcf === 'number' && fcf > 0) score += 6;
+    else if (typeof fcf === 'number' && fcf < 0) score -= 8;
+    if (typeof gm === 'number' && gm > 50) score += 5;
+    if (dil === 'elevated') score -= 5;
+    if (dil === 'low') score += 3;
+  }
   return clamp(score);
 }
 function priceDecisionMap(row) {
@@ -244,6 +260,7 @@ const holdings = list(portfolio).map(row => {
       rule_breaches: list(row.ruleBreaches),
       conflicts: []
     },
+    xbrl_fundamentals: row.xbrl_fundamentals || null,
     changed_since_last_cycle: false
   };
   const prev = previousByTicker[current.ticker];

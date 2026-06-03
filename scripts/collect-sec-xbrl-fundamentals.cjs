@@ -9,9 +9,10 @@ const out  = path.join(root, 'outputs', 'sec-xbrl-fundamentals.json');
 // ── Tickers ──────────────────────────────────────────────────────────────────
 const EQUITY_TICKERS = [
   'MSFT','AMZN','CEG','META','MA','NFLX',         // core holdings with GAAP
-  'RDDT','RKLB','NXT','ETN','GOOGL','PWR','GEV',  // candidates
-  'TMDX','NVDA','AVGO','CCJ','PLTR','VRT','HIMS', // candidates
+  'RDDT','RKLB','NXT','ETN','PWR','GEV',          // candidates
+  'TMDX','AVGO','CCJ','PLTR','VRT','HIMS',        // candidates
   'OKLO','TSLA','COIN',                            // speculative / context
+  'DT','TTD',                                      // new candidates: Dynatrace, The Trade Desk
 ];
 
 // These don't file 10-Ks with GAAP XBRL (ETFs, leveraged, OTC foreign)

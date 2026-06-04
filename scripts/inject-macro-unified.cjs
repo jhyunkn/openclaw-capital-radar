@@ -702,9 +702,9 @@ function buildCycleAnalysis(spyCandles, rateSeries, signals, cycleState, analogs
       <div class="mu-ca-head">Signal Check</div>
       <p class="mu-ca-desc">Confirming vs contradicting Phase D</p>
       <div class="mu-ca-signals">
-        ${confirming.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-g">✓ ${esc(s.name)} — ${esc(s.label)}</div>`).join('')}
-        ${watching.slice(0,2).map(s => `<div class="mu-ca-sig mu-ca-sig-a">~ ${esc(s.name)} — ${esc(s.label)}</div>`).join('')}
-        ${contradicting.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-r">✗ ${esc(s.name)} — ${esc(s.label)}</div>`).join('')}
+        ${confirming.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-g">✓ ${esc(s.name)} — ${esc(s.label)}.</div>`).join('')}
+        ${watching.slice(0,2).map(s => `<div class="mu-ca-sig mu-ca-sig-a">~ ${esc(s.name)} — ${esc(s.label)}.</div>`).join('')}
+        ${contradicting.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-r">✗ ${esc(s.name)} — ${esc(s.label)}.</div>`).join('')}
       </div>
     </div>
     <div class="mu-ca-col">
@@ -714,14 +714,14 @@ function buildCycleAnalysis(spyCandles, rateSeries, signals, cycleState, analogs
         <div class="mu-ca-proj-base">
           <span>Base case (65%)</span>
           <b>Phase C → D: Expansion</b>
-          <p>${esc(nextPhase)}</p>
-          <small>Add on pullbacks 7,216–7,440</small>
+          <p class="mu-ca-proj-read">Path: ${esc(nextPhase)}</p>
+          <small class="mu-ca-proj-rule">Rule: add on pullbacks 7,216–7,440.</small>
         </div>
         <div class="mu-ca-proj-bear">
           <span>Bear case (35%)</span>
           <b>Stall / Phase F risk</b>
-          <p>Credit widens + VIX above 20</p>
-          <small>Watch: HY OAS above 3.5% = warning</small>
+          <p class="mu-ca-proj-read">Trigger: credit widens + VIX above 20.</p>
+          <small class="mu-ca-proj-rule">Warning line: HY OAS above 3.5%.</small>
         </div>
       </div>
     </div>
@@ -1088,7 +1088,8 @@ const style = `<style id="macro-unified-style">
 .mu-ca-proj-base b{color:#2a6b4a}
 .mu-ca-proj-bear b{color:#A4502F}
 .mu-ca-proj p{font-size:10.5px;color:rgba(26,23,20,.65);margin:0 0 4px;line-height:1.35}
-.mu-ca-proj small{font-size:9.5px;color:rgba(26,23,20,.45)}
+.mu-ca-proj .mu-ca-proj-read{display:block;margin:6px 0 5px;line-height:1.45}
+.mu-ca-proj small{display:block;font-size:9.5px;color:rgba(26,23,20,.45);line-height:1.4}
 @media(max-width:900px){.mu-cycle-analysis-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.mu-cycle-analysis-grid{grid-template-columns:1fr}}
 

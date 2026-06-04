@@ -9,8 +9,8 @@ function run(command, args) {
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
 }
-// Fetch fresh market data before building. Uses FRED_API_KEY env var if set.
-// Falls back to cached values gracefully if any source is unavailable.
+// Fetch fresh market data, then fast-build from committed artifacts.
+// Full pipeline (npm run build) requires accumulated state not present in a
+// fresh clone; fast build renders from committed outputs + refreshed live data.
 run('npm', ['run', 'generate:live:partial']);
-run('npm', ['run', 'build']);
-run(process.execPath, ['scripts/build-vercel.cjs']);
+run('npm', ['run', 'build:fast']);

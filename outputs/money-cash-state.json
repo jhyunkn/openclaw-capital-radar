@@ -1,0 +1,3639 @@
+{
+  "artifact": "money-cash-chart-dataset",
+  "version": 8,
+  "as_of": "2026-06-04T02:24:52.734Z",
+  "asset_class": "Money / Cash",
+  "coverage": "PARTIAL",
+  "cache": {
+    "status": "SEED_COMPACT",
+    "created_at": "2026-06-04T02:24:52.683Z",
+    "source_policy": "Compact seed cache for UI verification when live FRED fetch is unavailable in CI. Replace with refreshed FRED CSV cache before production-grade analysis."
+  },
+  "doctrine": {
+    "primary_rule": "Render raw dataset first; annotations are analytic overlays, not replacements.",
+    "interpretation_rule": "Text interpretation is secondary to direct data and must not hide missing evidence.",
+    "annotation_rule": "Historical annotations must be suppressed when the chart dataset does not cover the set point."
+  },
+  "macro_gate_contribution": "eligible_for_partial_macro_matrix",
+  "primary_question": "Is capital being paid to wait, or is capital being forced out on the risk curve?",
+  "datasets": {
+    "tbill_3m_yield": {
+      "key": "tbill_3m_yield",
+      "label": "3-month T-bill yield",
+      "series_id": "DTB3",
+      "tier": "CORE",
+      "source": "money-cash cache",
+      "source_url": "https://fred.stlouisfed.org/series/DTB3",
+      "latest_date": "2026-04-30",
+      "latest_value": 3.6,
+      "confidence": "SEED_COMPACT",
+      "observations_count": 32,
+      "historical_reference": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": 3.6,
+          "max": 4.15,
+          "average": 3.875,
+          "p10": 3.6,
+          "p25": 3.8,
+          "median": 3.95,
+          "p75": 3.95,
+          "p90": 4.15,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": 0.04,
+          "max": 5.3,
+          "average": 3.469,
+          "p10": 0.05,
+          "p25": 3.2,
+          "median": 4.2,
+          "p75": 4.8,
+          "p90": 5.24,
+          "current_percentile": 35,
+          "relative_zone": "below normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": 0.04,
+          "max": 5.3,
+          "average": 2.956,
+          "p10": 0.04,
+          "p25": 0.51,
+          "median": 3.8,
+          "p75": 4.7,
+          "p90": 5.24,
+          "current_percentile": 48,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 32,
+          "start_date": "1980-12-31",
+          "end_date": "2026-04-30",
+          "min": 0.04,
+          "max": 14.03,
+          "average": 3.802,
+          "p10": 0.05,
+          "p25": 1.37,
+          "median": 4.15,
+          "p75": 5.1,
+          "p90": 5.82,
+          "current_percentile": 44,
+          "relative_zone": "below normal"
+        }
+      },
+      "raw_series_policy": "Render the series directly; use annotations as overlays, not substitutes."
+    },
+    "cpi_inflation": {
+      "key": "cpi_inflation",
+      "label": "CPI inflation index",
+      "series_id": "CPIAUCSL",
+      "tier": "CORE",
+      "source": "money-cash cache",
+      "source_url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+      "latest_date": "2026-04-30",
+      "latest_value": 332.407,
+      "confidence": "SEED_COMPACT",
+      "observations_count": 32,
+      "historical_reference": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": 323,
+          "max": 332.407,
+          "average": 327.602,
+          "p10": 323,
+          "p25": 326,
+          "median": 329,
+          "p75": 329,
+          "p90": 332.407,
+          "current_percentile": 100,
+          "relative_zone": "historically extreme high"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": 270.9,
+          "max": 332.407,
+          "average": 305.85,
+          "p10": 280.8,
+          "p25": 296.8,
+          "median": 308.7,
+          "p75": 317.2,
+          "p90": 326,
+          "current_percentile": 100,
+          "relative_zone": "historically extreme high"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": 251.1,
+          "max": 332.407,
+          "average": 296.288,
+          "p10": 258.1,
+          "p25": 274.3,
+          "median": 301.8,
+          "p75": 315.7,
+          "p90": 326,
+          "current_percentile": 100,
+          "relative_zone": "historically extreme high"
+        },
+        "full": {
+          "observations": 32,
+          "start_date": "1980-12-31",
+          "end_date": "2026-04-30",
+          "min": 82.4,
+          "max": 332.407,
+          "average": 263.822,
+          "p10": 148.2,
+          "p25": 255.7,
+          "median": 296.3,
+          "p75": 312.3,
+          "p90": 323,
+          "current_percentile": 100,
+          "relative_zone": "historically extreme high"
+        }
+      },
+      "raw_series_policy": "Render the series directly; use annotations as overlays, not substitutes."
+    },
+    "effective_fed_funds": {
+      "key": "effective_fed_funds",
+      "label": "Effective fed funds rate",
+      "series_id": "DFF",
+      "tier": "CORE",
+      "source": "money-cash cache",
+      "source_url": "https://fred.stlouisfed.org/series/DFF",
+      "latest_date": "2026-04-30",
+      "latest_value": 3.65,
+      "confidence": "SEED_COMPACT",
+      "observations_count": 32,
+      "historical_reference": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": 3.65,
+          "max": 4.35,
+          "average": 4.012,
+          "p10": 3.65,
+          "p25": 3.95,
+          "median": 4.1,
+          "p75": 4.1,
+          "p90": 4.35,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": 0.08,
+          "max": 5.33,
+          "average": 3.484,
+          "p10": 0.08,
+          "p25": 2.56,
+          "median": 4.35,
+          "p75": 5.08,
+          "p90": 5.33,
+          "current_percentile": 35,
+          "relative_zone": "below normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": 0.07,
+          "max": 5.33,
+          "average": 2.979,
+          "p10": 0.08,
+          "p25": 0.65,
+          "median": 3.95,
+          "p75": 4.65,
+          "p90": 5.33,
+          "current_percentile": 48,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 32,
+          "start_date": "1980-12-31",
+          "end_date": "2026-04-30",
+          "min": 0.07,
+          "max": 16.39,
+          "average": 4.045,
+          "p10": 0.08,
+          "p25": 1.21,
+          "median": 4.1,
+          "p75": 5.13,
+          "p90": 6.24,
+          "current_percentile": 44,
+          "relative_zone": "below normal"
+        }
+      },
+      "raw_series_policy": "Render the series directly; use annotations as overlays, not substitutes."
+    },
+    "money_market_assets": {
+      "label": "Money-market fund assets",
+      "tier": "CORE",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    },
+    "bank_reserves": {
+      "label": "Reserve balances",
+      "tier": "CONFIRMING",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    },
+    "m2": {
+      "label": "M2 money stock",
+      "tier": "CONFIRMING",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    },
+    "financial_conditions": {
+      "label": "Financial conditions",
+      "tier": "CONFIRMING",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    },
+    "tga": {
+      "label": "Treasury General Account",
+      "tier": "CONTEXT",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    },
+    "reverse_repo": {
+      "label": "Reverse repo",
+      "tier": "CONTEXT",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    },
+    "sofr": {
+      "label": "SOFR",
+      "tier": "CONTEXT",
+      "confidence": "PENDING_SOURCE",
+      "observations_count": 0
+    }
+  },
+  "derived": {
+    "cpi_yoy": {
+      "key": "cpi_yoy",
+      "label": "CPI YoY",
+      "source_series": [
+        "CPIAUCSL"
+      ],
+      "method": "Year-over-year CPI change using nearest prior observation within 55 days.",
+      "value": 3.877,
+      "latest_date": "2026-04-30",
+      "confidence": "DERIVED_FROM_CACHE_SERIES",
+      "observations_count": 23,
+      "historical_reference": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": 2.801,
+          "max": 3.877,
+          "average": 3.415,
+          "p10": 2.801,
+          "p25": 3.263,
+          "median": 3.72,
+          "p75": 3.72,
+          "p90": 3.877,
+          "current_percentile": 100,
+          "relative_zone": "historically extreme high"
+        },
+        "5y": {
+          "observations": 18,
+          "start_date": "2021-12-31",
+          "end_date": "2026-04-30",
+          "min": 2.466,
+          "max": 9.376,
+          "average": 4.625,
+          "p10": 2.667,
+          "p25": 2.801,
+          "median": 3.72,
+          "p75": 5.698,
+          "p90": 8.573,
+          "current_percentile": 61,
+          "relative_zone": "above normal"
+        },
+        "10y": {
+          "observations": 21,
+          "start_date": "2019-12-31",
+          "end_date": "2026-04-30",
+          "min": 1.832,
+          "max": 9.376,
+          "average": 4.264,
+          "p10": 2.466,
+          "p25": 2.667,
+          "median": 3.423,
+          "p75": 4.974,
+          "p90": 8.573,
+          "current_percentile": 67,
+          "relative_zone": "above normal"
+        },
+        "full": {
+          "observations": 23,
+          "start_date": "1981-12-31",
+          "end_date": "2026-04-30",
+          "min": 1.832,
+          "max": 10.316,
+          "average": 4.61,
+          "p10": 2.466,
+          "p25": 2.753,
+          "median": 3.479,
+          "p75": 6.161,
+          "p90": 8.932,
+          "current_percentile": 61,
+          "relative_zone": "above normal"
+        }
+      },
+      "observations": [
+        {
+          "date": "1981-12-31",
+          "value": 10.316
+        },
+        {
+          "date": "1982-12-31",
+          "value": 6.161
+        },
+        {
+          "date": "2019-12-31",
+          "value": 1.832
+        },
+        {
+          "date": "2020-12-31",
+          "value": 1.877
+        },
+        {
+          "date": "2021-03-31",
+          "value": 2.596
+        },
+        {
+          "date": "2021-12-31",
+          "value": 7.793
+        },
+        {
+          "date": "2022-03-31",
+          "value": 8.573
+        },
+        {
+          "date": "2022-06-30",
+          "value": 9.376
+        },
+        {
+          "date": "2022-09-30",
+          "value": 8.932
+        },
+        {
+          "date": "2022-12-31",
+          "value": 5.698
+        },
+        {
+          "date": "2023-03-31",
+          "value": 4.974
+        },
+        {
+          "date": "2023-06-30",
+          "value": 2.531
+        },
+        {
+          "date": "2023-09-30",
+          "value": 2.912
+        },
+        {
+          "date": "2023-12-31",
+          "value": 4.009
+        },
+        {
+          "date": "2024-03-31",
+          "value": 3.479
+        },
+        {
+          "date": "2024-06-30",
+          "value": 3.423
+        },
+        {
+          "date": "2024-09-30",
+          "value": 2.667
+        },
+        {
+          "date": "2024-12-31",
+          "value": 2.753
+        },
+        {
+          "date": "2025-03-31",
+          "value": 2.466
+        },
+        {
+          "date": "2025-06-30",
+          "value": 2.801
+        },
+        {
+          "date": "2025-09-30",
+          "value": 3.263
+        },
+        {
+          "date": "2025-12-31",
+          "value": 3.72
+        },
+        {
+          "date": "2026-04-30",
+          "value": 3.877
+        }
+      ]
+    },
+    "real_cash_yield": {
+      "key": "real_cash_yield",
+      "label": "3M T-bill yield minus CPI YoY",
+      "source_series": [
+        "DTB3",
+        "CPIAUCSL"
+      ],
+      "method": "3M T-bill yield minus CPI YoY, with CPI YoY carried forward to the T-bill observation date.",
+      "value": -0.277,
+      "latest_date": "2026-04-30",
+      "confidence": "DERIVED_FROM_CACHE_SERIES",
+      "observations_count": 31,
+      "historical_reference": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": -0.277,
+          "max": 1.349,
+          "average": 0.46,
+          "p10": -0.277,
+          "p25": 0.08,
+          "median": 0.687,
+          "p75": 0.687,
+          "p90": 1.349,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": -8.063,
+          "max": 2.569,
+          "average": -0.953,
+          "p10": -7.743,
+          "p25": -2.556,
+          "median": 0.687,
+          "p75": 1.751,
+          "p90": 2.133,
+          "current_percentile": 40,
+          "relative_zone": "below normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.063,
+          "max": 2.569,
+          "average": -1.154,
+          "p10": -7.743,
+          "p25": -2.556,
+          "median": -0.274,
+          "p75": 1.597,
+          "p90": 2.133,
+          "current_percentile": 48,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 31,
+          "start_date": "1981-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.063,
+          "max": 4.529,
+          "average": -1.087,
+          "p10": -6.071,
+          "p25": -2.556,
+          "median": -0.277,
+          "p75": 1.751,
+          "p90": 2.388,
+          "current_percentile": 52,
+          "relative_zone": "near normal"
+        }
+      },
+      "observations": [
+        {
+          "date": "1981-12-31",
+          "value": 3.714
+        },
+        {
+          "date": "1982-12-31",
+          "value": 4.529
+        },
+        {
+          "date": "1994-12-31",
+          "value": -1.891
+        },
+        {
+          "date": "2000-12-31",
+          "value": -0.341
+        },
+        {
+          "date": "2008-12-31",
+          "value": -4.791
+        },
+        {
+          "date": "2012-12-31",
+          "value": -6.071
+        },
+        {
+          "date": "2018-12-31",
+          "value": -4.221
+        },
+        {
+          "date": "2019-12-31",
+          "value": 0.238
+        },
+        {
+          "date": "2020-03-31",
+          "value": -1.462
+        },
+        {
+          "date": "2020-12-31",
+          "value": -1.787
+        },
+        {
+          "date": "2021-03-31",
+          "value": -2.556
+        },
+        {
+          "date": "2021-06-30",
+          "value": -2.556
+        },
+        {
+          "date": "2021-09-30",
+          "value": -2.556
+        },
+        {
+          "date": "2021-12-31",
+          "value": -7.743
+        },
+        {
+          "date": "2022-03-31",
+          "value": -8.063
+        },
+        {
+          "date": "2022-06-30",
+          "value": -7.746
+        },
+        {
+          "date": "2022-09-30",
+          "value": -5.732
+        },
+        {
+          "date": "2022-12-31",
+          "value": -1.498
+        },
+        {
+          "date": "2023-03-31",
+          "value": -0.274
+        },
+        {
+          "date": "2023-06-30",
+          "value": 2.569
+        },
+        {
+          "date": "2023-09-30",
+          "value": 2.388
+        },
+        {
+          "date": "2023-12-31",
+          "value": 1.231
+        },
+        {
+          "date": "2024-03-31",
+          "value": 1.751
+        },
+        {
+          "date": "2024-06-30",
+          "value": 1.817
+        },
+        {
+          "date": "2024-09-30",
+          "value": 2.133
+        },
+        {
+          "date": "2024-12-31",
+          "value": 1.597
+        },
+        {
+          "date": "2025-03-31",
+          "value": 1.784
+        },
+        {
+          "date": "2025-06-30",
+          "value": 1.349
+        },
+        {
+          "date": "2025-09-30",
+          "value": 0.687
+        },
+        {
+          "date": "2025-12-31",
+          "value": 0.08
+        },
+        {
+          "date": "2026-04-30",
+          "value": -0.277
+        }
+      ]
+    },
+    "real_fed_funds": {
+      "key": "real_fed_funds",
+      "label": "Effective fed funds minus CPI YoY",
+      "source_series": [
+        "DFF",
+        "CPIAUCSL"
+      ],
+      "method": "Effective fed funds minus CPI YoY, with CPI YoY carried forward to the fed-funds observation date.",
+      "value": -0.227,
+      "latest_date": "2026-04-30",
+      "confidence": "DERIVED_FROM_CACHE_SERIES",
+      "observations_count": 31,
+      "historical_reference": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": -0.227,
+          "max": 1.549,
+          "average": 0.597,
+          "p10": -0.227,
+          "p25": 0.23,
+          "median": 0.837,
+          "p75": 0.837,
+          "p90": 1.549,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": -8.373,
+          "max": 2.549,
+          "average": -0.938,
+          "p10": -7.713,
+          "p25": -2.516,
+          "median": 0.837,
+          "p75": 1.877,
+          "p90": 2.418,
+          "current_percentile": 45,
+          "relative_zone": "near normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.373,
+          "max": 2.549,
+          "average": -1.131,
+          "p10": -7.713,
+          "p25": -2.516,
+          "median": -0.227,
+          "p75": 1.851,
+          "p90": 2.418,
+          "current_percentile": 52,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 31,
+          "start_date": "1981-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.373,
+          "max": 6.079,
+          "average": -0.896,
+          "p10": -6.372,
+          "p25": -2.516,
+          "median": -0.227,
+          "p75": 1.877,
+          "p90": 2.463,
+          "current_percentile": 52,
+          "relative_zone": "near normal"
+        }
+      },
+      "observations": [
+        {
+          "date": "1981-12-31",
+          "value": 6.074
+        },
+        {
+          "date": "1982-12-31",
+          "value": 6.079
+        },
+        {
+          "date": "1994-12-31",
+          "value": -1.481
+        },
+        {
+          "date": "2000-12-31",
+          "value": 0.079
+        },
+        {
+          "date": "2008-12-31",
+          "value": -4.241
+        },
+        {
+          "date": "2012-12-31",
+          "value": -6.021
+        },
+        {
+          "date": "2018-12-31",
+          "value": -4.331
+        },
+        {
+          "date": "2019-12-31",
+          "value": 0.328
+        },
+        {
+          "date": "2020-03-31",
+          "value": -1.182
+        },
+        {
+          "date": "2020-12-31",
+          "value": -1.787
+        },
+        {
+          "date": "2021-03-31",
+          "value": -2.526
+        },
+        {
+          "date": "2021-06-30",
+          "value": -2.516
+        },
+        {
+          "date": "2021-09-30",
+          "value": -2.516
+        },
+        {
+          "date": "2021-12-31",
+          "value": -7.713
+        },
+        {
+          "date": "2022-03-31",
+          "value": -8.373
+        },
+        {
+          "date": "2022-06-30",
+          "value": -8.166
+        },
+        {
+          "date": "2022-09-30",
+          "value": -6.372
+        },
+        {
+          "date": "2022-12-31",
+          "value": -1.598
+        },
+        {
+          "date": "2023-03-31",
+          "value": -0.324
+        },
+        {
+          "date": "2023-06-30",
+          "value": 2.549
+        },
+        {
+          "date": "2023-09-30",
+          "value": 2.418
+        },
+        {
+          "date": "2023-12-31",
+          "value": 1.321
+        },
+        {
+          "date": "2024-03-31",
+          "value": 1.851
+        },
+        {
+          "date": "2024-06-30",
+          "value": 1.907
+        },
+        {
+          "date": "2024-09-30",
+          "value": 2.463
+        },
+        {
+          "date": "2024-12-31",
+          "value": 1.877
+        },
+        {
+          "date": "2025-03-31",
+          "value": 2.034
+        },
+        {
+          "date": "2025-06-30",
+          "value": 1.549
+        },
+        {
+          "date": "2025-09-30",
+          "value": 0.837
+        },
+        {
+          "date": "2025-12-31",
+          "value": 0.23
+        },
+        {
+          "date": "2026-04-30",
+          "value": -0.227
+        }
+      ]
+    }
+  },
+  "chart_series": {
+    "money_cash_main": {
+      "chart_id": "money_cash_main",
+      "title": "3M T-bill yield vs CPI YoY vs real cash yield",
+      "y_axis": "percent",
+      "default_window": "10y",
+      "display_rule": "raw_series_first",
+      "series": {
+        "tbill_3m_yield": [
+          {
+            "date": "1980-12-31",
+            "value": 11.51
+          },
+          {
+            "date": "1981-12-31",
+            "value": 14.03
+          },
+          {
+            "date": "1982-12-31",
+            "value": 10.69
+          },
+          {
+            "date": "1994-12-31",
+            "value": 4.27
+          },
+          {
+            "date": "2000-12-31",
+            "value": 5.82
+          },
+          {
+            "date": "2008-12-31",
+            "value": 1.37
+          },
+          {
+            "date": "2012-12-31",
+            "value": 0.09
+          },
+          {
+            "date": "2018-12-31",
+            "value": 1.94
+          },
+          {
+            "date": "2019-12-31",
+            "value": 2.07
+          },
+          {
+            "date": "2020-03-31",
+            "value": 0.37
+          },
+          {
+            "date": "2020-12-31",
+            "value": 0.09
+          },
+          {
+            "date": "2021-03-31",
+            "value": 0.04
+          },
+          {
+            "date": "2021-06-30",
+            "value": 0.04
+          },
+          {
+            "date": "2021-09-30",
+            "value": 0.04
+          },
+          {
+            "date": "2021-12-31",
+            "value": 0.05
+          },
+          {
+            "date": "2022-03-31",
+            "value": 0.51
+          },
+          {
+            "date": "2022-06-30",
+            "value": 1.63
+          },
+          {
+            "date": "2022-09-30",
+            "value": 3.2
+          },
+          {
+            "date": "2022-12-31",
+            "value": 4.2
+          },
+          {
+            "date": "2023-03-31",
+            "value": 4.7
+          },
+          {
+            "date": "2023-06-30",
+            "value": 5.1
+          },
+          {
+            "date": "2023-09-30",
+            "value": 5.3
+          },
+          {
+            "date": "2023-12-31",
+            "value": 5.24
+          },
+          {
+            "date": "2024-03-31",
+            "value": 5.23
+          },
+          {
+            "date": "2024-06-30",
+            "value": 5.24
+          },
+          {
+            "date": "2024-09-30",
+            "value": 4.8
+          },
+          {
+            "date": "2024-12-31",
+            "value": 4.35
+          },
+          {
+            "date": "2025-03-31",
+            "value": 4.25
+          },
+          {
+            "date": "2025-06-30",
+            "value": 4.15
+          },
+          {
+            "date": "2025-09-30",
+            "value": 3.95
+          },
+          {
+            "date": "2025-12-31",
+            "value": 3.8
+          },
+          {
+            "date": "2026-04-30",
+            "value": 3.6
+          }
+        ],
+        "cpi_yoy": [
+          {
+            "date": "1981-12-31",
+            "value": 10.316,
+            "basis": {
+              "current_date": "1981-12-31",
+              "prior_date": "1980-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "1982-12-31",
+            "value": 6.161,
+            "basis": {
+              "current_date": "1982-12-31",
+              "prior_date": "1981-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2019-12-31",
+            "value": 1.832,
+            "basis": {
+              "current_date": "2019-12-31",
+              "prior_date": "2018-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2020-12-31",
+            "value": 1.877,
+            "basis": {
+              "current_date": "2020-12-31",
+              "prior_date": "2019-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2021-03-31",
+            "value": 2.596,
+            "basis": {
+              "current_date": "2021-03-31",
+              "prior_date": "2020-03-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2021-12-31",
+            "value": 7.793,
+            "basis": {
+              "current_date": "2021-12-31",
+              "prior_date": "2020-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2022-03-31",
+            "value": 8.573,
+            "basis": {
+              "current_date": "2022-03-31",
+              "prior_date": "2021-03-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2022-06-30",
+            "value": 9.376,
+            "basis": {
+              "current_date": "2022-06-30",
+              "prior_date": "2021-06-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2022-09-30",
+            "value": 8.932,
+            "basis": {
+              "current_date": "2022-09-30",
+              "prior_date": "2021-09-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2022-12-31",
+            "value": 5.698,
+            "basis": {
+              "current_date": "2022-12-31",
+              "prior_date": "2021-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2023-03-31",
+            "value": 4.974,
+            "basis": {
+              "current_date": "2023-03-31",
+              "prior_date": "2022-03-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2023-06-30",
+            "value": 2.531,
+            "basis": {
+              "current_date": "2023-06-30",
+              "prior_date": "2022-06-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2023-09-30",
+            "value": 2.912,
+            "basis": {
+              "current_date": "2023-09-30",
+              "prior_date": "2022-09-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2023-12-31",
+            "value": 4.009,
+            "basis": {
+              "current_date": "2023-12-31",
+              "prior_date": "2022-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2024-03-31",
+            "value": 3.479,
+            "basis": {
+              "current_date": "2024-03-31",
+              "prior_date": "2023-03-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2024-06-30",
+            "value": 3.423,
+            "basis": {
+              "current_date": "2024-06-30",
+              "prior_date": "2023-06-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2024-09-30",
+            "value": 2.667,
+            "basis": {
+              "current_date": "2024-09-30",
+              "prior_date": "2023-09-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2024-12-31",
+            "value": 2.753,
+            "basis": {
+              "current_date": "2024-12-31",
+              "prior_date": "2023-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2025-03-31",
+            "value": 2.466,
+            "basis": {
+              "current_date": "2025-03-31",
+              "prior_date": "2024-03-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2025-06-30",
+            "value": 2.801,
+            "basis": {
+              "current_date": "2025-06-30",
+              "prior_date": "2024-06-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2025-09-30",
+            "value": 3.263,
+            "basis": {
+              "current_date": "2025-09-30",
+              "prior_date": "2024-09-30",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2025-12-31",
+            "value": 3.72,
+            "basis": {
+              "current_date": "2025-12-31",
+              "prior_date": "2024-12-31",
+              "prior_distance_days": 0,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          },
+          {
+            "date": "2026-04-30",
+            "value": 3.877,
+            "basis": {
+              "current_date": "2026-04-30",
+              "prior_date": "2025-03-31",
+              "prior_distance_days": 30,
+              "method": "year-over-year using nearest prior observation within 55 days"
+            }
+          }
+        ],
+        "real_cash_yield": [
+          {
+            "date": "1981-12-31",
+            "value": 3.714,
+            "basis": {
+              "primary_date": "1981-12-31",
+              "secondary_date": "1981-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "1982-12-31",
+            "value": 4.529,
+            "basis": {
+              "primary_date": "1982-12-31",
+              "secondary_date": "1982-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "1994-12-31",
+            "value": -1.891,
+            "basis": {
+              "primary_date": "1994-12-31",
+              "secondary_date": "1982-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2000-12-31",
+            "value": -0.341,
+            "basis": {
+              "primary_date": "2000-12-31",
+              "secondary_date": "1982-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2008-12-31",
+            "value": -4.791,
+            "basis": {
+              "primary_date": "2008-12-31",
+              "secondary_date": "1982-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2012-12-31",
+            "value": -6.071,
+            "basis": {
+              "primary_date": "2012-12-31",
+              "secondary_date": "1982-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2018-12-31",
+            "value": -4.221,
+            "basis": {
+              "primary_date": "2018-12-31",
+              "secondary_date": "1982-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2019-12-31",
+            "value": 0.238,
+            "basis": {
+              "primary_date": "2019-12-31",
+              "secondary_date": "2019-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2020-03-31",
+            "value": -1.462,
+            "basis": {
+              "primary_date": "2020-03-31",
+              "secondary_date": "2019-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2020-12-31",
+            "value": -1.787,
+            "basis": {
+              "primary_date": "2020-12-31",
+              "secondary_date": "2020-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2021-03-31",
+            "value": -2.556,
+            "basis": {
+              "primary_date": "2021-03-31",
+              "secondary_date": "2021-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2021-06-30",
+            "value": -2.556,
+            "basis": {
+              "primary_date": "2021-06-30",
+              "secondary_date": "2021-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2021-09-30",
+            "value": -2.556,
+            "basis": {
+              "primary_date": "2021-09-30",
+              "secondary_date": "2021-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2021-12-31",
+            "value": -7.743,
+            "basis": {
+              "primary_date": "2021-12-31",
+              "secondary_date": "2021-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2022-03-31",
+            "value": -8.063,
+            "basis": {
+              "primary_date": "2022-03-31",
+              "secondary_date": "2022-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2022-06-30",
+            "value": -7.746,
+            "basis": {
+              "primary_date": "2022-06-30",
+              "secondary_date": "2022-06-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2022-09-30",
+            "value": -5.732,
+            "basis": {
+              "primary_date": "2022-09-30",
+              "secondary_date": "2022-09-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2022-12-31",
+            "value": -1.498,
+            "basis": {
+              "primary_date": "2022-12-31",
+              "secondary_date": "2022-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2023-03-31",
+            "value": -0.274,
+            "basis": {
+              "primary_date": "2023-03-31",
+              "secondary_date": "2023-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2023-06-30",
+            "value": 2.569,
+            "basis": {
+              "primary_date": "2023-06-30",
+              "secondary_date": "2023-06-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2023-09-30",
+            "value": 2.388,
+            "basis": {
+              "primary_date": "2023-09-30",
+              "secondary_date": "2023-09-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2023-12-31",
+            "value": 1.231,
+            "basis": {
+              "primary_date": "2023-12-31",
+              "secondary_date": "2023-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2024-03-31",
+            "value": 1.751,
+            "basis": {
+              "primary_date": "2024-03-31",
+              "secondary_date": "2024-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2024-06-30",
+            "value": 1.817,
+            "basis": {
+              "primary_date": "2024-06-30",
+              "secondary_date": "2024-06-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2024-09-30",
+            "value": 2.133,
+            "basis": {
+              "primary_date": "2024-09-30",
+              "secondary_date": "2024-09-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2024-12-31",
+            "value": 1.597,
+            "basis": {
+              "primary_date": "2024-12-31",
+              "secondary_date": "2024-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2025-03-31",
+            "value": 1.784,
+            "basis": {
+              "primary_date": "2025-03-31",
+              "secondary_date": "2025-03-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2025-06-30",
+            "value": 1.349,
+            "basis": {
+              "primary_date": "2025-06-30",
+              "secondary_date": "2025-06-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2025-09-30",
+            "value": 0.687,
+            "basis": {
+              "primary_date": "2025-09-30",
+              "secondary_date": "2025-09-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2025-12-31",
+            "value": 0.08,
+            "basis": {
+              "primary_date": "2025-12-31",
+              "secondary_date": "2025-12-31",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          },
+          {
+            "date": "2026-04-30",
+            "value": -0.277,
+            "basis": {
+              "primary_date": "2026-04-30",
+              "secondary_date": "2026-04-30",
+              "method": "3M T-bill yield minus CPI YoY; secondary series carried forward to primary date"
+            }
+          }
+        ]
+      }
+    },
+    "front_end_rates": {
+      "chart_id": "front_end_rates",
+      "title": "Fed funds vs 3M T-bill",
+      "y_axis": "percent",
+      "default_window": "10y",
+      "display_rule": "raw_series_first",
+      "series": {
+        "effective_fed_funds": [
+          {
+            "date": "1980-12-31",
+            "value": 13.35
+          },
+          {
+            "date": "1981-12-31",
+            "value": 16.39
+          },
+          {
+            "date": "1982-12-31",
+            "value": 12.24
+          },
+          {
+            "date": "1994-12-31",
+            "value": 4.68
+          },
+          {
+            "date": "2000-12-31",
+            "value": 6.24
+          },
+          {
+            "date": "2008-12-31",
+            "value": 1.92
+          },
+          {
+            "date": "2012-12-31",
+            "value": 0.14
+          },
+          {
+            "date": "2018-12-31",
+            "value": 1.83
+          },
+          {
+            "date": "2019-12-31",
+            "value": 2.16
+          },
+          {
+            "date": "2020-03-31",
+            "value": 0.65
+          },
+          {
+            "date": "2020-12-31",
+            "value": 0.09
+          },
+          {
+            "date": "2021-03-31",
+            "value": 0.07
+          },
+          {
+            "date": "2021-06-30",
+            "value": 0.08
+          },
+          {
+            "date": "2021-09-30",
+            "value": 0.08
+          },
+          {
+            "date": "2021-12-31",
+            "value": 0.08
+          },
+          {
+            "date": "2022-03-31",
+            "value": 0.2
+          },
+          {
+            "date": "2022-06-30",
+            "value": 1.21
+          },
+          {
+            "date": "2022-09-30",
+            "value": 2.56
+          },
+          {
+            "date": "2022-12-31",
+            "value": 4.1
+          },
+          {
+            "date": "2023-03-31",
+            "value": 4.65
+          },
+          {
+            "date": "2023-06-30",
+            "value": 5.08
+          },
+          {
+            "date": "2023-09-30",
+            "value": 5.33
+          },
+          {
+            "date": "2023-12-31",
+            "value": 5.33
+          },
+          {
+            "date": "2024-03-31",
+            "value": 5.33
+          },
+          {
+            "date": "2024-06-30",
+            "value": 5.33
+          },
+          {
+            "date": "2024-09-30",
+            "value": 5.13
+          },
+          {
+            "date": "2024-12-31",
+            "value": 4.63
+          },
+          {
+            "date": "2025-03-31",
+            "value": 4.5
+          },
+          {
+            "date": "2025-06-30",
+            "value": 4.35
+          },
+          {
+            "date": "2025-09-30",
+            "value": 4.1
+          },
+          {
+            "date": "2025-12-31",
+            "value": 3.95
+          },
+          {
+            "date": "2026-04-30",
+            "value": 3.65
+          }
+        ],
+        "tbill_3m_yield": [
+          {
+            "date": "1980-12-31",
+            "value": 11.51
+          },
+          {
+            "date": "1981-12-31",
+            "value": 14.03
+          },
+          {
+            "date": "1982-12-31",
+            "value": 10.69
+          },
+          {
+            "date": "1994-12-31",
+            "value": 4.27
+          },
+          {
+            "date": "2000-12-31",
+            "value": 5.82
+          },
+          {
+            "date": "2008-12-31",
+            "value": 1.37
+          },
+          {
+            "date": "2012-12-31",
+            "value": 0.09
+          },
+          {
+            "date": "2018-12-31",
+            "value": 1.94
+          },
+          {
+            "date": "2019-12-31",
+            "value": 2.07
+          },
+          {
+            "date": "2020-03-31",
+            "value": 0.37
+          },
+          {
+            "date": "2020-12-31",
+            "value": 0.09
+          },
+          {
+            "date": "2021-03-31",
+            "value": 0.04
+          },
+          {
+            "date": "2021-06-30",
+            "value": 0.04
+          },
+          {
+            "date": "2021-09-30",
+            "value": 0.04
+          },
+          {
+            "date": "2021-12-31",
+            "value": 0.05
+          },
+          {
+            "date": "2022-03-31",
+            "value": 0.51
+          },
+          {
+            "date": "2022-06-30",
+            "value": 1.63
+          },
+          {
+            "date": "2022-09-30",
+            "value": 3.2
+          },
+          {
+            "date": "2022-12-31",
+            "value": 4.2
+          },
+          {
+            "date": "2023-03-31",
+            "value": 4.7
+          },
+          {
+            "date": "2023-06-30",
+            "value": 5.1
+          },
+          {
+            "date": "2023-09-30",
+            "value": 5.3
+          },
+          {
+            "date": "2023-12-31",
+            "value": 5.24
+          },
+          {
+            "date": "2024-03-31",
+            "value": 5.23
+          },
+          {
+            "date": "2024-06-30",
+            "value": 5.24
+          },
+          {
+            "date": "2024-09-30",
+            "value": 4.8
+          },
+          {
+            "date": "2024-12-31",
+            "value": 4.35
+          },
+          {
+            "date": "2025-03-31",
+            "value": 4.25
+          },
+          {
+            "date": "2025-06-30",
+            "value": 4.15
+          },
+          {
+            "date": "2025-09-30",
+            "value": 3.95
+          },
+          {
+            "date": "2025-12-31",
+            "value": 3.8
+          },
+          {
+            "date": "2026-04-30",
+            "value": 3.6
+          }
+        ]
+      }
+    },
+    "liquidity_plumbing": {
+      "chart_id": "liquidity_plumbing",
+      "title": "Liquidity plumbing pending source coverage",
+      "y_axis": "native units / index",
+      "default_window": "10y",
+      "display_rule": "pending_source_coverage",
+      "series": {
+        "bank_reserves": [],
+        "reverse_repo": [],
+        "m2": [],
+        "financial_conditions": []
+      }
+    }
+  },
+  "display_spec": {
+    "mode": "direct_data_with_annotations",
+    "default_chart": "money_cash_main",
+    "chart_order": [
+      "money_cash_main",
+      "front_end_rates",
+      "liquidity_plumbing"
+    ],
+    "required_visual_layers": [
+      "raw_line_series",
+      "zero_line",
+      "current_value_markers",
+      "historical_set_point_annotations"
+    ],
+    "prohibited_visual_layers": [
+      "unsupported_historical_values",
+      "interpretation_only_cards"
+    ]
+  },
+  "annotation_spec": {
+    "source": "config/historical-set-points.json",
+    "policy": "Annotate generously only when the chart dataset covers the event or regime window. If the series does not reach the set point, suppress the annotation and record the omission.",
+    "historical_set_points_considered": [
+      "panic_1907",
+      "ww1_postwar_deflation_1920_1921",
+      "great_depression_1929_1933",
+      "banking_gold_break_1933",
+      "ww2_financial_repression_yield_control",
+      "bretton_woods_break_1971",
+      "oil_shock_1973_1974",
+      "volcker_tightening_1979_1982",
+      "black_monday_1987",
+      "bond_massacre_1994",
+      "dotcom_boom_peak_2000",
+      "housing_credit_peak_2006_2007",
+      "gfc_2007_2009",
+      "qe_low_rate_regime_2009_2015",
+      "taper_tantrum_2013",
+      "late_cycle_tightening_2018",
+      "covid_liquidity_shock_2020",
+      "zero_rate_liquidity_boom_2021",
+      "inflation_hiking_shock_2022",
+      "regional_bank_stress_2023",
+      "cloud_saas_multiple_expansion_2016_2021"
+    ],
+    "charts": {
+      "money_cash_main": [
+        {
+          "id": "money_cash_main_volcker_tightening_1979_1982",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "volcker_tightening_1979_1982",
+          "label": "1979-1982 Volcker tightening",
+          "date_start": "1979-10-06",
+          "date_end": "1982-11-30",
+          "era": "postwar_inflation",
+          "category": "rates_inflation_regime",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for high real rates, inflation suppression, valuation compression, and cash competing with risk.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "1980-12-31",
+              "end_date": "1981-12-31",
+              "observations": 2,
+              "min": 11.51,
+              "max": 14.03,
+              "average": 12.77,
+              "start_value": 11.51,
+              "end_value": 14.03
+            },
+            "cpi_yoy": {
+              "start_date": "1981-12-31",
+              "end_date": "1981-12-31",
+              "observations": 1,
+              "min": 10.316,
+              "max": 10.316,
+              "average": 10.316,
+              "start_value": 10.316,
+              "end_value": 10.316
+            },
+            "real_cash_yield": {
+              "start_date": "1981-12-31",
+              "end_date": "1981-12-31",
+              "observations": 1,
+              "min": 3.714,
+              "max": 3.714,
+              "average": 3.714,
+              "start_value": 3.714,
+              "end_value": 3.714
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 12.77,
+              "difference_from_regime_average": -9.17,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": {
+              "current_value": 3.877,
+              "regime_average": 10.316,
+              "difference_from_regime_average": -6.439,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": 3.714,
+              "difference_from_regime_average": -3.991,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_bond_massacre_1994",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "bond_massacre_1994",
+          "label": "1994 bond shock",
+          "date_start": "1994-02-04",
+          "date_end": "1994-12-31",
+          "era": "modern_financialization",
+          "category": "duration_shock",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for surprise tightening and duration repricing without a full economic collapse.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "1994-12-31",
+              "end_date": "1994-12-31",
+              "observations": 1,
+              "min": 4.27,
+              "max": 4.27,
+              "average": 4.27,
+              "start_value": 4.27,
+              "end_value": 4.27
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "start_date": "1994-12-31",
+              "end_date": "1994-12-31",
+              "observations": 1,
+              "min": -1.891,
+              "max": -1.891,
+              "average": -1.891,
+              "start_value": -1.891,
+              "end_value": -1.891
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 4.27,
+              "difference_from_regime_average": -0.67,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -1.891,
+              "difference_from_regime_average": 1.614,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_gfc_2007_2009",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "gfc_2007_2009",
+          "label": "2007-2009 global financial crisis",
+          "date_start": "2007-12-01",
+          "date_end": "2009-06-30",
+          "era": "credit_housing_cycle",
+          "category": "credit_crisis",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for credit collapse, liquidity demand, duration safety, equity drawdown, and policy rescue.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2008-12-31",
+              "end_date": "2008-12-31",
+              "observations": 1,
+              "min": 1.37,
+              "max": 1.37,
+              "average": 1.37,
+              "start_value": 1.37,
+              "end_value": 1.37
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "start_date": "2008-12-31",
+              "end_date": "2008-12-31",
+              "observations": 1,
+              "min": -4.791,
+              "max": -4.791,
+              "average": -4.791,
+              "start_value": -4.791,
+              "end_value": -4.791
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 1.37,
+              "difference_from_regime_average": 2.23,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -4.791,
+              "difference_from_regime_average": 4.514,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_qe_low_rate_regime_2009_2015",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "qe_low_rate_regime_2009_2015",
+          "label": "2009-2015 QE / low-rate repair regime",
+          "date_start": "2009-03-01",
+          "date_end": "2015-12-31",
+          "era": "qe_financial_repression",
+          "category": "liquidity_repair_regime",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for low cash return, liquidity support, financial repression, and long-duration asset support.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2012-12-31",
+              "end_date": "2012-12-31",
+              "observations": 1,
+              "min": 0.09,
+              "max": 0.09,
+              "average": 0.09,
+              "start_value": 0.09,
+              "end_value": 0.09
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "start_date": "2012-12-31",
+              "end_date": "2012-12-31",
+              "observations": 1,
+              "min": -6.071,
+              "max": -6.071,
+              "average": -6.071,
+              "start_value": -6.071,
+              "end_value": -6.071
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.09,
+              "difference_from_regime_average": 3.51,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -6.071,
+              "difference_from_regime_average": 5.794,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_late_cycle_tightening_2018",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "late_cycle_tightening_2018",
+          "label": "2018 late-cycle tightening / Q4 risk shock",
+          "date_start": "2018-10-01",
+          "date_end": "2018-12-31",
+          "era": "post_qe_normalization",
+          "category": "rates_liquidity_shock",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for late-cycle tightening, balance-sheet runoff sensitivity, and valuation stress.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2018-12-31",
+              "end_date": "2018-12-31",
+              "observations": 1,
+              "min": 1.94,
+              "max": 1.94,
+              "average": 1.94,
+              "start_value": 1.94,
+              "end_value": 1.94
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "start_date": "2018-12-31",
+              "end_date": "2018-12-31",
+              "observations": 1,
+              "min": -4.221,
+              "max": -4.221,
+              "average": -4.221,
+              "start_value": -4.221,
+              "end_value": -4.221
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 1.94,
+              "difference_from_regime_average": 1.66,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -4.221,
+              "difference_from_regime_average": 3.944,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_covid_liquidity_shock_2020",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "covid_liquidity_shock_2020",
+          "label": "2020 COVID liquidity shock",
+          "date_start": "2020-02-01",
+          "date_end": "2020-04-30",
+          "era": "pandemic_policy_regime",
+          "category": "liquidity_shock",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for sudden stop, emergency easing, liquidity flood, and cross-asset dislocation.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2020-03-31",
+              "end_date": "2020-03-31",
+              "observations": 1,
+              "min": 0.37,
+              "max": 0.37,
+              "average": 0.37,
+              "start_value": 0.37,
+              "end_value": 0.37
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "start_date": "2020-03-31",
+              "end_date": "2020-03-31",
+              "observations": 1,
+              "min": -1.462,
+              "max": -1.462,
+              "average": -1.462,
+              "start_value": -1.462,
+              "end_value": -1.462
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.37,
+              "difference_from_regime_average": 3.23,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": null,
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -1.462,
+              "difference_from_regime_average": 1.185,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_zero_rate_liquidity_boom_2021",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "zero_rate_liquidity_boom_2021",
+          "label": "2021 zero-rate liquidity / speculative boom",
+          "date_start": "2021-01-01",
+          "date_end": "2021-12-31",
+          "era": "pandemic_policy_regime",
+          "category": "liquidity_boom",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for zero cash yield, abundant liquidity, high speculation, and long-duration multiple expansion.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2021-03-31",
+              "end_date": "2021-12-31",
+              "observations": 4,
+              "min": 0.04,
+              "max": 0.05,
+              "average": 0.042,
+              "start_value": 0.04,
+              "end_value": 0.05
+            },
+            "cpi_yoy": {
+              "start_date": "2021-03-31",
+              "end_date": "2021-12-31",
+              "observations": 2,
+              "min": 2.596,
+              "max": 7.793,
+              "average": 5.194,
+              "start_value": 2.596,
+              "end_value": 7.793
+            },
+            "real_cash_yield": {
+              "start_date": "2021-03-31",
+              "end_date": "2021-12-31",
+              "observations": 4,
+              "min": -7.743,
+              "max": -2.556,
+              "average": -3.853,
+              "start_value": -2.556,
+              "end_value": -7.743
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.042,
+              "difference_from_regime_average": 3.558,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": {
+              "current_value": 3.877,
+              "regime_average": 5.194,
+              "difference_from_regime_average": -1.317,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -3.853,
+              "difference_from_regime_average": 3.576,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_inflation_hiking_shock_2022",
+          "chart_id": "money_cash_main",
+          "type": "regime_band",
+          "historical_set_point_id": "inflation_hiking_shock_2022",
+          "label": "2022 inflation / hiking shock",
+          "date_start": "2022-03-16",
+          "date_end": "2022-12-31",
+          "era": "inflation_hiking_regime",
+          "category": "rates_inflation_regime",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for rate shock, long-duration valuation reset, dollar strength, and cash yield revival.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2022-03-31",
+              "end_date": "2022-12-31",
+              "observations": 4,
+              "min": 0.51,
+              "max": 4.2,
+              "average": 2.385,
+              "start_value": 0.51,
+              "end_value": 4.2
+            },
+            "cpi_yoy": {
+              "start_date": "2022-03-31",
+              "end_date": "2022-12-31",
+              "observations": 4,
+              "min": 5.698,
+              "max": 9.376,
+              "average": 8.145,
+              "start_value": 8.573,
+              "end_value": 5.698
+            },
+            "real_cash_yield": {
+              "start_date": "2022-03-31",
+              "end_date": "2022-12-31",
+              "observations": 4,
+              "min": -8.063,
+              "max": -1.498,
+              "average": -5.76,
+              "start_value": -8.063,
+              "end_value": -1.498
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 2.385,
+              "difference_from_regime_average": 1.215,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": {
+              "current_value": 3.877,
+              "regime_average": 8.145,
+              "difference_from_regime_average": -4.268,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -5.76,
+              "difference_from_regime_average": 5.483,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_regional_bank_stress_2023",
+          "chart_id": "money_cash_main",
+          "type": "liquidity_shock_marker",
+          "historical_set_point_id": "regional_bank_stress_2023",
+          "label": "2023 regional-bank stress",
+          "date_start": "2023-03-08",
+          "date_end": "2023-05-31",
+          "era": "inflation_hiking_regime",
+          "category": "banking_liquidity_stress",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for deposit flight, bank balance-sheet duration stress, and policy liquidity backstop.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2023-03-31",
+              "end_date": "2023-03-31",
+              "observations": 1,
+              "min": 4.7,
+              "max": 4.7,
+              "average": 4.7,
+              "start_value": 4.7,
+              "end_value": 4.7
+            },
+            "cpi_yoy": {
+              "start_date": "2023-03-31",
+              "end_date": "2023-03-31",
+              "observations": 1,
+              "min": 4.974,
+              "max": 4.974,
+              "average": 4.974,
+              "start_value": 4.974,
+              "end_value": 4.974
+            },
+            "real_cash_yield": {
+              "start_date": "2023-03-31",
+              "end_date": "2023-03-31",
+              "observations": 1,
+              "min": -0.274,
+              "max": -0.274,
+              "average": -0.274,
+              "start_value": -0.274,
+              "end_value": -0.274
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 4.7,
+              "difference_from_regime_average": -1.1,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": {
+              "current_value": 3.877,
+              "regime_average": 4.974,
+              "difference_from_regime_average": -1.097,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -0.274,
+              "difference_from_regime_average": -0.003,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "money_cash_main_cloud_saas_multiple_expansion_2016_2021",
+          "chart_id": "money_cash_main",
+          "type": "technology_capital_analog",
+          "historical_set_point_id": "cloud_saas_multiple_expansion_2016_2021",
+          "label": "2016-2021 cloud / SaaS multiple expansion",
+          "date_start": "2016-01-01",
+          "date_end": "2021-11-30",
+          "era": "platform_software_cycle",
+          "category": "technology_capital_boom",
+          "confidence": "HIGH",
+          "why_it_matters": "Analog for low-rate support of recurring-revenue long-duration equities and subsequent sensitivity to rate repricing.",
+          "values": {
+            "tbill_3m_yield": {
+              "start_date": "2018-12-31",
+              "end_date": "2021-09-30",
+              "observations": 7,
+              "min": 0.04,
+              "max": 2.07,
+              "average": 0.656,
+              "start_value": 1.94,
+              "end_value": 0.04
+            },
+            "cpi_yoy": {
+              "start_date": "2019-12-31",
+              "end_date": "2021-03-31",
+              "observations": 3,
+              "min": 1.832,
+              "max": 2.596,
+              "average": 2.102,
+              "start_value": 1.832,
+              "end_value": 2.596
+            },
+            "real_cash_yield": {
+              "start_date": "2018-12-31",
+              "end_date": "2021-09-30",
+              "observations": 7,
+              "min": -4.221,
+              "max": 0.238,
+              "average": -2.129,
+              "start_value": -4.221,
+              "end_value": -2.556
+            }
+          },
+          "current_comparison": {
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.656,
+              "difference_from_regime_average": 2.944,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "cpi_yoy": {
+              "current_value": 3.877,
+              "regime_average": 2.102,
+              "difference_from_regime_average": 1.775,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "real_cash_yield": {
+              "current_value": -0.277,
+              "regime_average": -2.129,
+              "difference_from_regime_average": 1.852,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        }
+      ],
+      "front_end_rates": [
+        {
+          "id": "front_end_rates_volcker_tightening_1979_1982",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "volcker_tightening_1979_1982",
+          "label": "1979-1982 Volcker tightening",
+          "date_start": "1979-10-06",
+          "date_end": "1982-11-30",
+          "era": "postwar_inflation",
+          "category": "rates_inflation_regime",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for high real rates, inflation suppression, valuation compression, and cash competing with risk.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "1980-12-31",
+              "end_date": "1981-12-31",
+              "observations": 2,
+              "min": 13.35,
+              "max": 16.39,
+              "average": 14.87,
+              "start_value": 13.35,
+              "end_value": 16.39
+            },
+            "tbill_3m_yield": {
+              "start_date": "1980-12-31",
+              "end_date": "1981-12-31",
+              "observations": 2,
+              "min": 11.51,
+              "max": 14.03,
+              "average": 12.77,
+              "start_value": 11.51,
+              "end_value": 14.03
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 14.87,
+              "difference_from_regime_average": -11.22,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 12.77,
+              "difference_from_regime_average": -9.17,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_bond_massacre_1994",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "bond_massacre_1994",
+          "label": "1994 bond shock",
+          "date_start": "1994-02-04",
+          "date_end": "1994-12-31",
+          "era": "modern_financialization",
+          "category": "duration_shock",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for surprise tightening and duration repricing without a full economic collapse.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "1994-12-31",
+              "end_date": "1994-12-31",
+              "observations": 1,
+              "min": 4.68,
+              "max": 4.68,
+              "average": 4.68,
+              "start_value": 4.68,
+              "end_value": 4.68
+            },
+            "tbill_3m_yield": {
+              "start_date": "1994-12-31",
+              "end_date": "1994-12-31",
+              "observations": 1,
+              "min": 4.27,
+              "max": 4.27,
+              "average": 4.27,
+              "start_value": 4.27,
+              "end_value": 4.27
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 4.68,
+              "difference_from_regime_average": -1.03,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 4.27,
+              "difference_from_regime_average": -0.67,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_gfc_2007_2009",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "gfc_2007_2009",
+          "label": "2007-2009 global financial crisis",
+          "date_start": "2007-12-01",
+          "date_end": "2009-06-30",
+          "era": "credit_housing_cycle",
+          "category": "credit_crisis",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for credit collapse, liquidity demand, duration safety, equity drawdown, and policy rescue.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2008-12-31",
+              "end_date": "2008-12-31",
+              "observations": 1,
+              "min": 1.92,
+              "max": 1.92,
+              "average": 1.92,
+              "start_value": 1.92,
+              "end_value": 1.92
+            },
+            "tbill_3m_yield": {
+              "start_date": "2008-12-31",
+              "end_date": "2008-12-31",
+              "observations": 1,
+              "min": 1.37,
+              "max": 1.37,
+              "average": 1.37,
+              "start_value": 1.37,
+              "end_value": 1.37
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 1.92,
+              "difference_from_regime_average": 1.73,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 1.37,
+              "difference_from_regime_average": 2.23,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_qe_low_rate_regime_2009_2015",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "qe_low_rate_regime_2009_2015",
+          "label": "2009-2015 QE / low-rate repair regime",
+          "date_start": "2009-03-01",
+          "date_end": "2015-12-31",
+          "era": "qe_financial_repression",
+          "category": "liquidity_repair_regime",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for low cash return, liquidity support, financial repression, and long-duration asset support.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2012-12-31",
+              "end_date": "2012-12-31",
+              "observations": 1,
+              "min": 0.14,
+              "max": 0.14,
+              "average": 0.14,
+              "start_value": 0.14,
+              "end_value": 0.14
+            },
+            "tbill_3m_yield": {
+              "start_date": "2012-12-31",
+              "end_date": "2012-12-31",
+              "observations": 1,
+              "min": 0.09,
+              "max": 0.09,
+              "average": 0.09,
+              "start_value": 0.09,
+              "end_value": 0.09
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 0.14,
+              "difference_from_regime_average": 3.51,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.09,
+              "difference_from_regime_average": 3.51,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_late_cycle_tightening_2018",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "late_cycle_tightening_2018",
+          "label": "2018 late-cycle tightening / Q4 risk shock",
+          "date_start": "2018-10-01",
+          "date_end": "2018-12-31",
+          "era": "post_qe_normalization",
+          "category": "rates_liquidity_shock",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for late-cycle tightening, balance-sheet runoff sensitivity, and valuation stress.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2018-12-31",
+              "end_date": "2018-12-31",
+              "observations": 1,
+              "min": 1.83,
+              "max": 1.83,
+              "average": 1.83,
+              "start_value": 1.83,
+              "end_value": 1.83
+            },
+            "tbill_3m_yield": {
+              "start_date": "2018-12-31",
+              "end_date": "2018-12-31",
+              "observations": 1,
+              "min": 1.94,
+              "max": 1.94,
+              "average": 1.94,
+              "start_value": 1.94,
+              "end_value": 1.94
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 1.83,
+              "difference_from_regime_average": 1.82,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 1.94,
+              "difference_from_regime_average": 1.66,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_covid_liquidity_shock_2020",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "covid_liquidity_shock_2020",
+          "label": "2020 COVID liquidity shock",
+          "date_start": "2020-02-01",
+          "date_end": "2020-04-30",
+          "era": "pandemic_policy_regime",
+          "category": "liquidity_shock",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for sudden stop, emergency easing, liquidity flood, and cross-asset dislocation.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2020-03-31",
+              "end_date": "2020-03-31",
+              "observations": 1,
+              "min": 0.65,
+              "max": 0.65,
+              "average": 0.65,
+              "start_value": 0.65,
+              "end_value": 0.65
+            },
+            "tbill_3m_yield": {
+              "start_date": "2020-03-31",
+              "end_date": "2020-03-31",
+              "observations": 1,
+              "min": 0.37,
+              "max": 0.37,
+              "average": 0.37,
+              "start_value": 0.37,
+              "end_value": 0.37
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 0.65,
+              "difference_from_regime_average": 3,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.37,
+              "difference_from_regime_average": 3.23,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_zero_rate_liquidity_boom_2021",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "zero_rate_liquidity_boom_2021",
+          "label": "2021 zero-rate liquidity / speculative boom",
+          "date_start": "2021-01-01",
+          "date_end": "2021-12-31",
+          "era": "pandemic_policy_regime",
+          "category": "liquidity_boom",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for zero cash yield, abundant liquidity, high speculation, and long-duration multiple expansion.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2021-03-31",
+              "end_date": "2021-12-31",
+              "observations": 4,
+              "min": 0.07,
+              "max": 0.08,
+              "average": 0.078,
+              "start_value": 0.07,
+              "end_value": 0.08
+            },
+            "tbill_3m_yield": {
+              "start_date": "2021-03-31",
+              "end_date": "2021-12-31",
+              "observations": 4,
+              "min": 0.04,
+              "max": 0.05,
+              "average": 0.042,
+              "start_value": 0.04,
+              "end_value": 0.05
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 0.078,
+              "difference_from_regime_average": 3.572,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.042,
+              "difference_from_regime_average": 3.558,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_inflation_hiking_shock_2022",
+          "chart_id": "front_end_rates",
+          "type": "regime_band",
+          "historical_set_point_id": "inflation_hiking_shock_2022",
+          "label": "2022 inflation / hiking shock",
+          "date_start": "2022-03-16",
+          "date_end": "2022-12-31",
+          "era": "inflation_hiking_regime",
+          "category": "rates_inflation_regime",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for rate shock, long-duration valuation reset, dollar strength, and cash yield revival.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2022-03-31",
+              "end_date": "2022-12-31",
+              "observations": 4,
+              "min": 0.2,
+              "max": 4.1,
+              "average": 2.018,
+              "start_value": 0.2,
+              "end_value": 4.1
+            },
+            "tbill_3m_yield": {
+              "start_date": "2022-03-31",
+              "end_date": "2022-12-31",
+              "observations": 4,
+              "min": 0.51,
+              "max": 4.2,
+              "average": 2.385,
+              "start_value": 0.51,
+              "end_value": 4.2
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 2.018,
+              "difference_from_regime_average": 1.632,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 2.385,
+              "difference_from_regime_average": 1.215,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_regional_bank_stress_2023",
+          "chart_id": "front_end_rates",
+          "type": "liquidity_shock_marker",
+          "historical_set_point_id": "regional_bank_stress_2023",
+          "label": "2023 regional-bank stress",
+          "date_start": "2023-03-08",
+          "date_end": "2023-05-31",
+          "era": "inflation_hiking_regime",
+          "category": "banking_liquidity_stress",
+          "confidence": "HIGH",
+          "why_it_matters": "Reference for deposit flight, bank balance-sheet duration stress, and policy liquidity backstop.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2023-03-31",
+              "end_date": "2023-03-31",
+              "observations": 1,
+              "min": 4.65,
+              "max": 4.65,
+              "average": 4.65,
+              "start_value": 4.65,
+              "end_value": 4.65
+            },
+            "tbill_3m_yield": {
+              "start_date": "2023-03-31",
+              "end_date": "2023-03-31",
+              "observations": 1,
+              "min": 4.7,
+              "max": 4.7,
+              "average": 4.7,
+              "start_value": 4.7,
+              "end_value": 4.7
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 4.65,
+              "difference_from_regime_average": -1,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 4.7,
+              "difference_from_regime_average": -1.1,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        },
+        {
+          "id": "front_end_rates_cloud_saas_multiple_expansion_2016_2021",
+          "chart_id": "front_end_rates",
+          "type": "technology_capital_analog",
+          "historical_set_point_id": "cloud_saas_multiple_expansion_2016_2021",
+          "label": "2016-2021 cloud / SaaS multiple expansion",
+          "date_start": "2016-01-01",
+          "date_end": "2021-11-30",
+          "era": "platform_software_cycle",
+          "category": "technology_capital_boom",
+          "confidence": "HIGH",
+          "why_it_matters": "Analog for low-rate support of recurring-revenue long-duration equities and subsequent sensitivity to rate repricing.",
+          "values": {
+            "effective_fed_funds": {
+              "start_date": "2018-12-31",
+              "end_date": "2021-09-30",
+              "observations": 7,
+              "min": 0.07,
+              "max": 2.16,
+              "average": 0.709,
+              "start_value": 1.83,
+              "end_value": 0.08
+            },
+            "tbill_3m_yield": {
+              "start_date": "2018-12-31",
+              "end_date": "2021-09-30",
+              "observations": 7,
+              "min": 0.04,
+              "max": 2.07,
+              "average": 0.656,
+              "start_value": 1.94,
+              "end_value": 0.04
+            }
+          },
+          "current_comparison": {
+            "effective_fed_funds": {
+              "current_value": 3.65,
+              "regime_average": 0.709,
+              "difference_from_regime_average": 2.941,
+              "comparison_basis": "current minus historical regime average"
+            },
+            "tbill_3m_yield": {
+              "current_value": 3.6,
+              "regime_average": 0.656,
+              "difference_from_regime_average": 2.944,
+              "comparison_basis": "current minus historical regime average"
+            }
+          },
+          "render_hint": "regime band with range values and current comparison"
+        }
+      ],
+      "liquidity_plumbing": []
+    },
+    "suppressed": [
+      {
+        "id": "money_cash_main_panic_1907",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "panic_1907",
+        "label": "1907 banking panic",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_ww1_postwar_deflation_1920_1921",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "ww1_postwar_deflation_1920_1921",
+        "label": "1920-1921 postwar deflation recession",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_great_depression_1929_1933",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "great_depression_1929_1933",
+        "label": "1929-1933 Great Depression",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_banking_gold_break_1933",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "banking_gold_break_1933",
+        "label": "1933 banking holiday / gold-regime break",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_ww2_financial_repression_yield_control",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "ww2_financial_repression_yield_control",
+        "label": "1942-1951 wartime financial repression / yield control",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_bretton_woods_break_1971",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "bretton_woods_break_1971",
+        "label": "1971 dollar-gold convertibility break",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_oil_shock_1973_1974",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "oil_shock_1973_1974",
+        "label": "1973-1974 oil shock / inflation shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_black_monday_1987",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "black_monday_1987",
+        "label": "1987 Black Monday crash",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_dotcom_boom_peak_2000",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "dotcom_boom_peak_2000",
+        "label": "2000 dot-com peak",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_housing_credit_peak_2006_2007",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "housing_credit_peak_2006_2007",
+        "label": "2006-2007 housing / credit peak",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "money_cash_main_taper_tantrum_2013",
+        "chart_id": "money_cash_main",
+        "historical_set_point_id": "taper_tantrum_2013",
+        "label": "2013 taper tantrum",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_panic_1907",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "panic_1907",
+        "label": "1907 banking panic",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_ww1_postwar_deflation_1920_1921",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "ww1_postwar_deflation_1920_1921",
+        "label": "1920-1921 postwar deflation recession",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_great_depression_1929_1933",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "great_depression_1929_1933",
+        "label": "1929-1933 Great Depression",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_banking_gold_break_1933",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "banking_gold_break_1933",
+        "label": "1933 banking holiday / gold-regime break",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_ww2_financial_repression_yield_control",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "ww2_financial_repression_yield_control",
+        "label": "1942-1951 wartime financial repression / yield control",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_bretton_woods_break_1971",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "bretton_woods_break_1971",
+        "label": "1971 dollar-gold convertibility break",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_oil_shock_1973_1974",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "oil_shock_1973_1974",
+        "label": "1973-1974 oil shock / inflation shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_black_monday_1987",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "black_monday_1987",
+        "label": "1987 Black Monday crash",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_dotcom_boom_peak_2000",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "dotcom_boom_peak_2000",
+        "label": "2000 dot-com peak",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_housing_credit_peak_2006_2007",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "housing_credit_peak_2006_2007",
+        "label": "2006-2007 housing / credit peak",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "front_end_rates_taper_tantrum_2013",
+        "chart_id": "front_end_rates",
+        "historical_set_point_id": "taper_tantrum_2013",
+        "label": "2013 taper tantrum",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_panic_1907",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "panic_1907",
+        "label": "1907 banking panic",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_ww1_postwar_deflation_1920_1921",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "ww1_postwar_deflation_1920_1921",
+        "label": "1920-1921 postwar deflation recession",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_great_depression_1929_1933",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "great_depression_1929_1933",
+        "label": "1929-1933 Great Depression",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_banking_gold_break_1933",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "banking_gold_break_1933",
+        "label": "1933 banking holiday / gold-regime break",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_ww2_financial_repression_yield_control",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "ww2_financial_repression_yield_control",
+        "label": "1942-1951 wartime financial repression / yield control",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_bretton_woods_break_1971",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "bretton_woods_break_1971",
+        "label": "1971 dollar-gold convertibility break",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_oil_shock_1973_1974",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "oil_shock_1973_1974",
+        "label": "1973-1974 oil shock / inflation shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_volcker_tightening_1979_1982",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "volcker_tightening_1979_1982",
+        "label": "1979-1982 Volcker tightening",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_black_monday_1987",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "black_monday_1987",
+        "label": "1987 Black Monday crash",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_bond_massacre_1994",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "bond_massacre_1994",
+        "label": "1994 bond shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_dotcom_boom_peak_2000",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "dotcom_boom_peak_2000",
+        "label": "2000 dot-com peak",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_housing_credit_peak_2006_2007",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "housing_credit_peak_2006_2007",
+        "label": "2006-2007 housing / credit peak",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_gfc_2007_2009",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "gfc_2007_2009",
+        "label": "2007-2009 global financial crisis",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_qe_low_rate_regime_2009_2015",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "qe_low_rate_regime_2009_2015",
+        "label": "2009-2015 QE / low-rate repair regime",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_taper_tantrum_2013",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "taper_tantrum_2013",
+        "label": "2013 taper tantrum",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_late_cycle_tightening_2018",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "late_cycle_tightening_2018",
+        "label": "2018 late-cycle tightening / Q4 risk shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_covid_liquidity_shock_2020",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "covid_liquidity_shock_2020",
+        "label": "2020 COVID liquidity shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_zero_rate_liquidity_boom_2021",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "zero_rate_liquidity_boom_2021",
+        "label": "2021 zero-rate liquidity / speculative boom",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_inflation_hiking_shock_2022",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "inflation_hiking_shock_2022",
+        "label": "2022 inflation / hiking shock",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_regional_bank_stress_2023",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "regional_bank_stress_2023",
+        "label": "2023 regional-bank stress",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      },
+      {
+        "id": "liquidity_plumbing_cloud_saas_multiple_expansion_2016_2021",
+        "chart_id": "liquidity_plumbing",
+        "historical_set_point_id": "cloud_saas_multiple_expansion_2016_2021",
+        "label": "2016-2021 cloud / SaaS multiple expansion",
+        "reason": "No chart series had data covering this historical set point or regime window."
+      }
+    ],
+    "current_markers": [
+      {
+        "id": "current_real_cash_yield",
+        "type": "current_value_marker",
+        "series_id": "real_cash_yield",
+        "value": -0.277,
+        "label": "Current real_cash_yield: -0.277"
+      },
+      {
+        "id": "current_real_cash_yield_date",
+        "type": "current_value_marker",
+        "series_id": "real_cash_yield_date",
+        "value": null,
+        "label": "Current real_cash_yield_date: n/a"
+      },
+      {
+        "id": "current_tbill_3m_yield",
+        "type": "current_value_marker",
+        "series_id": "tbill_3m_yield",
+        "value": 3.6,
+        "label": "Current tbill_3m_yield: 3.6"
+      },
+      {
+        "id": "current_tbill_3m_yield_date",
+        "type": "current_value_marker",
+        "series_id": "tbill_3m_yield_date",
+        "value": null,
+        "label": "Current tbill_3m_yield_date: n/a"
+      },
+      {
+        "id": "current_cpi_yoy",
+        "type": "current_value_marker",
+        "series_id": "cpi_yoy",
+        "value": 3.877,
+        "label": "Current cpi_yoy: 3.877"
+      },
+      {
+        "id": "current_cpi_yoy_date",
+        "type": "current_value_marker",
+        "series_id": "cpi_yoy_date",
+        "value": null,
+        "label": "Current cpi_yoy_date: n/a"
+      },
+      {
+        "id": "current_effective_fed_funds",
+        "type": "current_value_marker",
+        "series_id": "effective_fed_funds",
+        "value": 3.65,
+        "label": "Current effective_fed_funds: 3.65"
+      },
+      {
+        "id": "current_effective_fed_funds_date",
+        "type": "current_value_marker",
+        "series_id": "effective_fed_funds_date",
+        "value": null,
+        "label": "Current effective_fed_funds_date: n/a"
+      },
+      {
+        "id": "current_financial_conditions",
+        "type": "current_value_marker",
+        "series_id": "financial_conditions",
+        "value": null,
+        "label": "Current financial_conditions: n/a"
+      }
+    ]
+  },
+  "historical_reference": {
+    "tbill_3m_yield": {
+      "windows": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": 3.6,
+          "max": 4.15,
+          "average": 3.875,
+          "p10": 3.6,
+          "p25": 3.8,
+          "median": 3.95,
+          "p75": 3.95,
+          "p90": 4.15,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": 0.04,
+          "max": 5.3,
+          "average": 3.469,
+          "p10": 0.05,
+          "p25": 3.2,
+          "median": 4.2,
+          "p75": 4.8,
+          "p90": 5.24,
+          "current_percentile": 35,
+          "relative_zone": "below normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": 0.04,
+          "max": 5.3,
+          "average": 2.956,
+          "p10": 0.04,
+          "p25": 0.51,
+          "median": 3.8,
+          "p75": 4.7,
+          "p90": 5.24,
+          "current_percentile": 48,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 32,
+          "start_date": "1980-12-31",
+          "end_date": "2026-04-30",
+          "min": 0.04,
+          "max": 14.03,
+          "average": 3.802,
+          "p10": 0.05,
+          "p25": 1.37,
+          "median": 4.15,
+          "p75": 5.1,
+          "p90": 5.82,
+          "current_percentile": 44,
+          "relative_zone": "below normal"
+        }
+      }
+    },
+    "cpi_yoy": {
+      "windows": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": 2.801,
+          "max": 3.877,
+          "average": 3.415,
+          "p10": 2.801,
+          "p25": 3.263,
+          "median": 3.72,
+          "p75": 3.72,
+          "p90": 3.877,
+          "current_percentile": 100,
+          "relative_zone": "historically extreme high"
+        },
+        "5y": {
+          "observations": 18,
+          "start_date": "2021-12-31",
+          "end_date": "2026-04-30",
+          "min": 2.466,
+          "max": 9.376,
+          "average": 4.625,
+          "p10": 2.667,
+          "p25": 2.801,
+          "median": 3.72,
+          "p75": 5.698,
+          "p90": 8.573,
+          "current_percentile": 61,
+          "relative_zone": "above normal"
+        },
+        "10y": {
+          "observations": 21,
+          "start_date": "2019-12-31",
+          "end_date": "2026-04-30",
+          "min": 1.832,
+          "max": 9.376,
+          "average": 4.264,
+          "p10": 2.466,
+          "p25": 2.667,
+          "median": 3.423,
+          "p75": 4.974,
+          "p90": 8.573,
+          "current_percentile": 67,
+          "relative_zone": "above normal"
+        },
+        "full": {
+          "observations": 23,
+          "start_date": "1981-12-31",
+          "end_date": "2026-04-30",
+          "min": 1.832,
+          "max": 10.316,
+          "average": 4.61,
+          "p10": 2.466,
+          "p25": 2.753,
+          "median": 3.479,
+          "p75": 6.161,
+          "p90": 8.932,
+          "current_percentile": 61,
+          "relative_zone": "above normal"
+        }
+      }
+    },
+    "real_cash_yield": {
+      "windows": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": -0.277,
+          "max": 1.349,
+          "average": 0.46,
+          "p10": -0.277,
+          "p25": 0.08,
+          "median": 0.687,
+          "p75": 0.687,
+          "p90": 1.349,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": -8.063,
+          "max": 2.569,
+          "average": -0.953,
+          "p10": -7.743,
+          "p25": -2.556,
+          "median": 0.687,
+          "p75": 1.751,
+          "p90": 2.133,
+          "current_percentile": 40,
+          "relative_zone": "below normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.063,
+          "max": 2.569,
+          "average": -1.154,
+          "p10": -7.743,
+          "p25": -2.556,
+          "median": -0.274,
+          "p75": 1.597,
+          "p90": 2.133,
+          "current_percentile": 48,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 31,
+          "start_date": "1981-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.063,
+          "max": 4.529,
+          "average": -1.087,
+          "p10": -6.071,
+          "p25": -2.556,
+          "median": -0.277,
+          "p75": 1.751,
+          "p90": 2.388,
+          "current_percentile": 52,
+          "relative_zone": "near normal"
+        }
+      }
+    },
+    "real_fed_funds": {
+      "windows": {
+        "1y": {
+          "observations": 4,
+          "start_date": "2025-06-30",
+          "end_date": "2026-04-30",
+          "min": -0.227,
+          "max": 1.549,
+          "average": 0.597,
+          "p10": -0.227,
+          "p25": 0.23,
+          "median": 0.837,
+          "p75": 0.837,
+          "p90": 1.549,
+          "current_percentile": 25,
+          "relative_zone": "below normal"
+        },
+        "5y": {
+          "observations": 20,
+          "start_date": "2021-06-30",
+          "end_date": "2026-04-30",
+          "min": -8.373,
+          "max": 2.549,
+          "average": -0.938,
+          "p10": -7.713,
+          "p25": -2.516,
+          "median": 0.837,
+          "p75": 1.877,
+          "p90": 2.418,
+          "current_percentile": 45,
+          "relative_zone": "near normal"
+        },
+        "10y": {
+          "observations": 25,
+          "start_date": "2018-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.373,
+          "max": 2.549,
+          "average": -1.131,
+          "p10": -7.713,
+          "p25": -2.516,
+          "median": -0.227,
+          "p75": 1.851,
+          "p90": 2.418,
+          "current_percentile": 52,
+          "relative_zone": "near normal"
+        },
+        "full": {
+          "observations": 31,
+          "start_date": "1981-12-31",
+          "end_date": "2026-04-30",
+          "min": -8.373,
+          "max": 6.079,
+          "average": -0.896,
+          "p10": -6.372,
+          "p25": -2.516,
+          "median": -0.227,
+          "p75": 1.877,
+          "p90": 2.463,
+          "current_percentile": 52,
+          "relative_zone": "near normal"
+        }
+      }
+    },
+    "financial_conditions": {
+      "windows": null
+    }
+  },
+  "web_summary": {
+    "section_title": "Money / Cash",
+    "display_mode": "raw_chart_with_historical_set_point_annotations",
+    "primary_chart": "money_cash_main",
+    "chart_order": [
+      "money_cash_main",
+      "front_end_rates",
+      "liquidity_plumbing"
+    ],
+    "current_reading": {
+      "real_cash_yield": -0.277,
+      "real_cash_yield_date": "2026-04-30",
+      "tbill_3m_yield": 3.6,
+      "tbill_3m_yield_date": "2026-04-30",
+      "cpi_yoy": 3.877,
+      "cpi_yoy_date": "2026-04-30",
+      "effective_fed_funds": 3.65,
+      "effective_fed_funds_date": "2026-04-30",
+      "financial_conditions": null
+    },
+    "historical_context": {
+      "real_cash_yield_10y_zone": "near normal",
+      "real_cash_yield_10y_percentile": 48,
+      "tbill_3m_10y_zone": "near normal",
+      "tbill_3m_10y_percentile": 48,
+      "financial_conditions_10y_zone": "pending"
+    },
+    "annotation_policy": "Show raw data first. Overlay data-backed historical set points. Keep interpretation secondary.",
+    "inference": "Annotation-only workbench generated from cache-backed chart data. Refresh source cache before production-grade analysis.",
+    "historical_narrative": "Historical comparisons are data-backed set points, not causal claims by themselves.",
+    "portfolio_implication": "Use Money / Cash as one input in the Macro spine."
+  },
+  "missing_evidence": [
+    "Treasury bill supply is declared in Mission 3 but not implemented in this first generator.",
+    "Stablecoin supply is Phase 2 and requires a crypto liquidity provider.",
+    "Money-market assets, bank reserves, M2, financial conditions, TGA, reverse repo, and SOFR remain pending in the cache-backed first visual pass.",
+    "Seed cache is compact and must be replaced by live FRED refresh before production-grade analysis."
+  ],
+  "analysis": {
+    "mode": "minimal_secondary_read",
+    "cycle_state": "cash does not preserve purchasing power",
+    "positives": [],
+    "constraints": [],
+    "relative_signals": [],
+    "missing": [
+      "Treasury bill supply is declared in Mission 3 but not implemented in this first generator.",
+      "Stablecoin supply is Phase 2 and requires a crypto liquidity provider.",
+      "Money-market assets, bank reserves, M2, financial conditions, TGA, reverse repo, and SOFR remain pending in the cache-backed first visual pass.",
+      "Seed cache is compact and must be replaced by live FRED refresh before production-grade analysis."
+    ],
+    "ontological_landscape_read": "Raw Money / Cash chart artifact generated from cache. Use chart annotations to compare current readings with historical regimes.",
+    "historical_cycle_narrative": "Historical comparisons are data-backed set points, not causal claims by themselves.",
+    "portfolio_implication": "Preserve optionality until the rest of the Core Macro Spine confirms."
+  },
+  "generator": {
+    "path": "scripts/generate-money-cash-state-from-cache.cjs",
+    "sources": [
+      "data/cache/money-cash-series.json"
+    ],
+    "derivation_notes": [
+      "CPI YoY is calendar-year based, not fixed-row-count based.",
+      "Real cash yield and real fed funds use carry-forward CPI YoY alignment."
+    ],
+    "limitations": [
+      "Compact seed cache is for visual verification only.",
+      "Live FRED refresh should replace this cache before production-grade analysis.",
+      "Homepage build reads cache rather than fetching FRED live."
+    ],
+    "annotation_source": "config/historical-set-points.json",
+    "annotation_policy": "Annotate every relevant historical set point that is backed by the chart dataset; suppress unsupported set points rather than hallucinating values."
+  }
+}

@@ -226,283 +226,201 @@ function buildVixChart(days = 90) {
 </svg>`;
 }
 
-// ── Multi-layer macro chart (5-year SPX + rate cycle + analog) ────────────────
+// ── Unified macro chart ───────────────────────────────────────────────────────
+// One chart. 5-year SPX journey + rate cycle sub-panel + tactical zones.
+// The 90-day "tactical" view IS the right tail of this chart — no split needed.
+// Add/defense zones drawn as horizontal bands so you see their historical context.
+// Analog lesson shown as a plain-English callout, not a second confusing chart.
 
 function loadRateHistory() {
   const p = path.join(root, 'data', 'macro-history.json');
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
-function buildMacroLayerChart(spyCandles, rateSeries) {
-  const W = 900;
-  const H_PRICE = 210;  // price panel
-  const H_RATE  = 72;   // rate panel below
-  const GAP     = 24;   // gap between panels
-  const H_TOTAL = H_PRICE + GAP + H_RATE + 28;
-  const pL = 48, pR = 14, pT = 12, pB = 0;
-  const cW = W - pL - pR;
+function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLesson) {
+  // Single chart: full 5-year SPY journey + tactical zones + rate cycle sub-panel
+  const W = 900, H_PRICE = 240, H_RATE = 80, GAP = 24, H_TOTAL = H_PRICE + GAP + H_RATE + 26;
+  const pL = 52, pR = 16, pT = 14, cW = W - pL - pR;
 
-  if (spyCandles.length < 100) {
-    return `<div class="mu-chart-empty">Insufficient data</div>`;
-  }
+  if (spyCandles.length < 100) return `<div class="mu-chart-empty">No data</div>`;
 
   const closes = spyCandles.map(c => c.close);
   const dates  = spyCandles.map(c => c.time);
   const n      = closes.length;
 
-  // Price scale
-  const allCloses = spyCandles.map(c => c.close);
-  const ma50all   = computeMA(allCloses, 50);
-  const ma200all  = computeMA(allCloses, 200);
-  const ma50  = ma50all.slice(-n);
-  const ma200 = ma200all.slice(-n);
+  // MAs (computed over full history for accuracy)
+  const ma50all  = computeMA(closes, 50);
+  const ma200all = computeMA(closes, 200);
 
-  const priceVals = [...closes, ...ma50.filter(Boolean), ...ma200.filter(Boolean)];
-  const priceMin  = Math.min(...priceVals) * 0.97;
-  const priceMax  = Math.max(...priceVals) * 1.02;
+  // Tactical zone levels (SPX → SPY conversion)
+  const addLo  = chartRef?.add_zone?.[0]  != null ? chartRef.add_zone[0]  * spxRatio : null;
+  const addHi  = chartRef?.add_zone?.[1]  != null ? chartRef.add_zone[1]  * spxRatio : null;
+  const trimLo = chartRef?.trim_zone?.[0] != null ? chartRef.trim_zone[0] * spxRatio : null;
+  const trimHi = chartRef?.trim_zone?.[1] != null ? chartRef.trim_zone[1] * spxRatio : null;
+  const def    = chartRef?.defense_below  != null ? chartRef.defense_below * spxRatio : null;
+
+  // Price range: include zones so they're never clipped
+  const zoneVals = [addLo, addHi, trimLo, trimHi, def].filter(v => v != null);
+  const priceVals = [...closes, ...ma50all.filter(Boolean), ...ma200all.filter(Boolean), ...zoneVals];
+  const priceMin  = Math.min(...priceVals) * 0.975;
+  const priceMax  = Math.max(...priceVals) * 1.015;
   const priceRange = priceMax - priceMin || 1;
 
-  const px  = i  => pL + (i / (n - 1)) * cW;
-  const pyP = v  => pT + H_PRICE - ((v - priceMin) / priceRange) * H_PRICE;
+  const px  = i => pL + (i / (n - 1)) * cW;
+  const pyP = v => pT + H_PRICE - ((v - priceMin) / priceRange) * H_PRICE;
 
-  // Date → x position mapping (for rate data alignment)
-  const dateIndex = {};
-  dates.forEach((d, i) => { dateIndex[d] = i; });
-  function dateToX(dateStr) {
-    if (dateIndex[dateStr] !== undefined) return px(dateIndex[dateStr]);
-    // Find nearest by scanning
-    const t = new Date(dateStr).getTime();
+  // Date → x mapping
+  const dateIdx = {};
+  dates.forEach((d, i) => { dateIdx[d] = i; });
+  function dToX(ds) {
+    if (dateIdx[ds] !== undefined) return px(dateIdx[ds]);
+    const t = new Date(ds).getTime();
     let best = 0, minD = Infinity;
-    dates.forEach((d, i) => {
-      const diff = Math.abs(new Date(d).getTime() - t);
-      if (diff < minD) { minD = diff; best = i; }
-    });
+    dates.forEach((d, i) => { const df = Math.abs(new Date(d).getTime()-t); if(df<minD){minD=df;best=i;} });
     return px(best);
   }
 
-  // ── Price panel ──
+  // ── Price panel ──────────────────────────────────────────────────────────────
 
-  // Main price line
-  const linePts = closes.map((c, i) => `${i===0?'M':'L'}${px(i).toFixed(1)},${pyP(c).toFixed(1)}`).join(' ');
+  const linePts = closes.map((c,i) => `${i===0?'M':'L'}${px(i).toFixed(1)},${pyP(c).toFixed(1)}`).join(' ');
   const areaPts = `${linePts} L${(pL+cW).toFixed(1)},${(pT+H_PRICE).toFixed(1)} L${pL},${(pT+H_PRICE).toFixed(1)}Z`;
 
-  // MA paths
-  const maLine = (vals, dash='') => {
+  const maPath = (vals) => {
     let d = '', on = false;
-    for (let i = 0; i < vals.length; i++) {
-      if (vals[i] == null) { on = false; continue; }
-      d += `${on?'L':'M'}${px(i).toFixed(1)},${pyP(vals[i]).toFixed(1)} `;
-      on = true;
-    }
+    vals.forEach((v,i) => { if(!v){on=false;return;} d+=`${on?'L':'M'}${px(i).toFixed(1)},${pyP(v).toFixed(1)} `;on=true; });
     return d.trim();
   };
 
-  // 2022 bear market highlight band (Jan 3 - Oct 12, 2022)
-  const bear22Start = dateToX('2022-01-03');
-  const bear22End   = dateToX('2022-10-13');
-  const bear22W     = bear22End - bear22Start;
-  const bear22Band  = `<rect x="${bear22Start.toFixed(1)}" y="${pT}" width="${bear22W.toFixed(1)}" height="${H_PRICE}" fill="rgba(164,80,47,.07)" opacity=".9"/>
-  <text x="${(bear22Start + bear22W/2).toFixed(1)}" y="${(pT + 14).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.7)" font-family="inherit" font-weight="600">2022 Analog</text>`;
+  // 2022 bear band (Jan–Oct 2022)
+  const b22x1 = dToX('2022-01-03'), b22x2 = dToX('2022-10-13');
+  const bear22 = `<rect x="${b22x1.toFixed(1)}" y="${pT}" width="${(b22x2-b22x1).toFixed(1)}" height="${H_PRICE}" fill="rgba(164,80,47,.07)"/>
+  <text x="${((b22x1+b22x2)/2).toFixed(1)}" y="${(pT+13)}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.62)" font-weight="600" font-family="inherit" letter-spacing=".04em">2022 ANALOG</text>`;
 
-  // Horizontal grid lines (price panel)
-  const priceGridVals = [priceMin + priceRange*0.25, priceMin + priceRange*0.5, priceMin + priceRange*0.75];
-  const priceGrid = priceGridVals.map(v => {
-    const gy = pyP(v);
-    const label = v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v).toString();
-    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}" stroke="rgba(201,191,173,.3)" stroke-width="0.5"/>
-  <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(26,23,20,.35)" font-family="inherit">${label}</text>`;
+  // Last-90-days highlight (subtle right panel)
+  const idx90 = Math.max(0, n - 91);
+  const x90 = px(idx90);
+  const last90 = `<rect x="${x90.toFixed(1)}" y="${pT}" width="${(pL+cW-x90).toFixed(1)}" height="${H_PRICE}" fill="rgba(26,23,20,.03)"/>
+  <line x1="${x90.toFixed(1)}" y1="${pT}" x2="${x90.toFixed(1)}" y2="${(pT+H_PRICE)}" stroke="rgba(201,191,173,.55)" stroke-width="0.5" stroke-dasharray="3 2"/>
+  <text x="${(x90+4)}" y="${(pT+13)}" font-size="8" fill="rgba(26,23,20,.32)" font-family="inherit">90D</text>`;
+
+  // Zone bands
+  let zones = '';
+  if (addLo != null && addHi != null) {
+    const y1=pyP(addHi), y2=pyP(addLo);
+    zones += `<rect x="${pL}" y="${y1.toFixed(1)}" width="${cW}" height="${Math.abs(y2-y1).toFixed(1)}" fill="rgba(42,107,74,.13)"/>`;
+    zones += `<text x="${(pL+6)}" y="${(y1+11).toFixed(1)}" font-size="8.5" fill="rgba(42,107,74,.8)" font-family="inherit">Add ${addLo.toFixed(0)}–${addHi.toFixed(0)}</text>`;
+  }
+  if (trimLo != null && trimHi != null) {
+    const y1=pyP(trimHi), y2=pyP(trimLo);
+    zones += `<rect x="${pL}" y="${y1.toFixed(1)}" width="${cW}" height="${Math.abs(y2-y1).toFixed(1)}" fill="rgba(164,80,47,.09)"/>`;
+    zones += `<text x="${(pL+6)}" y="${(y1+11).toFixed(1)}" font-size="8.5" fill="rgba(164,80,47,.72)" font-family="inherit">Trim ${trimLo.toFixed(0)}–${trimHi.toFixed(0)}</text>`;
+  }
+  if (def != null) {
+    const yd = pyP(def);
+    zones += `<line x1="${pL}" y1="${yd.toFixed(1)}" x2="${(pL+cW)}" y2="${yd.toFixed(1)}" stroke="rgba(164,80,47,.5)" stroke-width="1" stroke-dasharray="4 2"/>`;
+    zones += `<text x="${(pL+cW-4)}" y="${(yd-4).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(164,80,47,.65)" font-family="inherit">Defense ${def.toFixed(0)}</text>`;
+  }
+
+  // Grid lines
+  const grid = [.25,.5,.75].map(f => {
+    const v = priceMin + priceRange*f, gy = pyP(v);
+    const lbl = v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v).toString();
+    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}" stroke="rgba(201,191,173,.28)" stroke-width="0.5"/>
+  <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(26,23,20,.32)" font-family="inherit">${lbl}</text>`;
   }).join('');
 
-  // Year tick marks on X axis
-  const yearTicks = [];
-  let lastYear = '';
-  dates.forEach((d, i) => {
-    const yr = d.slice(0, 4);
-    if (yr !== lastYear) {
-      yearTicks.push(`<line x1="${px(i).toFixed(1)}" y1="${(pT+H_PRICE)}" x2="${px(i).toFixed(1)}" y2="${(pT+H_PRICE+5)}" stroke="rgba(201,191,173,.5)" stroke-width="0.5"/>
-  <text x="${px(i).toFixed(1)}" y="${(pT+H_PRICE+15).toFixed(1)}" text-anchor="middle" font-size="9" fill="rgba(26,23,20,.38)" font-family="inherit">${yr}</text>`);
-      lastYear = yr;
+  // Year ticks
+  let lastYr = '', yearTicks = '';
+  dates.forEach((d,i) => {
+    const yr = d.slice(0,4);
+    if (yr !== lastYr) {
+      yearTicks += `<line x1="${px(i).toFixed(1)}" y1="${(pT+H_PRICE)}" x2="${px(i).toFixed(1)}" y2="${(pT+H_PRICE+4)}" stroke="rgba(201,191,173,.45)" stroke-width="0.5"/>
+  <text x="${px(i).toFixed(1)}" y="${(pT+H_PRICE+14).toFixed(1)}" text-anchor="middle" font-size="9" fill="rgba(26,23,20,.35)" font-family="inherit">${yr}</text>`;
+      lastYr = yr;
     }
   });
 
-  // Current price annotation
   const lastX = px(n-1), lastY = pyP(closes[n-1]);
-  const p1y = perf(spyCandles, 252); // ~1 year perf
+  const p1y = perf(spyCandles, 252);
   const p1yStr = p1y != null ? `${p1y>=0?'+':''}${p1y.toFixed(1)}%` : '';
-  const perfColor = p1y != null && p1y >= 0 ? '#2a6b4a' : '#A4502F';
+  const p1yColor = p1y != null && p1y >= 0 ? '#2a6b4a' : '#A4502F';
 
-  // ── Rate panel ──
-  const rateY0 = pT + H_PRICE + GAP;  // top of rate panel
-  const rateH  = H_RATE;
+  // ── Rate panel ───────────────────────────────────────────────────────────────
+  const rY0 = pT + H_PRICE + GAP, rH = H_RATE;
+  const dffObs = (rateSeries?.DFF || []).filter(o => o.date >= dates[0] && o.date <= dates[n-1]);
+  const rateMax = Math.max(...dffObs.map(o=>o.value), 6) * 1.06;
+  const pyR = v => rY0 + rH - (v / rateMax) * rH;
 
-  // Rate data from cache
-  const dffData = rateSeries?.DFF || [];
-  const rateVals = dffData.filter(o => o.date >= dates[0]).map(o => o.value);
-  const rateMin  = 0;
-  const rateMax  = Math.max(...rateVals, 6) * 1.05;
-  const rateRange = rateMax - rateMin || 1;
-  const pyR = v => rateY0 + rateH - ((v - rateMin) / rateRange) * rateH;
-
-  // Rate grid lines
-  const rateGrids = [2, 4, 5.5].map(v => {
-    if (v > rateMax) return '';
+  const rateGrid = [2, 4, 5.5].map(v => {
     const gy = pyR(v);
-    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}" stroke="rgba(201,191,173,.3)" stroke-width="0.5" stroke-dasharray="2 2"/>
-  <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(26,23,20,.32)" font-family="inherit">${v}%</text>`;
+    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}" stroke="rgba(201,191,173,.28)" stroke-width="0.5" stroke-dasharray="2 2"/>
+  <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(26,23,20,.3)" font-family="inherit">${v}%</text>`;
   }).join('');
 
-  // DFF line path
-  let dffPath = '';
-  if (dffData.length > 0) {
-    dffPath = dffData
-      .filter(o => o.date >= dates[0] && o.date <= dates[n-1])
-      .map((o, i) => `${i===0?'M':'L'}${dateToX(o.date).toFixed(1)},${pyR(o.value).toFixed(1)}`)
-      .join(' ');
-  }
+  const dffPath = dffObs.length > 1
+    ? dffObs.map((o,i) => `${i===0?'M':'L'}${dToX(o.date).toFixed(1)},${pyR(o.value).toFixed(1)}`).join(' ')
+    : '';
+  const dffAreaPath = dffPath
+    ? `${dffPath} L${dToX(dffObs[dffObs.length-1].date).toFixed(1)},${(rY0+rH)} L${dToX(dffObs[0].date).toFixed(1)},${(rY0+rH)}Z`
+    : '';
 
-  // Rate panel label
-  const dffCurrent = dffData.length ? dffData[dffData.length-1].value : null;
-  const dffStr     = dffCurrent != null ? `${dffCurrent.toFixed(2)}%` : '';
+  const dffNow = dffObs.length ? dffObs[dffObs.length-1].value : null;
+  const dffNowX = dffNow != null ? dToX(dffObs[dffObs.length-1].date) : null;
 
+  // ── Assemble SVG ─────────────────────────────────────────────────────────────
   return `<svg viewBox="0 0 ${W} ${H_TOTAL}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
   <defs>
-    <linearGradient id="macro5yGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(26,23,20,.10)"/>
-      <stop offset="100%" stop-color="rgba(26,23,20,.01)"/>
+    <linearGradient id="ucGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(26,23,20,.09)"/><stop offset="100%" stop-color="rgba(26,23,20,.01)"/>
+    </linearGradient>
+    <linearGradient id="rateGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(138,106,44,.2)"/><stop offset="100%" stop-color="rgba(138,106,44,.02)"/>
     </linearGradient>
   </defs>
 
-  <!-- 2022 analog band -->
-  ${bear22Band}
+  <!-- 2022 analog band + last-90-days highlight -->
+  ${bear22}${last90}
 
-  <!-- Price panel grid -->
-  ${priceGrid}
+  <!-- Grid + zones -->
+  ${grid}${zones}
 
   <!-- Area fill -->
-  <path d="${areaPts}" fill="url(#macro5yGrad)"/>
+  <path d="${areaPts}" fill="url(#ucGrad)"/>
 
   <!-- MA200 -->
-  <path d="${maLine(ma200)}" fill="none" stroke="rgba(164,80,47,.55)" stroke-width="1" stroke-dasharray="4 2"/>
+  <path d="${maPath(ma200all)}" fill="none" stroke="rgba(164,80,47,.55)" stroke-width="1.1" stroke-dasharray="5 2"/>
   <!-- MA50 -->
-  <path d="${maLine(ma50)}"  fill="none" stroke="rgba(138,106,44,.55)" stroke-width="1" stroke-dasharray="2 2"/>
+  <path d="${maPath(ma50all)}"  fill="none" stroke="rgba(138,106,44,.55)" stroke-width="1.1" stroke-dasharray="2 2"/>
   <!-- Price line -->
   <path d="${linePts}" fill="none" stroke="#1A1714" stroke-width="1.8" stroke-linejoin="round"/>
-
-  <!-- Current price dot + label -->
+  <!-- Current dot + price label -->
   <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3.5" fill="#1A1714"/>
-  <text x="${(pL+cW)}" y="${(pT-2).toFixed(1)}" text-anchor="end" font-size="10" fill="rgba(26,23,20,.42)" font-family="inherit">${p1yStr ? `1Y ${p1yStr}` : ''}</text>
+  <text x="${(pL+cW)}" y="${(pT-1)}" text-anchor="end" font-size="10" fill="${p1yColor}" font-weight="600" font-family="inherit">${p1yStr ? `1Y ${p1yStr}` : ''}</text>
 
   <!-- Year ticks -->
-  ${yearTicks.join('')}
-
-  <!-- MA legend -->
-  <line x1="${pL}" y1="${(pT+H_PRICE+18)}" x2="${pL+16}" y2="${(pT+H_PRICE+18)}" stroke="rgba(138,106,44,.65)" stroke-width="1" stroke-dasharray="2 2"/>
-  <text x="${pL+19}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(138,106,44,.8)" font-family="inherit">MA50</text>
-  <line x1="${pL+48}" y1="${(pT+H_PRICE+18)}" x2="${pL+64}" y2="${(pT+H_PRICE+18)}" stroke="rgba(164,80,47,.65)" stroke-width="1" stroke-dasharray="4 2"/>
-  <text x="${pL+67}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(164,80,47,.8)" font-family="inherit">MA200</text>
-
-  <!-- Rate panel separator + label -->
-  <line x1="${pL}" y1="${(rateY0-6)}" x2="${(pL+cW)}" y2="${(rateY0-6)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
-  <text x="${pL}" y="${(rateY0-10)}" font-size="8.5" fill="rgba(26,23,20,.38)" letter-spacing=".1em" font-family="inherit">FED FUNDS RATE</text>
-  <text x="${(pL+cW)}" y="${(rateY0-10)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.75)" font-weight="600" font-family="inherit">${esc(dffStr)} now</text>
-
-  <!-- Rate panel grid -->
-  ${rateGrids}
-
-  <!-- Rate panel baseline -->
-  <line x1="${pL}" y1="${(rateY0+rateH)}" x2="${(pL+cW)}" y2="${(rateY0+rateH)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
-
-  <!-- DFF line -->
-  ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
-
-  <!-- Rate current dot -->
-  ${dffPath ? `<circle cx="${dateToX(dffData.filter(o=>o.date>=dates[0]&&o.date<=dates[n-1]).slice(-1)[0]?.date||dates[n-1]).toFixed(1)}" cy="${pyR(dffCurrent||0).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
-</svg>`;
-}
-
-function buildAnalogChart(spyCandles) {
-  // Compares 2022 full-year (normalized to 100) vs current 12 months (normalized to 100)
-  const W = 900, H = 160;
-  const pL = 12, pR = 12, pT = 28, pB = 24;
-  const cW = W - pL - pR;
-  const cH = H - pT - pB;
-
-  // Extract 2022 annual window
-  const analog22 = spyCandles
-    .filter(c => c.time >= '2022-01-03' && c.time <= '2022-12-31')
-    .map(c => c.close);
-
-  // Extract current 12-month window (last 252 trading days)
-  const currentWin = spyCandles.slice(-252).map(c => c.close);
-  const currentDates = spyCandles.slice(-252).map(c => c.time);
-
-  if (analog22.length < 20 || currentWin.length < 20) return '';
-
-  // Normalize both to 100 at start
-  const norm = (arr) => arr.map(v => (v / arr[0]) * 100);
-  const n22  = norm(analog22);
-  const nCur = norm(currentWin);
-
-  // Use the same x scale (by index, equalized)
-  const maxLen = Math.max(n22.length, nCur.length);
-  const px22  = i => pL + (i / (n22.length  - 1)) * cW;
-  const pxCur = i => pL + (i / (nCur.length - 1)) * cW;
-
-  // Combined range
-  const allVals = [...n22, ...nCur];
-  const minV = Math.min(...allVals) * 0.99;
-  const maxV = Math.max(...allVals) * 1.01;
-  const range = maxV - minV || 1;
-  const py = v => pT + cH - ((v - minV) / range) * cH;
-
-  // Paths
-  const path22  = n22.map( (v,i) => `${i===0?'M':'L'}${px22(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
-  const pathCur = nCur.map((v,i) => `${i===0?'M':'L'}${pxCur(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
-  const areaCur = `${pathCur} L${(pL+cW).toFixed(1)},${(pT+cH).toFixed(1)} L${pL},${(pT+cH).toFixed(1)}Z`;
-
-  // End labels
-  const end22  = n22[n22.length-1];
-  const endCur = nCur[nCur.length-1];
-  const diff22 = end22  - 100;
-  const diffCur = endCur - 100;
-  const col22  = diff22  >= 0 ? '#2a6b4a' : '#A4502F';
-  const colCur = diffCur >= 0 ? '#2a6b4a' : '#A4502F';
-
-  // 100 baseline
-  const y100 = py(100);
-  const startDate  = currentDates[0] ? currentDates[0].slice(0,7) : '';
-  const endDate    = currentDates[currentDates.length-1] ? currentDates[currentDates.length-1].slice(0,7) : '';
-
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
-  <!-- Baseline at 100 -->
-  <line x1="${pL}" y1="${y100.toFixed(1)}" x2="${(pL+cW)}" y2="${y100.toFixed(1)}" stroke="rgba(201,191,173,.6)" stroke-width="0.5" stroke-dasharray="3 2"/>
-  <text x="${(pL-4)}" y="${(y100+3.5).toFixed(1)}" text-anchor="end" font-size="8" fill="rgba(26,23,20,.35)" font-family="inherit">100</text>
-
-  <!-- Current period area fill -->
-  <path d="${areaCur}" fill="rgba(26,23,20,.06)"/>
-
-  <!-- 2022 analog line (amber/rust) -->
-  <path d="${path22}" fill="none" stroke="rgba(164,80,47,.65)" stroke-width="1.5" stroke-dasharray="5 3" stroke-linejoin="round"/>
-
-  <!-- Current period line (dark) -->
-  <path d="${pathCur}" fill="none" stroke="#1A1714" stroke-width="2" stroke-linejoin="round"/>
-
-  <!-- End value labels -->
-  <text x="${(pL+cW+4)}" y="${(py(end22)+4).toFixed(1)}" font-size="9.5" fill="rgba(164,80,47,.8)" font-weight="600" font-family="inherit">${diff22>=0?'+':''}${diff22.toFixed(1)}%</text>
-  <text x="${(pL+cW+4)}" y="${(py(endCur)+4).toFixed(1)}" font-size="9.5" fill="#1A1714" font-weight="600" font-family="inherit">${diffCur>=0?'+':''}${diffCur.toFixed(1)}%</text>
+  ${yearTicks}
 
   <!-- Legend -->
-  <line x1="${pL}" y1="15" x2="${pL+20}" y2="15" stroke="rgba(164,80,47,.7)" stroke-width="1.5" stroke-dasharray="5 3"/>
-  <text x="${pL+24}" y="19" font-size="9.5" fill="rgba(164,80,47,.85)" font-family="inherit">2022 — Inflation shock / rate repricing (91% analog)</text>
-  <line x1="${pL+290}" y1="15" x2="${pL+310}" y2="15" stroke="#1A1714" stroke-width="2"/>
-  <text x="${pL+314}" y="19" font-size="9.5" fill="#1A1714" font-weight="500" font-family="inherit">Current — ${startDate} → ${endDate}</text>
+  <line x1="${pL}" y1="${(pT+H_PRICE+18)}" x2="${pL+18}" y2="${(pT+H_PRICE+18)}" stroke="rgba(138,106,44,.65)" stroke-width="1" stroke-dasharray="2 2"/>
+  <text x="${pL+21}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(138,106,44,.8)" font-family="inherit">MA50</text>
+  <line x1="${pL+50}" y1="${(pT+H_PRICE+18)}" x2="${pL+68}" y2="${(pT+H_PRICE+18)}" stroke="rgba(164,80,47,.65)" stroke-width="1" stroke-dasharray="5 2"/>
+  <text x="${pL+71}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(164,80,47,.8)" font-family="inherit">MA200</text>
+  <rect x="${pL+108}" y="${(pT+H_PRICE+11)}" width="12" height="8" fill="rgba(42,107,74,.25)"/>
+  <text x="${pL+123}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(42,107,74,.85)" font-family="inherit">Add zone</text>
+  <rect x="${pL+172}" y="${(pT+H_PRICE+11)}" width="12" height="8" fill="rgba(164,80,47,.2)"/>
+  <text x="${pL+187}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(164,80,47,.8)" font-family="inherit">Trim zone</text>
 
-  <!-- Quarterly x-axis labels -->
-  <text x="${pL}" y="${(H-6)}" font-size="8.5" fill="rgba(26,23,20,.35)" font-family="inherit">Start (=100)</text>
-  <text x="${pL + cW*0.25}" y="${(H-6)}" text-anchor="middle" font-size="8.5" fill="rgba(26,23,20,.3)" font-family="inherit">Q2</text>
-  <text x="${pL + cW*0.5}"  y="${(H-6)}" text-anchor="middle" font-size="8.5" fill="rgba(26,23,20,.3)" font-family="inherit">Q3</text>
-  <text x="${pL + cW*0.75}" y="${(H-6)}" text-anchor="middle" font-size="8.5" fill="rgba(26,23,20,.3)" font-family="inherit">Q4</text>
-  <text x="${pL + cW}"      y="${(H-6)}" text-anchor="end"    font-size="8.5" fill="rgba(26,23,20,.35)" font-family="inherit">12M</text>
+  <!-- Rate panel separator -->
+  <line x1="${pL}" y1="${(rY0-7)}" x2="${(pL+cW)}" y2="${(rY0-7)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
+  <text x="${pL}" y="${(rY0-11)}" font-size="8" fill="rgba(26,23,20,.35)" letter-spacing=".12em" font-family="inherit">FED FUNDS RATE (DFF)</text>
+  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0-11)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
+
+  <!-- Rate panel -->
+  ${rateGrid}
+  <line x1="${pL}" y1="${(rY0+rH)}" x2="${(pL+cW)}" y2="${(rY0+rH)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
+  ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad)"/>` : ''}
+  ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
+  ${dffNow != null && dffNowX != null ? `<circle cx="${dffNowX.toFixed(1)}" cy="${pyR(dffNow).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
 </svg>`;
 }
 
@@ -669,23 +587,25 @@ const reds   = signals.filter(s => s.color === 'red').length;
 
 // ── Chart SVGs ────────────────────────────────────────────────────────────────
 
-// 5-year multi-layer chart (SPX + rate cycle)
-const rateHistory   = loadRateHistory();
-const rateSeries    = rateHistory?.series || null;
-const macroChart    = buildMacroLayerChart(spyCandles, rateSeries);
-const analogChart   = buildAnalogChart(spyCandles);
+// Unified macro chart — one chart, 5-year journey + tactical zones + rate cycle
+const rateHistory  = loadRateHistory();
+const rateSeries   = rateHistory?.series || null;
+const topAnalogLesson = esc((analogs.analogs||[])[0]?.portfolioLesson || '');
 
-// 90-day tactical charts (keep for zoomed-in view)
-const spxChart = buildPriceChart('SPY', {
-  W: 620, H: 170, days: 90,
-  showMA50: true, showMA200: true,
-  addZone:    chart.add_zone,
-  trimZone:   chart.trim_zone,
-  defenseLevel: chart.defense_below,
-  spxRatio: spxToSpy,
-});
+// Fallback rate series from FRED cache if no macro-history.json
+const cacheRates = (() => {
+  try {
+    const c = JSON.parse(fs.readFileSync(path.join(root,'data','cache','money-cash-series.json'),'utf8'));
+    const dff = (c.series?.DFF || []).map(o => ({ date: o.date.slice(0,10), value: o.value }));
+    return dff.length ? { DFF: dff } : null;
+  } catch { return null; }
+})();
 
-const vixChart = buildVixChart(90);
+const activeRateSeries = (rateSeries && Object.keys(rateSeries).length) ? rateSeries : cacheRates;
+const unifiedChart = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxToSpy, topAnalogLesson);
+
+// VIX and indices pulse kept for supporting context
+const vixChart     = buildVixChart(90);
 const indicesPulse = buildIndicesPulse();
 
 // ── Cycle SVG ─────────────────────────────────────────────────────────────────
@@ -859,11 +779,13 @@ const style = `<style id="macro-unified-style">
 .mu-conf small{font-size:11px;color:rgba(26,23,20,.42);display:block;text-align:right}
 .mu-stress-badge{display:inline-block;padding:4px 10px;border:1px solid rgba(164,80,47,.35);background:rgba(164,80,47,.07);font-size:10px;color:#A4502F;letter-spacing:.06em}
 
-/* ── Big-picture chart blocks ── */
-.mu-macro-chart-block{padding:24px 0 20px;border-bottom:1px solid rgba(201,191,173,.45)}
-.mu-analog-chart-block{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
+/* ── Unified chart block ── */
+.mu-unified-chart-block{padding:24px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-analog-callout{display:flex;align-items:baseline;gap:10px;margin-top:10px;padding:10px 14px;border-left:2.5px solid rgba(164,80,47,.5);background:rgba(164,80,47,.05)}
+.mu-analog-callout span{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(164,80,47,.7);white-space:nowrap;font-family:var(--mono,monospace)}
+.mu-analog-callout b{font-size:12.5px;color:rgba(26,23,20,.72);line-height:1.4;font-weight:400}
 /* ── Charts row ── */
-.mu-charts-row{display:grid;grid-template-columns:1fr 320px;gap:0;border-bottom:1px solid rgba(201,191,173,.45);padding:24px 0 20px}
+.mu-charts-row{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid rgba(201,191,173,.45);padding:24px 0 20px}
 .mu-chart-block{padding-right:20px;border-right:1px solid rgba(201,191,173,.38)}
 .mu-vix-block{padding-left:20px}
 .mu-chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
@@ -983,47 +905,37 @@ ${style}
     </div>
   </div>
 
-  <!-- Big picture: 5-year SPX + rate cycle -->
-  <div class="mu-macro-chart-block">
+  <!-- Unified SPX chart: 5-year journey + tactical zones + rate cycle -->
+  <div class="mu-unified-chart-block">
     <div class="mu-chart-head">
-      <h3>S&amp;P 500 — 5-year journey · rate cycle overlay</h3>
-      <span>MA50 · MA200 · Fed Funds Rate · 2022 analog highlighted</span>
+      <h3>S&amp;P 500 — full journey · add/trim/defense zones · rate cycle</h3>
+      <span>The 90-day tactical view is the highlighted right tail of this chart — same frame, full context</span>
     </div>
-    ${macroChart}
+    ${unifiedChart}
+    ${topAnalogLesson ? `<div class="mu-analog-callout">
+      <span>2022 Analog (91% match)</span>
+      <b>${topAnalogLesson}</b>
+    </div>` : ''}
   </div>
 
-  <!-- Analog comparison: 2022 vs current -->
-  ${analogChart ? `<div class="mu-analog-chart-block">
-    <div class="mu-chart-head">
-      <h3>Historical analog comparison — 2022 vs current (both indexed to 100 at start)</h3>
-      <span>How the current 12-month pattern compares to the 2022 inflation shock analog</span>
-    </div>
-    ${analogChart}
-  </div>` : ''}
-
-  <!-- Tactical view: 90-day + VIX -->
+  <!-- VIX + Indices pulse row -->
   <div class="mu-charts-row">
-    <div class="mu-chart-block">
+    <div class="mu-chart-block" style="flex:1">
       <div class="mu-chart-head">
-        <h3>S&amp;P 500 — 90-day tactical view</h3>
-        <span>Add ${addZoneStr} · Defense ${defStr}</span>
-      </div>
-      ${spxChart}
-    </div>
-    <div class="mu-vix-block">
-      <div class="mu-chart-head">
-        <h3>VIX — fear gauge</h3>
-        <span>Calm &lt;15 · Watch 15–25</span>
+        <h3>VIX — fear gauge (90 days)</h3>
+        <span>Calm &lt;15 · Watchful 15–25 · Elevated &gt;25</span>
       </div>
       ${vixChart}
     </div>
+    <div class="mu-vix-block" style="flex:1">
+      <div class="mu-chart-head">
+        <h3>Where is the money? — 90-day performance</h3>
+        <span>SPY · QQQ · IWM · BTC</span>
+      </div>
+      ${indicesPulse}
+    </div>
   </div>
 
-  <!-- Indices pulse -->
-  <div class="mu-pulse-section">
-    <p class="mu-pulse-head">Where is the money? — 90-day relative performance</p>
-    ${indicesPulse}
-  </div>
 
   <!-- Scorecard strip -->
   <div class="mu-scorecard">

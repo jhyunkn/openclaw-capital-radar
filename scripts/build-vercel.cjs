@@ -200,9 +200,7 @@ function verifyFinalOutput() {
   if (!fs.existsSync(htmlPath)) throw new Error('public/index.html missing after Vercel build');
   const html = fs.readFileSync(htmlPath, 'utf8');
   const requiredIds = [
-    'current-market-state',
-    'macro-cycle-panel',
-    'macro-intelligence-panel',
+    'macro-unified-section',
     'macro-design-language-style'
   ];
   const missing = requiredIds.filter(id => !html.includes(`id="${id}"`));
@@ -211,12 +209,8 @@ function verifyFinalOutput() {
 
 archiveLiveReport();
 normalizeLiveState();
-runFinalInjector('inject-duration-evidence-banner.cjs', 'Duration evidence receipt injection failed before Vercel copy');
-runFinalInjector('inject-current-market-state-board.cjs', 'Current Market State Board injection failed before Vercel copy');
-runFinalInjector('inject-macro-cycle-panel.cjs', 'Macro Cycle Panel injection failed before Vercel copy');
-runFinalInjector('inject-macro-intelligence-panel.cjs', 'Macro Intelligence Panel injection failed before Vercel copy');
+runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
-runFinalInjector('reorder-and-compact-macro.cjs', 'Section reorder + compaction failed on index.html');
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {

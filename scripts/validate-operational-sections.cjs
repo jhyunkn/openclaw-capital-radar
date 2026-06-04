@@ -30,6 +30,13 @@ if (!finalFour) {
 }
 const forbidden = ['portfolio-scoreboard','live-reaction-state','native-research-engine','opportunity-evidence-engine','ticker-gate-audit','information-hierarchy','research-candidate-map','Evidence-backed Market Landscape','Decision Posture','Strategy Posture','id="market-section"','id="kostolany-egg-section"','id="market-lens-section"','id="strategy-routing-section"','id="system-health-section"'];
 const publicSectionIds = [...publicHtml.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
+// Public sync: accept the old 4-section layout or the new unified layout (inject-macro-unified replaces decision-brief-section)
+const publicOk = !publicHtml || (
+  publicSectionIds.includes('operational-chart-section') &&
+  publicSectionIds.includes('holdings-section') &&
+  publicSectionIds.includes('opportunities-section') &&
+  (publicSectionIds.includes('decision-brief-section') || publicSectionIds.includes('macro-unified-section'))
+);
 const checks = [
   pass('Canonical four-section homepage', JSON.stringify(sectionIds) === JSON.stringify(expected), `Sections: ${sectionIds.join(' > ')}`),
   pass('No redundant visible homepage sections', !forbidden.some(item => html.includes(item)), 'Health, Lens, Route, Egg, and Market Tape are not visible top-level sections.'),
@@ -39,7 +46,7 @@ const checks = [
   pass('Opportunity', html.includes('id="opportunities-section"') && /Opportunity|Evidence|candidate|gate|promotion|qualification|missing|near|Research/i.test(html), 'Opportunity/research gate surface rendered.'),
   pass('Backend telemetry preserved', nativeEvents.status === 'ACTIVE' || tickerGateAudit.status === 'ACTIVE' || opportunityPackets.status === 'ACTIVE', `Native events ${list(nativeEvents.events).length}; ticker gates ${tickerGateAudit.counts?.tickers || 'n/a'}; packets ${list(opportunityPackets.packets).length}.`),
   pass('Operational score available', Number(score.score || 0) >= 0 && Number(score.target || 0) >= 0, `CROS ${score.score || 0}/${score.target || 0}; stage ${score.stage || 'n/a'}.`),
-  pass('Public static sync', !publicHtml || JSON.stringify(publicSectionIds) === JSON.stringify(expected), `Public sections: ${publicSectionIds.join(' > ')}`),
+  pass('Public static sync', publicOk, `Public sections: ${publicSectionIds.join(' > ')}`),
   pass('No object leaks', !html.includes('[object Object]'), 'No object serialization leak present.')
 ];
 const failed = checks.filter(c => c.status !== 'PASS');

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Capital Radar Chart Mock-up</title>
+  <style>
+    :root {
+      --bg: #f4f1e8;
+      --paper: #fbfaf5;
+      --ink: #201f1b;
+      --muted: #6d675c;
+      --line: rgba(32,31,27,.16);
+      --green: #2d704c;
+      --amber: #a36f25;
+      --red: #a44731;
+      --blue: #2f5f83;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .mock {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto;
+    }
+    .head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+    }
+    .eyebrow, .chip span, .level span, .legend span {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 {
+      font-size: clamp(38px, 5vw, 74px);
+      line-height: .92;
+      letter-spacing: -.065em;
+      margin: 6px 0 0;
+      font-weight: 650;
+    }
+    .verdict {
+      min-width: 250px;
+      border: 1px solid rgba(164,71,49,.32);
+      background: rgba(164,71,49,.07);
+      padding: 14px;
+    }
+    .verdict b {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      margin-top: 6px;
+      color: var(--red);
+    }
+    .panel {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(251,250,245,.86), rgba(251,250,245,.42));
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 14px;
+    }
+    .tabs, .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .tabs button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.38);
+      color: var(--ink);
+      padding: 7px 10px;
+      font: inherit;
+      font-size: 12px;
+    }
+    .tabs button:first-child {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--paper);
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 270px;
+      gap: 0;
+    }
+    .chart {
+      position: relative;
+      min-height: 480px;
+      border-right: 1px solid var(--line);
+      overflow: hidden;
+      background:
+        linear-gradient(to right, transparent 0 19.8%, rgba(32,31,27,.06) 20%, transparent 20.2% 39.8%, rgba(32,31,27,.06) 40%, transparent 40.2% 59.8%, rgba(32,31,27,.06) 60%, transparent 60.2% 79.8%, rgba(32,31,27,.06) 80%, transparent 80.2%),
+        linear-gradient(to bottom, transparent 0 24.8%, rgba(32,31,27,.07) 25%, transparent 25.2% 49.8%, rgba(32,31,27,.07) 50%, transparent 50.2% 74.8%, rgba(32,31,27,.07) 75%, transparent 75.2%);
+    }
+    .zone {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px solid;
+      border-bottom: 1px solid;
+      padding: 6px 12px;
+      font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .trim { top: 12%; background: rgba(164,71,49,.08); border-color: rgba(164,71,49,.24); color: var(--red); }
+    .add { top: 25%; background: rgba(45,112,76,.10); border-color: rgba(45,112,76,.28); color: var(--green); }
+    .defense { top: 62%; background: rgba(47,95,131,.08); border-color: rgba(47,95,131,.24); color: var(--blue); }
+    svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .axis-label {
+      position: absolute;
+      color: rgba(32,31,27,.42);
+      font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .today {
+      position: absolute;
+      right: 11%;
+      top: 16%;
+      border-left: 1px dashed rgba(32,31,27,.45);
+      height: 72%;
+    }
+    .today b {
+      position: absolute;
+      top: -22px;
+      left: 8px;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .side {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .chip, .level {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.28);
+      padding: 12px;
+    }
+    .chip b {
+      display: block;
+      font-size: 22px;
+      line-height: 1.05;
+      margin-top: 7px;
+    }
+    .level b {
+      display: block;
+      margin-top: 5px;
+      font-size: 16px;
+    }
+    .level.addline { border-color: rgba(45,112,76,.32); }
+    .level.defline { border-color: rgba(164,71,49,.34); }
+    .note {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 760px) {
+      .head, .chart-grid { grid-template-columns: 1fr; }
+      .verdict { min-width: 0; }
+      .chart { min-height: 360px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="mock">
+    <header class="head">
+      <div>
+        <div class="eyebrow">Mock-up only · chart/aesthetic direction</div>
+        <h1>Decision chart as instrument panel</h1>
+      </div>
+      <aside class="verdict">
+        <span class="eyebrow">Current read</span>
+        <b>Hold winners. Add only on ruled pullback.</b>
+      </aside>
+    </header>
+    <section class="panel">
+      <div class="toolbar">
+        <div class="tabs" aria-label="Chart modes">
+          <button>Decision</button>
+          <button>Risk</button>
+          <button>Rates</button>
+          <button>Breadth</button>
+        </div>
+        <div class="legend">
+          <span style="color:var(--green)">Add zone</span>
+          <span style="color:var(--red)">Trim zone</span>
+          <span style="color:var(--blue)">Defense</span>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart">
+          <div class="zone trim">TRIM / NO CHASE · 7,496-7,876</div>
+          <div class="zone add">ADD REVIEW · 7,216-7,440</div>
+          <div class="zone defense">DEFENSE BELOW · 6,848</div>
+          <div class="today"><b>Today · near resistance</b></div>
+          <span class="axis-label" style="left:12px;bottom:18px">2022</span>
+          <span class="axis-label" style="left:36%;bottom:18px">2024</span>
+          <span class="axis-label" style="right:18px;bottom:18px">2026</span>
+          <svg viewBox="0 0 1000 480" role="img" aria-label="Mock S&P 500 path">
+            <path d="M35 365 C120 330 150 390 230 350 C320 300 330 350 420 270 C510 190 565 230 640 170 C710 110 760 175 825 116 C880 70 915 96 963 44" fill="none" stroke="#201f1b" stroke-width="4" stroke-linecap="round" />
+            <path d="M35 388 C190 372 320 335 470 272 C600 220 750 150 963 72" fill="none" stroke="rgba(32,31,27,.28)" stroke-width="2" stroke-dasharray="6 7" />
+            <circle cx="963" cy="44" r="7" fill="#201f1b" />
+          </svg>
+        </div>
+        <aside class="side">
+          <div class="chip">
+            <span>Route</span>
+            <b>Active but disciplined</b>
+          </div>
+          <div class="level addline">
+            <span>Next valid add review</span>
+            <b>7,216-7,440</b>
+          </div>
+          <div class="level">
+            <span>Do not chase above</span>
+            <b>7,496-7,876</b>
+          </div>
+          <div class="level defline">
+            <span>Defense line</span>
+            <b>Below 6,848</b>
+          </div>
+        </aside>
+      </div>
+      <p class="note">Direction: fewer hairline labels, stronger decision bands, one chart mode at a time, and sidebar levels that keep the action readable on mobile.</p>
+    </section>
+  </main>
+</body>
+</html>

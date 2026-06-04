@@ -1044,20 +1044,21 @@ const style = `<style id="macro-unified-style">
 .mu-bad  {color:#A4502F}
 
 /* ── Regime header ── */
-.mu-regime{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:start;padding:32px 0 24px;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-regime{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,.28fr);gap:18px;align-items:stretch;padding:22px 0 20px;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-regime>div:first-child{border:1px solid rgba(164,80,47,.26);background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(164,80,47,.055));padding:18px 20px 20px;min-width:0}
 .mu-phase-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:rgba(26,23,20,.38);margin:0 0 8px;font-family:var(--mono,monospace)}
-.mu-phase-title{font-size:clamp(40px,5vw,76px);line-height:.88;letter-spacing:-.075em;font-weight:500;margin:0 0 12px;color:#1A1714}
+.mu-phase-title{font-size:clamp(40px,4.8vw,68px);line-height:.88;letter-spacing:-.075em;font-weight:560;margin:0 0 14px;color:#1A1714}
 .mu-narrative{font-size:clamp(13px,1.2vw,15px);line-height:1.55;color:rgba(26,23,20,.68);max-width:820px;margin:0 0 18px}
-.mu-action{border-left:2.5px solid #A4502F;padding:8px 0 8px 14px}
+.mu-action{border-left:3px solid #A4502F;padding:10px 0 10px 14px;background:rgba(251,250,246,.32)}
 .mu-action span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.4);margin-bottom:4px;font-family:var(--mono,monospace)}
-.mu-action b{display:block;font-size:14px;font-weight:500;color:#1A1714;line-height:1.3}
-.mu-action small{display:block;font-size:11.5px;color:rgba(26,23,20,.52);margin-top:4px}
-.mu-regime-meta{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
-.mu-conf{text-align:right}
+.mu-action b{display:block;font-size:clamp(18px,2vw,26px);font-weight:650;color:#1A1714;line-height:1.12;letter-spacing:-.035em}
+.mu-action small{display:block;font-size:12.5px;color:rgba(26,23,20,.58);margin-top:8px;line-height:1.42;max-width:740px}
+.mu-regime-meta{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.mu-conf{text-align:left;border:1px solid rgba(201,191,173,.56);background:rgba(255,255,255,.22);padding:16px;min-height:100%}
 .mu-conf span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.38);margin-bottom:4px;font-family:var(--mono,monospace)}
-.mu-conf b{display:block;font-size:56px;line-height:.88;letter-spacing:-.07em;font-weight:500;color:#A4502F}
-.mu-conf small{font-size:11px;color:rgba(26,23,20,.42);display:block;text-align:right}
-.mu-stress-badge{display:inline-block;padding:4px 10px;border:1px solid rgba(164,80,47,.35);background:rgba(164,80,47,.07);font-size:10px;color:#A4502F;letter-spacing:.06em}
+.mu-conf b{display:block;font-size:clamp(42px,4.2vw,60px);line-height:.88;letter-spacing:-.07em;font-weight:560;color:#A4502F;margin-top:12px}
+.mu-conf small{font-size:11px;color:rgba(26,23,20,.48);display:block;text-align:left;margin-top:7px;line-height:1.35}
+.mu-stress-badge{display:block;padding:8px 10px;border:1px solid rgba(164,80,47,.35);background:rgba(164,80,47,.07);font-size:10px;color:#A4502F;letter-spacing:.06em;text-align:center}
 
 /* ── Cycle analysis ── */
 .mu-cycle-analysis{padding:24px 0 0;border-bottom:1px solid rgba(201,191,173,.45)}
@@ -1090,8 +1091,8 @@ const style = `<style id="macro-unified-style">
 .mu-ca-proj p{font-size:10.5px;color:rgba(26,23,20,.65);margin:0 0 4px;line-height:1.35}
 .mu-ca-proj .mu-ca-proj-read{display:block;margin:6px 0 5px;line-height:1.45}
 .mu-ca-proj small{display:block;font-size:9.5px;color:rgba(26,23,20,.45);line-height:1.4}
-@media(max-width:900px){.mu-cycle-analysis-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.mu-cycle-analysis-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.mu-regime{grid-template-columns:1fr}.mu-cycle-analysis-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.mu-wrap{width:min(100% - 28px,1280px)}.mu-regime{padding-top:18px}.mu-regime>div:first-child{padding:16px}.mu-cycle-analysis-grid{grid-template-columns:1fr}}
 
 /* ── Unified chart block ── */
 .mu-unified-chart-block{padding:24px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}

@@ -21,21 +21,18 @@ const html = `<!doctype html>
       <div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div>
       <nav class="nav">
         <a href="#decision-brief-section">Macro</a>
-        <span aria-hidden="true">/</span>
         <a href="#operational-chart-section">Decision chart</a>
-        <span aria-hidden="true">/</span>
         <a href="#holdings-section">Holdings</a>
-        <span aria-hidden="true">/</span>
         <a href="#opportunities-section">Opportunity</a>
       </nav>
       <div id="generated">Operational render · ${now}</div>
     </div>
     <header class="hero">
       <div>
-        <p class="eyebrow">Capital Radar · four-section decision surface</p>
-        <h1>Macro first. Price second. Portfolio third. Opportunity last.</h1>
-        <p class="lede">A cleaned investment operating page: Macro sets permission, Decision chart defines levels, Holdings translates exposure, and Opportunity stays a research queue.</p>
-        <div class="lens-strip"><span>Macro /</span><span>Decision chart /</span><span>Holdings /</span><span>Opportunity</span></div>
+        <p class="eyebrow">Capital Radar · live decision surface</p>
+        <h1>Capital Radar</h1>
+        <p class="lede">Macro permission, price levels, portfolio exposure, and opportunity gates in one operating view.</p>
+        <div class="lens-strip"><span>Macro</span><span>Decision chart</span><span>Holdings</span><span>Opportunity</span></div>
       </div>
       <aside class="status"><span>Current surface</span><strong class="good">Four sections</strong><span>Supporting diagnostics are inputs, not standalone web sections.</span><span>Every visible block should support action, invalidation, or evidence quality.</span></aside>
     </header>

@@ -79,7 +79,7 @@ function rebuildNav(source) {
   const navHtml = visibleIds
     .filter(id => source.includes(`id="${id}"`))
     .map(id => `<a href="#${id}">${labels[id]}</a>`)
-    .join('<span aria-hidden="true">/</span>');
+    .join('');
   return source.replace(/<nav class="nav">[\s\S]*?<\/nav>/, `<nav class="nav">${navHtml}</nav>`);
 }
 

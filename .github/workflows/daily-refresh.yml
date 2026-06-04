@@ -38,6 +38,8 @@ jobs:
           node-version: 20
 
       - name: Regenerate live data
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: npm run generate:live
 
       - name: Generate canonical decision artifacts

@@ -464,6 +464,303 @@ function buildIndicesPulse() {
   return `<div class="mu-pulse">${rows}</div>`;
 }
 
+// ── Cycle analysis: normalized anchor chart + 4-column argument ───────────────
+
+function buildCycleAnalysis(spyCandles, rateSeries, signals, cycleState, analogsData) {
+  // Anchor: 2022-03-17 — first Fed rate hike of this cycle
+  // X-axis: calendar time (anchor → 2027-06)
+  // Y-axis: % change from anchor close
+  // Shows: full current cycle journey, key events annotated, Phase D projection
+
+  const ANCHOR_DATE = '2022-03-17';
+  const anchorCandle = spyCandles.find(c => c.time >= ANCHOR_DATE);
+  if (!anchorCandle || spyCandles.length < 100) return '';
+
+  const anchorClose = anchorCandle.close;
+  const anchorIdx   = spyCandles.indexOf(anchorCandle);
+  const chartCandles = spyCandles.slice(anchorIdx);
+  const normVals   = chartCandles.map(c => (c.close - anchorClose) / anchorClose * 100);
+  const chartDates = chartCandles.map(c => c.time);
+  const n = normVals.length;
+
+  // SVG geometry
+  const W = 900, H_PRICE = 200, H_RATE = 62, GAP = 20, H_TOTAL = H_PRICE + GAP + H_RATE + 22;
+  const pL = 52, pR = 90, pT = 16, cW = W - pL - pR;
+
+  // Time-based x mapping: anchor → 2027-01-01
+  const anchorMs = new Date(ANCHOR_DATE).getTime();
+  const endMs    = new Date('2027-01-01').getTime();
+  const totalMs  = endMs - anchorMs;
+  const pxT = ms => pL + ((ms - anchorMs) / totalMs) * cW;
+  const pxD = dateStr => pxT(new Date(dateStr).getTime());
+
+  // Price scale — leave headroom above for projection, -30% floor
+  const curNorm = normVals[n - 1];
+  const priceMin = Math.min(...normVals, -30) * 1.06;
+  const priceMax = Math.max(...normVals, curNorm + 20) * 1.18;
+  const priceRange = priceMax - priceMin || 1;
+  const pyP = v => pT + H_PRICE - ((v - priceMin) / priceRange) * H_PRICE;
+
+  // Zero line
+  const y0 = pyP(0);
+
+  // Price line path (time-based x)
+  const linePts = chartCandles.map((c, i) =>
+    `${i===0?'M':'L'}${pxD(c.time).toFixed(1)},${pyP(normVals[i]).toFixed(1)}`
+  ).join(' ');
+  const lastX = pxD(chartDates[n-1]), lastY = pyP(curNorm);
+
+  // Phase D projection (dotted) — 3 scenarios from TODAY
+  const todayMs = new Date(chartDates[n-1]).getTime();
+  const proj6Ms = todayMs + 180 * 86400000;  // +6 months
+  const proj6X  = pxT(proj6Ms);
+
+  const baseProj  = curNorm + 14;   // Base: +14% (Phase D expansion)
+  const bearProj  = curNorm - 10;   // Bear: -10% (stall/correction)
+
+  const baseY   = pyP(baseProj);
+  const bearY   = pyP(bearProj);
+  const cone = `M${lastX.toFixed(1)},${lastY.toFixed(1)} L${proj6X.toFixed(1)},${baseY.toFixed(1)} L${proj6X.toFixed(1)},${bearY.toFixed(1)} Z`;
+
+  // Horizontal grid lines
+  const gridVals = [-20, 0, 20, 40, 60, 80];
+  const gridLines = gridVals.map(v => {
+    if (v < priceMin || v > priceMax) return '';
+    const gy = pyP(v);
+    const isZero = v === 0;
+    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}"
+      stroke="${isZero ? 'rgba(26,23,20,.25)' : 'rgba(201,191,173,.28)'}"
+      stroke-width="${isZero ? 0.8 : 0.5}" ${isZero ? '' : 'stroke-dasharray="3 2"'}/>
+  <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5"
+    fill="rgba(26,23,20,.${isZero?'45':'28'})" font-family="inherit">${v > 0 ? '+' : ''}${v}%</text>`;
+  }).join('');
+
+  // Key event annotations
+  const KEY_EVENTS = [
+    { date: '2022-03-17', label: 'First Hike',    sub: '0→0.5%',      side: 'above', phase: null },
+    { date: '2022-10-13', label: 'Bear Low',       sub: '−17%',        side: 'below', phase: 'A1' },
+    { date: '2023-07-26', label: 'Rate Peak',      sub: '5.33%',       side: 'above', phase: 'B'  },
+    { date: '2024-09-18', label: 'First Cut',      sub: '5.33→5%',     side: 'below', phase: 'C'  },
+  ];
+
+  const eventMarkup = KEY_EVENTS.map(ev => {
+    if (!chartDates.some(d => d <= ev.date)) return '';
+    const ex = pxD(ev.date);
+    const evIdx = chartCandles.findIndex(c => c.time >= ev.date);
+    if (evIdx < 0) return '';
+    const ey = pyP(normVals[evIdx] ?? 0);
+    const labelY = ev.side === 'above' ? ey - 22 : ey + 22;
+    const subY   = ev.side === 'above' ? ey - 10 : ey + 34;
+    return `<line x1="${ex.toFixed(1)}" y1="${pT}" x2="${ex.toFixed(1)}" y2="${(pT+H_PRICE)}"
+      stroke="rgba(201,191,173,.45)" stroke-width="0.5" stroke-dasharray="3 2"/>
+  <circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="3.5" fill="rgba(201,191,173,.8)" stroke="rgba(26,23,20,.3)" stroke-width="0.5"/>
+  <text x="${ex.toFixed(1)}" y="${labelY}" text-anchor="middle" font-size="9" font-weight="600"
+    fill="rgba(26,23,20,.55)" font-family="inherit">${esc(ev.label)}</text>
+  <text x="${ex.toFixed(1)}" y="${subY}" text-anchor="middle" font-size="8"
+    fill="rgba(26,23,20,.38)" font-family="inherit">${esc(ev.sub)}</text>`;
+  }).join('');
+
+  // TODAY line
+  const todayX = lastX;
+  const todayLine = `<line x1="${todayX.toFixed(1)}" y1="${pT}" x2="${todayX.toFixed(1)}" y2="${(pT+H_PRICE)}"
+    stroke="rgba(26,23,20,.5)" stroke-width="1.2" stroke-dasharray="4 2"/>
+  <text x="${(todayX+4).toFixed(1)}" y="${(pT+13)}" font-size="8.5" font-weight="700"
+    fill="rgba(26,23,20,.6)" letter-spacing=".06em" font-family="inherit">TODAY</text>
+  <text x="${(todayX+4).toFixed(1)}" y="${(pT+25)}" font-size="8.5"
+    fill="#2a6b4a" font-weight="600" font-family="inherit">+${curNorm.toFixed(0)}%</text>`;
+
+  // Phase D projection labels at the right edge
+  const projLabels = `
+  <text x="${(proj6X+4).toFixed(1)}" y="${(baseY+4).toFixed(1)}" font-size="9" fill="rgba(42,107,74,.8)"
+    font-weight="600" font-family="inherit">+${baseProj.toFixed(0)}%</text>
+  <text x="${(proj6X+4).toFixed(1)}" y="${(baseY+15).toFixed(1)}" font-size="8" fill="rgba(42,107,74,.65)"
+    font-family="inherit">Base</text>
+  <text x="${(proj6X+4).toFixed(1)}" y="${(bearY+4).toFixed(1)}" font-size="9" fill="rgba(164,80,47,.8)"
+    font-weight="600" font-family="inherit">+${bearProj.toFixed(0)}%</text>
+  <text x="${(proj6X+4).toFixed(1)}" y="${(bearY+15).toFixed(1)}" font-size="8" fill="rgba(164,80,47,.65)"
+    font-family="inherit">Bear</text>`;
+
+  // Year labels on x-axis
+  let lastYr = '', xTicks = '';
+  const years = ['2022','2023','2024','2025','2026','2027'];
+  years.forEach(yr => {
+    const yx = pxD(`${yr}-01-01`);
+    if (yx < pL || yx > pL + cW) return;
+    xTicks += `<line x1="${yx.toFixed(1)}" y1="${(pT+H_PRICE)}" x2="${yx.toFixed(1)}" y2="${(pT+H_PRICE+4)}"
+      stroke="rgba(201,191,173,.5)" stroke-width="0.5"/>
+  <text x="${yx.toFixed(1)}" y="${(pT+H_PRICE+14).toFixed(1)}" text-anchor="middle"
+    font-size="9" fill="rgba(26,23,20,.35)" font-family="inherit">${yr}</text>`;
+  });
+
+  // ── Rate panel ──────────────────────────────────────────────────────────────
+  const rY0 = pT + H_PRICE + GAP, rH = H_RATE;
+  const dffObs = (rateSeries?.DFF || []).filter(o => o.date >= ANCHOR_DATE);
+  const rateMax = 6.5;
+  const pyR = v => rY0 + rH - (Math.min(v, rateMax) / rateMax) * rH;
+
+  const rateGrid = [2, 4, 5.5].map(v => {
+    const gy = pyR(v);
+    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}"
+      stroke="rgba(201,191,173,.28)" stroke-width="0.5" stroke-dasharray="2 2"/>
+    <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5"
+      fill="rgba(26,23,20,.28)" font-family="inherit">${v}%</text>`;
+  }).join('');
+
+  const dffPath = dffObs.length > 1
+    ? dffObs.map((o,i) => `${i===0?'M':'L'}${pxD(o.date).toFixed(1)},${pyR(o.value).toFixed(1)}`).join(' ')
+    : '';
+  const dffAreaPath = dffPath
+    ? `${dffPath} L${pxD(dffObs[dffObs.length-1].date).toFixed(1)},${(rY0+rH)} L${pxD(dffObs[0].date).toFixed(1)},${(rY0+rH)}Z`
+    : '';
+  const dffNow = dffObs.length ? dffObs[dffObs.length-1].value : null;
+
+  // ── Phase Kostolany markers on rate panel ───────────────────────────────────
+  // Show which Kostolany phase corresponds to each rate period
+  const phaseMarkers = [
+    { from: '2022-03-17', to: '2022-10-13', label: 'A1', color: 'rgba(164,80,47,.18)' },
+    { from: '2022-10-13', to: '2023-07-26', label: 'B', color: 'rgba(42,107,74,.12)' },
+    { from: '2023-07-26', to: '2024-09-18', label: 'C', color: 'rgba(138,106,44,.12)' },
+    { from: '2024-09-18', to: chartDates[n-1], label: 'C→', color: 'rgba(138,106,44,.18)' },
+  ];
+
+  const phaseBar = phaseMarkers.map(pm => {
+    const x1 = Math.max(pL, pxD(pm.from)), x2 = Math.min(pL+cW, pxD(pm.to));
+    if (x2 <= x1) return '';
+    const midX = (x1 + x2) / 2;
+    return `<rect x="${x1.toFixed(1)}" y="${(rY0+rH+3)}" width="${(x2-x1).toFixed(1)}" height="10" fill="${pm.color}"/>
+  <text x="${midX.toFixed(1)}" y="${(rY0+rH+11)}" text-anchor="middle" font-size="7.5"
+    fill="rgba(26,23,20,.45)" font-weight="600" font-family="inherit">${pm.label}</text>`;
+  }).join('');
+
+  // ── SVG assembly ─────────────────────────────────────────────────────────────
+  const svg = `<svg viewBox="0 0 ${W} ${H_TOTAL + 16}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+  <defs>
+    <linearGradient id="cycleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(26,23,20,.08)"/><stop offset="100%" stop-color="rgba(26,23,20,.01)"/>
+    </linearGradient>
+    <linearGradient id="rateGrad2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(138,106,44,.22)"/><stop offset="100%" stop-color="rgba(138,106,44,.02)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Grid -->
+  ${gridLines}
+
+  <!-- Projection cone (past TODAY) -->
+  <polygon points="${cone}" fill="rgba(26,23,20,.05)" stroke="none"/>
+  <line x1="${todayX.toFixed(1)}" y1="${lastY.toFixed(1)}" x2="${proj6X.toFixed(1)}" y2="${baseY.toFixed(1)}"
+    stroke="rgba(42,107,74,.4)" stroke-width="1.2" stroke-dasharray="6 3"/>
+  <line x1="${todayX.toFixed(1)}" y1="${lastY.toFixed(1)}" x2="${proj6X.toFixed(1)}" y2="${bearY.toFixed(1)}"
+    stroke="rgba(164,80,47,.4)" stroke-width="1.2" stroke-dasharray="4 3"/>
+  ${projLabels}
+
+  <!-- Price area -->
+  <path d="${linePts} L${lastX.toFixed(1)},${(pT+H_PRICE)} L${pxD(ANCHOR_DATE).toFixed(1)},${(pT+H_PRICE)}Z"
+    fill="url(#cycleGrad)"/>
+  <!-- Price line -->
+  <path d="${linePts}" fill="none" stroke="#1A1714" stroke-width="1.8" stroke-linejoin="round"/>
+  <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#1A1714"/>
+
+  <!-- Key events -->
+  ${eventMarkup}
+
+  <!-- TODAY line -->
+  ${todayLine}
+
+  <!-- X-axis year ticks -->
+  ${xTicks}
+
+  <!-- Rate panel separator -->
+  <line x1="${pL}" y1="${(rY0-6)}" x2="${(pL+cW)}" y2="${(rY0-6)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
+  <text x="${pL}" y="${(rY0-10)}" font-size="8" fill="rgba(26,23,20,.32)" letter-spacing=".1em" font-family="inherit">FED FUNDS RATE</text>
+  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0-10)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
+
+  <!-- Rate panel -->
+  ${rateGrid}
+  <line x1="${pL}" y1="${(rY0+rH)}" x2="${(pL+cW)}" y2="${(rY0+rH)}" stroke="rgba(201,191,173,.38)" stroke-width="0.5"/>
+  ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad2)"/>` : ''}
+  ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
+  ${dffNow != null ? `<circle cx="${pxD(dffObs[dffObs.length-1].date).toFixed(1)}" cy="${pyR(dffNow).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
+
+  <!-- Kostolany phase bar (below rate panel) -->
+  ${phaseBar}
+  <text x="${pL}" y="${(rY0+rH+22)}" font-size="7.5" fill="rgba(26,23,20,.32)" letter-spacing=".08em" font-family="inherit">KOSTOLANY PHASE</text>
+</svg>`;
+
+  // ── 4-column analysis panel ───────────────────────────────────────────────────
+
+  const confirming = signals.filter(s => s.color === 'green');
+  const watching   = signals.filter(s => s.color === 'amber');
+  const contradicting = signals.filter(s => s.color === 'red');
+
+  const topAnalog = (analogsData?.analogs || [])[0] || {};
+  const phaseCode = cycleState?.phase_code || 'C';
+  const nextPhase = cycleState?.cycle_diagram?.next_watch || 'Expansion or distribution';
+
+  const panel = `<div class="mu-cycle-analysis-grid">
+    <div class="mu-ca-col">
+      <div class="mu-ca-head">The Setup</div>
+      <p class="mu-ca-desc">Why this cycle matters right now</p>
+      <ul class="mu-ca-list">
+        <li>Fed hiked 0→5.33% in 16 months — fastest since Volcker</li>
+        <li>Market fell −17% then recovered: confirmed cycle resilience</li>
+        <li>Rates now cutting (3.65%) — opposite direction to 2022</li>
+        <li>Phase ${phaseCode} (Verification) at ${cycleState?.cycle_confidence || 83}% confidence</li>
+        <li>${esc(topAnalog.label || 'Analog conditions match 2022 macro regime')}</li>
+      </ul>
+    </div>
+    <div class="mu-ca-col">
+      <div class="mu-ca-head">Then vs Now</div>
+      <p class="mu-ca-desc">What's different this cycle</p>
+      <div class="mu-ca-compare">
+        <div class="mu-ca-then">
+          <span>2022 — Rate Risk</span>
+          <div>Fed hiking ↑ rapidly</div>
+          <div>Inflation accelerating</div>
+          <div>Market falling −25%</div>
+          <div>Credit spreads widening</div>
+        </div>
+        <div class="mu-ca-now">
+          <span>Now — Different Direction</span>
+          <div>Fed cutting ↓ (3.65%)</div>
+          <div>Inflation decelerating</div>
+          <div>Market +71% from first hike</div>
+          <div>Credit contained (2.78)</div>
+        </div>
+      </div>
+    </div>
+    <div class="mu-ca-col">
+      <div class="mu-ca-head">Signal Check</div>
+      <p class="mu-ca-desc">Confirming vs contradicting Phase D</p>
+      <div class="mu-ca-signals">
+        ${confirming.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-g">✓ ${esc(s.name)} — ${esc(s.label)}</div>`).join('')}
+        ${watching.slice(0,2).map(s => `<div class="mu-ca-sig mu-ca-sig-a">~ ${esc(s.name)} — ${esc(s.label)}</div>`).join('')}
+        ${contradicting.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-r">✗ ${esc(s.name)} — ${esc(s.label)}</div>`).join('')}
+      </div>
+    </div>
+    <div class="mu-ca-col">
+      <div class="mu-ca-head">Projection</div>
+      <p class="mu-ca-desc">Where the cycle points next</p>
+      <div class="mu-ca-proj">
+        <div class="mu-ca-proj-base">
+          <span>Base case (65%)</span>
+          <b>Phase C → D: Expansion</b>
+          <p>${esc(nextPhase)}</p>
+          <small>Add on pullbacks 7,216–7,440</small>
+        </div>
+        <div class="mu-ca-proj-bear">
+          <span>Bear case (35%)</span>
+          <b>Stall / Phase F risk</b>
+          <p>Credit widens + VIX above 20</p>
+          <small>Watch: HY OAS above 3.5% = warning</small>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  return `<div class="mu-cycle-analysis">${svg}${panel}</div>`;
+}
+
 // ── Traffic light logic ───────────────────────────────────────────────────────
 
 function axisSignal(axis) {
@@ -607,6 +904,9 @@ const unifiedChart = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxT
 // VIX and indices pulse kept for supporting context
 const vixChart     = buildVixChart(90);
 const indicesPulse = buildIndicesPulse();
+
+// Cycle analysis: JUTOPIA-style anchor chart + 4-column structured argument
+const cycleAnalysisHtml = buildCycleAnalysis(spyCandles, activeRateSeries, signals, cycle, analogs);
 
 // ── Cycle SVG ─────────────────────────────────────────────────────────────────
 
@@ -779,6 +1079,39 @@ const style = `<style id="macro-unified-style">
 .mu-conf small{font-size:11px;color:rgba(26,23,20,.42);display:block;text-align:right}
 .mu-stress-badge{display:inline-block;padding:4px 10px;border:1px solid rgba(164,80,47,.35);background:rgba(164,80,47,.07);font-size:10px;color:#A4502F;letter-spacing:.06em}
 
+/* ── Cycle analysis ── */
+.mu-cycle-analysis{padding:24px 0 0;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-cycle-analysis-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:16px;border:1px solid rgba(201,191,173,.45)}
+.mu-ca-col{padding:16px 16px 18px;border-right:1px solid rgba(201,191,173,.38)}
+.mu-ca-col:last-child{border-right:none}
+.mu-ca-head{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;margin-bottom:4px;font-family:var(--mono,monospace)}
+.mu-ca-desc{font-size:10px;color:rgba(26,23,20,.45);margin:0 0 10px;line-height:1.4}
+.mu-ca-list{margin:0;padding:0 0 0 14px;list-style:disc}
+.mu-ca-list li{font-size:11px;color:rgba(26,23,20,.7);line-height:1.5;margin-bottom:3px}
+.mu-ca-compare{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mu-ca-then,.mu-ca-now{font-size:10.5px;line-height:1.55;color:rgba(26,23,20,.65)}
+.mu-ca-then span,.mu-ca-now span{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;font-family:var(--mono,monospace)}
+.mu-ca-then span{color:rgba(164,80,47,.7)}
+.mu-ca-now span{color:rgba(42,107,74,.7)}
+.mu-ca-then div,.mu-ca-now div{border-bottom:1px solid rgba(201,191,173,.3);padding:3px 0}
+.mu-ca-signals{display:flex;flex-direction:column;gap:4px}
+.mu-ca-sig{font-size:10.5px;padding:4px 8px;line-height:1.3}
+.mu-ca-sig-g{background:rgba(42,107,74,.08);color:#2a6b4a;border-left:2px solid #2a6b4a}
+.mu-ca-sig-a{background:rgba(138,106,44,.08);color:#8a6a2c;border-left:2px solid #8a6a2c}
+.mu-ca-sig-r{background:rgba(164,80,47,.08);color:#A4502F;border-left:2px solid #A4502F}
+.mu-ca-proj{display:flex;flex-direction:column;gap:8px}
+.mu-ca-proj-base,.mu-ca-proj-bear{padding:10px 12px}
+.mu-ca-proj-base{background:rgba(42,107,74,.07);border:1px solid rgba(42,107,74,.2)}
+.mu-ca-proj-bear{background:rgba(164,80,47,.06);border:1px solid rgba(164,80,47,.18)}
+.mu-ca-proj span{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;color:rgba(26,23,20,.4);margin-bottom:4px;font-family:var(--mono,monospace)}
+.mu-ca-proj b{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px;line-height:1.2}
+.mu-ca-proj-base b{color:#2a6b4a}
+.mu-ca-proj-bear b{color:#A4502F}
+.mu-ca-proj p{font-size:10.5px;color:rgba(26,23,20,.65);margin:0 0 4px;line-height:1.35}
+.mu-ca-proj small{font-size:9.5px;color:rgba(26,23,20,.45)}
+@media(max-width:900px){.mu-cycle-analysis-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.mu-cycle-analysis-grid{grid-template-columns:1fr}}
+
 /* ── Unified chart block ── */
 .mu-unified-chart-block{padding:24px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-analog-callout{display:flex;align-items:baseline;gap:10px;margin-top:10px;padding:10px 14px;border-left:2.5px solid rgba(164,80,47,.5);background:rgba(164,80,47,.05)}
@@ -917,6 +1250,9 @@ ${style}
       <b>${topAnalogLesson}</b>
     </div>` : ''}
   </div>
+
+  <!-- Cycle analysis: anchored chart + 4-column argument -->
+  ${cycleAnalysisHtml}
 
   <!-- VIX + Indices pulse row -->
   <div class="mu-charts-row">

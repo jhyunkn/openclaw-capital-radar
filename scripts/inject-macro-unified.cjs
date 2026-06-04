@@ -699,37 +699,6 @@ function buildCycleAnalysis(spyCandles, rateSeries, signals, cycleState, analogs
 
   const panel = `<div class="mu-cycle-analysis-grid">
     <div class="mu-ca-col">
-      <div class="mu-ca-head">The Setup</div>
-      <p class="mu-ca-desc">Why this cycle matters right now</p>
-      <ul class="mu-ca-list">
-        <li>Fed hiked 0→5.33% in 16 months — fastest since Volcker</li>
-        <li>Market fell −17% then recovered: confirmed cycle resilience</li>
-        <li>Rates now cutting (3.65%) — opposite direction to 2022</li>
-        <li>Phase ${phaseCode} (Verification) at ${cycleState?.cycle_confidence || 83}% confidence</li>
-        <li>${esc(topAnalog.label || 'Analog conditions match 2022 macro regime')}</li>
-      </ul>
-    </div>
-    <div class="mu-ca-col">
-      <div class="mu-ca-head">Then vs Now</div>
-      <p class="mu-ca-desc">What's different this cycle</p>
-      <div class="mu-ca-compare">
-        <div class="mu-ca-then">
-          <span>2022 — Rate Risk</span>
-          <div>Fed hiking ↑ rapidly</div>
-          <div>Inflation accelerating</div>
-          <div>Market falling −25%</div>
-          <div>Credit spreads widening</div>
-        </div>
-        <div class="mu-ca-now">
-          <span>Now — Different Direction</span>
-          <div>Fed cutting ↓ (3.65%)</div>
-          <div>Inflation decelerating</div>
-          <div>Market +71% from first hike</div>
-          <div>Credit contained (2.78)</div>
-        </div>
-      </div>
-    </div>
-    <div class="mu-ca-col">
       <div class="mu-ca-head">Signal Check</div>
       <p class="mu-ca-desc">Confirming vs contradicting Phase D</p>
       <div class="mu-ca-signals">
@@ -915,13 +884,13 @@ const currentCode  = egg.phase_code || 'C';
 const previousCode = (phases.find(p => p.state === 'previous') || {}).code || 'B';
 
 const PHASE_POS = [
-  { code: 'A1', x: 38,  y: 148, side: 'below', note: 'Panic · Bonds · Gold' },
-  { code: 'A2', x: 112, y: 108, side: 'below', note: 'Policy pivot · Prepare' },
-  { code: 'B',  x: 222, y: 50,  side: 'above', note: 'Tech · Discretionary' },
-  { code: 'C',  x: 348, y: 35,  side: 'above', note: 'Quality · Healthcare' },
-  { code: 'D',  x: 460, y: 52,  side: 'above', note: 'Cyclicals · Energy' },
-  { code: 'E',  x: 558, y: 98,  side: 'below', note: 'Trim beta · Raise cash' },
-  { code: 'F',  x: 636, y: 142, side: 'below', note: 'Defensives · Bonds' },
+  { code: 'A1', x: 38,  y: 148, side: 'below', note: 'Panic · Bonds · Gold',     behavior: "panic · forced exits · Oct '22" },
+  { code: 'A2', x: 112, y: 108, side: 'below', note: 'Policy pivot · Prepare',   behavior: 'smart money buys · press silent' },
+  { code: 'B',  x: 222, y: 50,  side: 'above', note: 'Tech · Discretionary',     behavior: 'first green · skeptics sell rallies' },
+  { code: 'C',  x: 348, y: 35,  side: 'above', note: 'Quality · Healthcare',     behavior: 'Quality leads · No FOMO yet' },
+  { code: 'D',  x: 460, y: 52,  side: 'above', note: 'Cyclicals · Energy',       behavior: 'FOMO begins · breadth expands' },
+  { code: 'E',  x: 558, y: 98,  side: 'below', note: 'Trim beta · Raise cash',   behavior: 'everyone in · PE at peak' },
+  { code: 'F',  x: 636, y: 142, side: 'below', note: 'Defensives · Bonds',       behavior: 'smart exits · late buyers arrive' },
 ];
 
 const cycleNodes = PHASE_POS.map(pp => {
@@ -938,31 +907,42 @@ const cycleNodes = PHASE_POS.map(pp => {
 
   let m = `<circle cx="${pp.x}" cy="${pp.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${isCurrent?2:1}"/>`;
   m += `<text x="${pp.x}" y="${pp.y+4}" text-anchor="middle" font-size="${isCurrent?9:8}" font-weight="600" fill="${textFill}" font-family="inherit">${pp.code}</text>`;
-  m += `<text x="${pp.x}" y="${labelY}" text-anchor="middle" font-size="${isCurrent?10.5:9}" font-weight="${isCurrent?'600':'500'}" fill="${isCurrent?'#A4502F':'rgba(26,23,20,.55)'}" font-family="inherit">${label}</text>`;
   if (isCurrent) {
-    m += `<text x="${pp.x}" y="${noteY}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.75)" font-family="inherit">${esc(pp.note)}</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 42}" text-anchor="middle" font-size="8" font-weight="700" fill="#A4502F" letter-spacing=".1em" font-family="inherit">YOU ARE HERE</text>`;
+    const rsiVal    = mvMap.rsi14?.value   != null ? Number(mvMap.rsi14.value).toFixed(1)  : '—';
+    const creditVal = mvMap.hy_oas?.value  != null ? Number(mvMap.hy_oas.value).toFixed(2) : '—';
+    const vixVal    = mvMap.vix?.value     != null ? Number(mvMap.vix.value).toFixed(1)    : '—';
+    const dgs10Val  = mvMap.dgs10?.value   != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
+    m += `<text x="${pp.x}" y="${pp.y - r - 44}" text-anchor="middle" font-size="7.5" font-weight="700" fill="#A4502F" letter-spacing=".12em" font-family="inherit">YOU ARE HERE</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r - 31}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#A4502F" font-family="inherit">${label}</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r - 18}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.75)" font-family="inherit">${esc(pp.note)}</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r - 7}" text-anchor="middle" font-size="8" fill="rgba(138,106,44,.72)" font-family="inherit">RSI ${rsiVal} · Credit ${creditVal} · VIX ${vixVal} · 10Y ${dgs10Val}</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r + 5}" text-anchor="middle" font-size="7.5" fill="rgba(26,23,20,.42)" font-family="inherit">Fed 3.65% cutting · D not yet confirmed</text>`;
+  } else {
+    m += `<text x="${pp.x}" y="${labelY}" text-anchor="middle" font-size="9" font-weight="500" fill="${isPrevious?'rgba(26,23,20,.55)':'rgba(26,23,20,.5)'}" font-family="inherit">${label}</text>`;
+    if (pp.behavior) {
+      m += `<text x="${pp.x}" y="${noteY}" text-anchor="middle" font-size="7.5" fill="rgba(26,23,20,.38)" font-family="inherit">${esc(pp.behavior)}</text>`;
+    }
   }
   return m;
 }).join('');
 
-const cycleSvg = `<svg viewBox="0 0 700 198" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+const cycleSvg = `<svg viewBox="0 -48 700 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
   <defs>
     <marker id="cyArr" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto">
-      <path d="M0,0 L5,2.5 L0,5Z" fill="rgba(164,80,47,.5)"/>
+      <path d="M0,0 L5,2.5 L0,5Z" fill="rgba(42,107,74,.55)"/>
     </marker>
   </defs>
   <!-- Full cycle base path -->
   <path d="M18,155 C52,155 72,115 112,108 S174,50 222,50 S310,35 348,35 S428,52 460,52 S530,98 558,98 S618,142 652,148 L690,155"
         fill="none" stroke="rgba(201,191,173,.45)" stroke-width="2"/>
-  <!-- Traveled path: B → C (where we've been) -->
-  <path d="M222,50 S310,35 348,35"
-        fill="none" stroke="rgba(164,80,47,.7)" stroke-width="2.5"/>
-  <!-- Next path: C → D (dotted, what's coming) -->
+  <!-- Traveled path: A2 → B → C (full journey) -->
+  <path d="M112,108 S174,50 222,50 S310,35 348,35"
+        fill="none" stroke="rgba(164,80,47,.65)" stroke-width="2.5"/>
+  <!-- Next path: C → D (dotted green, what's coming) -->
   <path d="M348,35 S428,52 460,52"
-        fill="none" stroke="rgba(164,80,47,.3)" stroke-width="1.5" stroke-dasharray="5 3"/>
-  <!-- Axis labels -->
-  <text x="350" y="192" text-anchor="middle" font-size="8.5" fill="rgba(26,23,20,.35)" letter-spacing=".1em" font-family="inherit">ECONOMIC CYCLE · KOSTOLANY FRAMEWORK</text>
+        fill="none" stroke="rgba(42,107,74,.45)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#cyArr)"/>
+  <!-- Footer -->
+  <text x="350" y="185" text-anchor="middle" font-size="7.5" fill="rgba(26,23,20,.28)" letter-spacing=".12em" font-family="inherit">ECONOMIC CYCLE · KOSTOLANY FRAMEWORK · 2022–PRESENT</text>
   ${cycleNodes}
 </svg>`;
 
@@ -1081,7 +1061,7 @@ const style = `<style id="macro-unified-style">
 
 /* ── Cycle analysis ── */
 .mu-cycle-analysis{padding:24px 0 0;border-bottom:1px solid rgba(201,191,173,.45)}
-.mu-cycle-analysis-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:16px;border:1px solid rgba(201,191,173,.45)}
+.mu-cycle-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin-top:16px;border:1px solid rgba(201,191,173,.45)}
 .mu-ca-col{padding:16px 16px 18px;border-right:1px solid rgba(201,191,173,.38)}
 .mu-ca-col:last-child{border-right:none}
 .mu-ca-head{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;margin-bottom:4px;font-family:var(--mono,monospace)}
@@ -1221,7 +1201,6 @@ ${style}
     <div>
       <p class="mu-phase-eyebrow">Macro intelligence · Phase ${phaseCode} · ${diagLabel}</p>
       <h2 class="mu-phase-title">${phaseName}</h2>
-      <p class="mu-narrative">${esc(narrative) || esc(brief.brief || '')}</p>
       <div class="mu-action">
         <span>What to do</span>
         <b>${action}</b>
@@ -1285,11 +1264,9 @@ ${style}
   <!-- Cycle + sector rotation -->
   <div class="mu-cycle-row">
     <div>
-      <p class="mu-zone-label">Where are we in the cycle?</p>
       ${cycleSvg}
     </div>
     <div>
-      <p class="mu-zone-label">What to own — Phase ${phaseCode} rotation</p>
       <div class="mu-sector-grid">${sectorGrid}</div>
       <div class="mu-sector-legend">
         <span><i style="background:#2a6b4a"></i>Favor</span>

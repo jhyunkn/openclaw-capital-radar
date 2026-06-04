@@ -24,8 +24,21 @@ const summaries = [];
 for (const p of priority) {
   const dir = path.join(root, 'tickers', p.ticker);
   fs.mkdirSync(dir, { recursive: true });
+  const jsonPath = path.join(dir, 'opportunity-dossier.json');
+  const mdPath   = path.join(dir, 'opportunity-dossier.md');
+
+  // Skip manually curated dossiers — only overwrite auto-generated ones.
+  const existing = fs.existsSync(jsonPath)
+    ? (() => { try { return JSON.parse(fs.readFileSync(jsonPath, 'utf8')); } catch { return {}; } })()
+    : null;
+  if (existing && existing.source === 'manual') {
+    summaries.push({ ticker: p.ticker, stage: existing.opportunityStage, score: existing.opportunityScore, goggles: existing.financeGoggles || [], path: `tickers/${p.ticker}/opportunity-dossier.md` });
+    continue;
+  }
+
   const dossier = {
     generatedAt: now,
+    source: 'auto-generated',
     ticker: p.ticker,
     name: p.name,
     lane: p.lane,
@@ -37,8 +50,8 @@ for (const p of priority) {
     nextRequired: p.missingForPromotion,
     sourceBoundary: p.sourceBoundary
   };
-  fs.writeFileSync(path.join(dir, 'opportunity-dossier.json'), JSON.stringify(dossier, null, 2));
-  fs.writeFileSync(path.join(dir, 'opportunity-dossier.md'), md(p));
+  fs.writeFileSync(jsonPath, JSON.stringify(dossier, null, 2));
+  fs.writeFileSync(mdPath, md(p));
   summaries.push({ ticker: p.ticker, stage: p.opportunityStage, score: p.opportunityScore, goggles: dossier.financeGoggles, path: `tickers/${p.ticker}/opportunity-dossier.md` });
 }
 const out = { generatedAt: now, status: summaries.length ? 'ACTIVE' : 'EMPTY', dossiers: summaries, policy: 'Persistent dossiers are research memory only. No buy permission.' };

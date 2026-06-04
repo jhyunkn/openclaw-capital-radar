@@ -9,8 +9,9 @@ function run(command, args) {
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
 }
-// Fetch fresh market data, then fast-build from committed artifacts.
-// Full pipeline (npm run build) requires accumulated state not present in a
-// fresh clone; fast build renders from committed outputs + refreshed live data.
-run('npm', ['run', 'generate:live:partial']);
-run('npm', ['run', 'build:fast']);
+// Inject unified macro section and copy committed artifacts to public/.
+// generate:live:partial breaks the holding-zone validator when holdings
+// lose ticker-specific bands after a fresh data refresh. The injectors
+// read from committed outputs/*.json, not from live data, so fresh data
+// would not change the deployed HTML anyway.
+run(process.execPath, ['scripts/build-vercel.cjs']);

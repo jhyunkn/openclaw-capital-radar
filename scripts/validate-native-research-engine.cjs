@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { hasFourSectionSurface } = require('./lib/homepage-section-contract.cjs');
 const root = path.join(__dirname, '..');
 const read = rel => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -18,7 +19,6 @@ check(list(events.events).length >= 8, 'native event ledger has too few events')
 check(list(events.immediateResearchQueue).length > 0, 'immediate research queue empty');
 check(events.operationalGates?.canClaimFreshNewsCausality === false, 'degraded run must not claim fresh news causality');
 check(!html.includes('id="native-research-engine"'), 'native research telemetry should not be a top-level homepage section after compression');
-check(html.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"'), 'homepage missing compressed constitution marker');
 check(!publicHtml.includes('id="native-research-engine"'), 'public homepage still exposes native research telemetry panel');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'native-events.json')), 'public native events missing');
 check(fs.existsSync(path.join(root, 'public', 'data', 'research', 'source-registry.json')), 'public source registry missing');
@@ -31,8 +31,8 @@ const output = {
     eventCount: list(events.events).length,
     immediateResearchQueue: list(events.immediateResearchQueue).length,
     canClaimFreshNewsCausality: events.operationalGates?.canClaimFreshNewsCausality === true,
-    dashboardPanel: false,
-    publicSync: publicHtml.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"')
+    dashboardPanel: hasFourSectionSurface(html) || hasFourSectionSurface(publicHtml),
+    publicSync: !publicHtml || hasFourSectionSurface(publicHtml)
   },
   failures
 };

@@ -878,7 +878,7 @@ const currentFedRate    = dffSeries.length > 0 ? num(dffSeries[dffSeries.length 
 
 const spyPrevClose  = spyCandles.length >= 2 ? num(spyCandles[spyCandles.length - 2].close) : null;
 const spyChangePct  = spyCurrent && spyPrevClose ? (spyCurrent - spyPrevClose) / spyPrevClose * 100 : null;
-const vixCandles90  = loadCandles('^VIX', 90);
+const vixCandles90  = loadCandles('_VIX', 90);
 const vixPrevClose  = vixCandles90.length >= 2 ? num(vixCandles90[vixCandles90.length - 2].close) : null;
 const vixCurRaw     = num(mvMap.vix?.value);
 const vixChangePct  = vixCurRaw && vixPrevClose ? (vixCurRaw - vixPrevClose) / vixPrevClose * 100 : null;
@@ -1201,7 +1201,7 @@ const gateRows = phaseGates.map(g => {
   const curStr  = g.current != null
     ? (g.unit === '%' ? g.current.toFixed(2) + '%' : g.current.toFixed(1))
     : '—';
-  const tgtStr  = g.direction === 'below' ? `<${g.target}${g.unit}` : `>${g.target}${g.unit}`;
+  const tgtStr  = g.direction === 'below' ? `&lt;${g.target}${g.unit}` : `&gt;${g.target}${g.unit}`;
   return `<div class="mu-gate-row">
     <span class="mu-gate-name">${esc(g.label)}</span>
     <span class="mu-gate-cur">${curStr}</span>

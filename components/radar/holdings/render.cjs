@@ -151,7 +151,7 @@ function buildZoneBar(h) {
   segs += `<circle cx="${cx2.toFixed(1)}" cy="${(BAR_H/2).toFixed(1)}" r="6" fill="rgba(26,23,20,.85)" stroke="#F7F3EB" stroke-width="2"/>`;
   segs += `<text x="${cx2.toFixed(1)}" y="${-6}" text-anchor="middle" font-size="9" fill="rgba(26,23,20,.8)" font-weight="600">$${fmt(c,2)}</text>`;
 
-  return `<svg class="mu-zone-bar-svg" viewBox="0 -14 ${BAR_W} ${BAR_H+34}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+  return `<svg class="mu-zone-bar-svg" viewBox="0 -14 ${BAR_W} ${BAR_H+50}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
   <rect x="${ML}" y="0" width="${TW}" height="${BAR_H}" fill="rgba(201,191,173,.12)" rx="3"/>
   ${segs}
 </svg>`;

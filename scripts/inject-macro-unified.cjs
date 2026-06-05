@@ -869,15 +869,10 @@ const cacheRates = (() => {
   } catch { return null; }
 })();
 
-const activeRateSeries = (rateSeries && Object.keys(rateSeries).length) ? rateSeries : cacheRates;
-const unifiedChart = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxToSpy, topAnalogLesson);
-
-// VIX and indices pulse kept for supporting context
-const vixChart     = buildVixChart(90);
-const indicesPulse = buildIndicesPulse();
-
-// Cycle analysis: JUTOPIA-style anchor chart + 4-column structured argument
-const cycleAnalysisHtml = buildCycleAnalysis(spyCandles, activeRateSeries, signals, cycle, analogs);
+const activeRateSeries  = (rateSeries && Object.keys(rateSeries).length) ? rateSeries : cacheRates;
+const unifiedChart      = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxToSpy, topAnalogLesson);
+const dffSeries         = Array.isArray(activeRateSeries?.DFF) ? activeRateSeries.DFF : [];
+const currentFedRate    = dffSeries.length > 0 ? num(dffSeries[dffSeries.length - 1].value) : null;
 
 // ── Cycle SVG ─────────────────────────────────────────────────────────────────
 
@@ -1011,6 +1006,89 @@ const phaseBridge = allHoldings.length > 0 ? `<div class="mu-phase-bridge">
     </div>
   </div>
 </div>` : '';
+
+// ── Signal micro-dots (regime header) ────────────────────────────────────────
+
+const signalDotsHtml = signals.map(s => {
+  const bg = s.color === 'green' ? '#2a6b4a' : s.color === 'red' ? '#A4502F' : '#8a6a2c';
+  return `<span class="mu-sdot" style="background:${bg}" title="${esc(s.name)}: ${esc(s.display)} ${esc(s.label)}"></span>`;
+}).join('');
+
+const signalBarHtml = `<div class="mu-sigbar">
+  <div class="mu-sigbar-dots">${signalDotsHtml}</div>
+  <span class="mu-sigbar-label">${greens} confirm · ${ambers} watch · ${reds} block</span>
+</div>`;
+
+// ── Phase C tension + transition gates ────────────────────────────────────────
+
+function gateStatus(current, target, direction) {
+  if (current == null) return { icon: '—', col: 'rgba(26,23,20,.35)' };
+  const cleared = direction === 'below' ? current < target : current > target;
+  const near    = direction === 'below' ? current < target * 1.1 : current > target * 0.9;
+  if (cleared) return { icon: '✓', col: '#2a6b4a' };
+  if (near)    return { icon: '~', col: '#8a6a2c' };
+  return { icon: '✗', col: '#A4502F' };
+}
+
+const vixCur    = num(mvMap.vix?.value);
+const creditCur = num(mvMap.hy_oas?.value);
+const dgs10Cur  = num(mvMap.dgs10?.value);
+const rsiCur    = num(mvMap.rsi14?.value);
+
+const phaseGates = [
+  { label: '10Y Treasury', current: dgs10Cur,     target: 4.0,  unit: '%', direction: 'below', note: 'rate headwind clears'  },
+  { label: 'Fed Funds',    current: currentFedRate,target: 3.0,  unit: '%', direction: 'below', note: 'money loosening'       },
+  { label: 'VIX',          current: vixCur,        target: 15.0, unit: '',  direction: 'below', note: 'sustained calm'        },
+  { label: 'HY OAS',       current: creditCur,     target: 2.5,  unit: '',  direction: 'below', note: 'credit stress clear'   },
+  { label: 'RSI 14',       current: rsiCur,        target: 55.0, unit: '',  direction: 'above', note: 'trend sustained'       },
+];
+
+const gateRows = phaseGates.map(g => {
+  const gs      = gateStatus(g.current, g.target, g.direction);
+  const curStr  = g.current != null
+    ? (g.unit === '%' ? g.current.toFixed(2) + '%' : g.current.toFixed(1))
+    : '—';
+  const tgtStr  = g.direction === 'below' ? `<${g.target}${g.unit}` : `>${g.target}${g.unit}`;
+  return `<div class="mu-gate-row">
+    <span class="mu-gate-name">${esc(g.label)}</span>
+    <span class="mu-gate-cur">${curStr}</span>
+    <span class="mu-gate-tgt">${tgtStr}</span>
+    <span class="mu-gate-icon" style="color:${gs.col}">${gs.icon}</span>
+    <span class="mu-gate-note">${esc(g.note)}</span>
+  </div>`;
+}).join('');
+
+const confirmSignals = signals.filter(s => s.color === 'green');
+const blockSignals   = signals.filter(s => s.color === 'red');
+
+const confirmRows = confirmSignals.map(s =>
+  `<div class="mu-tension-row">
+    <span class="mu-tension-name">${esc(s.name)}</span>
+    <span class="mu-tension-val">${s.display}</span>
+    <span class="mu-tension-sub mu-good">${esc(s.label)}</span>
+  </div>`).join('');
+
+const blockRows = blockSignals.map(s =>
+  `<div class="mu-tension-row">
+    <span class="mu-tension-name">${esc(s.name)}</span>
+    <span class="mu-tension-val">${s.display}</span>
+    <span class="mu-tension-sub mu-bad">${esc(s.label)}</span>
+  </div>`).join('');
+
+const tensionGatesHtml = `<div class="mu-tension-block">
+  <div class="mu-tension-col">
+    <div class="mu-tension-head mu-good">Confirming C <small>why this isn't Phase B anymore</small></div>
+    ${confirmRows}
+  </div>
+  <div class="mu-tension-col">
+    <div class="mu-tension-head mu-bad">Holding back D <small>what's still blocking expansion</small></div>
+    ${blockRows}
+  </div>
+  <div class="mu-tension-col mu-gates-col">
+    <div class="mu-tension-head">Gate to Phase D <small>measurable conditions</small></div>
+    ${gateRows}
+  </div>
+</div>`;
 
 // ── Sector heat map ───────────────────────────────────────────────────────────
 
@@ -1209,6 +1287,35 @@ const style = `<style id="macro-unified-style">
 .mu-sector-legend span{display:flex;align-items:center;gap:5px}
 .mu-sector-legend i{width:7px;height:7px;display:inline-block}
 
+/* ── Signal bar (regime header) ── */
+.mu-sigbar{display:flex;align-items:center;gap:12px;margin-top:14px}
+.mu-sigbar-dots{display:flex;gap:5px;align-items:center}
+.mu-sdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.mu-sigbar-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(26,23,20,.38);font-family:var(--mono,monospace)}
+/* ── Tension + gates block ── */
+.mu-tension-block{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:0;border-bottom:1px solid rgba(201,191,173,.45);padding:20px 0}
+.mu-tension-col{padding-right:20px;border-right:1px solid rgba(201,191,173,.38);margin-right:0}
+.mu-tension-col:last-child{border-right:none;padding-right:0;padding-left:20px}
+.mu-gates-col{padding-left:20px!important;padding-right:0}
+.mu-tension-head{font-size:9px;text-transform:uppercase;letter-spacing:.13em;font-weight:600;margin-bottom:12px;font-family:var(--mono,monospace)}
+.mu-tension-head.mu-good{color:#2a6b4a}
+.mu-tension-head.mu-bad{color:#A4502F}
+.mu-tension-head{color:rgba(26,23,20,.45)}
+.mu-tension-head small{display:block;font-size:9px;font-weight:400;margin-top:2px;color:rgba(26,23,20,.38);text-transform:none;letter-spacing:0}
+.mu-tension-row{display:grid;grid-template-columns:90px 48px 1fr;gap:6px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
+.mu-tension-row:last-child{border-bottom:none}
+.mu-tension-name{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
+.mu-tension-val{font-size:12px;font-weight:600;font-family:var(--mono,monospace);color:rgba(26,23,20,.8)}
+.mu-tension-sub{font-size:10px;letter-spacing:.04em}
+.mu-gate-row{display:grid;grid-template-columns:90px 52px 52px 16px 1fr;gap:5px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
+.mu-gate-row:last-child{border-bottom:none}
+.mu-gate-name{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
+.mu-gate-cur{font-size:12px;font-weight:600;font-family:var(--mono,monospace);color:rgba(26,23,20,.8)}
+.mu-gate-tgt{font-size:10px;color:rgba(26,23,20,.4)}
+.mu-gate-icon{font-size:12px;font-weight:700;text-align:center}
+.mu-gate-note{font-size:10px;color:rgba(26,23,20,.4)}
+@media(max-width:960px){.mu-tension-block{grid-template-columns:1fr 1fr}.mu-gates-col{grid-column:1/-1;border-top:1px solid rgba(201,191,173,.38);padding-top:14px;margin-top:10px;padding-left:0!important;border-right:none}}
+@media(max-width:640px){.mu-tension-block{grid-template-columns:1fr}}
 /* ── Phase bridge ── */
 .mu-phase-bridge{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-pb-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.35);margin-bottom:10px;font-family:var(--mono,monospace)}
@@ -1291,6 +1398,7 @@ ${style}
     <div>
       <p class="mu-phase-eyebrow">Macro intelligence · Phase ${phaseCode} · ${diagLabel}</p>
       <h2 class="mu-phase-title">${phaseName}</h2>
+      ${signalBarHtml}
       <div class="mu-action">
         <span>What to do</span>
         <b>${action}</b>
@@ -1320,36 +1428,8 @@ ${style}
     </div>` : ''}
   </div>
 
-  <!-- Cycle analysis: anchored chart + 4-column argument -->
-  ${cycleAnalysisHtml}
-
-  <!-- VIX + Indices pulse row -->
-  <div class="mu-charts-row">
-    <div class="mu-chart-block" style="flex:1">
-      <div class="mu-chart-head">
-        <h3>VIX — fear gauge (90 days)</h3>
-        <span>Calm &lt;15 · Watchful 15–25 · Elevated &gt;25</span>
-      </div>
-      ${vixChart}
-    </div>
-    <div class="mu-vix-block" style="flex:1">
-      <div class="mu-chart-head">
-        <h3>Where is the money? — 90-day performance</h3>
-        <span>SPY · QQQ · IWM · BTC</span>
-      </div>
-      ${indicesPulse}
-    </div>
-  </div>
-
-
-  <!-- Scorecard strip -->
-  <div class="mu-scorecard">
-    <div class="mu-sc-head">
-      <h3>Economy scorecard — 10 signals</h3>
-      <span class="mu-sc-summary">${scSummary}</span>
-    </div>
-    <div class="mu-sc-strip">${scStrip}</div>
-  </div>
+  <!-- Phase C tension + transition gates -->
+  ${tensionGatesHtml}
 
   <!-- Cycle + sector rotation -->
   <div class="mu-cycle-row">

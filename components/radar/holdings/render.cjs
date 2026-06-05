@@ -88,39 +88,101 @@ function signalCls(signal) {
   return '';
 }
 
-// Build LWC payload for a holding (candle data + MA data + zone levels)
+// Zone position bar — SVG showing price context between stop → buy → trim
+function buildZoneBar(h) {
+  if (h.exit_only) return '';
+  const c    = num(h.current);
+  const stop = num(h.stop);
+  const bl   = num(h.buy_zone?.low);
+  const bh   = num(h.buy_zone?.high);
+  const tl   = num(h.trim_zone?.low);
+  const th   = num(h.trim_zone?.high);
+  if (c === null) return '';
+
+  // Determine scale range — from well below stop to well above trim
+  const floorRef  = stop ?? (bl ? bl * 0.92 : c * 0.85);
+  const ceilRef   = th  ?? (tl ? tl * 1.05 : c * 1.15);
+  const lo = Math.min(floorRef * 0.97, c * 0.97);
+  const hi = Math.max(ceilRef  * 1.03, c * 1.03);
+  const span = hi - lo;
+  if (span <= 0) return '';
+
+  const BAR_W = 540, BAR_H = 22, ML = 50, MR = 50;
+  const TW = BAR_W - ML - MR;
+  const px = v => ML + ((v - lo) / span) * TW;
+
+  let segs = '';
+  // Stop → buy_low: danger zone (red-tint)
+  if (stop !== null && bl !== null) {
+    const x1 = px(stop), x2 = px(bl);
+    if (x2 > x1) segs += `<rect x="${x1.toFixed(1)}" y="0" width="${(x2-x1).toFixed(1)}" height="${BAR_H}" fill="rgba(164,80,47,.14)"/>`;
+  }
+  // Buy zone band (green)
+  if (bl !== null && bh !== null) {
+    const x1 = px(bl), x2 = px(bh);
+    if (x2 > x1) segs += `<rect x="${x1.toFixed(1)}" y="0" width="${(x2-x1).toFixed(1)}" height="${BAR_H}" fill="rgba(42,107,74,.2)" stroke="rgba(42,107,74,.4)" stroke-width="0.8"/>`;
+  }
+  // Trim zone band (amber)
+  if (tl !== null && th !== null) {
+    const x1 = px(tl), x2 = px(th);
+    if (x2 > x1) segs += `<rect x="${x1.toFixed(1)}" y="0" width="${(x2-x1).toFixed(1)}" height="${BAR_H}" fill="rgba(138,106,44,.18)" stroke="rgba(138,106,44,.4)" stroke-width="0.8"/>`;
+  }
+  // Stop line
+  if (stop !== null) {
+    const sx = px(stop);
+    segs += `<line x1="${sx.toFixed(1)}" y1="0" x2="${sx.toFixed(1)}" y2="${BAR_H}" stroke="rgba(164,80,47,.6)" stroke-width="1.5"/>`;
+    segs += `<text x="${sx.toFixed(1)}" y="${BAR_H+11}" text-anchor="middle" font-size="9" fill="rgba(164,80,47,.7)">STOP</text>`;
+    segs += `<text x="${sx.toFixed(1)}" y="${BAR_H+21}" text-anchor="middle" font-size="8" fill="rgba(164,80,47,.55)">$${fmt(stop,2)}</text>`;
+  }
+  // Buy zone labels
+  if (bl !== null && bh !== null) {
+    const mid = (px(bl)+px(bh))/2;
+    segs += `<text x="${mid.toFixed(1)}" y="${BAR_H+11}" text-anchor="middle" font-size="9" fill="rgba(42,107,74,.8)" font-weight="600">BUY ZONE</text>`;
+    segs += `<text x="${mid.toFixed(1)}" y="${BAR_H+21}" text-anchor="middle" font-size="8" fill="rgba(42,107,74,.6)">$${fmt(bl,0)}–$${fmt(bh,0)}</text>`;
+  }
+  // Trim label
+  if (tl !== null) {
+    const tx = px(tl);
+    segs += `<text x="${tx.toFixed(1)}" y="${BAR_H+11}" text-anchor="middle" font-size="9" fill="rgba(138,106,44,.75)">TRIM</text>`;
+    segs += `<text x="${tx.toFixed(1)}" y="${BAR_H+21}" text-anchor="middle" font-size="8" fill="rgba(138,106,44,.6)">$${fmt(tl,0)}+</text>`;
+  }
+  // Current price dot
+  const cx2 = px(c);
+  segs += `<circle cx="${cx2.toFixed(1)}" cy="${(BAR_H/2).toFixed(1)}" r="6" fill="rgba(26,23,20,.85)" stroke="#F7F3EB" stroke-width="2"/>`;
+  segs += `<text x="${cx2.toFixed(1)}" y="${-6}" text-anchor="middle" font-size="9" fill="rgba(26,23,20,.8)" font-weight="600">$${fmt(c,2)}</text>`;
+
+  return `<svg class="mu-zone-bar-svg" viewBox="0 -14 ${BAR_W} ${BAR_H+34}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+  <rect x="${ML}" y="0" width="${TW}" height="${BAR_H}" fill="rgba(201,191,173,.12)" rx="3"/>
+  ${segs}
+</svg>`;
+}
+
+// Build LWC payload — 1-year window, clean annotations
 function buildLwcPayload(h) {
   const ticker  = String(h.ticker || '').toUpperCase();
-  const candles = loadCandles(ticker, 200);
-  const display = candles.slice(-90);
+  // Load full history for correct MA computation; show last 252 candles (≈1 year)
+  const allCdls = loadCandles(ticker, 1300);
+  const display = allCdls.slice(-252);
   if (!display.length) return null;
 
-  // MA computed over full history, displayed for last 90
-  const allMa50  = computeMAValues(candles, Math.min(50,  candles.length));
-  const allMa200 = computeMAValues(candles, Math.min(200, candles.length));
+  // MAs computed from full history, filtered to display range
+  const allMa50  = computeMAValues(allCdls, Math.min(50,  allCdls.length));
+  const allMa200 = computeMAValues(allCdls, Math.min(200, allCdls.length));
   const startTime = display[0].time;
   const ma50Data  = allMa50 .filter(d => d.time >= startTime);
   const ma200Data = allMa200.filter(d => d.time >= startTime);
 
-  const candleData = display.map(c => ({
-    time: c.time, open: c.open, high: c.high, low: c.low, close: c.close,
-  }));
-
   return {
     id:       `lwc-${ticker}`,
-    candles:  candleData,
+    candles:  display.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close })),
     ma50:     ma50Data,
     ma200:    ma200Data,
+    // Only the 3 most important levels on chart — no axis label clutter
     zones: {
-      hasBuyZone:   h.has_buy_zone || false,
-      buyLow:       h.buy_zone?.low   ?? null,
-      buyHigh:      h.buy_zone?.high  ?? null,
-      trimLow:      h.trim_zone?.low  ?? null,
-      trimHigh:     h.trim_zone?.high ?? null,
-      stop:         h.stop            ?? null,
-      trigger:      h.trigger         ?? null,
-      triggerLabel: h.trigger_label   ?? null,
-      current:      h.current         ?? null,
+      hasBuyZone: h.has_buy_zone || false,
+      buyLow:     h.buy_zone?.low  ?? null,
+      buyHigh:    h.buy_zone?.high ?? null,
+      stop:       h.stop           ?? null,
     },
   };
 }
@@ -199,6 +261,7 @@ function renderHoldingCard(h) {
     </div>
   </div>
   <div class="mu-chart-wrap"><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div></div>
+  <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
   ${levelsHtml}
   <div class="mu-posture-row ${esc(verdict.cls)}"><b>${esc(verdict.text)}</b></div>
   ${thesisHtml}${watchHtml}
@@ -240,27 +303,24 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     var cs=chart.addCandlestickSeries({
       upColor:'#2a6b4a',downColor:'#A4502F',
       borderUpColor:'#2a6b4a',borderDownColor:'#A4502F',
-      wickUpColor:'rgba(42,107,74,.65)',wickDownColor:'rgba(164,80,47,.55)'
+      wickUpColor:'rgba(42,107,74,.6)',wickDownColor:'rgba(164,80,47,.5)',
+      priceLineVisible:false
     });
     cs.setData(data.candles);
-    var ma50s=chart.addLineSeries({color:'#8a6a2c',lineWidth:1.5,priceLineVisible:false,lastValueVisible:true,title:'MA50',crosshairMarkerVisible:false});
+    // MA50 — amber, lighter weight
+    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.6)',lineWidth:1.2,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
     ma50s.setData(toLineData(data.ma50));
-    var ma200s=chart.addLineSeries({color:'#4d6f91',lineWidth:1.8,priceLineVisible:false,lastValueVisible:true,title:'MA200',crosshairMarkerVisible:false});
+    // MA200 — blue, prominent
+    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.85)',lineWidth:2,priceLineVisible:false,lastValueVisible:true,title:'MA200',crosshairMarkerVisible:false});
     ma200s.setData(toLineData(data.ma200));
     var z=data.zones;
+    // Only 3 clean lines: buy zone boundaries + stop — no axis labels (zone bar below handles that)
     if(z.hasBuyZone&&z.buyHigh!=null){
-      cs.createPriceLine({price:z.buyHigh,color:'rgba(42,107,74,.55)',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Buy ↑'});
-      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.35)',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Buy ↓'});
-    }
-    if(z.trimHigh!=null){
-      cs.createPriceLine({price:z.trimHigh,color:'rgba(138,106,44,.5)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});
-      cs.createPriceLine({price:z.trimLow, color:'rgba(138,106,44,.35)',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'Trim'});
+      cs.createPriceLine({price:z.buyHigh,color:'rgba(42,107,74,.55)',lineWidth:1.5,lineStyle:2,axisLabelVisible:false,title:''});
+      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.45)',lineWidth:1.5,lineStyle:2,axisLabelVisible:false,title:''});
     }
     if(z.stop!=null){
-      cs.createPriceLine({price:z.stop,color:'rgba(164,80,47,.55)',lineWidth:1,lineStyle:1,axisLabelVisible:true,title:'Stop'});
-    }
-    if(z.trigger!=null){
-      cs.createPriceLine({price:z.trigger,color:'rgba(77,111,145,.55)',lineWidth:1.2,lineStyle:2,axisLabelVisible:true,title:z.triggerLabel||'Target'});
+      cs.createPriceLine({price:z.stop,color:'rgba(164,80,47,.5)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:''});
     }
     chart.timeScale().fitContent();
     if(typeof ResizeObserver!=='undefined'){
@@ -331,8 +391,11 @@ function renderHoldingsStyle() {
 .mu-price{font-size:22px;font-weight:700;line-height:1}
 .mu-day-chg{font-size:13px;font-weight:600;margin-top:3px}
 /* LWC chart */
-.mu-chart-wrap{margin:10px 0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:rgba(251,250,246,.04)}
-.mu-holding-lwc{width:100%;height:260px}
+.mu-chart-wrap{margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
+.mu-holding-lwc{width:100%;height:300px}
+/* Zone position bar */
+.mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:rgba(251,250,246,.06)}
+.mu-zone-bar-svg{display:block;width:100%;height:auto}
 /* Levels strip */
 .mu-levels-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:8px 0}
 .mu-level-cell{padding:10px 12px;border-right:1px solid var(--rule)}
@@ -374,7 +437,7 @@ function renderHoldingsStyle() {
   .mu-level-cell:nth-child(n+3){border-top:1px solid var(--rule)}
   .mu-ticker{font-size:22px}
   .mu-price{font-size:18px}
-  .mu-holding-lwc{height:200px}
+  .mu-holding-lwc{height:220px}
 }
 </style>`;
 }

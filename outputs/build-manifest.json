@@ -1,28 +1,56 @@
 {
-  "generatedAt": "2026-06-04T17:38:45.539Z",
-  "mode": "homepage-build-failure-diagnostics",
-  "status": "FAILED",
-  "error": "Holdings: node scripts/validate-holding-zone-state.cjs failed",
-  "money_cash": {
-    "state_present": true,
-    "validation_present": true,
-    "coverage": "PARTIAL",
-    "validation_status": "OK",
-    "validation_errors": [],
-    "validation_warnings": [
-      "validated against compact seed cache; live FRED refresh is still required before production-grade analysis"
-    ],
-    "chart_rows": {
-      "tbill_3m_yield": 32,
-      "cpi_yoy": 23,
-      "real_cash_yield": 31
+  "generatedAt": "2026-06-05T16:14:52.532Z",
+  "mode": "production-stabilized",
+  "productionRule": "Only deploy modules that have survived Vercel production build verification.",
+  "includedInProduction": [
+    "validate-report",
+    "current-review",
+    "agent-notes",
+    "holding-pages",
+    "signal-scorecards",
+    "agent-intelligence",
+    "chart-cognition",
+    "static-homepage",
+    "portfolio-scoreboard",
+    "action-proximity",
+    "strategy-interpretations",
+    "portfolio-exposure-map",
+    "research-candidate-map",
+    "system-quality-score-private",
+    "strategy-command",
+    "strategy-cards",
+    "safe-homepage-information-hierarchy-guide",
+    "strategy-interpreter-workbenches",
+    "chart-first-workbenches",
+    "proportion-tuning",
+    "production-validations",
+    "build-version-footer",
+    "vercel-output"
+  ],
+  "excludedFromProduction": [
+    {
+      "module": "thesis-dossier",
+      "reason": "Failed Vercel deployment when wired into production. Must be debugged and graduated from experimental build first.",
+      "command": "npm run build:experimental:thesis"
     },
-    "missing_evidence": [
-      "Treasury bill supply is declared in Mission 3 but not implemented in this first generator.",
-      "Stablecoin supply is Phase 2 and requires a crypto liquidity provider.",
-      "Money-market assets, bank reserves, M2, financial conditions, TGA, reverse repo, and SOFR remain pending in the cache-backed first visual pass.",
-      "Seed cache is compact and must be replaced by live FRED refresh before production-grade analysis."
-    ]
-  },
-  "homepage_report": "outputs/capital-radar-home-build-report.json"
+    {
+      "module": "research-evidence-engine",
+      "reason": "Depends on thesis path and failed when wired with thesis. Must be debugged after thesis stabilizes.",
+      "command": "npm run build:experimental:evidence"
+    },
+    {
+      "module": "full-homepage-reorder",
+      "reason": "Previous regex-based reordering destabilized build. Must be moved into source homepage builder before production use.",
+      "command": null
+    }
+  ],
+  "graduationChecklist": [
+    "runs without throwing",
+    "idempotent output",
+    "marker-based insertion if injector is unavoidable",
+    "does not remove unrelated sections",
+    "minimal deploy-safe validation",
+    "successful Vercel deployment in isolation",
+    "footer build hash confirms live deployment"
+  ]
 }

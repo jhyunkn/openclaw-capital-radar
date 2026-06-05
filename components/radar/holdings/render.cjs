@@ -88,6 +88,28 @@ function signalCls(signal) {
   return '';
 }
 
+function permissionTone(permission, capitalAllowed, lossMinimizationRequired) {
+  const p = String(permission || '').toUpperCase();
+  if (capitalAllowed === true || /ADD REVIEW ALLOWED/.test(p)) return 'good';
+  if (lossMinimizationRequired === true || /EXIT|TRIM|DEFEND/.test(p)) return 'bad';
+  if (/VERIFY|NO ADD|HOLD|WAIT|BLOCK/.test(p)) return 'warn';
+  return '';
+}
+
+function renderPermissionRow(route = {}) {
+  const permission = route.execution_permission || route.route_permission || 'HOLD / VERIFY';
+  const tone = permissionTone(permission, route.capital_allowed, route.loss_minimization_required);
+  const capitalText = route.capital_allowed === true
+    ? 'capital allowed only after add-review gates'
+    : 'new capital blocked';
+  const blocker = route.permission_blocker || route.route_overlay || route.route_action || 'Require confirmation before changing exposure.';
+  return `<div class="mu-permission-row ${tone}">
+    <div><span>Zone signal</span><b>${esc(route.zone_status || 'price zone check')}</b></div>
+    <div><span>Execution permission</span><b>${esc(permission)}</b></div>
+    <div><span>Capital use</span><b>${esc(capitalText)}</b><small>${esc(blocker)}</small></div>
+  </div>`;
+}
+
 // Zone position bar — SVG showing price context between stop → buy → trim
 function buildZoneBar(h) {
   if (h.exit_only) return '';
@@ -187,7 +209,7 @@ function buildLwcPayload(h) {
   };
 }
 
-function renderHoldingCard(h) {
+function renderHoldingCard(h, route = {}) {
   const ticker     = String(h.ticker || '').toUpperCase();
   const signal     = String(h.signal || 'HOLD').toUpperCase();
   const sigCls     = signalCls(signal);
@@ -264,6 +286,7 @@ function renderHoldingCard(h) {
   <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
   ${levelsHtml}
   <div class="mu-posture-row ${esc(verdict.cls)}"><b>${esc(verdict.text)}</b></div>
+  ${renderPermissionRow(route)}
   ${thesisHtml}${watchHtml}
   <div class="mu-tech-row">${ma50chk}${ma200chk}${rationale}</div>
 </article>`;
@@ -337,7 +360,8 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
 })();
 </script>`;
 
-  const cards = holdings.map(h => renderHoldingCard(h)).join('');
+  const routeByTicker = buildLookup(zoneState.zones || []);
+  const cards = holdings.map(h => renderHoldingCard(h, routeByTicker[String(h.ticker || '').toUpperCase()] || {})).join('');
 
   return `<section id="holdings-section" class="panel mu-holdings-section">
   <div class="section-head">
@@ -345,6 +369,7 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
       <p class="eyebrow">Holdings</p>
       <h2>Decision chart — position radar</h2>
       <p class="mu-section-desc">Zones anchored to MA levels &amp; 90D swing support — not % bands from current price. Charts are interactive — scroll and pinch to zoom.${asOf ? ` Data as of ${esc(asOf)}.` : ''}</p>
+      <p class="mu-permission-explainer">Terms stay familiar: Buy means a buy-zone signal. Permission shows whether capital is actually allowed after route, evidence, and risk gates.</p>
     </div>
     <a class="button" href="outputs/holding-decision-zones.json">Open artifact</a>
   </div>
@@ -421,6 +446,20 @@ function renderHoldingsStyle() {
 .mu-posture-row.bad b{color:var(--red)}
 .mu-posture-row.warn{border-color:rgba(138,106,44,.3);background:rgba(138,106,44,.06)}
 .mu-posture-row.warn b{color:var(--warn)}
+/* Signal vs permission */
+.mu-permission-explainer{max-width:760px;color:var(--muted);font-size:12px;line-height:1.4;margin:6px 0 0}
+.mu-permission-row{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:8px 0;background:rgba(251,250,246,.08)}
+.mu-permission-row>div{padding:9px 11px;border-right:1px solid var(--rule);min-width:0}
+.mu-permission-row>div:last-child{border-right:none}
+.mu-permission-row span{display:block;font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.mu-permission-row b{display:block;font-size:12px;line-height:1.25;overflow-wrap:anywhere}
+.mu-permission-row small{display:block;color:var(--muted);font-size:10px;line-height:1.3;margin-top:3px}
+.mu-permission-row.good{border-color:rgba(47,111,78,.32);background:rgba(47,111,78,.06)}
+.mu-permission-row.good b{color:var(--green)}
+.mu-permission-row.warn{border-color:rgba(138,106,44,.32);background:rgba(138,106,44,.06)}
+.mu-permission-row.warn b{color:var(--warn)}
+.mu-permission-row.bad{border-color:rgba(164,80,47,.32);background:rgba(164,80,47,.06)}
+.mu-permission-row.bad b{color:var(--red)}
 /* Thesis */
 .mu-thesis-row{margin:6px 0;display:flex;gap:10px;align-items:baseline}
 .mu-thesis-row>span{flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:62px}
@@ -434,6 +473,9 @@ function renderHoldingsStyle() {
 .mu-zone-rationale{font-size:10px;color:var(--muted);letter-spacing:.02em}
 @media(max-width:640px){
   .mu-levels-strip{grid-template-columns:repeat(2,1fr)}
+  .mu-permission-row{grid-template-columns:1fr}
+  .mu-permission-row>div{border-right:none;border-bottom:1px solid var(--rule)}
+  .mu-permission-row>div:last-child{border-bottom:none}
   .mu-level-cell:nth-child(2n){border-right:none}
   .mu-level-cell:nth-child(n+3){border-top:1px solid var(--rule)}
   .mu-ticker{font-size:22px}

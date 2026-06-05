@@ -24,8 +24,10 @@ if (!fs.existsSync(indexPath)) {
 const html = fs.readFileSync(indexPath, 'utf8');
 const legacyRoleMethodRows = (html.match(/<div class="mini-row"><span>Role<\/span><b>[\s\S]*?<\/div><\/article>/g) || []).length;
 const holdingsSectionCount = (html.match(/id=["']holdings-section["']/g) || []).length;
-const zoneCardCount = (html.match(/class=["'][^"']*zone-card/g) || []).length;
-const permissionRowCount = (html.match(/class=["'][^"']*permission-row/g) || []).length;
+const legacyZoneCardCount = (html.match(/class=["'][^"']*zone-card/g) || []).length;
+const modularHoldingCardCount = (html.match(/class=["'][^"']*mu-holding-card/g) || []).length;
+const zoneCardCount = modularHoldingCardCount || legacyZoneCardCount;
+const permissionRowCount = (html.match(/class=["'][^"']*(?:mu-)?permission-row/g) || []).length;
 const hasSignalPermissionExplainer = html.includes('Terms stay familiar: Buy means a buy-zone signal. Permission shows whether capital is actually allowed');
 const zoneState = fs.existsSync(zoneStatePath) ? JSON.parse(fs.readFileSync(zoneStatePath, 'utf8')) : { zones: [] };
 const zones = Array.isArray(zoneState.zones) ? zoneState.zones : [];
@@ -52,6 +54,8 @@ const report = {
   status: warnings.length ? 'FAILED' : 'OK',
   holdings_section_count: holdingsSectionCount,
   zone_card_count: zoneCardCount,
+  modular_holding_card_count: modularHoldingCardCount,
+  legacy_zone_card_count: legacyZoneCardCount,
   permission_row_count: permissionRowCount,
   legacy_role_method_rows: legacyRoleMethodRows,
   checked_zone_permissions: zones.length,

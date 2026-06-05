@@ -971,7 +971,9 @@ function buildDailyBriefing() {
     } else if (isStrong || isRecovery) {
       strategy.push(`Do not chase the rally. Phase C advances can be sharp but typically retrace before Phase D confirms. Adds remain valid only on pullbacks to ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})}, not on breakouts.`);
     } else {
-      strategy.push(`Maintain current positioning. No action triggers are live — watch ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})} (add), ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})} (defense), VIX 20 (posture review), HY OAS 3.5% (phase warning).`);
+      const distToAdd = addLow && spx ? ((spx - addLow) / spx * 100).toFixed(1) : null;
+      const gapNote = distToAdd !== null ? ` SPX is ${distToAdd}% above the add zone (${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})}) — if the pullback continues, that is the prepared entry level, not a reason to act now.` : '';
+      strategy.push(`Watching, not acting.${gapNote} Triggers: add zone ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})} · defense ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})} · VIX 20 posture review · HY OAS 3.5% phase warning. No triggers hit — no action.`);
     }
   }
 

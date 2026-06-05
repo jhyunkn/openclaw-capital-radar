@@ -22,6 +22,8 @@ const config   = read('outputs/macro-configuration-state.json');
 const analogs  = read('outputs/macro-historical-analog-state.json');
 const portfolio= read('outputs/macro-portfolio-translation-state.json');
 const cycle    = read('outputs/macro-cycle-state.json');
+const liveState   = read('data/report-state.live.json', {});
+const allHoldings = Array.isArray(liveState.holdings) ? liveState.holdings : [];
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : null; };
@@ -946,6 +948,70 @@ const cycleSvg = `<svg viewBox="0 -48 700 240" xmlns="http://www.w3.org/2000/svg
   ${cycleNodes}
 </svg>`;
 
+// ── Phase → portfolio bridge ──────────────────────────────────────────────────
+
+function phaseAlignment(h) {
+  const p = h?.analysisChart?.profile || '';
+  if (p === 'tactical_risk')            return 'exposed';
+  if (p === 'speculative_verification') return 'building';
+  return 'aligned';
+}
+
+function pbSignalColor(sig) {
+  const s = (sig || '').toLowerCase();
+  if (s.includes('exit'))        return '#A4502F';
+  if (s.includes('trim'))        return '#A4502F';
+  if (s.includes('investigate')) return '#8a6a2c';
+  if (s.includes('hold'))        return '#2a6b4a';
+  return 'rgba(26,23,20,.5)';
+}
+
+function pbHoldingRow(h) {
+  const sig     = esc(h.computedSignal || h.signal || '—');
+  const perf    = h.perf3mPct;
+  const perfStr = perf != null ? (perf >= 0 ? `+${perf.toFixed(1)}%` : `${perf.toFixed(1)}%`) : '—';
+  const perfCol = perf != null ? (perf >= 0 ? '#2a6b4a' : '#A4502F') : 'rgba(26,23,20,.4)';
+  const sigCol  = pbSignalColor(h.computedSignal || h.signal);
+  return `<div class="mu-pb-row">
+    <b class="mu-pb-ticker">${esc(h.ticker)}</b>
+    <span class="mu-pb-sig" style="color:${sigCol}">${sig}</span>
+    <span class="mu-pb-perf" style="color:${perfCol}">${perfStr}</span>
+  </div>`;
+}
+
+const pbGroups = {
+  aligned:  allHoldings.filter(h => phaseAlignment(h) === 'aligned'),
+  exposed:  allHoldings.filter(h => phaseAlignment(h) === 'exposed'),
+  building: allHoldings.filter(h => phaseAlignment(h) === 'building'),
+};
+
+const phaseBridge = allHoldings.length > 0 ? `<div class="mu-phase-bridge">
+  <div class="mu-pb-label">Phase ${phaseCode} → portfolio alignment · ${allHoldings.length} positions</div>
+  <div class="mu-pb-grid">
+    <div class="mu-pb-col mu-pb-aligned">
+      <div class="mu-pb-head">
+        <span class="mu-pb-count">${pbGroups.aligned.length}</span>
+        <div><b>Aligned</b><small>Core · quality · index</small></div>
+      </div>
+      ${pbGroups.aligned.map(pbHoldingRow).join('')}
+    </div>
+    <div class="mu-pb-col mu-pb-exposed">
+      <div class="mu-pb-head">
+        <span class="mu-pb-count">${pbGroups.exposed.length}</span>
+        <div><b>Phase-exposed</b><small>Levered · needs Phase D/E</small></div>
+      </div>
+      ${pbGroups.exposed.map(pbHoldingRow).join('')}
+    </div>
+    <div class="mu-pb-col mu-pb-building">
+      <div class="mu-pb-head">
+        <span class="mu-pb-count">${pbGroups.building.length}</span>
+        <div><b>Verification</b><small>Thesis gates still open</small></div>
+      </div>
+      ${pbGroups.building.map(pbHoldingRow).join('')}
+    </div>
+  </div>
+</div>` : '';
+
 // ── Sector heat map ───────────────────────────────────────────────────────────
 
 function sectorColor(posture, tilt) {
@@ -1143,6 +1209,28 @@ const style = `<style id="macro-unified-style">
 .mu-sector-legend span{display:flex;align-items:center;gap:5px}
 .mu-sector-legend i{width:7px;height:7px;display:inline-block}
 
+/* ── Phase bridge ── */
+.mu-phase-bridge{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-pb-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.35);margin-bottom:10px;font-family:var(--mono,monospace)}
+.mu-pb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid rgba(201,191,173,.45)}
+.mu-pb-col{padding:14px 16px;border-right:1px solid rgba(201,191,173,.38)}
+.mu-pb-col:last-child{border-right:none}
+.mu-pb-aligned{background:rgba(42,107,74,.03)}
+.mu-pb-exposed{background:rgba(164,80,47,.04)}
+.mu-pb-building{background:rgba(138,106,44,.03)}
+.mu-pb-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(201,191,173,.35)}
+.mu-pb-count{font-size:32px;font-weight:500;letter-spacing:-.05em;line-height:1;color:rgba(26,23,20,.28)}
+.mu-pb-head b{display:block;font-size:12px;font-weight:600;margin-bottom:2px}
+.mu-pb-head small{display:block;color:rgba(26,23,20,.42);font-size:10px}
+.mu-pb-aligned .mu-pb-head b{color:#2a6b4a}
+.mu-pb-exposed .mu-pb-head b{color:#A4502F}
+.mu-pb-building .mu-pb-head b{color:#8a6a2c}
+.mu-pb-row{display:grid;grid-template-columns:44px 1fr auto;gap:6px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
+.mu-pb-row:last-child{border-bottom:none}
+.mu-pb-ticker{font-size:13px;font-weight:600;letter-spacing:.01em}
+.mu-pb-sig{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em}
+.mu-pb-perf{font-size:11px;font-weight:500;font-family:var(--mono,monospace);white-space:nowrap}
+@media(max-width:680px){.mu-pb-grid{grid-template-columns:1fr}}
 /* ── Action block ── */
 .mu-action-row{padding:20px 0 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 .mu-action-card{border:1px solid rgba(201,191,173,.55);background:rgba(255,255,255,.28);padding:14px 16px}
@@ -1277,6 +1365,8 @@ ${style}
       </div>
     </div>
   </div>
+
+  ${phaseBridge}
 
   <!-- Action block -->
   <div class="mu-action-row">

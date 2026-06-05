@@ -5,6 +5,28 @@ const path = require('path');
 const ROOT       = path.join(__dirname, '../../..');
 const CANDLE_DIR = path.join(ROOT, 'data', 'market-candles');
 
+const _fundPath = path.join(ROOT, 'data', 'fundamentals.manual.json');
+const _fundMetrics = (() => {
+  try { return JSON.parse(fs.readFileSync(_fundPath, 'utf8')).metrics || {}; }
+  catch { return {}; }
+})();
+
+function computeSubstanceFloor(ticker, livePrice) {
+  const f = _fundMetrics[String(ticker).toUpperCase()] || {};
+  if (f.notApplicable || !f.forwardPE || !livePrice) return null;
+  const eps      = livePrice / f.forwardPE;
+  const floor15  = Math.round(eps * 15 * 100) / 100;
+  const balloonPct = Math.round(((livePrice - floor15) / floor15) * 1000) / 10;
+  const substancePct = Math.round((floor15 / livePrice) * 1000) / 10;
+  let cycleRead;
+  if (balloonPct < 30)       cycleRead = 'Phase B–C · near floor';
+  else if (balloonPct < 70)  cycleRead = 'Phase C · moderate premium';
+  else if (balloonPct < 130) cycleRead = 'Phase C–D · expectations priced in';
+  else if (balloonPct < 220) cycleRead = 'Phase D · strong growth priced in';
+  else                        cycleRead = 'Phase D–E · high hope premium';
+  return { floor15, balloonPct, substancePct, cycleRead };
+}
+
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const arr = v => Array.isArray(v) ? v : [];
@@ -194,17 +216,19 @@ function buildLwcPayload(h) {
   const ma50Data  = allMa50 .filter(d => d.time >= startTime);
   const ma200Data = allMa200.filter(d => d.time >= startTime);
 
+  const sf = computeSubstanceFloor(ticker, num(h.current));
   return {
     id:       `lwc-${ticker}`,
     candles:  display.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close })),
     ma50:     ma50Data,
     ma200:    ma200Data,
-    // Only the 3 most important levels on chart — no axis label clutter
+    // Only the most important levels on chart — no axis label clutter
     zones: {
-      hasBuyZone: h.has_buy_zone || false,
-      buyLow:     h.buy_zone?.low  ?? null,
-      buyHigh:    h.buy_zone?.high ?? null,
-      stop:       h.stop           ?? null,
+      hasBuyZone:  h.has_buy_zone || false,
+      buyLow:      h.buy_zone?.low  ?? null,
+      buyHigh:     h.buy_zone?.high ?? null,
+      stop:        h.stop           ?? null,
+      floorPrice:  sf?.floor15      ?? null,
     },
   };
 }
@@ -263,6 +287,19 @@ function renderHoldingCard(h, route = {}) {
   const rationale = h.zone_rationale
     ? `<span class="mu-zone-rationale">${esc(h.zone_rationale)}</span>` : '';
 
+  const sf = computeSubstanceFloor(ticker, num(h.current));
+  const substanceHtml = sf ? (() => {
+    const subW = Math.round(Math.max(2, Math.min(98, sf.substancePct)) * 10) / 10;
+    const hopW = Math.round((100 - subW) * 10) / 10;
+    return `<div class="mu-substance-strip">
+    <div class="mu-substance-bar"><div class="mu-substance-seg mu-sub" style="width:${subW}%"></div><div class="mu-substance-seg mu-hop" style="width:${hopW}%"></div></div>
+    <div class="mu-substance-meta">
+      <span class="mu-sub-label">Floor <b>$${fmt(sf.floor15,0)}</b> · ${sf.substancePct}% substance</span>
+      <span class="mu-hop-label">+${sf.balloonPct}% hope · ${esc(sf.cycleRead)}</span>
+    </div>
+  </div>`;
+  })() : '';
+
   return `<article class="mu-holding-card" data-ticker="${esc(ticker)}" data-profile="${esc(h.profile)}" data-zone-status="${esc(zoneStatus)}">
   <div class="mu-card-header">
     <div class="mu-header-left">
@@ -285,6 +322,7 @@ function renderHoldingCard(h, route = {}) {
   <div class="mu-chart-wrap"><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div></div>
   <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
   ${levelsHtml}
+  ${substanceHtml}
   <div class="mu-posture-row ${esc(verdict.cls)}"><b>${esc(verdict.text)}</b></div>
   ${renderPermissionRow(route)}
   ${thesisHtml}${watchHtml}
@@ -345,6 +383,10 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     // Stop: thick solid red, axis label
     if(z.stop!=null){
       cs.createPriceLine({price:z.stop,color:'#A4502F',lineWidth:1.5,lineStyle:0,axisLabelVisible:true,title:'Stop'});
+    }
+    // Substanzwert floor: dashed indigo — what the business earns today (15× EPS)
+    if(z.floorPrice!=null){
+      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.72)',lineWidth:1.5,lineStyle:2,axisLabelVisible:true,title:'Floor'});
     }
     chart.timeScale().fitContent();
     if(typeof ResizeObserver!=='undefined'){
@@ -465,6 +507,16 @@ function renderHoldingsStyle() {
 .mu-thesis-row>span{flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:62px}
 .mu-thesis-row>p{margin:0;font-size:12px;line-height:1.45;color:var(--muted)}
 .mu-invalidation>span{color:rgba(164,80,47,.7)}
+/* Substanzwert strip */
+.mu-substance-strip{margin:6px 0;border:1px solid rgba(100,80,180,.22);border-radius:10px;padding:8px 12px;background:rgba(100,80,180,.04)}
+.mu-substance-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:6px}
+.mu-substance-seg{height:100%}
+.mu-sub{background:rgba(47,111,78,.35)}
+.mu-hop{background:rgba(138,106,44,.32)}
+.mu-substance-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.mu-sub-label{font-size:10px;color:var(--muted)}
+.mu-sub-label b{color:rgba(100,80,180,.9);font-weight:700}
+.mu-hop-label{font-size:10px;color:var(--muted)}
 /* Tech row */
 .mu-tech-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
 .mu-ma-check{font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;border:1px solid var(--rule)}

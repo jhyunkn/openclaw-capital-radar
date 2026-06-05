@@ -1460,20 +1460,21 @@ details[open].mu-details summary:before{content:'↑'}
       priceLineVisible:false
     });
     cs.setData(data.candles);
-    // MA50 — amber, lighter weight
-    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.6)',lineWidth:1.2,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    // MA50 — amber dashed, secondary reference
+    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.55)',lineWidth:1.5,lineStyle:1,priceLineVisible:false,lastValueVisible:true,title:'MA50',crosshairMarkerVisible:false});
     ma50s.setData(toLineData(data.ma50));
-    // MA200 — blue, prominent
-    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.85)',lineWidth:2,priceLineVisible:false,lastValueVisible:true,title:'MA200',crosshairMarkerVisible:false});
+    // MA200 — blue solid, primary anchor
+    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.9)',lineWidth:2,priceLineVisible:false,lastValueVisible:true,title:'MA200',crosshairMarkerVisible:false});
     ma200s.setData(toLineData(data.ma200));
     var z=data.zones;
-    // Only 3 clean lines: buy zone boundaries + stop — no axis labels (zone bar below handles that)
+    // Buy zone: thick solid green lines with axis labels — clearly readable
     if(z.hasBuyZone&&z.buyHigh!=null){
-      cs.createPriceLine({price:z.buyHigh,color:'rgba(42,107,74,.55)',lineWidth:1.5,lineStyle:2,axisLabelVisible:false,title:''});
-      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.45)',lineWidth:1.5,lineStyle:2,axisLabelVisible:false,title:''});
+      cs.createPriceLine({price:z.buyHigh,color:'#2a6b4a',lineWidth:2,lineStyle:0,axisLabelVisible:true,title:'Buy'});
+      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.65)',lineWidth:2,lineStyle:0,axisLabelVisible:true,title:'Buy'});
     }
+    // Stop: thick solid red, axis label
     if(z.stop!=null){
-      cs.createPriceLine({price:z.stop,color:'rgba(164,80,47,.5)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:''});
+      cs.createPriceLine({price:z.stop,color:'#A4502F',lineWidth:1.5,lineStyle:0,axisLabelVisible:true,title:'Stop'});
     }
     chart.timeScale().fitContent();
     if(typeof ResizeObserver!=='undefined'){

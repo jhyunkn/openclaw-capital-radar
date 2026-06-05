@@ -106,15 +106,15 @@ function computeZones(ticker, profile, candles, livePrice) {
     };
   }
 
-  // core_or_quality
+  // core_or_quality — three-case logic
   if (above_ma200) {
-    // price > MA200: buy near 200D, trim near 90D high
+    // Price above 200D MA: 200D is the support floor
     return {
       ...base,
       buy_zone:       { low: round2(ma200 * 0.98), high: round2(ma200 * 1.02) },
       trim_zone:      high90 !== null
         ? { low: round2(high90 * 0.97), high: round2(high90 * 1.03) }
-        : null,
+        : { low: round2(ma200 * 1.12), high: round2(ma200 * 1.20) },
       stop:           round2(ma200 * 0.93),
       trigger:        round2(ma200),
       trigger_label:  '200D MA defend',
@@ -122,20 +122,34 @@ function computeZones(ticker, profile, candles, livePrice) {
       has_buy_zone:   true,
       exit_only:      false,
     };
+  } else if (above_ma50) {
+    // Price between MA50 and MA200: MA50 is immediate support, MA200 is the reclaim target
+    return {
+      ...base,
+      buy_zone:       { low: round2(ma50 * 0.96), high: round2(ma50 * 1.01) },
+      trim_zone:      { low: round2(ma200 * 0.97), high: round2(ma200 * 1.03) },
+      stop:           round2(ma50 * 0.90),
+      trigger:        round2(ma200),
+      trigger_label:  '200D MA reclaim',
+      zone_rationale: 'MA50 support — 200D MA reclaim needed',
+      has_buy_zone:   true,
+      exit_only:      false,
+    };
   } else {
-    // price < MA200: buy near 90D low, trim near 200D
+    // Price below MA50: both MAs are above, use 90D swing low as structural support
+    // Trim zone is above MA50 (meaningful recovery, not just touching it)
     return {
       ...base,
       buy_zone:       low90 !== null
         ? { low: round2(low90 * 1.01), high: round2(low90 * 1.06) }
         : null,
-      trim_zone:      ma200 !== null
-        ? { low: round2(ma200 * 0.97), high: round2(ma200 * 1.03) }
+      trim_zone:      ma50 !== null
+        ? { low: round2(ma50 * 1.02), high: round2(ma50 * 1.08) }
         : null,
       stop:           low90 !== null ? round2(low90 * 0.95) : null,
-      trigger:        round2(ma200),
-      trigger_label:  '200D MA reclaim',
-      zone_rationale: '90D swing support — 200D MA reclaim needed',
+      trigger:        round2(ma50),
+      trigger_label:  'MA50 reclaim',
+      zone_rationale: '90D swing support — MA50 reclaim needed',
       has_buy_zone:   low90 !== null,
       exit_only:      false,
     };

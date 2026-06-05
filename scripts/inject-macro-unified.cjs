@@ -874,6 +874,157 @@ const unifiedChart      = buildUnifiedChart(spyCandles, activeRateSeries, chart,
 const dffSeries         = Array.isArray(activeRateSeries?.DFF) ? activeRateSeries.DFF : [];
 const currentFedRate    = dffSeries.length > 0 ? num(dffSeries[dffSeries.length - 1].value) : null;
 
+// ── Daily briefing data ───────────────────────────────────────────────────────
+
+const spyPrevClose  = spyCandles.length >= 2 ? num(spyCandles[spyCandles.length - 2].close) : null;
+const spyChangePct  = spyCurrent && spyPrevClose ? (spyCurrent - spyPrevClose) / spyPrevClose * 100 : null;
+const vixCandles90  = loadCandles('^VIX', 90);
+const vixPrevClose  = vixCandles90.length >= 2 ? num(vixCandles90[vixCandles90.length - 2].close) : null;
+const vixCurRaw     = num(mvMap.vix?.value);
+const vixChangePct  = vixCurRaw && vixPrevClose ? (vixCurRaw - vixPrevClose) / vixPrevClose * 100 : null;
+
+// Worst and best holdings today
+const holdingMoves = allHoldings
+  .filter(h => h.dayChangePct != null)
+  .sort((a, b) => (a.dayChangePct ?? 0) - (b.dayChangePct ?? 0));
+const worstHolding = holdingMoves[0] || null;
+const bestHolding  = holdingMoves[holdingMoves.length - 1] || null;
+
+function buildDailyBriefing() {
+  const spx      = num(mvMap.spx?.value);
+  const vix      = vixCurRaw;
+  const rsi      = num(mvMap.rsi14?.value);
+  const credit   = num(mvMap.hy_oas?.value);
+  const ma50v    = num(chart.ma50);
+  const ma200v   = num(chart.ma200);
+  const addLow   = Array.isArray(chart.add_zone) ? num(chart.add_zone[0]) : null;
+  const defense  = num(chart.defense_below);
+  const dayChg   = spyChangePct;
+
+  // Session classification
+  const isSharp    = dayChg !== null && dayChg <= -3;
+  const isStress   = dayChg !== null && dayChg <= -1.5 && dayChg > -3;
+  const isWeak     = dayChg !== null && dayChg <= -0.5 && dayChg > -1.5;
+  const isStrong   = dayChg !== null && dayChg >= 2;
+  const isRecovery = dayChg !== null && dayChg >= 0.8 && dayChg < 2;
+  const isFlat     = dayChg !== null && Math.abs(dayChg) < 0.5;
+
+  const sessionLabel = isSharp ? 'Sharp Selloff' : isStress ? 'Stress Session' : isWeak ? 'Soft Pullback' : isStrong ? 'Strong Advance' : isRecovery ? 'Recovery' : isFlat ? 'Consolidation' : 'Mixed';
+  const sessionClass = (isSharp || isStress) ? 'stress' : (isStrong || isRecovery) ? 'advance' : 'neutral';
+
+  // Technical flags
+  const aboveMa50    = spx && ma50v  && spx > ma50v;
+  const aboveMa200   = spx && ma200v && spx > ma200v;
+  const nearAdd      = spx && addLow && spx < addLow * 1.04;
+  const nearDefense  = spx && defense && spx < defense * 1.06;
+  const vixWatchful  = vix !== null && vix >= 15 && vix < 20;
+  const vixElevated  = vix !== null && vix >= 20 && vix < 28;
+  const vixCrisis    = vix !== null && vix >= 28;
+  const rsiHealthy   = rsi !== null && rsi >= 55;
+  const rsiNeutral   = rsi !== null && rsi >= 40 && rsi < 55;
+  const creditContained = credit !== null && credit < 3.0;
+  const creditWarning   = credit !== null && credit >= 3.5;
+
+  // Build context analysis
+  const context = [];
+  const strategy = [];
+
+  if (phaseCode === 'C') {
+    // Interpret today's session in Phase C context
+    if (isSharp || isStress) {
+      if (aboveMa50 && creditContained) {
+        context.push(`A Phase C stress event, not a phase break. SPX holds above the 50D MA (${ma50v?.toLocaleString('en-US',{maximumFractionDigits:0})}) and credit spreads (HY OAS ${credit}) remain contained — the two conditions that separate a correction from a deterioration. Phase C routinely tests conviction through exactly this kind of session.`);
+      } else if (!aboveMa50) {
+        context.push(`SPX has broken below the 50D MA (${ma50v?.toLocaleString('en-US',{maximumFractionDigits:0})}) — a technical deterioration requiring heightened attention. ${aboveMa200 ? `The 200D MA (${ma200v?.toLocaleString('en-US',{maximumFractionDigits:0})}) remains intact as the last major floor.` : 'Both key moving averages are now broken — posture shifts to defense.'}`);
+      }
+      if (vixElevated || vixCrisis) {
+        context.push(`VIX at ${vix?.toFixed(1)} has crossed into elevated territory. Phase C can absorb watchful VIX (15–20) as normal; sustained readings above 25 would require a defensive posture review and potential stops on Phase-exposed positions.`);
+      }
+      if (!rsiHealthy) {
+        context.push(`RSI has fallen to ${rsi?.toFixed(1)}${rsiNeutral ? ', now in neutral territory' : ' — weakened significantly'}. The RSI gate to Phase D (needs >55) is now closed. All five transition gates are blocked, confirming the market is in Phase C verification and not approaching Phase D expansion.`);
+      }
+    } else if (isStrong || isRecovery) {
+      context.push(`A Phase C recovery session. Quality and core names leading a bounce is characteristic of Phase C behavior — this is not Phase D yet, but it confirms the downtrend is not persistent. The framework says do not chase; use strength to audit positioning.`);
+      if (!vixElevated && vix !== null && vix < 17) {
+        context.push(`VIX pulling back toward 15 improves the mood signal. Sustained calm below 15 would open the VIX gate — one of five conditions for Phase D confirmation.`);
+      }
+    } else if (isFlat) {
+      context.push(`Consolidation. No regime change signal — the market is absorbing recent volatility. Phase C allows for this kind of sideways action while macro conditions remain unresolved. The longer-term framework remains Phase C at ${conf}% confidence.`);
+    }
+
+    // Portfolio-specific context
+    if (worstHolding && num(worstHolding.dayChangePct) < -5) {
+      const isExposed = worstHolding.analysisChart?.profile === 'tactical_risk';
+      context.push(`${worstHolding.ticker} (${(num(worstHolding.dayChangePct) >= 0 ? '+' : '') + num(worstHolding.dayChangePct).toFixed(1)}%) leads portfolio damage${isExposed ? ' — as a Phase-exposed leveraged instrument, this is expected behavior in Phase C stress' : ''}.`);
+    }
+
+    // Strategy
+    if (nearDefense) {
+      strategy.push(`Price approaching the defense level (${defense?.toLocaleString('en-US',{maximumFractionDigits:0})}). Prepare for potential posture shift: review stop levels and reduce Phase-exposed instruments (TSLT, CONL) if this level is breached.`);
+    } else if (nearAdd && (isStress || isSharp)) {
+      strategy.push(`Price entering the prepared add zone (${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}+). Phase C protocol: small adds in quality names only — confirmed by credit and VIX stability. Do not add Phase-exposed instruments here.`);
+    } else if (isSharp || isStress) {
+      strategy.push(`Phase C protocol: hold core, no broad adds during volatility. Let the stress run — this is when Phase C builds its base for the eventual Phase D move. Watch ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})} as the prepared entry level; defense at ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})}.`);
+      if (creditWarning) {
+        strategy.push(`⚠ HY OAS at ${credit} is approaching the 3.5% Phase C→F warning level. Monitor closely — a close above 3.5% would shift the risk posture toward defense.`);
+      }
+    } else if (isStrong || isRecovery) {
+      strategy.push(`Do not chase the rally. Phase C advances can be sharp but typically retrace before Phase D confirms. Adds remain valid only on pullbacks to ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})}, not on breakouts.`);
+    } else {
+      strategy.push(`Maintain current positioning. No action triggers are live — watch ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})} (add), ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})} (defense), VIX 20 (posture review), HY OAS 3.5% (phase warning).`);
+    }
+  }
+
+  // Format numbers for display strip
+  const fmtChg = (v, unit = '%') => v != null ? `${v >= 0 ? '+' : ''}${v.toFixed(1)}${unit}` : '—';
+  const fmtVal = (v, decimals = 0) => v != null ? v.toLocaleString('en-US', {maximumFractionDigits: decimals}) : '—';
+  const chgColor = v => v == null ? 'rgba(26,23,20,.5)' : v >= 0 ? '#2a6b4a' : '#A4502F';
+
+  // Date
+  const asOf = brief.as_of || new Date().toISOString();
+  const dateDisplay = new Date(asOf).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  const stripItems = [
+    { label: 'SPX', val: fmtVal(spx), sub: fmtChg(dayChg), subCol: chgColor(dayChg) },
+    { label: 'VIX', val: fmtVal(vix, 1), sub: fmtChg(vixChangePct), subCol: chgColor(vixChangePct ? -vixChangePct : null) },
+    { label: 'RSI 14', val: fmtVal(rsi, 1), sub: rsiHealthy ? 'Healthy' : rsiNeutral ? 'Neutral' : 'Weakened', subCol: rsiHealthy ? '#2a6b4a' : rsiNeutral ? '#8a6a2c' : '#A4502F' },
+    { label: 'HY OAS', val: fmtVal(credit, 2), sub: creditContained ? 'Contained' : creditWarning ? '⚠ Warning' : 'Widening', subCol: creditContained ? '#2a6b4a' : '#A4502F' },
+    { label: '10Y', val: fmtVal(num(mvMap.dgs10?.value), 2) + '%', sub: num(mvMap.dgs10?.value) < 4 ? 'Supportive' : 'Headwind', subCol: num(mvMap.dgs10?.value) < 4 ? '#2a6b4a' : '#8a6a2c' },
+  ];
+
+  const stripHtml = stripItems.map(s => `<div class="mu-db-metric">
+    <span class="mu-db-metric-label">${esc(s.label)}</span>
+    <b class="mu-db-metric-val">${esc(s.val)}</b>
+    <span class="mu-db-metric-sub" style="color:${s.subCol}">${esc(s.sub)}</span>
+  </div>`).join('');
+
+  const contextHtml = context.map(c => `<p>${c}</p>`).join('');
+  const stratHtml   = strategy.map(s => `<p>${s}</p>`).join('');
+
+  return `<div class="mu-daily-briefing mu-db-${sessionClass}">
+  <div class="mu-db-header">
+    <div class="mu-db-title">
+      <span class="mu-db-date">${dateDisplay}</span>
+      <span class="mu-db-badge">${esc(sessionLabel)}</span>
+    </div>
+    <span class="mu-db-phase">Phase ${phaseCode} · ${conf}% confidence</span>
+  </div>
+  <div class="mu-db-strip">${stripHtml}</div>
+  <div class="mu-db-body">
+    <div class="mu-db-col">
+      <div class="mu-db-col-label">Phase ${phaseCode} context</div>
+      ${contextHtml || '<p>No significant signal today — framework holds.</p>'}
+    </div>
+    <div class="mu-db-col mu-db-strat">
+      <div class="mu-db-col-label">Strategy read</div>
+      ${stratHtml || '<p>No action triggers active.</p>'}
+    </div>
+  </div>
+</div>`;
+}
+
+const dailyBriefingHtml = buildDailyBriefing();
+
 // ── Cycle SVG ─────────────────────────────────────────────────────────────────
 
 const phases = Array.isArray(egg.phases) ? egg.phases : [];
@@ -1287,6 +1438,30 @@ const style = `<style id="macro-unified-style">
 .mu-sector-legend span{display:flex;align-items:center;gap:5px}
 .mu-sector-legend i{width:7px;height:7px;display:inline-block}
 
+/* ── Daily briefing ── */
+.mu-daily-briefing{padding:24px 0 20px;border-bottom:2px solid rgba(201,191,173,.55)}
+.mu-db-stress{border-bottom-color:rgba(164,80,47,.45)}
+.mu-db-advance{border-bottom-color:rgba(42,107,74,.35)}
+.mu-db-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.mu-db-title{display:flex;align-items:center;gap:10px}
+.mu-db-date{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.45);font-family:var(--mono,monospace)}
+.mu-db-badge{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 8px;background:rgba(26,23,20,.07);color:rgba(26,23,20,.55)}
+.mu-db-stress .mu-db-badge{background:rgba(164,80,47,.1);color:#A4502F}
+.mu-db-advance .mu-db-badge{background:rgba(42,107,74,.1);color:#2a6b4a}
+.mu-db-phase{font-size:9.5px;color:rgba(26,23,20,.38);font-family:var(--mono,monospace)}
+.mu-db-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:1px solid rgba(201,191,173,.45);margin-bottom:18px}
+.mu-db-metric{padding:10px 14px;border-right:1px solid rgba(201,191,173,.38)}
+.mu-db-metric:last-child{border-right:none}
+.mu-db-metric-label{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;color:rgba(26,23,20,.38);margin-bottom:4px;font-family:var(--mono,monospace)}
+b.mu-db-metric-val{display:block;font-size:20px;font-weight:500;letter-spacing:-.03em;line-height:1;margin-bottom:3px;color:#1A1714}
+.mu-db-metric-sub{font-size:10px;letter-spacing:.04em}
+.mu-db-body{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+.mu-db-col-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.13em;font-weight:600;color:rgba(26,23,20,.4);margin-bottom:8px;font-family:var(--mono,monospace)}
+.mu-db-col p{font-size:13.5px;line-height:1.6;color:rgba(26,23,20,.72);margin:0 0 8px}
+.mu-db-col p:last-child{margin-bottom:0}
+.mu-db-strat p{font-size:13px;line-height:1.58;color:rgba(26,23,20,.68)}
+@media(max-width:900px){.mu-db-strip{grid-template-columns:repeat(3,1fr)}.mu-db-body{grid-template-columns:1fr}}
+@media(max-width:560px){.mu-db-strip{grid-template-columns:1fr 1fr}}
 /* ── Signal bar (regime header) ── */
 .mu-sigbar{display:flex;align-items:center;gap:12px;margin-top:14px}
 .mu-sigbar-dots{display:flex;gap:5px;align-items:center}
@@ -1392,6 +1567,9 @@ const defStr      = chart.defense_below ? chart.defense_below.toLocaleString('en
 const section = `<section id="macro-unified-section" class="macro-unified">
 ${style}
 <div class="mu-wrap">
+
+  <!-- Daily briefing -->
+  ${dailyBriefingHtml}
 
   <!-- Regime header -->
   <div class="mu-regime">

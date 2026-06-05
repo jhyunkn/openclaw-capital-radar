@@ -7,6 +7,7 @@ const indexPath = path.join(root, 'index.html');
 const zonePath = path.join(root, 'outputs', 'holding-zone-state.json');
 const translationPath = path.join(root, 'outputs', 'portfolio-translation-state.json');
 const decisionPath = path.join(root, 'outputs', 'portfolio-decision-state.json');
+const decisionZonesPath = path.join(root, 'outputs', 'holding-decision-zones.json');
 
 function readJson(filePath, fallback = null) {
   try { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
@@ -44,6 +45,14 @@ if (!zoneState?.render_permission) throw new Error('holding-zone-state render_pe
 const translation = readJson(translationPath, { holdings: [] });
 const decision = readJson(decisionPath, []);
 
+// Load anchored decision zones (new system)
+const decisionZones = readJson(decisionZonesPath, null);
+if (decisionZones) {
+  console.log(`loaded holding-decision-zones: ${(decisionZones.holdings || []).length} holdings (anchored zones)`);
+} else {
+  console.warn('holding-decision-zones.json not found — falling back to legacy zone rendering');
+}
+
 // Attach high-materiality news to translation holdings for badge display
 const newsState = readJson(path.join(root, 'outputs', 'news-catalyst-state.json'), { items: [] });
 const highNewsByTicker = {};
@@ -59,7 +68,7 @@ if (translation.holdings) {
   }));
 }
 
-const section = renderHoldingsSection({ zoneState, translation, decision });
+const section = renderHoldingsSection({ zoneState, translation, decision, decisionZones });
 const style = renderHoldingsStyle();
 let html = fs.readFileSync(indexPath, 'utf8');
 
@@ -69,4 +78,5 @@ html = html.replace('</he' + 'ad>', style + '</he' + 'ad>');
 html = insertBeforeSection(html, 'opportunities-section', section);
 
 fs.writeFileSync(indexPath, html);
-console.log(`rendered modular Holdings price-zone radar: ${(zoneState.zones || []).length} zones`);
+const holdingCount = decisionZones ? (decisionZones.holdings || []).length : (zoneState.zones || []).length;
+console.log(`rendered Holdings decision-chart section: ${holdingCount} holdings`);

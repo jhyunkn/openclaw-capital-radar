@@ -12,13 +12,27 @@ function readJson(rel) {
 }
 
 // ── DATA SOURCES ──────────────────────────────────────────────────────────────
-const universe      = readJson('data/opportunity-universe.json');
-const macro         = readJson('outputs/market-orientation-map.json');
-const candidateRank = readJson('outputs/candidate-ranking.json');
-const reportState   = readJson('data/report-state.live.json');
+const universe        = readJson('data/opportunity-universe.json');
+const macro           = readJson('outputs/market-orientation-map.json');
+const candidateRank   = readJson('outputs/candidate-ranking.json');
+const reportState     = readJson('data/report-state.live.json');
+const watchlistData   = readJson('outputs/watchlist-market-data.json');  // live prices
+const insiderData     = readJson('outputs/insider-transactions.json');    // SEC Form 4
+const scannerResults  = readJson('outputs/universe-scanner.json');        // moat-at-trough candidates
 
 if (!universe) throw new Error('Missing data/opportunity-universe.json');
 if (!macro)    throw new Error('Missing outputs/market-orientation-map.json');
+
+// Live price lookup helper — falls back to null if market data unavailable
+function livePrice(ticker) {
+  return watchlistData?.tickers?.[String(ticker).toUpperCase()]?.currentPrice ?? null;
+}
+function liveMarket(ticker) {
+  return watchlistData?.tickers?.[String(ticker).toUpperCase()] ?? null;
+}
+function insiderSignal(ticker) {
+  return insiderData?.tickers?.[String(ticker).toUpperCase()] ?? null;
+}
 
 // ── ENTRY ZONE DATA ───────────────────────────────────────────────────────────
 // Entry zone = price range where the thesis becomes attractive without requiring
@@ -52,9 +66,12 @@ const ENTRY_DATA = {
   OKLO: { low:  25, high:  33, currentEst:  44,  target:  70,  rationale: 'Pre-commercial; entry only on NRC Aurora license progress; speculative only' },
 };
 
-function entryStatus(entry) {
+function entryStatus(entry, ticker) {
   if (!entry) return 'unknown';
-  const cur = entry.currentEst;
+  // Prefer live price; fall back to static estimate
+  const live = livePrice(ticker);
+  const cur  = live ?? entry.currentEst;
+  if (cur <= entry.low)  return 'in_zone_deep'; // below zone low — very attractive, verify thesis
   if (cur <= entry.high) return 'in_zone';
   return 'above_zone';
 }
@@ -261,7 +278,33 @@ const scored = universe.tickers.map(item => {
     window_score: timing.window_score,
     next_catalyst: timingEntry.catalyst || null,
     next_earnings: timingEntry.nextEarnings || null,
-    entry: ENTRY_DATA[ticker] ? { ...ENTRY_DATA[ticker], status: entryStatus(ENTRY_DATA[ticker]) } : null,
+    entry: (() => {
+      const e = ENTRY_DATA[ticker];
+      if (!e) return null;
+      const live = livePrice(ticker);
+      const mkt  = liveMarket(ticker);
+      return {
+        ...e,
+        currentPrice: live ?? e.currentEst,          // live if available
+        currentEst:   e.currentEst,                  // always keep the static estimate for reference
+        priceSource:  live != null ? 'live' : 'est',
+        pctFrom52wHigh: mkt?.pctFrom52wHigh ?? null,
+        trend1mPct:     mkt?.trend1mPct ?? null,
+        rsi14:          mkt?.rsi14 ?? null,
+        status: entryStatus(e, ticker),
+      };
+    })(),
+    insider_activity: (() => {
+      const ins = insiderSignal(ticker);
+      if (!ins) return null;
+      return {
+        signal:        ins.insider_signal,
+        filings_90d:   ins.total_filings,
+        note:          ins.signal_note,
+        edgar_url:     ins.edgar_url,
+        recent:        (ins.recent_filings || []).slice(0, 3),
+      };
+    })(),
     macro_alignment: item.macroAlignment,
     portfolio_role: item.portfolioRole,
     coverage_gap: item.coverageGap === true,
@@ -315,10 +358,27 @@ function buildPullbackContext() {
   }
   holdingsMoves.sort((a, b) => a.trend1mPct - b.trend1mPct); // worst first
 
-  // Watchlist dislocations — from universe active_signal
+  // Watchlist dislocations — live price data first, fall back to seeded activeSignal
   const watchlistDislocations = universe.tickers
-    .filter(t => t.activeSignal)
-    .map(t => ({ ticker: t.ticker, name: t.name, theme: t.theme, note: t.activeSignal }));
+    .filter(t => {
+      const mkt = liveMarket(t.ticker);
+      if (mkt) return mkt.sharpDislocation || mkt.nearTrough || t.activeSignal;
+      return !!t.activeSignal;
+    })
+    .map(t => {
+      const mkt = liveMarket(t.ticker);
+      return {
+        ticker:     t.ticker,
+        name:       t.name,
+        theme:      t.theme,
+        note:       t.activeSignal || null,
+        livePrice:  mkt?.currentPrice ?? null,
+        trend1mPct: mkt?.trend1mPct ?? null,
+        pctFrom52wHigh: mkt?.pctFrom52wHigh ?? null,
+        rsi14:      mkt?.rsi14 ?? null,
+        priceSource: mkt ? 'live' : 'est',
+      };
+    });
 
   // SPY baseline for context
   const spyTrend = (macro.themes || [])
@@ -356,7 +416,11 @@ const output = {
     'outputs/market-orientation-map.json',
     'outputs/candidate-ranking.json',
     'data/report-state.live.json',
+    watchlistData ? 'outputs/watchlist-market-data.json (live)' : 'outputs/watchlist-market-data.json (not available — prices are estimates)',
   ],
+  live_price_coverage: watchlistData
+    ? { available: true, ticker_count: watchlistData.tickerCount, as_of: watchlistData.generatedAt }
+    : { available: false, note: 'Run fetch-watchlist-market-data.cjs to enable live prices' },
   methodology: {
     formula: 'conviction_score = normalizeBase(base) + macro_modifier + rate_env_adj + portfolio_gap_modifier. Cap 98.',
     timing: 'timing_status derived from active_signal (price dislocation), high_materiality_news (recent catalyst), and earnings calendar proximity. window_score: 3=active, 2=watch, 1=wait.',

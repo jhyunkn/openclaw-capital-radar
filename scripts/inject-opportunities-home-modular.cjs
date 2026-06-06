@@ -4,11 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const { renderOpportunitiesSection, renderOpportunitiesStyle, flattenOpportunityRows, selectDisplayRows } = require('../components/radar/opportunities/render.cjs');
 
-const root          = path.join(__dirname, '..');
-const indexPath     = path.join(root, 'index.html');
-const statePath     = path.join(root, 'outputs', 'opportunity-asymmetry-state.json');
-const rankingPath   = path.join(root, 'outputs', 'candidate-ranking.json');
+const root           = path.join(__dirname, '..');
+const indexPath      = path.join(root, 'index.html');
+const statePath      = path.join(root, 'outputs', 'opportunity-asymmetry-state.json');
+const rankingPath    = path.join(root, 'outputs', 'candidate-ranking.json');
 const convictionPath = path.join(root, 'outputs', 'conviction-ranking.json');
+const scannerPath    = path.join(root, 'outputs', 'universe-scanner.json');
 
 function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
 
@@ -48,10 +49,11 @@ if (!fs.existsSync(statePath)) throw new Error('opportunity-asymmetry-state.json
 const state      = readJson(statePath);
 const ranking    = fs.existsSync(rankingPath)    ? readJson(rankingPath)    : null;
 const conviction = fs.existsSync(convictionPath) ? readJson(convictionPath) : null;
+const scanner    = fs.existsSync(scannerPath)    ? readJson(scannerPath)    : null;
 
 if (!state.render_permission) throw new Error('opportunity-asymmetry-state render_permission=false');
 
-const section = renderOpportunitiesSection(state, ranking, conviction);
+const section = renderOpportunitiesSection(state, ranking, conviction, scanner);
 const style   = renderOpportunitiesStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');
@@ -74,4 +76,6 @@ fs.writeFileSync(indexPath, html);
 const allRows = flattenOpportunityRows(state);
 const { opportunities, selected } = selectDisplayRows(allRows);
 const convTop3 = conviction ? (conviction.top10 || []).slice(0,3).map(t=>`${t.ticker}(${t.conviction_score})`).join(', ') : 'none';
-console.log(`injected unified opportunity section: conviction_top3=${convTop3}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);
+const fullSignalCount = scanner?.summary?.full_signal ?? 0;
+const partialCount    = scanner?.summary?.partial_signal ?? 0;
+console.log(`injected unified opportunity section: conviction_top3=${convTop3}  scanner_full=${fullSignalCount}  scanner_partial=${partialCount}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);

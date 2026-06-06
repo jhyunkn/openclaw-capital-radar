@@ -122,17 +122,26 @@ function renderConvictionRow(item) {
   const entryHtml = (() => {
     const e = item.entry;
     if (!e) return '';
-    const fmt = v => `$${Number(v).toLocaleString()}`;
-    const inZone = e.status === 'in_zone';
-    const statusLabel = inZone ? 'In entry zone' : 'Above entry zone — wait';
-    const statusCls   = inZone ? 'entry-in' : 'entry-above';
-    // Simple visual: three markers — entry low | current | target
-    const low = e.low, high = e.high, cur = e.currentEst, tgt = e.target;
+    const fmtP = v => `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+    const isDeep  = e.status === 'in_zone_deep';
+    const inZone  = e.status === 'in_zone' || isDeep;
+    const statusLabel = isDeep ? 'Deep in entry zone — verify thesis' : inZone ? 'In entry zone' : 'Above entry zone — wait';
+    const statusCls   = isDeep ? 'entry-deep' : inZone ? 'entry-in' : 'entry-above';
+    const isLive  = e.priceSource === 'live';
+    const cur     = e.currentPrice ?? e.currentEst;  // live preferred
+    const low = e.low, high = e.high, tgt = e.target;
     const rangeMin = Math.min(low * 0.90, cur * 0.88);
     const rangeMax = Math.max(tgt * 1.05, cur * 1.05);
     const span = rangeMax - rangeMin;
     const pctOf = v => Math.max(0, Math.min(100, Math.round((v - rangeMin) / span * 100)));
     const lowPct = pctOf(low), highPct = pctOf(high), curPct = pctOf(cur), tgtPct = pctOf(tgt);
+    const priceLabel = isLive ? 'live' : 'est';
+    // Supplementary live signals if available
+    const liveSignals = [
+      e.pctFrom52wHigh != null ? `${e.pctFrom52wHigh > 0 ? '+' : ''}${e.pctFrom52wHigh}% from 52wH` : null,
+      e.trend1mPct != null    ? `${e.trend1mPct > 0 ? '+' : ''}${e.trend1mPct}% (1m)` : null,
+      e.rsi14 != null         ? `RSI ${e.rsi14}` : null,
+    ].filter(Boolean).join(' · ');
     return `<div class="cv-entry ${statusCls}">
       <div class="cv-entry-head">
         <span>Entry zone</span>
@@ -141,14 +150,15 @@ function renderConvictionRow(item) {
       <div class="cv-price-bar-wrap">
         <div class="cv-price-bar">
           <div class="cv-zone-fill" style="left:${lowPct}%;width:${highPct - lowPct}%"></div>
-          <div class="cv-marker cv-marker-cur" style="left:${curPct}%"><span>current (est)<br>${fmt(cur)}</span></div>
-          <div class="cv-marker cv-marker-tgt" style="left:${tgtPct}%"><span>target<br>${fmt(tgt)}</span></div>
+          <div class="cv-marker cv-marker-cur" style="left:${curPct}%"><span>${priceLabel}<br>${fmtP(cur)}</span></div>
+          <div class="cv-marker cv-marker-tgt" style="left:${tgtPct}%"><span>target<br>${fmtP(tgt)}</span></div>
         </div>
         <div class="cv-price-labels">
-          <span style="left:${lowPct}%">${fmt(low)}</span>
-          <span style="left:${highPct}%" class="cv-label-right">${fmt(high)} entry</span>
+          <span style="left:${lowPct}%">${fmtP(low)}</span>
+          <span style="left:${highPct}%" class="cv-label-right">${fmtP(high)} entry</span>
         </div>
       </div>
+      ${liveSignals ? `<p class="cv-live-signals">${esc(liveSignals)}</p>` : ''}
       <p class="cv-entry-rationale">${esc(e.rationale || '')}</p>
     </div>`;
   })();
@@ -263,9 +273,102 @@ function renderGapAlert(gaps) {
   return `<div class="cv-gaps"><span>Major portfolio gaps</span><div class="cv-gap-chips">${chips}</div><small>These tickers scored higher because portfolio has no exposure to their theme.</small></div>`;
 }
 
+// ── SCANNER: EMERGING CANDIDATES ─────────────────────────────────────────────
+// Renders tickers that the Moat-at-Trough scanner has flagged but are NOT yet in
+// the active conviction universe. These are potential promotions.
+
+function renderScannerCard(candidate) {
+  const livePct = candidate.pct_from_52w_high;
+  const trend1m = candidate.trend_1m_pct;
+  const rsi     = candidate.rsi14;
+  const sigColor = candidate.signal === 'FULL_SIGNAL' ? 'scan-full' : 'scan-partial';
+  const sigLabel = candidate.signal === 'FULL_SIGNAL'
+    ? 'All 3 criteria — promote to watch'
+    : 'Partial signal — monitor';
+
+  const priceRow = [
+    livePct  != null ? `${livePct > 0 ? '+' : ''}${livePct}% from 52wH` : null,
+    trend1m  != null ? `${trend1m > 0 ? '+' : ''}${trend1m}% (1m)` : null,
+    rsi      != null ? `RSI ${rsi}` : null,
+    candidate.live_price != null ? `$${Number(candidate.live_price).toLocaleString(undefined, { maximumFractionDigits: candidate.live_price < 10 ? 2 : 0 })}` : null,
+  ].filter(Boolean).join(' · ');
+
+  const themeHits = arr(candidate.active_theme_hits).map(t => `<span class="scan-theme">${esc(t.replace(/_/g, ' '))}</span>`).join('');
+  const signals   = arr(candidate.signals_detected).slice(0, 3).map(s => `<li>${esc(s)}</li>`).join('');
+  const gaps      = arr(candidate.gaps).slice(0, 2).map(g => `<li>${esc(g)}</li>`).join('');
+
+  const insiderNote = candidate.insider_signal && candidate.insider_signal !== 'QUIET' && candidate.insider_signal !== 'UNKNOWN'
+    ? `<div class="scan-insider"><span>Insider (Form 4)</span><b>${esc(candidate.insider_signal)}</b><small>${esc(candidate.insider_filings_90d)} filings 90d</small></div>`
+    : '';
+
+  return `<article class="scan-card ${sigColor}">
+    <div class="scan-head">
+      <div>
+        <span class="scan-sector">${esc(candidate.sector)}</span>
+        <h4>${esc(candidate.ticker)} <span>${esc(candidate.name)}</span></h4>
+        <span class="scan-level">Supply chain level ${esc(candidate.supply_chain_level)} · ${esc(candidate.signal.replace(/_/g, ' '))} (score ${candidate.total_score})</span>
+      </div>
+      <div class="scan-status-badge ${sigColor}">${sigLabel}</div>
+    </div>
+    ${priceRow ? `<div class="scan-price-row">${esc(priceRow)}</div>` : ''}
+    <p class="scan-moat">${esc((candidate.moat_summary || '').slice(0, 200))}</p>
+    ${themeHits ? `<div class="scan-themes">${themeHits}</div>` : ''}
+    ${signals ? `<ul class="scan-signals">${signals}</ul>` : ''}
+    ${insiderNote}
+    <p class="scan-inflection">${esc((candidate.demand_inflection_signal || '').slice(0, 180))}</p>
+    ${gaps ? `<ul class="scan-gaps">${gaps}</ul>` : ''}
+    ${candidate.insider_edgar_url ? `<a class="scan-link" href="${esc(candidate.insider_edgar_url)}" target="_blank">Check insider filings →</a>` : ''}
+  </article>`;
+}
+
+function renderScannerSection(scannerData) {
+  if (!scannerData) return '';
+  const fullSignal    = arr(scannerData.full_signal_candidates);
+  const partialSignal = arr(scannerData.partial_signal_candidates).slice(0, 6);
+  const coverageGaps  = arr(scannerData.coverage_gaps);
+
+  if (!fullSignal.length && !partialSignal.length) return '';
+
+  const fullCards    = fullSignal.map(renderScannerCard).join('');
+  const partialCards = partialSignal.map(renderScannerCard).join('');
+
+  const gapAlerts = coverageGaps.length
+    ? `<div class="scan-gap-alerts">${coverageGaps.slice(0, 3).map(g =>
+        `<div class="scan-gap-alert"><b>${esc(g.theme.replace(/_/g, ' '))}</b><span>${esc(g.urgency)}</span><small>Not covered at Level 2: ${arr(g.missing_levels?.level2).slice(0, 4).join(', ') || '—'}</small></div>`
+      ).join('')}</div>`
+    : '';
+
+  const activeThemes = arr(scannerData.active_themes).map(t => `<span>${esc(t.replace(/_/g, ' '))}</span>`).join('');
+
+  return `<div class="scan-section">
+    <div class="scan-section-head">
+      <div>
+        <h3>Scanner: emerging candidates</h3>
+        <p>Moat-at-Trough screen — finding the next Micron before the street catches on. Checks moat quality, price dislocation, and active theme adjacency across ${scannerData.all_scored?.length || 0} candidates not yet in the conviction universe.</p>
+      </div>
+    </div>
+    ${activeThemes ? `<div class="scan-active-themes"><span>Active themes driving scan:</span>${activeThemes}</div>` : ''}
+    ${gapAlerts}
+    ${fullSignal.length ? `
+      <div class="scan-subsection-head">
+        <h4>All 3 criteria met — promote to watch</h4>
+        <p>Moat durable + price near trough + active demand inflection. These are the Micron setups. Research required before any position.</p>
+      </div>
+      <div class="scan-card-grid">${fullCards}</div>
+    ` : ''}
+    ${partialSignal.length ? `
+      <div class="scan-subsection-head scan-partial-head">
+        <h4>Partial signal — monitor</h4>
+        <p>Moat confirmed + theme adjacency present. Waiting for price to reach trough or demand inflection to strengthen.</p>
+      </div>
+      <div class="scan-card-grid">${partialCards}</div>
+    ` : ''}
+  </div>`;
+}
+
 // ── COMBINED OPPORTUNITIES SECTION ────────────────────────────────────────────
 
-function renderOpportunitiesSection(state, candidateRanking, conviction) {
+function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData) {
   const summary  = state?.summary || {};
   const allRows  = flattenOpportunityRows(state || {});
   const { opportunities, selected } = selectDisplayRows(allRows);
@@ -327,6 +430,8 @@ function renderOpportunitiesSection(state, candidateRanking, conviction) {
     ${renderGapAlert(gaps)}
     <div class="cv-list">${convictionRows}</div>
     ` : ''}
+
+    ${renderScannerSection(scannerData)}
 
     <div class="cv-pipeline-head">
       <h3>Research pipeline</h3>
@@ -472,6 +577,51 @@ function renderOpportunitiesStyle() {
 .cv-pipeline-head{margin:28px 0 10px;border-top:1px solid var(--rule);padding-top:20px}
 .cv-pipeline-head h3{font-size:20px;letter-spacing:-.03em;margin:0 0 4px}
 .cv-pipeline-head p{font-size:12px;color:var(--muted);margin:0}
+.cv-live-signals{font-size:11px;color:var(--muted);margin:4px 0 0;font-weight:500}
+.cv-entry.entry-deep{border-color:rgba(47,111,78,.6);background:rgba(47,111,78,.10)}
+.entry-deep .cv-entry-status{color:var(--green);font-weight:700}
+/* Scanner section */
+.scan-section{border:1px solid rgba(64,95,159,.2);border-radius:18px;padding:16px;margin:20px 0;background:rgba(64,95,159,.03)}
+.scan-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.scan-section-head h3{font-size:20px;letter-spacing:-.03em;margin:0 0 4px}
+.scan-section-head p{font-size:12px;color:var(--muted);margin:0;line-height:1.45}
+.scan-active-themes{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:10px}
+.scan-active-themes span:first-child{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:4px}
+.scan-active-themes span:not(:first-child){font-size:11px;border:1px solid rgba(64,95,159,.3);border-radius:999px;padding:3px 9px;color:rgba(64,95,159,.85);background:rgba(64,95,159,.07)}
+.scan-subsection-head{margin:16px 0 8px}
+.scan-subsection-head h4{font-size:16px;letter-spacing:-.02em;margin:0 0 3px}
+.scan-subsection-head p{font-size:12px;color:var(--muted);margin:0}
+.scan-partial-head{opacity:.85}
+.scan-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.scan-card{border:1px solid var(--rule);border-radius:16px;padding:13px;background:rgba(251,250,246,.10);min-width:0}
+.scan-full{border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.04)}
+.scan-partial{border-color:rgba(174,124,44,.35);background:rgba(174,124,44,.04)}
+.scan-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.scan-sector{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.scan-head h4{font-size:20px;line-height:.95;letter-spacing:-.04em;margin:0 0 2px}
+.scan-head h4 span{font-size:12px;font-weight:400;letter-spacing:0;color:var(--muted);margin-left:4px}
+.scan-level{display:block;font-size:10px;color:var(--muted);line-height:1.3}
+.scan-status-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+.scan-full .scan-status-badge{background:rgba(47,111,78,.12);border:1px solid rgba(47,111,78,.4);color:var(--green)}
+.scan-partial .scan-status-badge{background:rgba(174,124,44,.10);border:1px solid rgba(174,124,44,.38);color:var(--warn)}
+.scan-price-row{font-size:12px;font-weight:600;color:rgba(36,35,31,.8);margin:6px 0;letter-spacing:-.01em}
+.scan-moat{font-size:12px;line-height:1.4;color:rgba(36,35,31,.76);margin:6px 0 5px;overflow-wrap:anywhere}
+.scan-themes{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.scan-theme{font-size:10px;border:1px solid rgba(64,95,159,.28);border-radius:999px;padding:2px 7px;color:rgba(64,95,159,.85);background:rgba(64,95,159,.06)}
+.scan-signals{margin:5px 0;padding:0 0 0 13px;font-size:12px;line-height:1.6;color:rgba(36,35,31,.78)}
+.scan-gaps{margin:5px 0;padding:0 0 0 13px;font-size:11px;line-height:1.5;color:var(--muted)}
+.scan-inflection{font-size:11px;line-height:1.4;color:var(--muted);margin:5px 0;border-top:1px solid var(--rule);padding-top:5px;overflow-wrap:anywhere}
+.scan-insider{display:flex;gap:6px;align-items:center;margin:5px 0;background:rgba(64,95,159,.05);border:1px solid rgba(64,95,159,.2);border-radius:8px;padding:5px 8px}
+.scan-insider span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.scan-insider b{font-size:11px;font-weight:700;color:rgba(64,95,159,.9)}
+.scan-insider small{font-size:10px;color:var(--muted)}
+.scan-link{display:inline-block;font-size:11px;color:rgba(64,95,159,.8);margin-top:5px;text-decoration:none}
+.scan-link:hover{text-decoration:underline}
+.scan-gap-alerts{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.scan-gap-alert{border:1px solid rgba(174,124,44,.3);border-radius:10px;padding:8px 11px;background:rgba(174,124,44,.05);display:grid;gap:2px}
+.scan-gap-alert b{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.scan-gap-alert span{font-size:11px;color:var(--warn);font-weight:500}
+.scan-gap-alert small{font-size:11px;color:var(--muted)}
 @media(max-width:800px){
   .cv-macro-bar{grid-template-columns:1fr 1fr}
   .cv-modifiers{grid-template-columns:1fr 1fr}

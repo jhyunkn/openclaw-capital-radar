@@ -1,55 +1,77 @@
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
 const { renderOpportunitiesSection, renderOpportunitiesStyle, flattenOpportunityRows, selectDisplayRows } = require('../components/radar/opportunities/render.cjs');
 
-const root = path.join(__dirname, '..');
-const indexPath = path.join(root, 'index.html');
-const statePath = path.join(root, 'outputs', 'opportunity-asymmetry-state.json');
-const rankingPath = path.join(root, 'outputs', 'candidate-ranking.json');
+const root          = path.join(__dirname, '..');
+const indexPath     = path.join(root, 'index.html');
+const statePath     = path.join(root, 'outputs', 'opportunity-asymmetry-state.json');
+const rankingPath   = path.join(root, 'outputs', 'candidate-ranking.json');
+const convictionPath = path.join(root, 'outputs', 'conviction-ranking.json');
 
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
+
+function replaceSection(html, id, section) {
+  const OPEN  = '<sec' + 'tion';
+  const CLOSE = '</sec' + 'tion>';
+  const idStr = `id="${id}"`;
+  const idx   = html.indexOf(idStr);
+  if (idx >= 0) {
+    const start = html.lastIndexOf(OPEN, idx);
+    const end   = html.indexOf(CLOSE, idx);
+    if (start >= 0 && end > start) {
+      return html.slice(0, start) + section + html.slice(end + CLOSE.length);
+    }
+  }
+  throw new Error(`Could not locate #${id} section boundaries`);
 }
 
-function replaceSection(html, id, nextId, section) {
-  const open = '<sec' + 'tion';
-  const close = '</sec' + 'tion>';
-  const idDouble = 'id="' + id + '"';
-  const idSingle = "id='" + id + "'";
-  const idDoubleIndex = html.indexOf(idDouble);
-  const idSingleIndex = html.indexOf(idSingle);
-  const idIndex = idDoubleIndex >= 0 ? idDoubleIndex : idSingleIndex;
-
-  if (idIndex >= 0) {
-    const start = html.lastIndexOf(open, idIndex);
-    const endOfSection = html.indexOf(close, idIndex);
-    if (start >= 0 && endOfSection > start) return html.slice(0, start) + section + html.slice(endOfSection + close.length);
+function removeSection(html, id) {
+  // Remove a section entirely (used to delete the now-merged conviction section)
+  const OPEN  = '<sec' + 'tion';
+  const CLOSE = '</sec' + 'tion>';
+  const idStr = `id="${id}"`;
+  const idx   = html.indexOf(idStr);
+  if (idx < 0) return html; // already gone
+  const start = html.lastIndexOf(OPEN, idx);
+  const end   = html.indexOf(CLOSE, idx);
+  if (start >= 0 && end > start) {
+    return html.slice(0, start) + html.slice(end + CLOSE.length);
   }
-
-  const legacyOpen = '<sec' + 'tion id="';
-  const legacyStart = html.indexOf(legacyOpen + id + '"');
-  const legacyEnd = nextId ? html.indexOf(legacyOpen + nextId + '"') : -1;
-  if (legacyStart >= 0 && legacyEnd > legacyStart) return html.slice(0, legacyStart) + section + html.slice(legacyEnd);
-
-  throw new Error('Could not locate ' + id + ' section boundaries');
+  return html;
 }
 
 if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
 if (!fs.existsSync(statePath)) throw new Error('opportunity-asymmetry-state.json missing');
 
-const state = readJson(statePath);
+const state      = readJson(statePath);
+const ranking    = fs.existsSync(rankingPath)    ? readJson(rankingPath)    : null;
+const conviction = fs.existsSync(convictionPath) ? readJson(convictionPath) : null;
+
 if (!state.render_permission) throw new Error('opportunity-asymmetry-state render_permission=false');
 
-const ranking = fs.existsSync(rankingPath) ? readJson(rankingPath) : null;
-const section = renderOpportunitiesSection(state, ranking);
-const style = renderOpportunitiesStyle();
+const section = renderOpportunitiesSection(state, ranking, conviction);
+const style   = renderOpportunitiesStyle();
+
 let html = fs.readFileSync(indexPath, 'utf8');
 
-if (html.includes('.empty-op{') || html.includes('.op-board{')) html = html.replace(/<style>[^<]*(?:\.empty-op|\.op-board)[\s\S]*?<\/style>/, style);
-else html = html.replace('</he' + 'ad>', style + '</he' + 'ad>');
-html = replaceSection(html, 'opportunities-section', 'market-section', section);
+// Inject CSS
+if (html.includes('.op-stance{') || html.includes('.empty-op{')) {
+  html = html.replace(/<style>[^<]*(?:\.op-stance|\.empty-op)[\s\S]*?<\/style>/, style);
+} else {
+  html = html.replace('</he' + 'ad>', style + '</he' + 'ad>');
+}
+
+// Remove separately-injected conviction-section if it exists (now merged)
+html = removeSection(html, 'conviction-section');
+
+// Replace opportunities-section
+html = replaceSection(html, 'opportunities-section', section);
 
 fs.writeFileSync(indexPath, html);
+
 const allRows = flattenOpportunityRows(state);
-const selected = selectDisplayRows(allRows);
-console.log(`injected modular asymmetry diagnostics: qualified=${selected.opportunities.length} near=${selected.near.length} total=${allRows.length}`);
+const { opportunities, selected } = selectDisplayRows(allRows);
+const convTop3 = conviction ? (conviction.top10 || []).slice(0,3).map(t=>`${t.ticker}(${t.conviction_score})`).join(', ') : 'none';
+console.log(`injected unified opportunity section: conviction_top3=${convTop3}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);

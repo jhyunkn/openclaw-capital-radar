@@ -75,9 +75,9 @@
 .mu-day-chg{font-size:13px;font-weight:600;margin-top:3px}
 /* LWC chart */
 .mu-chart-wrap{position:relative;margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
-.mu-holding-lwc{width:100%;height:240px}
-.mu-rsi-lwc{width:100%;height:70px;border-top:1px solid rgba(201,191,173,.18)}
-.mu-macd-lwc{width:100%;height:88px;border-top:1px solid rgba(201,191,173,.18)}
+.mu-holding-lwc{width:100%;height:240px;display:block}
+.mu-rsi-lwc{width:100%;height:70px;display:block;border-top:1px solid rgba(201,191,173,.18)}
+.mu-macd-lwc{width:100%;height:88px;display:block;border-top:1px solid rgba(201,191,173,.18)}
 /* Legend chip — crosshair-aware, floats top-left inside chart */
 .mu-chart-legend{position:absolute;top:8px;left:8px;z-index:10;display:flex;gap:10px;flex-wrap:wrap;padding:4px 9px;background:rgba(248,246,241,.88);backdrop-filter:blur(6px);border:1px solid rgba(201,191,173,.4);border-radius:6px;font-size:10.5px;line-height:1.25;pointer-events:none}
 .mu-chart-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;color:rgba(26,23,20,.75);font-weight:600}
@@ -1609,7 +1609,7 @@ details[open].mu-details summary:before{content:'↑'}
     var bGrid={vertLines:{color:'rgba(201,191,173,.07)'},horzLines:{color:'rgba(201,191,173,.07)'}};
     // ── MAIN ──
     var chart=LWC.createChart(el,{
-      autoSize:true,layout:bLayout,grid:bGrid,
+      width:el.clientWidth||800,height:240,layout:bLayout,grid:bGrid,
       crosshair:{mode:1,vertLine:{width:1,color:'rgba(26,23,20,.2)',style:0},horzLine:{width:1,color:'rgba(26,23,20,.2)',style:0}},
       rightPriceScale:{borderColor:'rgba(201,191,173,.3)',scaleMargins:{top:0.06,bottom:0.22}},
       timeScale:{borderColor:'rgba(201,191,173,.3)',timeVisible:false,fixLeftEdge:true,fixRightEdge:true},
@@ -1676,7 +1676,7 @@ details[open].mu-details summary:before{content:'↑'}
     var rsiChart=null;
     if(rsiEl&&data.rsi&&data.rsi.length){
       rsiChart=LWC.createChart(rsiEl,{
-        autoSize:true,
+        width:el.clientWidth||800,height:70,
         layout:{background:{type:'solid',color:'rgba(251,250,246,.03)'},textColor:'rgba(26,23,20,.45)',fontSize:9},
         grid:{vertLines:{color:'rgba(201,191,173,.05)'},horzLines:{color:'rgba(201,191,173,.05)'}},
         crosshair:{mode:1,vertLine:{width:1,color:'rgba(26,23,20,.15)',style:0},horzLine:{visible:false}},
@@ -1697,7 +1697,7 @@ details[open].mu-details summary:before{content:'↑'}
     var macdChart=null;
     if(macdEl&&data.macd&&data.macd.histogram&&data.macd.histogram.length){
       macdChart=LWC.createChart(macdEl,{
-        autoSize:true,
+        width:el.clientWidth||800,height:88,
         layout:{background:{type:'solid',color:'rgba(251,250,246,.03)'},textColor:'rgba(26,23,20,.45)',fontSize:9},
         grid:{vertLines:{color:'rgba(201,191,173,.05)'},horzLines:{color:'rgba(201,191,173,.05)'}},
         crosshair:{mode:1,vertLine:{width:1,color:'rgba(26,23,20,.15)',style:0},horzLine:{visible:false}},
@@ -1723,6 +1723,16 @@ details[open].mu-details summary:before{content:'↑'}
     }
     chart.timeScale().subscribeVisibleLogicalRangeChange(syncRange);
     setTimeout(function(){syncRange(chart.timeScale().getVisibleLogicalRange());},60);
+    // Shared ResizeObserver — updates width on all 3 charts together
+    if(typeof ResizeObserver!=='undefined'){
+      var ro=new ResizeObserver(function(){
+        var w=el.clientWidth;
+        chart.applyOptions({width:w});
+        if(rsiChart) rsiChart.applyOptions({width:w});
+        if(macdChart)macdChart.applyOptions({width:w});
+      });
+      ro.observe(el);
+    }
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){payload.forEach(initChart);});

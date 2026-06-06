@@ -47,8 +47,18 @@
 .mu-price{font-size:22px;font-weight:700;line-height:1}
 .mu-day-chg{font-size:13px;font-weight:600;margin-top:3px}
 /* LWC chart */
-.mu-chart-wrap{margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
-.mu-holding-lwc{width:100%;height:300px}
+.mu-chart-wrap{position:relative;margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
+.mu-holding-lwc{width:100%;height:240px}
+.mu-rsi-lwc{width:100%;height:70px;border-top:1px solid rgba(201,191,173,.18)}
+.mu-macd-lwc{width:100%;height:88px;border-top:1px solid rgba(201,191,173,.18)}
+/* Legend chip — crosshair-aware, floats top-left inside chart */
+.mu-chart-legend{position:absolute;top:8px;left:8px;z-index:10;display:flex;gap:10px;flex-wrap:wrap;padding:4px 9px;background:rgba(248,246,241,.88);backdrop-filter:blur(6px);border:1px solid rgba(201,191,173,.4);border-radius:6px;font-size:10.5px;line-height:1.25;pointer-events:none}
+.mu-chart-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;color:rgba(26,23,20,.75);font-weight:600}
+.mu-chart-legend em{font-style:normal;font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
+.lc-ma50{background:rgba(138,106,44,.15);color:rgba(138,106,44,.9)}
+.lc-ma200{background:rgba(77,111,145,.15);color:rgba(77,111,145,.95)}
+.lc-stop{background:rgba(164,80,47,.12);color:rgba(164,80,47,.85)}
+.lc-floor{background:rgba(100,80,180,.12);color:rgba(100,80,180,.82)}
 /* Zone position bar */
 .mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:rgba(251,250,246,.06)}
 .mu-zone-bar-svg{display:block;width:100%;height:auto}
@@ -120,14 +130,16 @@
   .mu-level-cell:nth-child(n+3){border-top:1px solid var(--rule)}
   .mu-ticker{font-size:22px}
   .mu-price{font-size:18px}
-  .mu-holding-lwc{height:220px}
+  .mu-holding-lwc{height:180px}
+  .mu-rsi-lwc{height:56px}
+  .mu-macd-lwc{height:68px}
 }
 </style>
   <style>.empty-op{border:1px solid var(--rule);border-radius:16px;padding:14px;margin:14px 0;background:rgba(251,250,246,.12);display:grid;gap:4px}.empty-op b{font-size:20px}.empty-op span{color:var(--muted);font-size:12px}.op-card-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px;margin-top:14px}.op-card{border:1px solid var(--rule);border-radius:18px;background:rgba(251,250,246,.12);padding:14px;min-width:0;overflow:hidden}.op-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.op-card-head h3{font-size:28px;line-height:.95;margin:4px 0 2px;letter-spacing:-.045em}.op-card-head p{font-size:12px;color:var(--muted);margin:0}.op-theme{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.op-card-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin:12px 0}.op-card-metrics div{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:7px;min-width:0}.op-card-metrics span,.op-thesis-grid span,.op-next-line span,.op-source-line span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.op-card-metrics b{display:block;font-size:13px;line-height:1.15;margin-top:4px;overflow-wrap:anywhere}.op-gates{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.op-gate{font-size:10px;line-height:1;border:1px solid var(--rule);border-radius:999px;padding:5px 7px;color:var(--muted);background:rgba(251,250,246,.10)}.op-gate.pass{border-color:rgba(47,111,78,.36);color:var(--green);background:rgba(47,111,78,.08)}.op-gate.fail{border-color:rgba(174,124,44,.38);color:var(--warn);background:rgba(174,124,44,.08)}.op-thesis-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.op-thesis-grid div,.op-next-line,.op-source-line{border:1px solid var(--rule);border-radius:14px;padding:10px;background:rgba(251,250,246,.08);min-width:0}.op-thesis-grid p{font-size:12px;line-height:1.42;color:rgba(36,35,31,.78);margin:6px 0 0;overflow-wrap:anywhere}.op-next-line{margin-top:8px}.op-next-line b{display:block;font-size:14px;line-height:1.25;margin-top:4px}.op-next-line small,.op-source-line small{display:block;color:var(--muted);font-size:11px;line-height:1.35;margin-top:5px;overflow-wrap:anywhere}.op-source-line{margin-top:8px}@media(max-width:760px){.op-card-board,.op-thesis-grid{grid-template-columns:1fr}.op-card-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.op-card-head{display:grid}}</style>
 </head>
 <body>
   <main class="shell">
-    <div class="topbar"><div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div><nav class="nav"><a href="#decision-brief-section">Brief</a><a href="#operational-chart-section">Decision Chart</a><a href="#holdings-section">Holdings</a><a href="#opportunities-section">Opportunity</a></nav><div id="generated">Registry preview · 2026-06-05T21:47:27.707Z</div></div>
+    <div class="topbar"><div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div><nav class="nav"><a href="#decision-brief-section">Brief</a><a href="#operational-chart-section">Decision Chart</a><a href="#holdings-section">Holdings</a><a href="#opportunities-section">Opportunity</a></nav><div id="generated">Registry preview · 2026-06-06T03:39:25.179Z</div></div>
     <header class="hero"><div><p class="eyebrow">Capital Radar · non-authoritative registry preview</p><h1>Homepage section registry preview</h1><p class="lede">This file renders active manifest sections through a standalone registry snapshot without replacing production index.html or invoking legacy cleanup commands.</p><div class="lens-strip"><span>Registry</span><span>State</span><span>Renderer</span><span>Validation</span></div><div class="registry-preview-banner">Manifest v45 · production output untouched · generated from existing state artifacts only.</div></div><aside class="status"><span>Preview authority</span><strong class="good">Non-production</strong><span>Use homepage-registry-preview-report.json to decide when registry migration is safe.</span><span>Existing injectors and cleanup scripts remain authoritative for production.</span></aside></header>
     <section id="decision-brief-section" class="panel decision-brief-panel macro-reading-panel">
     <div class="macro-root-head"><p class="eyebrow">Macro Reading <span class="compat-label">Market Decision Brief</span></p><h2>Root market permission page</h2><p>Regime, liquidity, rates, credit, confirmation, invalidation, and capital permission before any ticker decision. Macro, Confirmation, VIX, 10Y, M2, and Risk rule terms stay present for validation.</p></div>
@@ -191,25 +203,7 @@
       <div><span>Underpriced condition</span><p>sharp downside dislocation; require cause check before any add-zone work</p></div>
     </div>
     <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · market-stress-brief · SEC records: 10 · market structure: available</small></div>
-  </article><article class="op-card">
-    <div class="op-card-head">
-      <div><span class="op-theme">Streaming / Attention Stack</span><h3>AVGO</h3><p>Broadcom</p></div>
-      <span class="pill good">promotion review</span>
-    </div>
-    <div class="op-card-metrics">
-      <div><span>Evidence</span><b>90 / 80</b></div>
-      <div><span>Undervaluation</span><b>55</b></div>
-      <div><span>Conviction</span><b>90</b></div>
-      <div><span>Zone</span><b>neutral hold</b></div>
-    </div>
-    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
-    <div class="op-thesis-grid">
-      <div><span>Why it matters</span><p>Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.</p></div>
-      <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
-    </div>
-    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · market-stress-brief · SEC records: 9 · market structure: available</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · market-stress-brief · SEC records: 11 · market structure: available</small></div>
   </article><article class="op-card">
     <div class="op-card-head">
       <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>VRT</h3><p>Vertiv</p></div>
@@ -218,13 +212,31 @@
     <div class="op-card-metrics">
       <div><span>Evidence</span><b>90 / 80</b></div>
       <div><span>Undervaluation</span><b>55</b></div>
-      <div><span>Conviction</span><b>88</b></div>
+      <div><span>Conviction</span><b>92</b></div>
       <div><span>Zone</span><b>neutral hold</b></div>
     </div>
     <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
     <div class="op-thesis-grid">
       <div><span>Why it matters</span><p>Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.</p></div>
-      <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
+      <div><span>Underpriced condition</span><p>sharp downside dislocation; require cause check before any add-zone work</p></div>
+    </div>
+    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · market-stress-brief · SEC records: 9 · market structure: available</small></div>
+  </article><article class="op-card">
+    <div class="op-card-head">
+      <div><span class="op-theme">Streaming / Attention Stack</span><h3>AVGO</h3><p>Broadcom</p></div>
+      <span class="pill good">promotion review</span>
+    </div>
+    <div class="op-card-metrics">
+      <div><span>Evidence</span><b>90 / 80</b></div>
+      <div><span>Undervaluation</span><b>55</b></div>
+      <div><span>Conviction</span><b>94</b></div>
+      <div><span>Zone</span><b>neutral hold</b></div>
+    </div>
+    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
+    <div class="op-thesis-grid">
+      <div><span>Why it matters</span><p>Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.</p></div>
+      <div><span>Underpriced condition</span><p>sharp downside dislocation; require cause check before any add-zone work</p></div>
     </div>
     <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
     <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · market-stress-brief · SEC records: 9 · market structure: available</small></div>
@@ -246,6 +258,24 @@
     </div>
     <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
     <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · market-stress-brief · SEC records: 5 · market structure: available</small></div>
+  </article><article class="op-card">
+    <div class="op-card-head">
+      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>PLTR</h3><p>Palantir</p></div>
+      <span class="pill good">promotion review</span>
+    </div>
+    <div class="op-card-metrics">
+      <div><span>Evidence</span><b>90 / 80</b></div>
+      <div><span>Undervaluation</span><b>55</b></div>
+      <div><span>Conviction</span><b>85</b></div>
+      <div><span>Zone</span><b>neutral hold</b></div>
+    </div>
+    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
+    <div class="op-thesis-grid">
+      <div><span>Why it matters</span><p>A controversial but interesting candidate: if AI shifts from model infrastructure to operational deployment, PLTR may be a pure workflow/ontology beneficiary.</p></div>
+      <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
+    </div>
+    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 5 · market structure: available</small></div>
   </article><article class="op-card">
     <div class="op-card-head">
       <div><span class="op-theme">Streaming / Attention Stack</span><h3>RDDT</h3><p>Reddit</p></div>
@@ -320,7 +350,25 @@
     <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 10 · market structure: available</small></div>
   </article><article class="op-card">
     <div class="op-card-head">
-      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>PLTR</h3><p>Palantir</p></div>
+      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>PWR</h3><p>Quanta Services</p></div>
+      <span class="pill good">promotion review</span>
+    </div>
+    <div class="op-card-metrics">
+      <div><span>Evidence</span><b>90 / 80</b></div>
+      <div><span>Undervaluation</span><b>55</b></div>
+      <div><span>Conviction</span><b>77</b></div>
+      <div><span>Zone</span><b>neutral hold</b></div>
+    </div>
+    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
+    <div class="op-thesis-grid">
+      <div><span>Why it matters</span><p>A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.</p></div>
+      <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
+    </div>
+    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 8 · market structure: available</small></div>
+  </article><article class="op-card">
+    <div class="op-card-head">
+      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>GEV</h3><p>GE Vernova</p></div>
       <span class="pill good">promotion review</span>
     </div>
     <div class="op-card-metrics">
@@ -331,11 +379,47 @@
     </div>
     <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
     <div class="op-thesis-grid">
-      <div><span>Why it matters</span><p>A controversial but interesting candidate: if AI shifts from model infrastructure to operational deployment, PLTR may be a pure workflow/ontology beneficiary.</p></div>
+      <div><span>Why it matters</span><p>A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.</p></div>
       <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
     </div>
     <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 5 · market structure: available</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 10 · market structure: available</small></div>
+  </article><article class="op-card">
+    <div class="op-card-head">
+      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>TMDX</h3><p>TransMedics</p></div>
+      <span class="pill good">promotion review</span>
+    </div>
+    <div class="op-card-metrics">
+      <div><span>Evidence</span><b>90 / 80</b></div>
+      <div><span>Undervaluation</span><b>55</b></div>
+      <div><span>Conviction</span><b>76</b></div>
+      <div><span>Zone</span><b>neutral hold</b></div>
+    </div>
+    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
+    <div class="op-thesis-grid">
+      <div><span>Why it matters</span><p>A genuinely different growth infrastructure idea: organ transplant logistics and preservation network effects, far from current AI/platform concentration.</p></div>
+      <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
+    </div>
+    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 14 · market structure: available</small></div>
+  </article><article class="op-card">
+    <div class="op-card-head">
+      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>IBIT</h3><p>iShares Bitcoin Trust</p></div>
+      <span class="pill good">promotion review</span>
+    </div>
+    <div class="op-card-metrics">
+      <div><span>Evidence</span><b>90 / 80</b></div>
+      <div><span>Undervaluation</span><b>55</b></div>
+      <div><span>Conviction</span><b>70</b></div>
+      <div><span>Zone</span><b>neutral hold</b></div>
+    </div>
+    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
+    <div class="op-thesis-grid">
+      <div><span>Why it matters</span><p>A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.</p></div>
+      <div><span>Underpriced condition</span><p>meaningful pullback; possible research entry setup only after evidence and support confirmation</p></div>
+    </div>
+    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 15 · market structure: available</small></div>
   </article><article class="op-card">
     <div class="op-card-head">
       <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>GOOGL</h3><p>Alphabet</p></div>
@@ -353,82 +437,10 @@
       <div><span>Underpriced condition</span><p>neutral price context; compare against thesis and valuation evidence</p></div>
     </div>
     <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 5 · market structure: available</small></div>
-  </article><article class="op-card">
-    <div class="op-card-head">
-      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>PWR</h3><p>Quanta Services</p></div>
-      <span class="pill good">promotion review</span>
-    </div>
-    <div class="op-card-metrics">
-      <div><span>Evidence</span><b>90 / 80</b></div>
-      <div><span>Undervaluation</span><b>30</b></div>
-      <div><span>Conviction</span><b>77</b></div>
-      <div><span>Zone</span><b>neutral hold</b></div>
-    </div>
-    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
-    <div class="op-thesis-grid">
-      <div><span>Why it matters</span><p>A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.</p></div>
-      <div><span>Underpriced condition</span><p>neutral price context; compare against thesis and valuation evidence</p></div>
-    </div>
-    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 8 · market structure: available</small></div>
-  </article><article class="op-card">
-    <div class="op-card-head">
-      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>GEV</h3><p>GE Vernova</p></div>
-      <span class="pill good">promotion review</span>
-    </div>
-    <div class="op-card-metrics">
-      <div><span>Evidence</span><b>90 / 80</b></div>
-      <div><span>Undervaluation</span><b>30</b></div>
-      <div><span>Conviction</span><b>76</b></div>
-      <div><span>Zone</span><b>neutral hold</b></div>
-    </div>
-    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
-    <div class="op-thesis-grid">
-      <div><span>Why it matters</span><p>A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.</p></div>
-      <div><span>Underpriced condition</span><p>neutral price context; compare against thesis and valuation evidence</p></div>
-    </div>
-    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 10 · market structure: available</small></div>
-  </article><article class="op-card">
-    <div class="op-card-head">
-      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>TMDX</h3><p>TransMedics</p></div>
-      <span class="pill good">promotion review</span>
-    </div>
-    <div class="op-card-metrics">
-      <div><span>Evidence</span><b>90 / 80</b></div>
-      <div><span>Undervaluation</span><b>30</b></div>
-      <div><span>Conviction</span><b>76</b></div>
-      <div><span>Zone</span><b>neutral hold</b></div>
-    </div>
-    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
-    <div class="op-thesis-grid">
-      <div><span>Why it matters</span><p>A genuinely different growth infrastructure idea: organ transplant logistics and preservation network effects, far from current AI/platform concentration.</p></div>
-      <div><span>Underpriced condition</span><p>neutral price context; compare against thesis and valuation evidence</p></div>
-    </div>
-    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 14 · market structure: available</small></div>
-  </article><article class="op-card">
-    <div class="op-card-head">
-      <div><span class="op-theme">Index Ballast / Liquidity Beta</span><h3>IBIT</h3><p>iShares Bitcoin Trust</p></div>
-      <span class="pill good">promotion review</span>
-    </div>
-    <div class="op-card-metrics">
-      <div><span>Evidence</span><b>90 / 80</b></div>
-      <div><span>Undervaluation</span><b>30</b></div>
-      <div><span>Conviction</span><b>70</b></div>
-      <div><span>Zone</span><b>neutral hold</b></div>
-    </div>
-    <div class="op-gates"><span class="op-gate pass">Company/SEC ✓</span><span class="op-gate pass">Zone ✓</span><span class="op-gate pass">Market ✓</span><span class="op-gate pass">Invalidation ✓</span><span class="op-gate fail">Risk budget ·</span></div>
-    <div class="op-thesis-grid">
-      <div><span>Why it matters</span><p>A cleaner vehicle to compare against levered/path-dependent crypto exposure; may reduce decay risk while preserving directional Bitcoin beta.</p></div>
-      <div><span>Underpriced condition</span><p>neutral price context; compare against thesis and valuation evidence</p></div>
-    </div>
-    <div class="op-next-line"><span>Next gate</span><b>Risk budget</b><small>Risk budget</small></div>
-    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 15 · market structure: available</small></div>
+    <div class="op-source-line"><span>Evidence sources</span><small>capital-radar-live-state · yahoo-chart-public · sec-company-submissions · SEC records: 7 · market structure: available</small></div>
   </article></div>
   </section>
-    <footer class="footer">OpenClaw Capital Radar · registry preview generated 2026-06-05T21:47:27.707Z</footer>
+    <footer class="footer">OpenClaw Capital Radar · registry preview generated 2026-06-06T03:39:25.179Z</footer>
   </main>
 </body>
 </html>

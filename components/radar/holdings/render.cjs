@@ -103,6 +103,45 @@ function computeRSI(candles, period = 14) {
   return out;
 }
 
+function computeBollingerBands(candles, period = 20, mult = 2) {
+  const out = [];
+  for (let i = period - 1; i < candles.length; i++) {
+    const slice = candles.slice(i - period + 1, i + 1);
+    const mean = slice.reduce((s, c) => s + c.close, 0) / period;
+    const sd   = Math.sqrt(slice.reduce((s, c) => s + (c.close - mean) ** 2, 0) / period);
+    out.push({
+      time:   candles[i].time,
+      upper:  Math.round((mean + mult * sd) * 100) / 100,
+      middle: Math.round(mean * 100) / 100,
+      lower:  Math.round((mean - mult * sd) * 100) / 100,
+    });
+  }
+  return out;
+}
+
+function computeATR(candles, period = 14) {
+  if (candles.length < period + 1) return null;
+  const trs = [];
+  for (let i = 1; i < candles.length; i++) {
+    const h = candles[i].high, l = candles[i].low, pc = candles[i-1].close;
+    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+  }
+  let atr = trs.slice(0, period).reduce((s, v) => s + v, 0) / period;
+  for (let i = period; i < trs.length; i++) atr = (atr * (period - 1) + trs[i]) / period;
+  return Math.round(atr * 100) / 100;
+}
+
+// Fibonacci retracements from visible range high → low
+function computeFibLevels(candles) {
+  if (!candles.length) return null;
+  const high = Math.max(...candles.map(c => c.high));
+  const low  = Math.min(...candles.map(c => c.low));
+  const r = high - low;
+  if (r <= 0) return null;
+  const f = n => Math.round((high - n * r) * 100) / 100;
+  return { high, low, f236: f(0.236), f382: f(0.382), f500: f(0.500), f618: f(0.618), f786: f(0.786) };
+}
+
 function computeMACD(candles, fast = 12, slow = 26, sig = 9) {
   const closes = candles.map(c => c.close);
   const times  = candles.map(c => c.time);
@@ -272,14 +311,27 @@ function buildLwcPayload(h) {
   const ma50Data  = allMa50 .filter(d => d.time >= startTime);
   const ma200Data = allMa200.filter(d => d.time >= startTime);
 
-  const rsiAll  = computeRSI(allCdls);
-  const macdAll = computeMACD(allCdls);
+  const rsiAll   = computeRSI(allCdls);
+  const macdAll  = computeMACD(allCdls);
+  const ema21Vs  = computeEMA(allCdls.map(c => c.close), 21);
+  const allEma21 = ema21Vs.map((v, i) => ({ time: allCdls[20 + i].time, value: v }));
+  const allBB    = computeBollingerBands(allCdls);
+  const atr      = computeATR(allCdls);
+  const fib      = computeFibLevels(display);
   const sf = computeSubstanceFloor(ticker, num(h.current));
   return {
     id:       `lwc-${ticker}`,
     candles:  display.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 })),
     ma50:     ma50Data,
     ma200:    ma200Data,
+    ema21:    allEma21.filter(d => d.time >= startTime),
+    bb: {
+      upper:  allBB.filter(d => d.time >= startTime).map(d => ({ time: d.time, value: d.upper })),
+      middle: allBB.filter(d => d.time >= startTime).map(d => ({ time: d.time, value: d.middle })),
+      lower:  allBB.filter(d => d.time >= startTime).map(d => ({ time: d.time, value: d.lower })),
+    },
+    atr,
+    fib,
     rsi:      rsiAll.filter(d => d.time >= startTime),
     macd: {
       histogram: macdAll.histogram.filter(d => d.time >= startTime),
@@ -436,6 +488,18 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     ma50s.setData(toLine(data.ma50));
     var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.88)',lineWidth:2,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
     ma200s.setData(toLine(data.ma200));
+    // EMA21 — fast tactical MA (coral)
+    var ema21s=chart.addLineSeries({color:'rgba(200,90,50,.75)',lineWidth:1.5,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    ema21s.setData(toLine(data.ema21));
+    // Bollinger Bands 20,2 — upper/lower dashed, middle solid (muted violet)
+    if(data.bb){
+      var bbU=chart.addLineSeries({color:'rgba(120,100,200,.32)',lineWidth:1,lineStyle:2,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+      bbU.setData(toLine(data.bb.upper));
+      var bbM=chart.addLineSeries({color:'rgba(120,100,200,.45)',lineWidth:1,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+      bbM.setData(toLine(data.bb.middle));
+      var bbL=chart.addLineSeries({color:'rgba(120,100,200,.32)',lineWidth:1,lineStyle:2,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+      bbL.setData(toLine(data.bb.lower));
+    }
     var vol=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'vol',lastValueVisible:false,priceLineVisible:false});
     chart.priceScale('vol').applyOptions({scaleMargins:{top:0.82,bottom:0},visible:false});
     vol.setData(data.candles.filter(function(c){return c.volume>0;}).map(function(c){return{time:c.time,value:c.volume,color:c.close>=c.open?'rgba(42,107,74,.18)':'rgba(164,80,47,.15)';};}));
@@ -445,23 +509,34 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
       cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.35)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});
     }
     if(z.stop!=null)cs.createPriceLine({price:z.stop,color:'rgba(164,80,47,.55)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});
+    // Fibonacci retracements from 1-year high/low — amber horizontal levels
+    if(data.fib){var fv=data.fib;
+      cs.createPriceLine({price:fv.f236,color:'rgba(180,150,40,.38)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:'23.6%'});
+      cs.createPriceLine({price:fv.f382,color:'rgba(180,150,40,.52)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:'38.2%'});
+      cs.createPriceLine({price:fv.f500,color:'rgba(180,150,40,.62)',lineWidth:1.5,lineStyle:0,axisLabelVisible:false,title:'50%'});
+      cs.createPriceLine({price:fv.f618,color:'rgba(180,150,40,.58)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:'61.8%'});
+      cs.createPriceLine({price:fv.f786,color:'rgba(180,150,40,.38)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:'78.6%'});
+    }
     var lgnd=document.getElementById('lgnd-'+data.id);
-    var ma50L=data.ma50&&data.ma50.length?data.ma50[data.ma50.length-1].value:null;
+    var ma50L =data.ma50 &&data.ma50.length ?data.ma50[data.ma50.length-1].value  :null;
     var ma200L=data.ma200&&data.ma200.length?data.ma200[data.ma200.length-1].value:null;
-    function renderLgnd(m50,m200){
+    var ema21L=data.ema21&&data.ema21.length?data.ema21[data.ema21.length-1].value:null;
+    function renderLgnd(m50,m200,m21){
       if(!lgnd)return;
       var h='';
       if(m50!=null)  h+='<span><em class="lc-ma50">MA50</em>'+fmtP(m50)+'</span>';
       if(m200!=null) h+='<span><em class="lc-ma200">MA200</em>'+fmtP(m200)+'</span>';
+      if(m21!=null)  h+='<span><em class="lc-ema21">EMA21</em>'+fmtP(m21)+'</span>';
       if(z.stop!=null)      h+='<span><em class="lc-stop">Stop</em>'+fmtP(z.stop)+'</span>';
       if(z.floorPrice!=null)h+='<span><em class="lc-floor">Floor</em>'+fmtP(z.floorPrice)+'</span>';
+      if(data.atr!=null)    h+='<span><em class="lc-atr">ATR</em>$'+Number(data.atr).toFixed(2)+'</span>';
       lgnd.innerHTML=h;
     }
-    renderLgnd(ma50L,ma200L);
+    renderLgnd(ma50L,ma200L,ema21L);
     chart.subscribeCrosshairMove(function(param){
-      if(!param||!param.time){renderLgnd(ma50L,ma200L);return;}
-      var m5=param.seriesData.get(ma50s);var m2=param.seriesData.get(ma200s);
-      renderLgnd(m5?m5.value:null,m2?m2.value:null);
+      if(!param||!param.time){renderLgnd(ma50L,ma200L,ema21L);return;}
+      var m5=param.seriesData.get(ma50s);var m2=param.seriesData.get(ma200s);var m21=param.seriesData.get(ema21s);
+      renderLgnd(m5?m5.value:null,m2?m2.value:null,m21?m21.value:null);
     });
     chart.timeScale().fitContent();
     // ── RSI ──
@@ -591,6 +666,8 @@ function renderHoldingsStyle() {
 .lc-ma200{background:rgba(77,111,145,.15);color:rgba(77,111,145,.95)}
 .lc-stop{background:rgba(164,80,47,.12);color:rgba(164,80,47,.85)}
 .lc-floor{background:rgba(100,80,180,.12);color:rgba(100,80,180,.82)}
+.lc-ema21{background:rgba(200,90,50,.12);color:rgba(200,90,50,.85)}
+.lc-atr{background:rgba(100,100,100,.1);color:rgba(60,60,60,.7)}
 /* Zone position bar */
 .mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:rgba(251,250,246,.06)}
 .mu-zone-bar-svg{display:block;width:100%;height:auto}

@@ -5,6 +5,7 @@ const { renderOpportunitiesSection, renderOpportunitiesStyle, flattenOpportunity
 const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
 const statePath = path.join(root, 'outputs', 'opportunity-asymmetry-state.json');
+const rankingPath = path.join(root, 'outputs', 'candidate-ranking.json');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -39,7 +40,8 @@ if (!fs.existsSync(statePath)) throw new Error('opportunity-asymmetry-state.json
 const state = readJson(statePath);
 if (!state.render_permission) throw new Error('opportunity-asymmetry-state render_permission=false');
 
-const section = renderOpportunitiesSection(state);
+const ranking = fs.existsSync(rankingPath) ? readJson(rankingPath) : null;
+const section = renderOpportunitiesSection(state, ranking);
 const style = renderOpportunitiesStyle();
 let html = fs.readFileSync(indexPath, 'utf8');
 

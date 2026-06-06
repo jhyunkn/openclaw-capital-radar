@@ -5,6 +5,16 @@ const statePath = fs.existsSync(path.join(root, 'data', 'report-state.live.json'
 const fundamentals = JSON.parse(fs.readFileSync(path.join(root, 'data', 'fundamentals.manual.json'), 'utf8'));
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+
+// Load XBRL fundamentals (from SEC EDGAR via collect-sec-xbrl-fundamentals.cjs)
+const xbrlPath = path.join(root, 'outputs', 'sec-xbrl-fundamentals.json');
+const xbrlByTicker = {};
+if (fs.existsSync(xbrlPath)) {
+  const xbrl = JSON.parse(fs.readFileSync(xbrlPath, 'utf8'));
+  for (const row of (xbrl.results || [])) {
+    if (row.ticker && row.status === 'ok') xbrlByTicker[String(row.ticker).toUpperCase()] = row;
+  }
+}
 const n = v => { const x = Number(v); return Number.isFinite(x) ? x : null; };
 const r = (v,d=2) => Number.isFinite(v) ? Number(v.toFixed(d)) : null;
 function vol20(h){
@@ -49,7 +59,46 @@ for (const h of holdings) {
     h.dataContract.nextEarningsDate = f.notApplicable ? 'N/A' : f.nextEarningsDate;
     h.dataContract.notApplicable = !!f.notApplicable;
     h.dataContract.reason = f.reason || undefined;
+    h.dataContract.grossMarginPct = f.grossMarginPct ?? null;
+    h.dataContract.grossMarginSource = f.grossMarginSource || null;
+    h.dataContract.operatingMarginPct = f.operatingMarginPct ?? null;
+    h.dataContract.netMarginPct = f.netMarginPct ?? null;
+    h.dataContract.analystRating = f.analystRating || null;
+    h.dataContract.analystCount = f.analystCount ?? null;
+    h.dataContract.analystTargetMean = f.analystTargetMean ?? null;
+    h.dataContract.analystTargetLow = f.analystTargetLow ?? null;
+    h.dataContract.analystTargetHigh = f.analystTargetHigh ?? null;
+    h.dataContract.analystNote = f.analystNote || null;
+    h.dataContract.analystDataAsOf = fundamentals.analystDataAsOf || null;
     h.dataContract.confidence = f.notApplicable ? { forwardPE:'not_applicable', fcfYield:'not_applicable', nextEarningsDate:'not_applicable' } : { forwardPE:f.forwardPE==null?'missing':'seeded_public_fundamental', fcfYield:f.fcfYield==null?'missing':'seeded_public_fundamental', nextEarningsDate:f.nextEarningsDate?'seeded_public_fundamental':'missing' };
+  }
+
+  // Merge XBRL financials
+  const xbrl = xbrlByTicker[ticker];
+  if (xbrl) {
+    const xf = xbrl.fundamentals || {};
+    h.dataContract.xbrl = {
+      source: 'SEC EDGAR XBRL',
+      latestFiscalYear: xbrl.latestFiscalYear,
+      latestFilingDate: xbrl.latestFilingDate,
+      enrichedAt: xbrl.enriched_at,
+      revenueTtmM: xf.revenue_ttm_usd_millions ?? null,
+      revenuePriorM: xf.revenue_prior_usd_millions ?? null,
+      revenueGrowthPct: xf.revenue_growth_pct ?? null,
+      netIncomeM: xf.net_income_usd_millions ?? null,
+      grossProfitM: xf.gross_profit_usd_millions ?? null,
+      epsDiluted: xf.eps_diluted ?? null,
+      sharesOutstandingM: xf.shares_outstanding_millions ?? null,
+      operatingCfM: xf.operating_cf_usd_millions ?? null,
+      capexM: xf.capex_usd_millions ?? null,
+      fcfM: xf.fcf_usd_millions ?? null,
+      longTermDebtM: xf.long_term_debt_usd_millions ?? null,
+      dilutionFlag: xf.dilution_flag || null
+    };
+    // Compute market cap from live price × shares
+    if (h.livePrice && xf.shares_outstanding_millions) {
+      h.dataContract.marketCapB = r(h.livePrice * xf.shares_outstanding_millions / 1000, 1);
+    }
   }
   const b = bands(h);
   thresholds.push(b);

@@ -502,7 +502,7 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     }
     var vol=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'vol',lastValueVisible:false,priceLineVisible:false});
     chart.priceScale('vol').applyOptions({scaleMargins:{top:0.82,bottom:0},visible:false});
-    vol.setData(data.candles.filter(function(c){return c.volume>0;}).map(function(c){return{time:c.time,value:c.volume,color:c.close>=c.open?'rgba(42,107,74,.18)':'rgba(164,80,47,.15)';};}));
+    vol.setData(data.candles.filter(function(c){return c.volume>0;}).map(function(c){return{time:c.time,value:c.volume,color:c.close>=c.open?'rgba(42,107,74,.18)':'rgba(164,80,47,.15)'};}));
     var z=data.zones;
     if(z.hasBuyZone&&z.buyHigh!=null){
       cs.createPriceLine({price:z.buyHigh,color:'rgba(42,107,74,.5)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});

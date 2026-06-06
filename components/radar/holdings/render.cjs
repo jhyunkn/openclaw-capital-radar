@@ -53,6 +53,7 @@ function loadCandles(ticker, n = 200) {
       high:   Number(c.high),
       low:    Number(c.low),
       close:  Number(c.close),
+      volume: Number(c.volume || 0),
     }))
     .filter(c => c.time && Number.isFinite(c.close) && c.close > 0)
     .slice(-n);
@@ -219,7 +220,7 @@ function buildLwcPayload(h) {
   const sf = computeSubstanceFloor(ticker, num(h.current));
   return {
     id:       `lwc-${ticker}`,
-    candles:  display.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close })),
+    candles:  display.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 })),
     ma50:     ma50Data,
     ma200:    ma200Data,
     // Only the most important levels on chart — no axis label clutter
@@ -319,7 +320,7 @@ function renderHoldingCard(h, route = {}) {
       <div class="mu-day-chg" style="color:${dayColor}">${daySign}${fmt(dayV,2)}%</div>
     </div>
   </div>
-  <div class="mu-chart-wrap"><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div></div>
+  <div class="mu-chart-wrap"><div class="mu-chart-legend" id="lgnd-lwc-${esc(ticker)}"></div><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div></div>
   <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
   ${levelsHtml}
   ${substanceHtml}
@@ -349,65 +350,73 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
 (function(){
   var payload=${payloadJson};
   function toLineData(arr){return arr.filter(function(d){return d&&d.time&&Number.isFinite(d.value)});}
+  function fmtP(v){return v!=null?'$'+Number(v).toFixed(0):'—';}
   function init(data){
     var el=document.getElementById(data.id);
     if(!el||!window.LightweightCharts)return;
     var chart=LightweightCharts.createChart(el,{
-      height:260,
-      layout:{background:{type:'solid',color:'rgba(251,250,246,.04)'},textColor:'rgba(26,23,20,.65)',fontSize:11},
-      grid:{vertLines:{color:'rgba(201,191,173,.12)'},horzLines:{color:'rgba(201,191,173,.12)'}},
-      crosshair:{mode:1},
-      rightPriceScale:{borderColor:'rgba(201,191,173,.35)',scaleMargins:{top:0.08,bottom:0.08}},
-      timeScale:{borderColor:'rgba(201,191,173,.35)',timeVisible:false,fixLeftEdge:true,fixRightEdge:true},
+      autoSize:true,
+      layout:{background:{type:'solid',color:'rgba(251,250,246,.04)'},textColor:'rgba(26,23,20,.5)',fontSize:10},
+      grid:{vertLines:{color:'rgba(201,191,173,.07)'},horzLines:{color:'rgba(201,191,173,.07)'}},
+      crosshair:{mode:1,vertLine:{width:1,color:'rgba(26,23,20,.2)',style:0},horzLine:{width:1,color:'rgba(26,23,20,.2)',style:0}},
+      rightPriceScale:{borderColor:'rgba(201,191,173,.3)',scaleMargins:{top:0.06,bottom:0.22}},
+      timeScale:{borderColor:'rgba(201,191,173,.3)',timeVisible:true,secondsVisible:false,fixLeftEdge:true,fixRightEdge:true},
       handleScroll:true,handleScale:true
     });
+    // Candlestick — only live price label on right axis
     var cs=chart.addCandlestickSeries({
       upColor:'#2a6b4a',downColor:'#A4502F',
       borderUpColor:'#2a6b4a',borderDownColor:'#A4502F',
-      wickUpColor:'rgba(42,107,74,.6)',wickDownColor:'rgba(164,80,47,.5)',
-      priceLineVisible:false
+      wickUpColor:'rgba(42,107,74,.5)',wickDownColor:'rgba(164,80,47,.45)',
+      priceLineVisible:false,lastValueVisible:true
     });
     cs.setData(data.candles);
-    // MA50/MA200 — lines only, no right-axis value labels (reduce crowding)
-    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.55)',lineWidth:1.5,lineStyle:1,priceLineVisible:false,lastValueVisible:false,title:'MA50',crosshairMarkerVisible:false});
+    // MA50 — dashed warm gold
+    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.65)',lineWidth:1.5,lineStyle:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
     ma50s.setData(toLineData(data.ma50));
-    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.9)',lineWidth:2,priceLineVisible:false,lastValueVisible:false,title:'MA200',crosshairMarkerVisible:false});
+    // MA200 — solid steel blue
+    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.88)',lineWidth:2,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
     ma200s.setData(toLineData(data.ma200));
+    // Volume histogram — bottom 18%, axis hidden
+    var vol=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'vol',lastValueVisible:false,priceLineVisible:false});
+    chart.priceScale('vol').applyOptions({scaleMargins:{top:0.82,bottom:0},visible:false});
+    vol.setData(data.candles.filter(function(c){return c.volume>0;}).map(function(c){
+      return{time:c.time,value:c.volume,color:c.close>=c.open?'rgba(42,107,74,.18)':'rgba(164,80,47,.15)'};
+    }));
+    // Price levels — thin dashed, no axis labels (values live in legend chip and levels strip)
     var z=data.zones;
-    // Extend Y-axis to always include the substance floor — makes the floor line visible on chart
-    if(z.floorPrice!=null){
-      cs.applyOptions({
-        autoscaleInfoProvider:function(orig){
-          var res=orig();
-          if(res!==null){res.priceRange.minValue=Math.min(res.priceRange.minValue,z.floorPrice*0.93);}
-          return res;
-        }
-      });
-    }
-    // Buy zone: green lines, no axis labels (exact numbers are in the levels strip below)
     if(z.hasBuyZone&&z.buyHigh!=null){
-      cs.createPriceLine({price:z.buyHigh,color:'#2a6b4a',lineWidth:2,lineStyle:0,axisLabelVisible:false,title:'Buy'});
-      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.65)',lineWidth:2,lineStyle:0,axisLabelVisible:false,title:'Buy'});
+      cs.createPriceLine({price:z.buyHigh,color:'rgba(42,107,74,.5)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});
+      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.35)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});
     }
-    // Stop: right-axis label only (sole axis label kept)
     if(z.stop!=null){
-      cs.createPriceLine({price:z.stop,color:'#A4502F',lineWidth:1.5,lineStyle:0,axisLabelVisible:true,title:'Stop'});
+      cs.createPriceLine({price:z.stop,color:'rgba(164,80,47,.55)',lineWidth:1,lineStyle:2,axisLabelVisible:false,title:''});
     }
-    // Substanzwert floor: dashed indigo, right-axis label — visible because autoscale extends to floor
-    if(z.floorPrice!=null){
-      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.7)',lineWidth:2,lineStyle:2,axisLabelVisible:true,title:'Floor'});
+    // Compact crosshair-aware legend overlay — MA50 / MA200 / Stop / Floor
+    var lgnd=document.getElementById('lgnd-'+data.id);
+    var ma50L=data.ma50.length?data.ma50[data.ma50.length-1].value:null;
+    var ma200L=data.ma200.length?data.ma200[data.ma200.length-1].value:null;
+    function renderLgnd(m50,m200){
+      if(!lgnd)return;
+      var h='';
+      if(m50!=null)  h+='<span><em class="lc-ma50">MA50</em>'+fmtP(m50)+'</span>';
+      if(m200!=null) h+='<span><em class="lc-ma200">MA200</em>'+fmtP(m200)+'</span>';
+      if(z.stop!=null)      h+='<span><em class="lc-stop">Stop</em>'+fmtP(z.stop)+'</span>';
+      if(z.floorPrice!=null)h+='<span><em class="lc-floor">Floor</em>'+fmtP(z.floorPrice)+'</span>';
+      lgnd.innerHTML=h;
     }
+    renderLgnd(ma50L,ma200L);
+    chart.subscribeCrosshairMove(function(param){
+      if(!param||!param.time){renderLgnd(ma50L,ma200L);return;}
+      var m5=param.seriesData.get(ma50s);
+      var m2=param.seriesData.get(ma200s);
+      renderLgnd(m5?m5.value:null,m2?m2.value:null);
+    });
     chart.timeScale().fitContent();
-    if(typeof ResizeObserver!=='undefined'){
-      var ro=new ResizeObserver(function(){chart.applyOptions({width:el.clientWidth});});
-      ro.observe(el);
-    }
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){payload.forEach(init);});
-  } else {
-    payload.forEach(init);
-  }
+  }else{payload.forEach(init);}
 })();
 </script>`;
 
@@ -468,8 +477,16 @@ function renderHoldingsStyle() {
 .mu-price{font-size:22px;font-weight:700;line-height:1}
 .mu-day-chg{font-size:13px;font-weight:600;margin-top:3px}
 /* LWC chart */
-.mu-chart-wrap{margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
+.mu-chart-wrap{position:relative;margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
 .mu-holding-lwc{width:100%;height:300px}
+/* Legend chip — crosshair-aware, floats top-left inside chart */
+.mu-chart-legend{position:absolute;top:8px;left:8px;z-index:10;display:flex;gap:10px;flex-wrap:wrap;padding:4px 9px;background:rgba(248,246,241,.88);backdrop-filter:blur(6px);border:1px solid rgba(201,191,173,.4);border-radius:6px;font-size:10.5px;line-height:1.25;pointer-events:none}
+.mu-chart-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;color:rgba(26,23,20,.75);font-weight:600}
+.mu-chart-legend em{font-style:normal;font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
+.lc-ma50{background:rgba(138,106,44,.15);color:rgba(138,106,44,.9)}
+.lc-ma200{background:rgba(77,111,145,.15);color:rgba(77,111,145,.95)}
+.lc-stop{background:rgba(164,80,47,.12);color:rgba(164,80,47,.85)}
+.lc-floor{background:rgba(100,80,180,.12);color:rgba(100,80,180,.82)}
 /* Zone position bar */
 .mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:rgba(251,250,246,.06)}
 .mu-zone-bar-svg{display:block;width:100%;height:auto}
@@ -541,7 +558,7 @@ function renderHoldingsStyle() {
   .mu-level-cell:nth-child(n+3){border-top:1px solid var(--rule)}
   .mu-ticker{font-size:22px}
   .mu-price{font-size:18px}
-  .mu-holding-lwc{height:220px}
+  .mu-holding-lwc{height:240px}
 }
 </style>`;
 }

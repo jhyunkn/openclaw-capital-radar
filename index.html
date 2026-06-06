@@ -1602,26 +1602,34 @@ details[open].mu-details summary:before{content:'↑'}
       priceLineVisible:false
     });
     cs.setData(data.candles);
-    // MA50 — amber dashed, secondary reference
-    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.55)',lineWidth:1.5,lineStyle:1,priceLineVisible:false,lastValueVisible:true,title:'MA50',crosshairMarkerVisible:false});
+    // MA50/MA200 — lines only, no right-axis value labels (reduce crowding)
+    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.55)',lineWidth:1.5,lineStyle:1,priceLineVisible:false,lastValueVisible:false,title:'MA50',crosshairMarkerVisible:false});
     ma50s.setData(toLineData(data.ma50));
-    // MA200 — blue solid, primary anchor
-    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.9)',lineWidth:2,priceLineVisible:false,lastValueVisible:true,title:'MA200',crosshairMarkerVisible:false});
+    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.9)',lineWidth:2,priceLineVisible:false,lastValueVisible:false,title:'MA200',crosshairMarkerVisible:false});
     ma200s.setData(toLineData(data.ma200));
     var z=data.zones;
-    // Buy zone: colored lines, no axis labels (numbers live in levels strip below — avoid right-axis crowd)
+    // Extend Y-axis to always include the substance floor — makes the floor line visible on chart
+    if(z.floorPrice!=null){
+      cs.applyOptions({
+        autoscaleInfoProvider:function(orig){
+          var res=orig();
+          if(res!==null){res.priceRange.minValue=Math.min(res.priceRange.minValue,z.floorPrice*0.93);}
+          return res;
+        }
+      });
+    }
+    // Buy zone: green lines, no axis labels (exact numbers are in the levels strip below)
     if(z.hasBuyZone&&z.buyHigh!=null){
       cs.createPriceLine({price:z.buyHigh,color:'#2a6b4a',lineWidth:2,lineStyle:0,axisLabelVisible:false,title:'Buy'});
       cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.65)',lineWidth:2,lineStyle:0,axisLabelVisible:false,title:'Buy'});
     }
-    // Stop: solid red on right axis — only axis label kept (most critical threshold)
+    // Stop: right-axis label only (sole axis label kept)
     if(z.stop!=null){
       cs.createPriceLine({price:z.stop,color:'#A4502F',lineWidth:1.5,lineStyle:0,axisLabelVisible:true,title:'Stop'});
     }
-    // Substanzwert floor: dashed indigo line + watermark label inside the canvas
+    // Substanzwert floor: dashed indigo, right-axis label — visible because autoscale extends to floor
     if(z.floorPrice!=null){
-      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.6)',lineWidth:2,lineStyle:2,axisLabelVisible:false,title:'Floor'});
-      chart.applyOptions({watermark:{visible:true,fontSize:11,horzAlign:'left',vertAlign:'bottom',color:'rgba(100,80,180,.72)',text:'Floor  $'+z.floorPrice.toFixed(0)+'  ·  Substanzwert (15× EPS)'}});
+      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.7)',lineWidth:2,lineStyle:2,axisLabelVisible:true,title:'Floor'});
     }
     chart.timeScale().fitContent();
     if(typeof ResizeObserver!=='undefined'){

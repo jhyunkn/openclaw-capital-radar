@@ -1609,31 +1609,19 @@ details[open].mu-details summary:before{content:'↑'}
     var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.9)',lineWidth:2,priceLineVisible:false,lastValueVisible:true,title:'MA200',crosshairMarkerVisible:false});
     ma200s.setData(toLineData(data.ma200));
     var z=data.zones;
-    // Buy zone: thick solid green lines with axis labels — clearly readable
+    // Buy zone: colored lines, no axis labels (numbers live in levels strip below — avoid right-axis crowd)
     if(z.hasBuyZone&&z.buyHigh!=null){
-      cs.createPriceLine({price:z.buyHigh,color:'#2a6b4a',lineWidth:2,lineStyle:0,axisLabelVisible:true,title:'Buy'});
-      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.65)',lineWidth:2,lineStyle:0,axisLabelVisible:true,title:'Buy'});
+      cs.createPriceLine({price:z.buyHigh,color:'#2a6b4a',lineWidth:2,lineStyle:0,axisLabelVisible:false,title:'Buy'});
+      cs.createPriceLine({price:z.buyLow, color:'rgba(42,107,74,.65)',lineWidth:2,lineStyle:0,axisLabelVisible:false,title:'Buy'});
     }
-    // Stop: thick solid red, axis label
+    // Stop: solid red on right axis — only axis label kept (most critical threshold)
     if(z.stop!=null){
       cs.createPriceLine({price:z.stop,color:'#A4502F',lineWidth:1.5,lineStyle:0,axisLabelVisible:true,title:'Stop'});
     }
-    // Substanzwert floor: dashed indigo line, label on LEFT side to avoid right-axis overlap
+    // Substanzwert floor: dashed indigo line + watermark label inside the canvas
     if(z.floorPrice!=null){
-      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.55)',lineWidth:1.5,lineStyle:2,axisLabelVisible:false,title:''});
-      var fLbl=document.createElement('div');
-      fLbl.style.cssText='position:absolute;left:6px;pointer-events:none;font-size:9px;font-weight:700;color:rgba(100,80,180,.9);background:rgba(251,250,246,.92);padding:1px 6px;border-radius:3px;border-left:2px solid rgba(100,80,180,.55);white-space:nowrap;z-index:20;line-height:15px';
-      el.style.position='relative';
-      el.appendChild(fLbl);
-      function posFLbl(){
-        var coord=cs.priceToCoordinate(z.floorPrice);
-        if(coord===null||coord>252){fLbl.textContent='↓ Floor $'+z.floorPrice.toFixed(0);fLbl.style.top='236px';}
-        else if(coord<10){fLbl.textContent='Floor $'+z.floorPrice.toFixed(0);fLbl.style.top='4px';}
-        else{fLbl.textContent='Floor $'+z.floorPrice.toFixed(0);fLbl.style.top=(coord-8)+'px';}
-      }
-      chart.timeScale().subscribeVisibleTimeRangeChange(posFLbl);
-      chart.subscribeCrosshairMove(posFLbl);
-      setTimeout(posFLbl,120);
+      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.6)',lineWidth:2,lineStyle:2,axisLabelVisible:false,title:'Floor'});
+      chart.applyOptions({watermark:{visible:true,fontSize:11,horzAlign:'left',vertAlign:'bottom',color:'rgba(100,80,180,.72)',text:'Floor  $'+z.floorPrice.toFixed(0)+'  ·  Substanzwert (15× EPS)'}});
     }
     chart.timeScale().fitContent();
     if(typeof ResizeObserver!=='undefined'){

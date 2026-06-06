@@ -1,0 +1,1187 @@
+{
+  "artifact": "conviction-ranking",
+  "generated_at": "2026-06-06T16:52:16.503Z",
+  "version": 2,
+  "data_sources": [
+    "data/opportunity-universe.json",
+    "outputs/market-orientation-map.json",
+    "outputs/candidate-ranking.json (XBRL signals)",
+    "data/report-state.live.json (portfolio context)"
+  ],
+  "methodology": {
+    "formula": "conviction_score = normalizeBase(base_score) + macro_modifier + rate_env_adj + portfolio_gap_modifier. Cap 98.",
+    "base_normalization": "Universe base scores (39–85) normalized to 30–75 so modifiers (max ±20) produce a spread across tiers without capping everything.",
+    "macro_modifier": "From market-orientation-map.json leanInto/avoid. Infrastructure +10, second-order AI +8. Avoid signals negative.",
+    "rate_env_adj": "10Y yield 4.46%: P/E>75 = -6, P/E>50 = -3, P/E≤25 = +4, pre-revenue = -8.",
+    "portfolio_gap": "Gap between current holdings and ideal diversification. Major unmet exposure themes get +8 to +10.",
+    "tiers": "S ≥ 90 (exceptional, must research), A 80–89 (high conviction), B 70–79 (watchlist), C 55–69 (monitor), D < 55",
+    "note": "Score reflects opportunity priority given current macro + portfolio context. Not a price target or buy signal."
+  },
+  "macro_context": {
+    "posture": "HOLD / WATCH",
+    "ten_year_yield": 4.46,
+    "high_yield_oas": 2.74,
+    "lean_into": [
+      "Infrastructure beneficiaries with durable demand pull",
+      "Second-order AI systems and power bottlenecks",
+      "Financial rails benefiting from digitization and treasury transition"
+    ],
+    "avoid": [
+      "Crowded momentum without infrastructure support",
+      "Narrative-only speculation lacking capital confirmation"
+    ],
+    "posture_note": "HOLD / WATCH: Build research on Tier S/A candidates. No new positions without clear dislocation entry or macro regime shift."
+  },
+  "portfolio_context": {
+    "held_tickers": [
+      "AMZN",
+      "BMNR",
+      "CEG",
+      "CONL",
+      "MA",
+      "META",
+      "MSFT",
+      "NFLX",
+      "SPY",
+      "TSLT",
+      "TSNF"
+    ],
+    "major_gaps": [
+      {
+        "ticker": "TSM",
+        "name": "Taiwan Semiconductor",
+        "theme": "Semiconductor Foundry",
+        "gap_score": 10
+      },
+      {
+        "ticker": "ASML",
+        "name": "ASML Holding",
+        "theme": "Semiconductor Equipment",
+        "gap_score": 10
+      },
+      {
+        "ticker": "AVGO",
+        "name": "Broadcom",
+        "theme": "AI Chip & Networking",
+        "gap_score": 8
+      },
+      {
+        "ticker": "APP",
+        "name": "AppLovin",
+        "theme": "AI Advertising",
+        "gap_score": 10
+      },
+      {
+        "ticker": "NVDA",
+        "name": "NVIDIA",
+        "theme": "AI Chip & Compute",
+        "gap_score": 8
+      },
+      {
+        "ticker": "AMAT",
+        "name": "Applied Materials",
+        "theme": "Semiconductor Equipment",
+        "gap_score": 10
+      }
+    ],
+    "gap_note": "Tickers boosted when portfolio has zero exposure to their theme."
+  },
+  "summary": {
+    "total_universe": 23,
+    "tier_s": 3,
+    "tier_a": 6,
+    "tier_b": 6,
+    "tier_c": 5,
+    "tier_d": 3,
+    "new_tickers": 6
+  },
+  "top10": [
+    {
+      "rank": 1,
+      "conviction_tier": "S",
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor",
+      "theme": "Semiconductor Foundry",
+      "conviction_score": 98,
+      "normalized_base": 75,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +30%",
+        "GM 55%",
+        "FCF positive",
+        "P/E ~22x"
+      ],
+      "moat": "Technical monopoly. 3-5 year lead on any competitor. Cannot be replicated.",
+      "why_core": "Manufactures every leading-edge AI chip — NVDA, AVGO, AMD all fab here. Absolute monopoly on 3nm/2nm nodes. No AI hardware stack exists without TSMC.",
+      "risk_note": "Taiwan geopolitical risk. But if this risk materializes, entire AI hardware thesis collapses regardless.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "foundry_infrastructure",
+      "coverage_gap": true,
+      "forward_pe": 22,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no Semiconductor Foundry in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 2,
+      "conviction_tier": "S",
+      "ticker": "ASML",
+      "name": "ASML Holding",
+      "theme": "Semiconductor Equipment",
+      "conviction_score": 93,
+      "normalized_base": 73,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +25%",
+        "GM 51%",
+        "FCF positive",
+        "P/E ~34x"
+      ],
+      "moat": "Absolute monopoly. 20+ years to replicate. Proprietary technology developed over decades.",
+      "why_core": "The only manufacturer of EUV lithography machines. TSMC, Samsung, Intel all buy exclusively from ASML. No leading-edge chip fab operates without it. The chokepoint above the chokepoint.",
+      "risk_note": "Semiconductor capex cycle (equipment orders front-run then slow). China export restrictions reducing TAM.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "semiconductor_equipment",
+      "coverage_gap": true,
+      "forward_pe": 34,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no Semiconductor Equipment in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 3,
+      "conviction_tier": "S",
+      "ticker": "AVGO",
+      "name": "Broadcom",
+      "theme": "AI Chip & Networking",
+      "conviction_score": 91,
+      "normalized_base": 75,
+      "macro_modifier": 8,
+      "portfolio_gap_modifier": 8,
+      "fundamental_signals": [
+        "rev +24%",
+        "FCF $26.9B",
+        "GM 68%"
+      ],
+      "moat": "Deep hyperscaler relationships. Custom ASIC design is irreplaceable once embedded.",
+      "why_core": "Custom ASIC design for hyperscalers + AI networking silicon. Google, Meta, Apple all use AVGO custom chips. The -8% post-earnings dip (June 3) was a narrative overreaction — Q2 revenue $22.2B +48% YoY, AI revenue $10.8B +143% YoY. The dip was on AI guidance sub-line ($16B vs $17.2B expected), not on the business.",
+      "risk_note": "Narrative overhang from earnings guidance miss. Semiconductor cycle exposure.",
+      "active_signal": "Post-earnings dip on strong fundamentals — Q2 beat, guidance miss only on AI sub-line. Entry window.",
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_chip_networking",
+      "coverage_gap": false,
+      "forward_pe": 32,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no AI Chip & Networking in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 4,
+      "conviction_tier": "A",
+      "ticker": "APP",
+      "name": "AppLovin",
+      "theme": "AI Advertising",
+      "conviction_score": 88,
+      "normalized_base": 70,
+      "macro_modifier": 8,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +70%",
+        "GM 78%",
+        "FCF positive",
+        "P/E ~38x"
+      ],
+      "moat": "Network effects in ad data. The more advertisers use it, the better the model gets. Classic flywheel.",
+      "why_core": "AXON 2.0 AI ad targeting model outperforms Google and Meta networks for mobile and e-commerce. Revenue growing 70%+ YoY. Biggest gap in current watchlist — no AI advertising exposure anywhere in portfolio.",
+      "risk_note": "High valuation. Cyclical ad spend exposure. Regulatory scrutiny of ad tech.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_advertising_platform",
+      "coverage_gap": true,
+      "forward_pe": 38,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no AI Advertising in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 5,
+      "conviction_tier": "A",
+      "ticker": "NVDA",
+      "name": "NVIDIA",
+      "theme": "AI Chip & Compute",
+      "conviction_score": 87,
+      "normalized_base": 71,
+      "macro_modifier": 8,
+      "portfolio_gap_modifier": 8,
+      "fundamental_signals": [
+        "rev +65%",
+        "FCF $102.6B",
+        "GM 71%",
+        "dilution: low"
+      ],
+      "moat": "CUDA software ecosystem. 10+ year developer lock-in. No competitor has matched the full hardware + software stack.",
+      "why_core": "Center of the AI accelerator market. H100/H200/B100 GPU demand remains backlogged. Data center revenue growing 400%+ YoY. The consensus pick — but the fundamentals justify it.",
+      "risk_note": "Export controls risk. Valuation premium requires sustained AI capex. Consensus = less asymmetry.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_accelerator_core",
+      "coverage_gap": false,
+      "forward_pe": 35,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no AI Chip & Compute in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 6,
+      "conviction_tier": "A",
+      "ticker": "AMAT",
+      "name": "Applied Materials",
+      "theme": "Semiconductor Equipment",
+      "conviction_score": 84,
+      "normalized_base": 60,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +15%",
+        "GM 48%",
+        "FCF positive",
+        "P/E ~20x"
+      ],
+      "moat": "Duopoly with Lam Research. Deep customer integration — switching equipment mid-process is impractical.",
+      "why_core": "Largest semiconductor equipment company. Makes deposition, etch, and inspection tools for every chip fab. Every new fab (TSMC Arizona, Intel Ohio) orders billions in AMAT equipment. Geopolitical onshoring creates a multi-year supercycle.",
+      "risk_note": "Semiconductor capex cycles. China export restrictions. More cyclical than ASML.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "semiconductor_equipment",
+      "coverage_gap": true,
+      "forward_pe": 20,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no Semiconductor Equipment in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 7,
+      "conviction_tier": "A",
+      "ticker": "VRT",
+      "name": "Vertiv",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 83,
+      "normalized_base": 67,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 6,
+      "fundamental_signals": [
+        "rev +28%",
+        "FCF $1894M",
+        "dilution: low"
+      ],
+      "moat": "Deep data center integration — cooling systems are designed into facilities, not swapped.",
+      "why_core": "Data center power and cooling infrastructure. Every AI GPU cluster generates massive heat. Vertiv makes the cooling systems that keep them running.",
+      "risk_note": "Valuation elevated. Theme crowding. Industrial cyclicality.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "datacenter_cooling",
+      "coverage_gap": false,
+      "forward_pe": 45,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Power & Grid Infrastructure not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 8,
+      "conviction_tier": "A",
+      "ticker": "NXT",
+      "name": "Nextracker",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 83,
+      "normalized_base": 63,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 6,
+      "fundamental_signals": [
+        "rev +20%",
+        "FCF $514M",
+        "dilution: low"
+      ],
+      "moat": "Software-enabled hardware — tracking optimization creates switching costs.",
+      "why_core": "Solar tracker hardware and software for utility-scale solar. Grid-edge hardware efficiency. Down -13.47% recently — sharp dislocation that may be cause for investigation.",
+      "risk_note": "Solar cyclicality. Policy/tariff risk under current administration. Smaller cap volatility.",
+      "active_signal": "Down -13.47% — sharp dislocation requires cause check before any add-zone work.",
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "solar_grid_infrastructure",
+      "coverage_gap": false,
+      "forward_pe": 20,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Power & Grid Infrastructure not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 9,
+      "conviction_tier": "A",
+      "ticker": "VST",
+      "name": "Vistra Energy",
+      "theme": "Nuclear & Power",
+      "conviction_score": 80,
+      "normalized_base": 62,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 4,
+      "fundamental_signals": [
+        "rev +15%",
+        "GM 35%",
+        "FCF positive",
+        "P/E ~18x"
+      ],
+      "moat": "Nuclear plants are irreplaceable 40-year assets. Cannot build new ones quickly. AI data center demand creates structural pricing power.",
+      "why_core": "Nuclear + natural gas generation. Direct complement to CEG position. AI data centers need reliable 24/7 baseload power. VST has nuclear assets that cannot be replicated and has historically matched or exceeded CEG returns.",
+      "risk_note": "Commodity exposure (gas generation). Regulatory environment. More leverage than CEG.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "nuclear_power_complement",
+      "coverage_gap": false,
+      "forward_pe": 18,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Nuclear & Power adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 10,
+      "conviction_tier": "B",
+      "ticker": "NOW",
+      "name": "ServiceNow",
+      "theme": "Enterprise AI Software",
+      "conviction_score": 78,
+      "normalized_base": 66,
+      "macro_modifier": 5,
+      "portfolio_gap_modifier": 7,
+      "fundamental_signals": [
+        "rev +22%",
+        "GM 80%",
+        "FCF positive",
+        "P/E ~55x"
+      ],
+      "moat": "Extreme switching costs. Workflow processes become deeply embedded in company operations.",
+      "why_core": "Enterprise workflow automation platform. >98% revenue retention — once a company runs 500 workflows on NOW, they never leave. AI is accelerating adoption as companies embed LLMs into their workflow automation.",
+      "risk_note": "High valuation (P/E 55x). Competition from Microsoft Copilot embedded in Office. Rate sensitivity on long-duration growth.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "enterprise_ai_software",
+      "coverage_gap": true,
+      "forward_pe": 55,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai",
+        "High-rate env penalizes valuation (P/E 55x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Enterprise AI Software not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    }
+  ],
+  "ranked": [
+    {
+      "rank": 1,
+      "conviction_tier": "S",
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor",
+      "theme": "Semiconductor Foundry",
+      "conviction_score": 98,
+      "normalized_base": 75,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +30%",
+        "GM 55%",
+        "FCF positive",
+        "P/E ~22x"
+      ],
+      "moat": "Technical monopoly. 3-5 year lead on any competitor. Cannot be replicated.",
+      "why_core": "Manufactures every leading-edge AI chip — NVDA, AVGO, AMD all fab here. Absolute monopoly on 3nm/2nm nodes. No AI hardware stack exists without TSMC.",
+      "risk_note": "Taiwan geopolitical risk. But if this risk materializes, entire AI hardware thesis collapses regardless.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "foundry_infrastructure",
+      "coverage_gap": true,
+      "forward_pe": 22,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no Semiconductor Foundry in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 2,
+      "conviction_tier": "S",
+      "ticker": "ASML",
+      "name": "ASML Holding",
+      "theme": "Semiconductor Equipment",
+      "conviction_score": 93,
+      "normalized_base": 73,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +25%",
+        "GM 51%",
+        "FCF positive",
+        "P/E ~34x"
+      ],
+      "moat": "Absolute monopoly. 20+ years to replicate. Proprietary technology developed over decades.",
+      "why_core": "The only manufacturer of EUV lithography machines. TSMC, Samsung, Intel all buy exclusively from ASML. No leading-edge chip fab operates without it. The chokepoint above the chokepoint.",
+      "risk_note": "Semiconductor capex cycle (equipment orders front-run then slow). China export restrictions reducing TAM.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "semiconductor_equipment",
+      "coverage_gap": true,
+      "forward_pe": 34,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no Semiconductor Equipment in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 3,
+      "conviction_tier": "S",
+      "ticker": "AVGO",
+      "name": "Broadcom",
+      "theme": "AI Chip & Networking",
+      "conviction_score": 91,
+      "normalized_base": 75,
+      "macro_modifier": 8,
+      "portfolio_gap_modifier": 8,
+      "fundamental_signals": [
+        "rev +24%",
+        "FCF $26.9B",
+        "GM 68%"
+      ],
+      "moat": "Deep hyperscaler relationships. Custom ASIC design is irreplaceable once embedded.",
+      "why_core": "Custom ASIC design for hyperscalers + AI networking silicon. Google, Meta, Apple all use AVGO custom chips. The -8% post-earnings dip (June 3) was a narrative overreaction — Q2 revenue $22.2B +48% YoY, AI revenue $10.8B +143% YoY. The dip was on AI guidance sub-line ($16B vs $17.2B expected), not on the business.",
+      "risk_note": "Narrative overhang from earnings guidance miss. Semiconductor cycle exposure.",
+      "active_signal": "Post-earnings dip on strong fundamentals — Q2 beat, guidance miss only on AI sub-line. Entry window.",
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_chip_networking",
+      "coverage_gap": false,
+      "forward_pe": 32,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no AI Chip & Networking in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 4,
+      "conviction_tier": "A",
+      "ticker": "APP",
+      "name": "AppLovin",
+      "theme": "AI Advertising",
+      "conviction_score": 88,
+      "normalized_base": 70,
+      "macro_modifier": 8,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +70%",
+        "GM 78%",
+        "FCF positive",
+        "P/E ~38x"
+      ],
+      "moat": "Network effects in ad data. The more advertisers use it, the better the model gets. Classic flywheel.",
+      "why_core": "AXON 2.0 AI ad targeting model outperforms Google and Meta networks for mobile and e-commerce. Revenue growing 70%+ YoY. Biggest gap in current watchlist — no AI advertising exposure anywhere in portfolio.",
+      "risk_note": "High valuation. Cyclical ad spend exposure. Regulatory scrutiny of ad tech.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_advertising_platform",
+      "coverage_gap": true,
+      "forward_pe": 38,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no AI Advertising in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 5,
+      "conviction_tier": "A",
+      "ticker": "NVDA",
+      "name": "NVIDIA",
+      "theme": "AI Chip & Compute",
+      "conviction_score": 87,
+      "normalized_base": 71,
+      "macro_modifier": 8,
+      "portfolio_gap_modifier": 8,
+      "fundamental_signals": [
+        "rev +65%",
+        "FCF $102.6B",
+        "GM 71%",
+        "dilution: low"
+      ],
+      "moat": "CUDA software ecosystem. 10+ year developer lock-in. No competitor has matched the full hardware + software stack.",
+      "why_core": "Center of the AI accelerator market. H100/H200/B100 GPU demand remains backlogged. Data center revenue growing 400%+ YoY. The consensus pick — but the fundamentals justify it.",
+      "risk_note": "Export controls risk. Valuation premium requires sustained AI capex. Consensus = less asymmetry.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_accelerator_core",
+      "coverage_gap": false,
+      "forward_pe": 35,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no AI Chip & Compute in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 6,
+      "conviction_tier": "A",
+      "ticker": "AMAT",
+      "name": "Applied Materials",
+      "theme": "Semiconductor Equipment",
+      "conviction_score": 84,
+      "normalized_base": 60,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 10,
+      "fundamental_signals": [
+        "rev +15%",
+        "GM 48%",
+        "FCF positive",
+        "P/E ~20x"
+      ],
+      "moat": "Duopoly with Lam Research. Deep customer integration — switching equipment mid-process is impractical.",
+      "why_core": "Largest semiconductor equipment company. Makes deposition, etch, and inspection tools for every chip fab. Every new fab (TSMC Arizona, Intel Ohio) orders billions in AMAT equipment. Geopolitical onshoring creates a multi-year supercycle.",
+      "risk_note": "Semiconductor capex cycles. China export restrictions. More cyclical than ASML.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "semiconductor_equipment",
+      "coverage_gap": true,
+      "forward_pe": 20,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Major gap — no Semiconductor Equipment in portfolio"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 7,
+      "conviction_tier": "A",
+      "ticker": "VRT",
+      "name": "Vertiv",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 83,
+      "normalized_base": 67,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 6,
+      "fundamental_signals": [
+        "rev +28%",
+        "FCF $1894M",
+        "dilution: low"
+      ],
+      "moat": "Deep data center integration — cooling systems are designed into facilities, not swapped.",
+      "why_core": "Data center power and cooling infrastructure. Every AI GPU cluster generates massive heat. Vertiv makes the cooling systems that keep them running.",
+      "risk_note": "Valuation elevated. Theme crowding. Industrial cyclicality.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "datacenter_cooling",
+      "coverage_gap": false,
+      "forward_pe": 45,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Power & Grid Infrastructure not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 8,
+      "conviction_tier": "A",
+      "ticker": "NXT",
+      "name": "Nextracker",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 83,
+      "normalized_base": 63,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 6,
+      "fundamental_signals": [
+        "rev +20%",
+        "FCF $514M",
+        "dilution: low"
+      ],
+      "moat": "Software-enabled hardware — tracking optimization creates switching costs.",
+      "why_core": "Solar tracker hardware and software for utility-scale solar. Grid-edge hardware efficiency. Down -13.47% recently — sharp dislocation that may be cause for investigation.",
+      "risk_note": "Solar cyclicality. Policy/tariff risk under current administration. Smaller cap volatility.",
+      "active_signal": "Down -13.47% — sharp dislocation requires cause check before any add-zone work.",
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "solar_grid_infrastructure",
+      "coverage_gap": false,
+      "forward_pe": 20,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Power & Grid Infrastructure not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 9,
+      "conviction_tier": "A",
+      "ticker": "VST",
+      "name": "Vistra Energy",
+      "theme": "Nuclear & Power",
+      "conviction_score": 80,
+      "normalized_base": 62,
+      "macro_modifier": 14,
+      "portfolio_gap_modifier": 4,
+      "fundamental_signals": [
+        "rev +15%",
+        "GM 35%",
+        "FCF positive",
+        "P/E ~18x"
+      ],
+      "moat": "Nuclear plants are irreplaceable 40-year assets. Cannot build new ones quickly. AI data center demand creates structural pricing power.",
+      "why_core": "Nuclear + natural gas generation. Direct complement to CEG position. AI data centers need reliable 24/7 baseload power. VST has nuclear assets that cannot be replicated and has historically matched or exceeded CEG returns.",
+      "risk_note": "Commodity exposure (gas generation). Regulatory environment. More leverage than CEG.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "nuclear_power_complement",
+      "coverage_gap": false,
+      "forward_pe": 18,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Nuclear & Power adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 10,
+      "conviction_tier": "B",
+      "ticker": "NOW",
+      "name": "ServiceNow",
+      "theme": "Enterprise AI Software",
+      "conviction_score": 78,
+      "normalized_base": 66,
+      "macro_modifier": 5,
+      "portfolio_gap_modifier": 7,
+      "fundamental_signals": [
+        "rev +22%",
+        "GM 80%",
+        "FCF positive",
+        "P/E ~55x"
+      ],
+      "moat": "Extreme switching costs. Workflow processes become deeply embedded in company operations.",
+      "why_core": "Enterprise workflow automation platform. >98% revenue retention — once a company runs 500 workflows on NOW, they never leave. AI is accelerating adoption as companies embed LLMs into their workflow automation.",
+      "risk_note": "High valuation (P/E 55x). Competition from Microsoft Copilot embedded in Office. Rate sensitivity on long-duration growth.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "enterprise_ai_software",
+      "coverage_gap": true,
+      "forward_pe": 55,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai",
+        "High-rate env penalizes valuation (P/E 55x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Enterprise AI Software not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 11,
+      "conviction_tier": "B",
+      "ticker": "GOOGL",
+      "name": "Alphabet",
+      "theme": "Quality Compounders",
+      "conviction_score": 77,
+      "normalized_base": 61,
+      "macro_modifier": 12,
+      "portfolio_gap_modifier": 4,
+      "fundamental_signals": [
+        "rev +15%",
+        "FCF $73.3B",
+        "dilution: low"
+      ],
+      "moat": "Search network effects + advertising data flywheel + YouTube creator ecosystem.",
+      "why_core": "Search monopoly + YouTube + Google Cloud (GCP) + DeepMind AI. Diversified quality compounder with AI optionality. Trading at a discount to Microsoft and Meta on forward earnings.",
+      "risk_note": "Antitrust/regulatory pressure. Search disruption narrative from AI. AI capex margin drag.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "quality_platform_compounder",
+      "coverage_gap": false,
+      "forward_pe": 20,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai",
+        "Reasonable valuation rewarded at 4.46% 10Y yield"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Quality Compounders adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 12,
+      "conviction_tier": "B",
+      "ticker": "ETN",
+      "name": "Eaton",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 76,
+      "normalized_base": 60,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 6,
+      "fundamental_signals": [
+        "rev +10%",
+        "FCF $3553M",
+        "dilution: low"
+      ],
+      "moat": "Industrial switching costs. Long-term utility and data center supply relationships.",
+      "why_core": "Electrical components, power management, data center power infrastructure. Less visible than nuclear plays but more durable — every data center, every EV charger, every grid upgrade uses Eaton components.",
+      "risk_note": "Industrial cyclicality. Premium valuation for the sector.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "power_infrastructure",
+      "coverage_gap": false,
+      "forward_pe": 30,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Power & Grid Infrastructure not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 13,
+      "conviction_tier": "B",
+      "ticker": "CCJ",
+      "name": "Cameco",
+      "theme": "Nuclear & Uranium",
+      "conviction_score": 73,
+      "normalized_base": 60,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 3,
+      "fundamental_signals": [
+        "rev 0%",
+        "dilution: low"
+      ],
+      "moat": "Tier-1 uranium mines with 20+ year reserves. Permitting for new mines takes decades.",
+      "why_core": "Largest publicly traded uranium producer. Nuclear fuel supply chain exposure as reactor demand grows from data center electricity needs.",
+      "risk_note": "Commodity cycle risk. Geopolitical mine risk (Kazakhstan). Narrative crowding.",
+      "active_signal": "Down -8.61% — sharp sector dislocation alongside other nuclear names.",
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "uranium_fuel_supply",
+      "coverage_gap": false,
+      "forward_pe": 45,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Nuclear & Uranium adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 14,
+      "conviction_tier": "B",
+      "ticker": "PLTR",
+      "name": "Palantir",
+      "theme": "AI Software / Government",
+      "conviction_score": 71,
+      "normalized_base": 62,
+      "macro_modifier": 2,
+      "portfolio_gap_modifier": 7,
+      "fundamental_signals": [
+        "rev +56%",
+        "FCF $2101M",
+        "GM 82%"
+      ],
+      "moat": "Government contract stickiness. Security clearance requirements create near-impossible switching.",
+      "why_core": "Government AI deployment moat. AIP (Artificial Intelligence Platform) is being adopted by US military and intelligence agencies. Commercial segment accelerating. If AI shifts from model infrastructure to operational deployment, PLTR captures the workflow layer for government.",
+      "risk_note": "Extreme valuation (P/E 90x). Government budget uncertainty. Controversial leadership.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "government_ai_software",
+      "coverage_gap": false,
+      "forward_pe": 90,
+      "analyst_rating": "Hold",
+      "macro_reasons": [
+        "Macro leanInto: second order ai",
+        "High-rate env penalizes valuation (P/E 90x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — AI Software / Government not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 15,
+      "conviction_tier": "B",
+      "ticker": "DDOG",
+      "name": "Datadog",
+      "theme": "AI Monitoring",
+      "conviction_score": 70,
+      "normalized_base": 58,
+      "macro_modifier": 5,
+      "portfolio_gap_modifier": 7,
+      "fundamental_signals": [
+        "rev +25%",
+        "GM 80%",
+        "FCF positive",
+        "P/E ~75x"
+      ],
+      "moat": "Platform stickiness. Observability data is deeply integrated into operations.",
+      "why_core": "Cloud and AI infrastructure observability. Every AI system running in production needs monitoring. Net revenue retention >120% — customers automatically spend more as they deploy more AI workloads. Rising tide business.",
+      "risk_note": "Very expensive (P/E 75x). Cloud providers building native monitoring competition.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "ai_monitoring_infrastructure",
+      "coverage_gap": true,
+      "forward_pe": 75,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai",
+        "High-rate env penalizes valuation (P/E 75x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — AI Monitoring not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 16,
+      "conviction_tier": "C",
+      "ticker": "PWR",
+      "name": "Quanta Services",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 67,
+      "normalized_base": 53,
+      "macro_modifier": 10,
+      "portfolio_gap_modifier": 4,
+      "fundamental_signals": [
+        "rev +20%",
+        "FCF $1621M"
+      ],
+      "moat": "Skilled labor scarcity creates barrier to entry. Long-term utility framework agreements.",
+      "why_core": "Physical grid construction — high-voltage transmission lines, substations, data center electrical work. Every grid upgrade, every new data center, every renewable farm needs Quanta's crews.",
+      "risk_note": "Project execution. Utility capex timing. Rate-sensitive valuation.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "grid_construction_labor",
+      "coverage_gap": false,
+      "forward_pe": 35,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Power & Grid Infrastructure adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 17,
+      "conviction_tier": "C",
+      "ticker": "RDDT",
+      "name": "Reddit",
+      "theme": "Attention & Data Assets",
+      "conviction_score": 62,
+      "normalized_base": 55,
+      "macro_modifier": 2,
+      "portfolio_gap_modifier": 5,
+      "fundamental_signals": [
+        "rev +69%",
+        "FCF $684M",
+        "dilution: low"
+      ],
+      "moat": "Community network effects. Authentic human discourse increasingly scarce for AI training.",
+      "why_core": "Human-generated conversation data as scarce AI training input. Data licensing deals with Google and others. Ad monetization improving.",
+      "risk_note": "Post-IPO volatility. Platform governance risk. Ad-cycle sensitivity.",
+      "active_signal": null,
+      "macro_alignment": "second_order_ai",
+      "portfolio_role": "attention_data_asset",
+      "coverage_gap": false,
+      "forward_pe": 80,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order ai",
+        "High-rate env penalizes valuation (P/E 80x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Attention & Data Assets not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 18,
+      "conviction_tier": "C",
+      "ticker": "GEV",
+      "name": "GE Vernova",
+      "theme": "Power & Grid Infrastructure",
+      "conviction_score": 60,
+      "normalized_base": 48,
+      "macro_modifier": 7,
+      "portfolio_gap_modifier": 5,
+      "fundamental_signals": [
+        "rev +9%",
+        "dilution: low"
+      ],
+      "moat": "Long-term service agreements on turbines. Fleet installed base creates recurring revenue.",
+      "why_core": "Gas turbines, wind, grid modernization equipment. Direct beneficiary of grid capacity shortage as AI data centers require more electricity.",
+      "risk_note": "Industrial cyclicality. Execution on margin improvement. Theme crowding after power narrative enthusiasm.",
+      "active_signal": null,
+      "macro_alignment": "infrastructure",
+      "portfolio_role": "grid_hardware_infrastructure",
+      "coverage_gap": false,
+      "forward_pe": 60,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: infrastructure",
+        "High-rate env penalizes valuation (P/E 60x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Power & Grid Infrastructure not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 19,
+      "conviction_tier": "C",
+      "ticker": "TMDX",
+      "name": "TransMedics",
+      "theme": "Healthcare & Consumer Health",
+      "conviction_score": 59,
+      "normalized_base": 55,
+      "macro_modifier": -1,
+      "portfolio_gap_modifier": 5,
+      "fundamental_signals": [
+        "rev +37%",
+        "FCF $134M",
+        "GM 60%"
+      ],
+      "moat": "Transplant center relationships + regulatory approvals + network effects.",
+      "why_core": "Organ transplant preservation and logistics network. OCS (Organ Care System) dramatically expands usable donor organ pool. Network effects as more transplant centers use the platform.",
+      "risk_note": "Execution volatility. Healthcare reimbursement risk. Small-cap valuation compression.",
+      "active_signal": null,
+      "macro_alignment": "non_correlated",
+      "portfolio_role": "medical_infrastructure",
+      "coverage_gap": false,
+      "forward_pe": 60,
+      "analyst_rating": "Strong Buy",
+      "macro_reasons": [
+        "Macro leanInto: non correlated",
+        "High-rate env penalizes valuation (P/E 60x at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Gap — Healthcare & Consumer Health not covered"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 20,
+      "conviction_tier": "C",
+      "ticker": "HIMS",
+      "name": "Hims & Hers",
+      "theme": "Healthcare & Consumer Health",
+      "conviction_score": 56,
+      "normalized_base": 51,
+      "macro_modifier": 2,
+      "portfolio_gap_modifier": 3,
+      "fundamental_signals": [
+        "rev +59%",
+        "GM 74%",
+        "dilution: low"
+      ],
+      "moat": "Brand + subscription model + regulatory navigation know-how.",
+      "why_core": "Direct-to-consumer telehealth platform. GLP-1 weight loss drug distribution tailwind. Category expansion into men's/women's health.",
+      "risk_note": "Regulatory scrutiny of compound GLP-1. Category concentration. High multiple.",
+      "active_signal": null,
+      "macro_alignment": "non_correlated",
+      "portfolio_role": "consumer_health_platform",
+      "coverage_gap": false,
+      "forward_pe": 40,
+      "analyst_rating": "Hold",
+      "macro_reasons": [
+        "Macro leanInto: non correlated"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Healthcare & Consumer Health adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 21,
+      "conviction_tier": "D",
+      "ticker": "RKLB",
+      "name": "Rocket Lab",
+      "theme": "Space & Defense Tech",
+      "conviction_score": 53,
+      "normalized_base": 54,
+      "macro_modifier": -5,
+      "portfolio_gap_modifier": 4,
+      "fundamental_signals": [
+        "rev +38%",
+        "FCF -$322M (burning)",
+        "dilution: elevated"
+      ],
+      "moat": "Operational launch cadence. Government and commercial satellite customers.",
+      "why_core": "Small satellite launch + satellite systems. Electron rocket is the dominant small-lift vehicle. Expanding into medium lift (Neutron) and satellite manufacturing.",
+      "risk_note": "Pre-profit. High beta. Execution risk on Neutron development.",
+      "active_signal": null,
+      "macro_alignment": "second_order_defense",
+      "portfolio_role": "space_launch_infrastructure",
+      "coverage_gap": false,
+      "forward_pe": null,
+      "analyst_rating": "Buy",
+      "macro_reasons": [
+        "Macro leanInto: second order defense",
+        "High-rate env penalizes valuation (P/E pre-revenuex at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Partial gap — Space & Defense Tech adds diversification"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 22,
+      "conviction_tier": "D",
+      "ticker": "IBIT",
+      "name": "iShares Bitcoin Trust",
+      "theme": "Crypto / Digital Assets",
+      "conviction_score": 20,
+      "normalized_base": 36,
+      "macro_modifier": -16,
+      "portfolio_gap_modifier": 0,
+      "fundamental_signals": [
+        "no XBRL data"
+      ],
+      "moat": "Largest Bitcoin ETF by AUM. Lowest fee structure.",
+      "why_core": "Clean vehicle for Bitcoin exposure without custody risk. Alternative to levered crypto ETFs like CONL in current portfolio.",
+      "risk_note": "Bitcoin drawdown risk. No cash flow anchor. Regulatory shocks.",
+      "active_signal": null,
+      "macro_alignment": "risk_beta",
+      "portfolio_role": "bitcoin_spot_exposure",
+      "coverage_gap": false,
+      "forward_pe": null,
+      "analyst_rating": "N/A",
+      "macro_reasons": [
+        "Macro avoid: risk beta",
+        "High-rate env penalizes valuation (P/E pre-revenuex at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Low gap — portfolio partially covers Crypto / Digital Assets"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    },
+    {
+      "rank": 23,
+      "conviction_tier": "D",
+      "ticker": "OKLO",
+      "name": "Oklo",
+      "theme": "Nuclear & Uranium",
+      "conviction_score": 7,
+      "normalized_base": 30,
+      "macro_modifier": -20,
+      "portfolio_gap_modifier": -3,
+      "fundamental_signals": [
+        "rev 0%",
+        "FCF -$115M (burning)",
+        "dilution: elevated"
+      ],
+      "moat": "First-mover in advanced fission microreactors. Long runway if successful.",
+      "why_core": "Pre-commercial advanced nuclear (microreactor). Pure optionality play on next-generation nuclear if regulatory and technical hurdles clear.",
+      "risk_note": "Pre-commercial. Regulatory delay risk. Extreme dilution potential. Speculative only.",
+      "active_signal": null,
+      "macro_alignment": "speculative",
+      "portfolio_role": "speculative_nuclear_optionality",
+      "coverage_gap": false,
+      "forward_pe": null,
+      "analyst_rating": "N/A",
+      "macro_reasons": [
+        "Macro avoid: speculative",
+        "High-rate env penalizes valuation (P/E pre-revenuex at 4.46% 10Y)"
+      ],
+      "portfolio_gap_reasons": [
+        "Portfolio already covers this theme — limited incremental value"
+      ],
+      "action_permission": "RESEARCH_ONLY_NO_BUY_PERMISSION"
+    }
+  ]
+}

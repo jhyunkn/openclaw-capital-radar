@@ -1,6 +1,6 @@
 # NXT Opportunity Dossier
 
-Generated: 2026-06-05T19:56:47.532Z
+Generated: 2026-06-06T21:07:36.045Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 73
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 132.35
+- Current price: 130.07
 - Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
@@ -20,7 +20,7 @@ More experimental energy-infrastructure idea: not just AI power demand, but grid
 
 ## Why Now
 
-- NXT down -11.96% in watched basket.
+- NXT down -13.47% in watched basket.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ More experimental energy-infrastructure idea: not just AI power demand, but grid
 ## Action Framework
 
 Observation:
-NXT down -11.96% in watched basket.
+NXT down -13.47% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

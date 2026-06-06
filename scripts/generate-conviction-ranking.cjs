@@ -19,6 +19,7 @@ const reportState     = readJson('data/report-state.live.json');
 const watchlistData   = readJson('outputs/watchlist-market-data.json');  // live prices
 const insiderData     = readJson('outputs/insider-transactions.json');    // SEC Form 4
 const scannerResults  = readJson('outputs/universe-scanner.json');        // moat-at-trough candidates
+const dynamicUniverse = readJson('outputs/dynamic-universe.json');        // auto-promoted candidates
 
 if (!universe) throw new Error('Missing data/opportunity-universe.json');
 if (!macro)    throw new Error('Missing outputs/market-orientation-map.json');
@@ -416,8 +417,16 @@ const output = {
     'outputs/market-orientation-map.json',
     'outputs/candidate-ranking.json',
     'data/report-state.live.json',
-    watchlistData ? 'outputs/watchlist-market-data.json (live)' : 'outputs/watchlist-market-data.json (not available — prices are estimates)',
-  ],
+    watchlistData    ? 'outputs/watchlist-market-data.json (live)'        : 'outputs/watchlist-market-data.json (not available)',
+    dynamicUniverse  ? 'outputs/dynamic-universe.json (scanner promotions)' : null,
+  ].filter(Boolean),
+  dynamic_universe: dynamicUniverse ? {
+    available: true,
+    generatedAt: dynamicUniverse.generatedAt,
+    conviction_promotions: dynamicUniverse.conviction_promotions || [],
+    watchlist_promotions:  dynamicUniverse.watchlist_promotions  || [],
+    summary: dynamicUniverse.summary,
+  } : { available: false },
   live_price_coverage: watchlistData
     ? { available: true, ticker_count: watchlistData.tickerCount, as_of: watchlistData.generatedAt }
     : { available: false, note: 'Run fetch-watchlist-market-data.cjs to enable live prices' },

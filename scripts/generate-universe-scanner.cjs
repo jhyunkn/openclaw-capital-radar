@@ -34,6 +34,9 @@ const marketData     = readJson('outputs/watchlist-market-data.json');
 const macroMap       = readJson('outputs/market-orientation-map.json');
 const convictionUni  = readJson('data/opportunity-universe.json');
 const insiderData    = readJson('outputs/insider-transactions.json');
+const form4Data      = readJson('outputs/form4-open-market.json');
+const xbrlData       = readJson('outputs/xbrl-revenue-trends.json');
+const shortData      = readJson('outputs/short-interest.json');
 
 if (!scanUniverse) throw new Error('Missing data/scanner-universe.json');
 if (!themeChains)  throw new Error('Missing data/theme-supply-chains.json');
@@ -172,27 +175,67 @@ function scoreCandidate(candidate) {
     gaps.push(`No active theme overlap (adjacencies: ${adjacencies.join(', ')})`);
   }
 
-  // ── 4. INSIDER CONFIRMATION (bonus) ──────────────────────────────────────
-  // Insider buying at trough = strongest possible confirmation signal.
-  // We can only count filing frequency here — open-market buys require XML parse.
+  // ── 4. INSIDER CONFIRMATION (bonus, 0-10) ────────────────────────────────
+  // Priority: Form 4 XML open-market buys (actual cash) > filing count heuristic
   const insiderInfo = insiderData?.tickers?.[ticker];
+  const form4Info   = form4Data?.tickers?.[ticker];
   let insiderBonus  = 0;
-  if (insiderInfo) {
-    // Notable activity at a trough price = positive signal
+
+  if (form4Info?.open_market_signal === 'STRONG') {
+    insiderBonus = 10;
+    const top = form4Info.open_market_purchases?.[0];
+    const who = top
+      ? `${top.ownerName} $${(top.totalValue/1000).toFixed(0)}K @ $${top.pricePerShare}`
+      : `$${form4Info.total_purchase_value_mm}M total`;
+    signals.push(`Open-market insider BUYING: ${who} (${form4Info.lookback_days}d)`);
+  } else if (form4Info?.open_market_signal === 'PRESENT') {
+    insiderBonus = 6;
+    signals.push(`Open-market buys present: $${form4Info.total_purchase_value_mm}M in ${form4Info.lookback_days}d`);
+  } else if (form4Info?.open_market_signal === 'MINOR') {
+    insiderBonus = 2;
+    signals.push(`Minor insider buying detected`);
+  } else if (insiderInfo) {
     if (insiderInfo.insider_signal === 'NOTABLE' && mktData?.nearTrough) {
-      insiderBonus = 5;
-      signals.push(`Insider activity (${insiderInfo.total_filings} Form 4s) during trough — verify buy/sell split`);
-    } else if (insiderInfo.insider_signal === 'LOW' && mktData?.nearTrough) {
-      insiderBonus = 2;
-      signals.push(`Insider quiet (${insiderInfo.total_filings} Form 4s) — no heavy selling detected`);
+      insiderBonus = 3;
+      signals.push(`Insider activity (${insiderInfo.total_filings} Form 4s) — buy/sell split unverified`);
     } else if (insiderInfo.insider_signal === 'QUIET') {
-      // No activity — neutral for trough, slight negative if not at trough
       insiderBonus = mktData?.nearTrough ? 1 : 0;
     }
   }
 
+  // ── 5. REVENUE INFLECTION from XBRL (bonus, -3 to +8) ────────────────────
+  const xbrlInfo   = xbrlData?.tickers?.[ticker];
+  const revInf     = xbrlInfo?.inflection;
+  let revenueBonus = 0;
+  if (revInf?.status === 'RECOVERY') {
+    revenueBonus = 8;
+    signals.push(`Revenue RECOVERY: ${revInf.interpretation}`);
+  } else if (revInf?.status === 'INFLECTING') {
+    revenueBonus = 5;
+    signals.push(`Revenue INFLECTING: ${revInf.interpretation}`);
+  } else if (revInf?.status === 'IMPROVING') {
+    revenueBonus = 3;
+    signals.push(`Revenue IMPROVING: ${revInf.interpretation}`);
+  } else if (revInf?.status === 'DETERIORATING') {
+    revenueBonus = -3;
+    gaps.push(`Revenue still declining: ${revInf.interpretation}`);
+  }
+
+  // ── 6. SHORT INTEREST squeeze fuel (bonus, 0-5) ───────────────────────────
+  const shortInfo = shortData?.tickers?.[ticker];
+  let shortBonus  = 0;
+  if (shortInfo?.squeeze_potential === 'HIGH') {
+    shortBonus = 5;
+    signals.push(`Short interest HIGH (${shortInfo.avg_short_ratio_pct}%) — squeeze amplifies reversal`);
+  } else if (shortInfo?.squeeze_potential === 'MODERATE') {
+    shortBonus = 2;
+    signals.push(`Short interest ELEVATED (${shortInfo.avg_short_ratio_pct}%)`);
+  }
+
+  const insiderBonus_total = insiderBonus + revenueBonus + shortBonus;
+
   // ── COMPOSITE SCORE ───────────────────────────────────────────────────────
-  const totalScore = moatScore + troughScore + inflectionScore + insiderBonus;
+  const totalScore = moatScore + troughScore + inflectionScore + insiderBonus_total;
 
   // Determine signal strength
   let signal;
@@ -234,6 +277,13 @@ function scoreCandidate(candidate) {
     insider_signal:    insiderInfo?.insider_signal ?? null,
     insider_filings_90d: insiderInfo?.total_filings ?? null,
     insider_edgar_url: insiderInfo?.edgar_url ?? null,
+    open_market_signal: form4Info?.open_market_signal ?? null,
+    open_market_purchases_count: form4Info?.purchase_count ?? null,
+    open_market_value_mm: form4Info?.total_purchase_value_mm ?? null,
+    revenue_inflection: revInf?.status ?? null,
+    revenue_interpretation: revInf?.interpretation ?? null,
+    short_ratio_pct: shortInfo?.avg_short_ratio_pct ?? null,
+    squeeze_potential: shortInfo?.squeeze_potential ?? null,
     signals_detected: signals,
     gaps: gaps,
     live_price:         currentPrice,

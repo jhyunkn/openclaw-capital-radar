@@ -10,6 +10,7 @@ const statePath      = path.join(root, 'outputs', 'opportunity-asymmetry-state.j
 const rankingPath    = path.join(root, 'outputs', 'candidate-ranking.json');
 const convictionPath = path.join(root, 'outputs', 'conviction-ranking.json');
 const scannerPath    = path.join(root, 'outputs', 'universe-scanner.json');
+const dynamicPath    = path.join(root, 'outputs', 'dynamic-universe.json');
 
 function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
 
@@ -50,19 +51,37 @@ const state      = readJson(statePath);
 const ranking    = fs.existsSync(rankingPath)    ? readJson(rankingPath)    : null;
 const conviction = fs.existsSync(convictionPath) ? readJson(convictionPath) : null;
 const scanner    = fs.existsSync(scannerPath)    ? readJson(scannerPath)    : null;
+const dynamic    = fs.existsSync(dynamicPath)    ? readJson(dynamicPath)    : null;
 
 if (!state.render_permission) throw new Error('opportunity-asymmetry-state render_permission=false');
 
-const section = renderOpportunitiesSection(state, ranking, conviction, scanner);
+// Build dynamic universe summary for render (available flag + promotions)
+const dynamicForRender = dynamic ? {
+  available:            true,
+  conviction_promotions: dynamic.conviction_promotions || [],
+  watchlist_promotions:  dynamic.watchlist_promotions  || [],
+} : null;
+
+const section = renderOpportunitiesSection(state, ranking, conviction, scanner, dynamicForRender);
 const style   = renderOpportunitiesStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');
 
-// Inject CSS
-if (html.includes('.op-stance{') || html.includes('.empty-op{')) {
-  html = html.replace(/<style>[^<]*(?:\.op-stance|\.empty-op)[\s\S]*?<\/style>/, style);
+// Inject CSS — use a dedicated style tag by ID so the regex always matches reliably.
+// The old approach matched <style> (no attrs) but the style tag has id="operational-chart-style".
+const OPP_STYLE_ID = 'opportunity-radar-style';
+if (html.includes(`id="${OPP_STYLE_ID}"`)) {
+  // Replace the existing dedicated opportunity style tag
+  html = html.replace(
+    new RegExp(`<style[^>]*id="${OPP_STYLE_ID}"[^>]*>[\\s\\S]*?<\\/style>`),
+    style.replace('<style>', `<style id="${OPP_STYLE_ID}">`)
+  );
 } else {
-  html = html.replace('</he' + 'ad>', style + '</he' + 'ad>');
+  // First run: inject before </head>
+  html = html.replace(
+    '</' + 'head>',
+    style.replace('<style>', `<style id="${OPP_STYLE_ID}">`) + '</' + 'head>'
+  );
 }
 
 // Remove separately-injected conviction-section if it exists (now merged)
@@ -76,6 +95,8 @@ fs.writeFileSync(indexPath, html);
 const allRows = flattenOpportunityRows(state);
 const { opportunities, selected } = selectDisplayRows(allRows);
 const convTop3 = conviction ? (conviction.top10 || []).slice(0,3).map(t=>`${t.ticker}(${t.conviction_score})`).join(', ') : 'none';
-const fullSignalCount = scanner?.summary?.full_signal ?? 0;
-const partialCount    = scanner?.summary?.partial_signal ?? 0;
-console.log(`injected unified opportunity section: conviction_top3=${convTop3}  scanner_full=${fullSignalCount}  scanner_partial=${partialCount}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);
+const fullSignalCount   = scanner?.summary?.full_signal ?? 0;
+const partialCount      = scanner?.summary?.partial_signal ?? 0;
+const dynConvCount      = dynamic?.summary?.conviction_promotions ?? 0;
+const dynWatchCount     = dynamic?.summary?.watchlist_promotions ?? 0;
+console.log(`injected unified opportunity section: conviction_top3=${convTop3}  scanner_full=${fullSignalCount}  scanner_partial=${partialCount}  dynamic_conv=${dynConvCount}  dynamic_watch=${dynWatchCount}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);

@@ -1,6 +1,6 @@
 # CCJ Opportunity Dossier
 
-Generated: 2026-06-05T19:56:47.532Z
+Generated: 2026-06-06T21:07:36.045Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 75
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 103.36
+- Current price: 104.2
 - Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A creative non-AI software expression of the power scarcity thesis: nuclear fuel
 
 ## Why Now
 
-- CCJ down -9.34% in watched basket.
+- CCJ down -8.61% in watched basket.
 - CCJ: A creative non-AI software expression of the power scarcity thesis: nuclear fuel exposure if electricity demand and energy security remain structurally important.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ A creative non-AI software expression of the power scarcity thesis: nuclear fuel
 ## Action Framework
 
 Observation:
-CCJ down -9.34% in watched basket.
+CCJ down -8.61% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

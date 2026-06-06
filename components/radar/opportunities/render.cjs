@@ -368,7 +368,79 @@ function renderScannerSection(scannerData) {
 
 // ── COMBINED OPPORTUNITIES SECTION ────────────────────────────────────────────
 
-function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData) {
+// ── DYNAMIC UNIVERSE PROMOTION SECTION ───────────────────────────────────────
+// Shows scanner-promoted candidates that passed multi-signal confirmation.
+// "Conviction promoted" = FULL score + insider buy + revenue recovery.
+// "Watchlist promoted" = scanner FULL_SIGNAL but fewer confirmation sources.
+
+function renderDynamicPromoCard(entry, tier) {
+  const mkt    = entry.live_price != null ? `<span class="dp-price">${price(entry.live_price)}</span>` : '';
+  const pct    = entry.pct_from_52w_high != null ? `<span class="dp-pct ${entry.pct_from_52w_high <= -30 ? 'dp-deep' : ''}">${entry.pct_from_52w_high}% from 52wH</span>` : '';
+  const rsi    = entry.rsi14 != null ? `<span class="dp-rsi">RSI ${entry.rsi14}</span>` : '';
+  const isConv = tier === 'CONVICTION';
+
+  const ev = arr(entry.evidence).slice(0, 4).map(e =>
+    `<li>${esc(e.replace(/^(Scanner|Live price)[^|]+\|?\s*/, '').slice(0, 110))}</li>`
+  ).join('');
+
+  // Revenue status badge
+  const revStatus = entry.revenue_inflection;
+  const revBadge  = revStatus ? `<span class="dp-rev dp-rev-${String(revStatus).toLowerCase()}">${esc(revStatus)}</span>` : '';
+
+  return `<div class="dp-card ${isConv ? 'dp-conv' : 'dp-watch'}">
+    <div class="dp-head">
+      <div class="dp-ticker-row">
+        <b class="dp-ticker">${esc(entry.ticker)}</b>
+        <span class="dp-name">${esc(entry.name || '')}</span>
+        <span class="dp-tier-badge ${isConv ? 'dp-tier-conv' : 'dp-tier-watch'}">${isConv ? 'Conviction promoted' : 'Watchlist promoted'}</span>
+      </div>
+      <div class="dp-price-row">${mkt}${pct}${rsi}${revBadge}</div>
+    </div>
+    <p class="dp-thesis">${esc((entry.thesis || '').slice(0, 220))}</p>
+    ${ev ? `<ul class="dp-evidence">${ev}</ul>` : ''}
+    <div class="dp-score">Promotion score: ${entry.score ?? '—'}/100 · ${isConv ? 'Multi-signal confirmed' : 'Scanner confirmed, awaiting further data'}</div>
+  </div>`;
+}
+
+function renderDynamicSection(dynamicUniverse) {
+  if (!dynamicUniverse?.available) return '';
+  const convPromo = arr(dynamicUniverse.conviction_promotions);
+  const watchPromo = arr(dynamicUniverse.watchlist_promotions);
+  if (!convPromo.length && !watchPromo.length) return '';
+
+  // Merge scanner live_price/rsi14/pct_from_52w_high into the promotion entries
+  // (dynamic universe stores thesis + score; scanner stores price signals)
+  const convCards  = convPromo.map(e => renderDynamicPromoCard(e, 'CONVICTION')).join('');
+  const watchCards = watchPromo.map(e => renderDynamicPromoCard(e, 'WATCHLIST')).join('');
+
+  const promoted = convPromo.length + watchPromo.length;
+
+  return `<div class="dp-section">
+    <div class="dp-section-head">
+      <div>
+        <h3>Dynamic promotions — scanner finds, data confirms</h3>
+        <p>System-generated candidates that passed the Moat-at-Trough screen AND multi-source confirmation (open-market insider buys, XBRL revenue recovery, institutional backing). ${promoted} promoted this build. Research required before any position.</p>
+      </div>
+      <span class="dp-badge">${promoted} promoted</span>
+    </div>
+    ${convPromo.length ? `
+      <div class="dp-subsection-head">
+        <h4>Conviction tier — multi-signal confirmed</h4>
+        <p>Strong insider buying + revenue recovery + active theme alignment. Highest-priority for research.</p>
+      </div>
+      <div class="dp-card-grid">${convCards}</div>
+    ` : ''}
+    ${watchPromo.length ? `
+      <div class="dp-subsection-head dp-watch-head">
+        <h4>Watchlist tier — scanner confirmed, monitoring for additional signals</h4>
+        <p>All 3 scanner criteria met (moat + trough + demand inflection). Awaiting insider buy confirmation or revenue inflection data.</p>
+      </div>
+      <div class="dp-card-grid">${watchCards}</div>
+    ` : ''}
+  </div>`;
+}
+
+function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse) {
   const summary  = state?.summary || {};
   const allRows  = flattenOpportunityRows(state || {});
   const { opportunities, selected } = selectDisplayRows(allRows);
@@ -430,6 +502,8 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
     ${renderGapAlert(gaps)}
     <div class="cv-list">${convictionRows}</div>
     ` : ''}
+
+    ${renderDynamicSection(dynamicUniverse)}
 
     ${renderScannerSection(scannerData)}
 
@@ -633,6 +707,41 @@ function renderOpportunitiesStyle() {
   .cv-row{grid-template-columns:1fr}
   .cv-rank-col{flex-direction:row;align-items:center}
 }
+/* ── Dynamic Promotion Section ── */
+.dp-section{border:2px solid rgba(16,185,129,.25);border-radius:18px;padding:20px;margin:24px 0;background:rgba(16,185,129,.03)}
+.dp-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.dp-section-head h3{font-size:20px;letter-spacing:-.03em;margin:0 0 4px;color:rgb(16,185,129)}
+.dp-section-head p{font-size:12px;color:var(--muted);margin:0;line-height:1.45;max-width:520px}
+.dp-badge{background:rgba(16,185,129,.15);color:rgb(16,185,129);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;white-space:nowrap}
+.dp-subsection-head{margin:16px 0 8px;border-left:3px solid rgb(16,185,129);padding-left:12px}
+.dp-subsection-head h4{font-size:14px;margin:0 0 2px;font-weight:600}
+.dp-subsection-head p{font-size:11px;color:var(--muted);margin:0}
+.dp-watch-head{border-left-color:rgba(251,191,36,.7)}
+.dp-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:8px}
+.dp-card{border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:14px;background:#fff}
+.dp-conv{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.04)}
+.dp-watch{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.03)}
+.dp-head{margin-bottom:8px}
+.dp-ticker-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.dp-ticker{font-size:16px;font-weight:700;letter-spacing:.02em}
+.dp-name{font-size:11px;color:var(--muted)}
+.dp-tier-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+.dp-tier-conv{background:rgba(16,185,129,.15);color:rgb(5,150,105)}
+.dp-tier-watch{background:rgba(251,191,36,.15);color:rgb(180,130,0)}
+.dp-price-row{display:flex;gap:8px;flex-wrap:wrap;font-size:11px}
+.dp-price{font-weight:600}
+.dp-pct{color:#d97706}
+.dp-deep{color:#dc2626}
+.dp-rsi{color:var(--muted)}
+.dp-rev{padding:2px 6px;border-radius:8px;font-weight:600;font-size:10px}
+.dp-rev-recovery{background:rgba(16,185,129,.15);color:rgb(5,150,105)}
+.dp-rev-inflecting{background:rgba(59,130,246,.15);color:rgb(37,99,235)}
+.dp-rev-improving{background:rgba(251,191,36,.15);color:rgb(161,120,0)}
+.dp-rev-deteriorating{background:rgba(239,68,68,.1);color:#dc2626}
+.dp-thesis{font-size:12px;color:#374151;margin:0 0 8px;line-height:1.5}
+.dp-evidence{margin:0 0 8px;padding-left:16px;font-size:11px;color:var(--muted);line-height:1.5}
+.dp-evidence li{margin-bottom:2px}
+.dp-score{font-size:10px;color:var(--muted);border-top:1px solid rgba(0,0,0,.05);padding-top:6px;margin-top:4px}
 </style>`;
 }
 

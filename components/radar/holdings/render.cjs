@@ -384,9 +384,22 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     if(z.stop!=null){
       cs.createPriceLine({price:z.stop,color:'#A4502F',lineWidth:1.5,lineStyle:0,axisLabelVisible:true,title:'Stop'});
     }
-    // Substanzwert floor: dashed indigo — what the business earns today (15× EPS)
+    // Substanzwert floor: dashed indigo line, label on LEFT side to avoid right-axis overlap
     if(z.floorPrice!=null){
-      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.72)',lineWidth:1.5,lineStyle:2,axisLabelVisible:true,title:'Floor'});
+      cs.createPriceLine({price:z.floorPrice,color:'rgba(100,80,180,.55)',lineWidth:1.5,lineStyle:2,axisLabelVisible:false,title:''});
+      var fLbl=document.createElement('div');
+      fLbl.style.cssText='position:absolute;left:6px;pointer-events:none;font-size:9px;font-weight:700;color:rgba(100,80,180,.9);background:rgba(251,250,246,.92);padding:1px 6px;border-radius:3px;border-left:2px solid rgba(100,80,180,.55);white-space:nowrap;z-index:20;line-height:15px';
+      el.style.position='relative';
+      el.appendChild(fLbl);
+      function posFLbl(){
+        var coord=cs.priceToCoordinate(z.floorPrice);
+        if(coord===null||coord>252){fLbl.textContent='↓ Floor $'+z.floorPrice.toFixed(0);fLbl.style.top='236px';}
+        else if(coord<10){fLbl.textContent='Floor $'+z.floorPrice.toFixed(0);fLbl.style.top='4px';}
+        else{fLbl.textContent='Floor $'+z.floorPrice.toFixed(0);fLbl.style.top=(coord-8)+'px';}
+      }
+      chart.timeScale().subscribeVisibleTimeRangeChange(posFLbl);
+      chart.subscribeCrosshairMove(posFLbl);
+      setTimeout(posFLbl,120);
     }
     chart.timeScale().fitContent();
     if(typeof ResizeObserver!=='undefined'){

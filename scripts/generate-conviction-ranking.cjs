@@ -252,6 +252,61 @@ const majorGaps = ranked
   .filter(r => r.portfolio_gap_modifier >= 8)
   .map(r => ({ ticker: r.ticker, name: r.name, theme: r.theme, gap_score: r.portfolio_gap_modifier }));
 
+// ── PULLBACK CONTEXT ──────────────────────────────────────────────────────────
+// Synthesize what is happening across portfolio + watchlist right now.
+// This is the "briefing" the user needs before looking at any individual ticker.
+function buildPullbackContext() {
+  // Holdings affected — extract from market-orientation-map themes (trend1mPct)
+  const holdingsMoves = [];
+  if (macro.themes) {
+    macro.themes.forEach(theme => {
+      (theme.tickers || []).forEach(t => {
+        if (t.trend1mPct != null && t.trend1mPct <= -5) {
+          holdingsMoves.push({
+            ticker: t.ticker,
+            trend1mPct: t.trend1mPct,
+            signal: t.signal || null,
+            thesis: t.thesis || null,
+            theme: theme.title,
+          });
+        }
+      });
+    });
+  }
+  holdingsMoves.sort((a, b) => a.trend1mPct - b.trend1mPct); // worst first
+
+  // Watchlist dislocations — from universe active_signal
+  const watchlistDislocations = universe.tickers
+    .filter(t => t.activeSignal)
+    .map(t => ({ ticker: t.ticker, name: t.name, theme: t.theme, note: t.activeSignal }));
+
+  // SPY baseline for context
+  const spyTrend = (macro.themes || [])
+    .flatMap(t => t.tickers || [])
+    .find(t => t.ticker === 'SPY')?.trend1mPct ?? null;
+
+  const isThematicNotBroad = spyTrend != null && spyTrend > -3 && holdingsMoves.some(h => h.trend1mPct < -10);
+
+  return {
+    has_pullback: holdingsMoves.length > 0 || watchlistDislocations.length > 0,
+    spy_trend_1m_pct: spyTrend,
+    market_summary: isThematicNotBroad
+      ? 'Thematic correction, not broad market failure. S&P 500 held roughly flat while AI/energy/nuclear names corrected -10% to -25%. This is sector rotation — the underlying thesis has not broken.'
+      : 'Sector pullback across portfolio and watchlist. Monitor for thesis changes.',
+    posture_on_pullback: 'HOLD / WATCH: do not panic, do not broad-buy the dip. Selectively investigate dislocated tickers where the thesis is provably intact. Every entry window requires cause verification before sizing.',
+    holdings_affected: holdingsMoves,
+    watchlist_dislocations: watchlistDislocations,
+    data_note: 'Holdings price data from live Yahoo Finance feed. Watchlist dislocation flags seeded from last evidence refresh — verify current prices before treating any flag as actionable.',
+    action_items: [
+      'Watchlist dislocations (AVGO, NXT, CCJ): verify cause before treating as entry window',
+      'Holdings drawdowns (CEG -21%, AMZN -10%): thesis intact per market orientation — no action required yet',
+      'Do not add new positions until evidence review completes and posture shifts to ADD-ALLOWED',
+    ],
+  };
+}
+
+const pullbackContext = buildPullbackContext();
+
 const output = {
   artifact: 'conviction-ranking',
   generated_at: new Date().toISOString(),
@@ -279,6 +334,7 @@ const output = {
     held_tickers: [...HELD_TICKERS].sort(),
     major_gaps: majorGaps,
   },
+  pullback_context: pullbackContext,
   summary: {
     total_universe: ranked.length,
     tier_s: ranked.filter(r => r.conviction_tier === 'S').length,

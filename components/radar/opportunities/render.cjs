@@ -155,6 +155,58 @@ function renderConvictionRow(item) {
   </article>`;
 }
 
+function renderPullbackContext(pb) {
+  if (!pb || !pb.has_pullback) return '';
+
+  const holdingsRows = arr(pb.holdings_affected).slice(0, 6).map(h => {
+    const pct = Number(h.trend1mPct);
+    const cls = pct < -15 ? 'pb-bad' : 'pb-warn';
+    return `<div class="pb-row ${cls}">
+      <b>${esc(h.ticker)}</b>
+      <span class="pb-pct">${pct.toFixed(1)}%</span>
+      <span class="pb-thesis">${esc(h.thesis || '—')}</span>
+    </div>`;
+  }).join('');
+
+  const watchlistRows = arr(pb.watchlist_dislocations).map(w =>
+    `<div class="pb-row pb-warn">
+      <b>${esc(w.ticker)}</b>
+      <span class="pb-theme">${esc(w.theme)}</span>
+      <span class="pb-note">${esc((w.note || '').slice(0, 60))}</span>
+    </div>`
+  ).join('');
+
+  const actionItems = arr(pb.action_items).map(a => `<li>${esc(a)}</li>`).join('');
+
+  const spyLine = pb.spy_trend_1m_pct != null
+    ? `S&P 500 (1-month): <b>${pb.spy_trend_1m_pct > 0 ? '+' : ''}${Number(pb.spy_trend_1m_pct).toFixed(2)}%</b> — index held while sector names corrected.`
+    : '';
+
+  return `<div class="pb-context">
+    <div class="pb-header">
+      <div class="pb-badge">Pullback in progress</div>
+      <p class="pb-summary">${esc(pb.market_summary)} ${spyLine}</p>
+    </div>
+    <div class="pb-grid">
+      <div class="pb-col">
+        <span class="pb-col-label">Holdings affected (1-month)</span>
+        ${holdingsRows || '<p class="pb-none">No significant moves</p>'}
+        <small class="pb-note-text">Holdings price data is live (Yahoo Finance).</small>
+      </div>
+      <div class="pb-col">
+        <span class="pb-col-label">Watchlist dislocations</span>
+        ${watchlistRows || '<p class="pb-none">No active dislocations flagged</p>'}
+        <small class="pb-note-text">Watchlist prices are seeded — verify before acting.</small>
+      </div>
+      <div class="pb-col">
+        <span class="pb-col-label">What to do now</span>
+        <ul class="pb-actions">${actionItems}</ul>
+        <p class="pb-posture">${esc(pb.posture_on_pullback)}</p>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderMacroBar(ctx) {
   if (!ctx) return '';
   const lean = arr(ctx.lean_into).map(l => `<li>${esc(l)}</li>`).join('');
@@ -217,6 +269,10 @@ function renderOpportunitiesSection(state, candidateRanking, conviction) {
   const emptyState = opportunities.length === 0
     ? `<div class="empty-op"><b>No promoted opportunities yet</b><span>All candidates are in evidence review — none are buy recommendations.</span></div>` : '';
 
+  // Pullback context
+  const pullback = conviction?.pullback_context || null;
+  const pullbackHtml = renderPullbackContext(pullback);
+
   return `<section id="opportunities-section" class="panel">
     <div class="section-head">
       <div>
@@ -226,6 +282,7 @@ function renderOpportunitiesSection(state, candidateRanking, conviction) {
       </div>
       <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
     </div>
+    ${pullbackHtml}
     <div class="trust-strip">${trustStrip}</div>
 
     ${top10.length ? `
@@ -247,6 +304,28 @@ function renderOpportunitiesSection(state, candidateRanking, conviction) {
 function renderOpportunitiesStyle() {
   return `<style>
 .op-stance{color:var(--muted);font-size:13px;margin:6px 0 0}
+.pb-context{border:1px solid rgba(174,124,44,.45);border-radius:18px;padding:16px;margin:14px 0;background:rgba(174,124,44,.06)}
+.pb-header{margin-bottom:12px}
+.pb-badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(174,124,44,.15);border:1px solid rgba(174,124,44,.45);color:var(--warn);padding:4px 10px;border-radius:6px;margin-bottom:8px}
+.pb-summary{font-size:13px;line-height:1.5;color:rgba(36,35,31,.82);margin:0}
+.pb-summary b{font-weight:600}
+.pb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.pb-col{background:rgba(251,250,246,.12);border:1px solid var(--rule);border-radius:14px;padding:12px}
+.pb-col-label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.pb-row{display:grid;grid-template-columns:44px 1fr auto;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule);font-size:12px}
+.pb-row:last-of-type{border-bottom:none}
+.pb-row b{font-size:13px;font-weight:600;letter-spacing:-.02em}
+.pb-pct{font-weight:600;font-size:12px}
+.pb-bad .pb-pct{color:var(--red)}
+.pb-warn .pb-pct{color:var(--warn)}
+.pb-thesis,.pb-theme{font-size:11px;color:var(--muted);text-align:right}
+.pb-note{font-size:11px;color:var(--muted);grid-column:2/-1}
+.pb-note-text{display:block;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.4}
+.pb-none{font-size:12px;color:var(--muted);margin:4px 0}
+.pb-actions{margin:0 0 8px;padding:0 0 0 14px;font-size:12px;line-height:1.7;color:rgba(36,35,31,.78)}
+.pb-posture{font-size:11px;line-height:1.5;color:var(--muted);margin:0;border-top:1px solid var(--rule);padding-top:8px}
+@media(max-width:800px){.pb-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.pb-grid{grid-template-columns:1fr}}
 .op-card-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-top:14px}
 .op-card{border:1px solid var(--rule);border-radius:18px;background:rgba(251,250,246,.12);padding:14px;min-width:0}
 .op-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}

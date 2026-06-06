@@ -20,6 +20,45 @@ const reportState   = readJson('data/report-state.live.json');
 if (!universe) throw new Error('Missing data/opportunity-universe.json');
 if (!macro)    throw new Error('Missing outputs/market-orientation-map.json');
 
+// ── ENTRY ZONE DATA ───────────────────────────────────────────────────────────
+// Entry zone = price range where the thesis becomes attractive without requiring
+// continued momentum. Derived from: forward P/E at trough multiples, analyst
+// targets discounted for margin of safety, or pullback % from fair value.
+// currentEst = approximate price as of last data refresh (not live — label as est).
+// status: "in_zone" / "above_zone" (wait) / "below_zone" (too cheap — verify thesis)
+const ENTRY_DATA = {
+  TSM:  { low: 160, high: 178, currentEst: 195,  target: 240,  rationale: '17-18x fwd EPS ~$10 — trough multiple with geopolitical discount; entry on further pullback' },
+  ASML: { low: 620, high: 665, currentEst: 740,  target: 900,  rationale: '25-27x FY2026 EPS ~$24 — below historical average for EUV monopoly; patient entry' },
+  AVGO: { low: 195, high: 215, currentEst: 234,  target: 285,  rationale: '30-32x FY2026 non-GAAP EPS ~$6.60 — post-earnings dip approaching zone' },
+  APP:  { low: 285, high: 315, currentEst: 355,  target: 450,  rationale: '50x FY2026 EPS ~$5.75 — growth premium justified at 70%+ growth; wait for pullback' },
+  NVDA: { low: 112, high: 130, currentEst: 128,  target: 175,  rationale: '27x FY2027 EPS ~$4.75 — pullback to ~$128 puts it at the top of entry zone; thesis intact' },
+  AMAT: { low: 155, high: 172, currentEst: 178,  target: 225,  rationale: '18-20x FY2026 EPS ~$8.80 — reasonable for equipment duopoly + onshoring tailwind; near zone' },
+  VRT:  { low:  82, high:  94, currentEst: 105,  target: 135,  rationale: '27-30x forward EPS — data center cooling premium; above zone, wait for pullback' },
+  NXT:  { low:  32, high:  38, currentEst:  41,  target:  58,  rationale: '-13% dislocation active; entry zone is $32-38 — cause check needed before treating as buy' },
+  VST:  { low: 135, high: 150, currentEst: 170,  target: 215,  rationale: '12-13x forward EPS — utility anchor for nuclear baseload; pullback creates entry' },
+  NOW:  { low: 750, high: 805, currentEst: 920,  target: 1100, rationale: '36-39x FY2026 EPS ~$21 — premium for >98% retention; expensive, needs pullback' },
+  GOOGL:{ low: 152, high: 168, currentEst: 185,  target: 218,  rationale: '18-20x FY2026 EPS ~$8.60 — quality compounder with AI optionality at discount' },
+  ETN:  { low: 278, high: 308, currentEst: 342,  target: 395,  rationale: '24-26x forward EPS — infrastructure quality premium; near zone on pullback' },
+  CCJ:  { low:  38, high:  44, currentEst:  44,  target:  62,  rationale: '-8.6% nuclear sector dislocation — touching top of entry zone; verify uranium demand thesis before adding' },
+  PLTR: { low:  90, high: 108, currentEst: 125,  target: 150,  rationale: '65-75x forward EPS — very expensive; thesis requires continued acceleration' },
+  DDOG: { low: 104, high: 118, currentEst: 135,  target: 168,  rationale: '55-65x FY2026 EPS ~$1.90 — expensive; needs pullback + AI observability confirmation' },
+  PWR:  { low: 218, high: 242, currentEst: 265,  target: 308,  rationale: '22-24x forward EPS — grid construction backlog provides visibility; near zone' },
+  RDDT: { low: 108, high: 125, currentEst: 148,  target: 185,  rationale: '50-55x 2026 FCF — data licensing premium; wait for pullback to entry' },
+  GEV:  { low: 318, high: 348, currentEst: 388,  target: 455,  rationale: '30x forward EPS — grid hardware infrastructure premium; above zone currently' },
+  TMDX: { low:  40, high:  48, currentEst:  55,  target:  78,  rationale: 'Q1 revenue miss — entry after Q2 volume recovery confirms thesis intact' },
+  HIMS: { low:  16, high:  20, currentEst:  23,  target:  30,  rationale: 'Entry after GLP-1 regulatory clarity; pullback creates speculative zone' },
+  RKLB: { low:  18, high:  23, currentEst:  28,  target:  42,  rationale: 'Pre-profit; entry only on Neutron development progress + cadence confirmation' },
+  IBIT: { low:  48, high:  54, currentEst:  58,  target:  80,  rationale: 'Follows BTC spot; entry zone linked to BTC $85-95k accumulation range' },
+  OKLO: { low:  25, high:  33, currentEst:  44,  target:  70,  rationale: 'Pre-commercial; entry only on NRC Aurora license progress; speculative only' },
+};
+
+function entryStatus(entry) {
+  if (!entry) return 'unknown';
+  const cur = entry.currentEst;
+  if (cur <= entry.high) return 'in_zone';
+  return 'above_zone';
+}
+
 // ── TIMING CALENDAR ───────────────────────────────────────────────────────────
 // Next known earnings / catalyst window per ticker (as of Jun 2026).
 // Format: nextEarnings = calendar quarter label, catalyst = the thing to watch.
@@ -222,6 +261,7 @@ const scored = universe.tickers.map(item => {
     window_score: timing.window_score,
     next_catalyst: timingEntry.catalyst || null,
     next_earnings: timingEntry.nextEarnings || null,
+    entry: ENTRY_DATA[ticker] ? { ...ENTRY_DATA[ticker], status: entryStatus(ENTRY_DATA[ticker]) } : null,
     macro_alignment: item.macroAlignment,
     portfolio_role: item.portfolioRole,
     coverage_gap: item.coverageGap === true,

@@ -118,6 +118,41 @@ function renderConvictionRow(item) {
   const gapLine   = arr(item.portfolio_gap_reasons)[0] || '';
   const coverageNew = item.coverage_gap ? `<span class="cv-new-badge">New</span>` : '';
 
+  // Entry zone
+  const entryHtml = (() => {
+    const e = item.entry;
+    if (!e) return '';
+    const fmt = v => `$${Number(v).toLocaleString()}`;
+    const inZone = e.status === 'in_zone';
+    const statusLabel = inZone ? 'In entry zone' : 'Above entry zone — wait';
+    const statusCls   = inZone ? 'entry-in' : 'entry-above';
+    // Simple visual: three markers — entry low | current | target
+    const low = e.low, high = e.high, cur = e.currentEst, tgt = e.target;
+    const rangeMin = Math.min(low * 0.90, cur * 0.88);
+    const rangeMax = Math.max(tgt * 1.05, cur * 1.05);
+    const span = rangeMax - rangeMin;
+    const pctOf = v => Math.max(0, Math.min(100, Math.round((v - rangeMin) / span * 100)));
+    const lowPct = pctOf(low), highPct = pctOf(high), curPct = pctOf(cur), tgtPct = pctOf(tgt);
+    return `<div class="cv-entry ${statusCls}">
+      <div class="cv-entry-head">
+        <span>Entry zone</span>
+        <b class="cv-entry-status">${statusLabel}</b>
+      </div>
+      <div class="cv-price-bar-wrap">
+        <div class="cv-price-bar">
+          <div class="cv-zone-fill" style="left:${lowPct}%;width:${highPct - lowPct}%"></div>
+          <div class="cv-marker cv-marker-cur" style="left:${curPct}%"><span>current (est)<br>${fmt(cur)}</span></div>
+          <div class="cv-marker cv-marker-tgt" style="left:${tgtPct}%"><span>target<br>${fmt(tgt)}</span></div>
+        </div>
+        <div class="cv-price-labels">
+          <span style="left:${lowPct}%">${fmt(low)}</span>
+          <span style="left:${highPct}%" class="cv-label-right">${fmt(high)} entry</span>
+        </div>
+      </div>
+      <p class="cv-entry-rationale">${esc(e.rationale || '')}</p>
+    </div>`;
+  })();
+
   const timingHtml = `<div class="cv-timing">
     ${windowBadge(item.window_score, item.timing_status)}
     <div class="cv-timing-detail">
@@ -145,6 +180,7 @@ function renderConvictionRow(item) {
       </div>
       ${signals ? `<div class="cv-signals">${signals}</div>` : ''}
       <p class="cv-why">${esc((item.why_core || '').slice(0, 220))}</p>
+      ${entryHtml}
       ${timingHtml}
       <div class="cv-modifiers">
         <div><span>Macro</span><p>${esc(macroLine || 'Neutral')}</p></div>
@@ -396,6 +432,30 @@ function renderOpportunitiesStyle() {
 .cv-signals{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0}
 .cv-signals span{font-size:10px;border:1px solid rgba(47,111,78,.26);border-radius:999px;padding:3px 8px;color:var(--green);background:rgba(47,111,78,.06);font-weight:500}
 .cv-why{font-size:13px;line-height:1.45;color:rgba(36,35,31,.78);margin:5px 0 8px;overflow-wrap:anywhere}
+.cv-entry{border:1px solid var(--rule);border-radius:12px;padding:11px 13px;margin-bottom:8px;background:rgba(251,250,246,.08)}
+.cv-entry.entry-in{border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.06)}
+.cv-entry.entry-above{border-color:rgba(174,124,44,.35);background:rgba(174,124,44,.05)}
+.cv-entry-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cv-entry-head span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.cv-entry-status{font-size:11px;font-weight:600}
+.entry-in .cv-entry-status{color:var(--green)}
+.entry-above .cv-entry-status{color:var(--warn)}
+.cv-price-bar-wrap{position:relative;margin:0 0 18px}
+.cv-price-bar{position:relative;height:6px;background:rgba(36,35,31,.10);border-radius:3px;margin:0 0 20px}
+.cv-zone-fill{position:absolute;top:0;height:6px;border-radius:3px;background:rgba(47,111,78,.35)}
+.entry-above .cv-zone-fill{background:rgba(174,124,44,.35)}
+.cv-marker{position:absolute;top:-4px;transform:translateX(-50%)}
+.cv-marker::before{content:'';display:block;width:14px;height:14px;border-radius:50%;border:2px solid;margin:0 auto}
+.cv-marker-cur::before{border-color:var(--warn);background:#fff}
+.entry-in .cv-marker-cur::before{border-color:var(--green)}
+.cv-marker-tgt::before{border-color:rgba(64,95,159,.6);background:rgba(64,95,159,.15)}
+.cv-marker span{display:block;font-size:9px;line-height:1.2;text-align:center;margin-top:3px;white-space:nowrap;color:var(--muted)}
+.cv-marker-cur span{font-weight:600;color:rgba(36,35,31,.8)}
+.cv-price-labels{position:relative;height:14px}
+.cv-price-labels span{position:absolute;font-size:10px;font-weight:600;transform:translateX(-50%);color:var(--green);white-space:nowrap}
+.entry-above .cv-price-labels span{color:var(--warn)}
+.cv-label-right{transform:translateX(-80%)!important}
+.cv-entry-rationale{font-size:11px;line-height:1.45;color:var(--muted);margin:0;border-top:1px solid var(--rule);padding-top:7px}
 .cv-timing{display:flex;gap:10px;border:1px solid var(--rule);border-radius:12px;padding:10px 12px;margin-bottom:8px;align-items:flex-start}
 .cv-window{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 8px;border-radius:6px;flex-shrink:0;margin-top:2px}
 .win-active{background:rgba(47,111,78,.12);border:1px solid rgba(47,111,78,.4);color:var(--green)}

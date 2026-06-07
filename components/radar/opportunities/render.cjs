@@ -501,19 +501,19 @@ function renderBriefCard(item, rank) {
   // Action word — tells the user what to do with this card right now
   let action, actionCls, signalLabel;
   if (isSignal && item.tag === 'Insider buy') {
-    action = 'Research entry now'; actionCls = 'ub-action-signal';
+    action = 'Strong signal'; actionCls = 'ub-action-signal';
     signalLabel = 'Signal';
   } else if (isSignal) {
-    action = 'Research entry'; actionCls = 'ub-action-signal';
+    action = 'Signal confirmed'; actionCls = 'ub-action-signal';
     signalLabel = 'Signal';
   } else if (isEvent) {
-    action = 'Watch — catalyst pending'; actionCls = 'ub-action-event';
+    action = 'Catalyst watch'; actionCls = 'ub-action-event';
     signalLabel = 'Catalyst';
   } else if (isActive) {
     action = 'Entry zone open'; actionCls = 'ub-action-active';
     signalLabel = 'Timing';
   } else {
-    action = 'Monitor'; actionCls = 'ub-action-research';
+    action = 'Monitoring'; actionCls = 'ub-action-research';
     signalLabel = 'Next catalyst';
   }
 
@@ -651,10 +651,10 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
   ).join('');
 
   const legend = [
-    ['ub-tag-signal',   'Green — Scanner promoted', 'Multiple data sources converged: moat, trough depth, insider buy, and/or revenue recovery. Highest-priority for research.'],
-    ['ub-tag-event',    'Blue — Catalyst',           'A major market event (IPO, permitting, defense program) directly benefits this name. Not yet scanner-confirmed — early watch.'],
-    ['ub-tag-active',   'Amber — Entry window',      'The system sees a tactical entry zone open right now based on price levels and timing signals.'],
-    ['ub-tag-research', 'Neutral — Monitoring',      'High-conviction core holding or top-ranked name. No active signal — track for next catalyst or pullback.'],
+    ['ub-tag-signal',   'Green — Strong signal', 'Multiple data sources converged: moat, trough depth, insider buy, and/or revenue recovery. This is a name you should look at seriously.'],
+    ['ub-tag-event',    'Blue — Catalyst watch', 'A major market event (IPO, permitting, defense program) creates a tailwind here. Early — not yet scanner-confirmed. Worth tracking before the market prices it in.'],
+    ['ub-tag-active',   'Amber — Entry zone open', 'The system sees current price inside a defined buy range. A name you already like is now at a level worth acting on.'],
+    ['ub-tag-research', 'Neutral — Monitoring',  'High-conviction name with no active buy signal. Too expensive right now — watch for a 15–20% pullback.'],
   ].map(([cls, label, desc]) =>
     `<div class="ub-legend-row"><span class="ub-tag ${cls}">${label.split(' — ')[0]}</span><span class="ub-legend-text"><b>${label.split(' — ')[1]}</b> — ${desc}</span></div>`
   ).join('');

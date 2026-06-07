@@ -466,6 +466,122 @@ function buildIndicesPulse() {
   return `<div class="mu-pulse">${rows}</div>`;
 }
 
+// ── Bear leg comparison: 2022 bear vs 2025 correction, normalized from peak ───
+
+function buildBearComparisonChart(spyCandles) {
+  const peak2022Date = '2022-01-03';
+  const peak2025Date = '2025-02-19';
+
+  const i2022 = spyCandles.findIndex(c => c.time >= peak2022Date);
+  const i2025 = spyCandles.findIndex(c => c.time >= peak2025Date);
+  if (i2022 < 0 || i2025 < 0) return '';
+
+  const base2022 = spyCandles[i2022].close;
+  const base2025 = spyCandles[i2025].close;
+
+  const leg2022 = [];
+  for (let k = i2022; k < spyCandles.length && (k - i2022) <= 345; k++) {
+    leg2022.push({ day: k - i2022, ratio: spyCandles[k].close / base2022 });
+  }
+  const leg2025 = [];
+  for (let k = i2025; k < spyCandles.length; k++) {
+    leg2025.push({ day: k - i2025, ratio: spyCandles[k].close / base2025 });
+  }
+  if (leg2022.length < 10 || leg2025.length < 10) return '';
+
+  // Geometry
+  const W = 900, H = 236;
+  const pL = 54, pR = 22, pT = 16, pB = 36;
+  const cW = W - pL - pR, cH = H - pT - pB;
+  const maxDays = 345;
+  const minR = 0.67, maxR = 1.32;
+
+  const px = d => pL + (d / maxDays) * cW;
+  const py = r => pT + cH - ((r - minR) / (maxR - minR)) * cH;
+
+  // Horizontal grid
+  const gridVals = [0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30];
+  const gridLines = gridVals.map(v => {
+    const gy = py(v).toFixed(1);
+    const pct = Math.round((v - 1) * 100);
+    const lbl = pct === 0 ? '0%' : (pct > 0 ? `+${pct}%` : `${pct}%`);
+    const isZero = v === 1.00;
+    return `<line x1="${pL}" y1="${gy}" x2="${pL + cW}" y2="${gy}" stroke="${isZero ? 'rgba(26,23,20,.28)' : 'rgba(201,191,173,.32)'}" stroke-width="${isZero ? '0.8' : '0.5'}"${isZero ? '' : ' stroke-dasharray="3 2"'}/>
+  <text x="${(pL - 5)}" y="${(py(v) + 3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="rgba(26,23,20,${isZero ? '.48' : '.28'})" font-family="inherit">${lbl}</text>`;
+  }).join('\n  ');
+
+  // Day ticks (X-axis)
+  const dayTicks = [0, 50, 100, 150, 200, 250, 300, 345].map(d => {
+    const x = px(d).toFixed(1);
+    return `<line x1="${x}" y1="${(pT + cH).toFixed(1)}" x2="${x}" y2="${(pT + cH + 4).toFixed(1)}" stroke="rgba(201,191,173,.45)" stroke-width="0.5"/>
+  <text x="${x}" y="${(pT + cH + 15).toFixed(1)}" text-anchor="middle" font-size="9" fill="rgba(26,23,20,.3)" font-family="inherit">${d}</text>`;
+  }).join('\n  ');
+
+  // Paths
+  const path2022 = leg2022.filter((_, i) => i % 2 === 0)
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${px(p.day).toFixed(1)},${py(p.ratio).toFixed(1)}`).join(' ');
+  const path2025 = leg2025
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${px(p.day).toFixed(1)},${py(p.ratio).toFixed(1)}`).join(' ');
+  const area2025 = leg2025
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${px(p.day).toFixed(1)},${py(p.ratio).toFixed(1)}`).join(' ') +
+    ` L${px(leg2025[leg2025.length - 1].day).toFixed(1)},${(pT + cH).toFixed(1)} L${pL},${(pT + cH).toFixed(1)} Z`;
+
+  // Key events
+  const trough2022 = leg2022.reduce((m, p) => p.ratio < m.ratio ? p : m, leg2022[0]);
+  const trough2025 = leg2025.reduce((m, p) => p.ratio < m.ratio ? p : m, leg2025[0]);
+  const recover2025 = leg2025.find(p => p.day > trough2025.day && p.ratio >= 1.00);
+  const now2025 = leg2025[leg2025.length - 1];
+
+  const t22x = px(trough2022.day).toFixed(1), t22y = py(trough2022.ratio).toFixed(1);
+  const t25x = px(trough2025.day).toFixed(1), t25y = py(trough2025.ratio).toFixed(1);
+  const nowX = px(now2025.day).toFixed(1), nowY = py(now2025.ratio).toFixed(1);
+  const t22pct = Math.round((trough2022.ratio - 1) * 100);
+  const t25pct = Math.round((trough2025.ratio - 1) * 100);
+  const nowPct = Math.round((now2025.ratio - 1) * 100);
+
+  const recoverMark = recover2025 ? (() => {
+    const rx = px(recover2025.day).toFixed(1);
+    const ry = py(1.0).toFixed(1);
+    return `<circle cx="${rx}" cy="${ry}" r="3" fill="#2a6b4a" opacity=".85"/>
+  <text x="${(+rx + 5).toFixed(1)}" y="${(+ry - 5).toFixed(1)}" font-size="8.5" fill="#2a6b4a" font-family="inherit">breakeven · day ${recover2025.day}</text>`;
+  })() : '';
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
+  <defs>
+    <linearGradient id="bear25Grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(26,23,20,.06)"/>
+      <stop offset="100%" stop-color="rgba(26,23,20,.01)"/>
+    </linearGradient>
+    <clipPath id="bearClip"><rect x="${pL}" y="${pT}" width="${cW}" height="${cH}"/></clipPath>
+  </defs>
+  ${gridLines}
+  ${dayTicks}
+  <path d="${area2025}" fill="url(#bear25Grad)" clip-path="url(#bearClip)"/>
+  <path d="${path2022}" fill="none" stroke="rgba(164,80,47,.62)" stroke-width="2" stroke-linejoin="round" clip-path="url(#bearClip)"/>
+  <path d="${path2025}" fill="none" stroke="rgba(26,23,20,.88)" stroke-width="2.2" stroke-linejoin="round" clip-path="url(#bearClip)"/>
+  <!-- 2022 trough marker -->
+  <circle cx="${t22x}" cy="${t22y}" r="3.5" fill="rgba(164,80,47,.7)"/>
+  <text x="${(+t22x).toFixed(1)}" y="${(+t22y + 14).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.85)" font-family="inherit">${t22pct}%</text>
+  <text x="${(+t22x).toFixed(1)}" y="${(+t22y + 24).toFixed(1)}" text-anchor="middle" font-size="8" fill="rgba(26,23,20,.32)" font-family="inherit">day ${trough2022.day}</text>
+  <!-- 2025 trough marker -->
+  <circle cx="${t25x}" cy="${t25y}" r="3.5" fill="rgba(26,23,20,.75)"/>
+  <text x="${(+t25x + 7).toFixed(1)}" y="${(+t25y + 4).toFixed(1)}" font-size="8.5" fill="rgba(26,23,20,.72)" font-family="inherit">${t25pct}%</text>
+  <text x="${(+t25x + 7).toFixed(1)}" y="${(+t25y + 14).toFixed(1)}" font-size="8" fill="rgba(26,23,20,.35)" font-family="inherit">day ${trough2025.day}</text>
+  <!-- 2025 breakeven crossing -->
+  ${recoverMark}
+  <!-- NOW -->
+  <circle cx="${nowX}" cy="${nowY}" r="4.5" fill="#2a6b4a"/>
+  <text x="${(+nowX + 8).toFixed(1)}" y="${(+nowY + 1).toFixed(1)}" font-size="9" font-weight="700" fill="rgba(26,23,20,.82)" font-family="inherit">NOW</text>
+  <text x="${(+nowX + 8).toFixed(1)}" y="${(+nowY + 12).toFixed(1)}" font-size="8.5" fill="#2a6b4a" font-family="inherit">${nowPct >= 0 ? '+' : ''}${nowPct}%</text>
+  <!-- Legend -->
+  <line x1="${pL}" y1="${H - 12}" x2="${pL + 18}" y2="${H - 12}" stroke="rgba(26,23,20,.82)" stroke-width="2.2"/>
+  <text x="${pL + 22}" y="${H - 8}" font-size="9" fill="rgba(26,23,20,.52)" font-family="inherit">2025 correction</text>
+  <line x1="${pL + 128}" y1="${H - 12}" x2="${pL + 146}" y2="${H - 12}" stroke="rgba(164,80,47,.62)" stroke-width="2"/>
+  <text x="${pL + 150}" y="${H - 8}" font-size="9" fill="rgba(26,23,20,.52)" font-family="inherit">2022 bear</text>
+  <text x="${pL + cW}" y="${H - 8}" text-anchor="end" font-size="9" fill="rgba(26,23,20,.28)" font-family="inherit">Trading days since peak</text>
+</svg>`;
+}
+
 // ── Cycle analysis: normalized anchor chart + 4-column argument ───────────────
 
 function buildCycleAnalysis(spyCandles, rateSeries, signals, cycleState, analogsData) {
@@ -871,6 +987,7 @@ const cacheRates = (() => {
 
 const activeRateSeries  = (rateSeries && Object.keys(rateSeries).length) ? rateSeries : cacheRates;
 const unifiedChart      = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxToSpy, topAnalogLesson);
+const bearComparisonChart = buildBearComparisonChart(spyCandles);
 const dffSeries         = Array.isArray(activeRateSeries?.DFF) ? activeRateSeries.DFF : [];
 const currentFedRate    = dffSeries.length > 0 ? num(dffSeries[dffSeries.length - 1].value) : null;
 
@@ -1393,6 +1510,7 @@ const style = `<style id="macro-unified-style">
 
 /* ── Unified chart block ── */
 .mu-unified-chart-block{padding:24px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-comparison-block{padding:20px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-analog-callout{display:flex;align-items:baseline;gap:10px;margin-top:10px;padding:10px 14px;border-left:2.5px solid rgba(164,80,47,.5);background:rgba(164,80,47,.05)}
 .mu-analog-callout span{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(164,80,47,.7);white-space:nowrap;font-family:var(--mono,monospace)}
 .mu-analog-callout b{font-size:12.5px;color:rgba(26,23,20,.72);line-height:1.4;font-weight:400}
@@ -1598,11 +1716,16 @@ const section = `<section id="macro-unified-section" class="macro-unified">
       <span>The 90-day tactical view is the highlighted right tail of this chart — same frame, full context</span>
     </div>
     ${unifiedChart}
-    ${topAnalogLesson ? `<div class="mu-analog-callout">
-      <span>2022 Analog (91% match)</span>
-      <b>${topAnalogLesson}</b>
-    </div>` : ''}
   </div>
+
+  <!-- Bear leg comparison: 2022 bear vs 2025 correction, both normalized from peak -->
+  ${bearComparisonChart ? `<div class="mu-comparison-block">
+    <div class="mu-chart-head">
+      <h3>2022 bear vs 2025 correction — both anchored at their peak, normalized</h3>
+      <span>X-axis = trading days since each peak · dark = current cycle · amber = 2022 bear</span>
+    </div>
+    ${bearComparisonChart}
+  </div>` : ''}
 
   <!-- Daily briefing: today's session read -->
   ${dailyBriefingHtml}

@@ -57,9 +57,10 @@ if (!state.render_permission) throw new Error('opportunity-asymmetry-state rende
 
 // Build dynamic universe summary for render (available flag + promotions)
 const dynamicForRender = dynamic ? {
-  available:            true,
-  conviction_promotions: dynamic.conviction_promotions || [],
-  watchlist_promotions:  dynamic.watchlist_promotions  || [],
+  available:              true,
+  conviction_promotions:  dynamic.conviction_promotions    || [],
+  watchlist_promotions:   dynamic.watchlist_promotions     || [],
+  event_driven_candidates: dynamic.event_driven_candidates || [],
 } : null;
 
 const section = renderOpportunitiesSection(state, ranking, conviction, scanner, dynamicForRender);
@@ -99,4 +100,5 @@ const fullSignalCount   = scanner?.summary?.full_signal ?? 0;
 const partialCount      = scanner?.summary?.partial_signal ?? 0;
 const dynConvCount      = dynamic?.summary?.conviction_promotions ?? 0;
 const dynWatchCount     = dynamic?.summary?.watchlist_promotions ?? 0;
-console.log(`injected unified opportunity section: conviction_top3=${convTop3}  scanner_full=${fullSignalCount}  scanner_partial=${partialCount}  dynamic_conv=${dynConvCount}  dynamic_watch=${dynWatchCount}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);
+const dynEventCount     = dynamic?.summary?.event_driven_candidates ?? 0;
+console.log(`injected unified opportunity section: conviction_top3=${convTop3}  scanner_full=${fullSignalCount}  scanner_partial=${partialCount}  dynamic_conv=${dynConvCount}  dynamic_watch=${dynWatchCount}  event_driven=${dynEventCount}  pipeline_qualified=${opportunities.length}  pipeline_shown=${selected.length}`);

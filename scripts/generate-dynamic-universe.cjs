@@ -48,6 +48,10 @@ const shortData       = readJson('outputs/short-interest.json');
 const marketData      = readJson('outputs/watchlist-market-data.json');
 const institutionalData = readJson('outputs/institutional-holdings.json');
 const insiderData     = readJson('outputs/insider-transactions.json');
+const newsData        = readJson('outputs/market-news.json');
+const marketEventsRaw = readJson('data/market-events.json');
+const scannerUniverse = readJson('data/scanner-universe.json');
+const convictionRanking = readJson('outputs/conviction-ranking.json');
 
 if (!staticUniverse)  throw new Error('Missing data/opportunity-universe.json');
 if (!scannerResults)  throw new Error('Missing outputs/universe-scanner.json — run generate-universe-scanner.cjs first');
@@ -55,6 +59,11 @@ if (!scannerResults)  throw new Error('Missing outputs/universe-scanner.json —
 // Active tickers in the static conviction universe
 const STATIC_TICKERS = new Set(
   (staticUniverse.tickers || []).map(t => String(t.ticker).toUpperCase())
+);
+
+// Conviction scores for static tickers — used to decide if event-driven should surface them
+const staticConvictionScores = Object.fromEntries(
+  (convictionRanking?.ranked || convictionRanking?.all_ranked || []).map(t => [t.ticker, t.conviction_score || 0])
 );
 
 // ── SCORING EACH FULL_SIGNAL CANDIDATE ───────────────────────────────────────
@@ -140,6 +149,34 @@ function scoreForPromotion(candidate) {
   } else if (institutional?.manager_count === 1) {
     score += 2;
     evidence.push(`Institutional backing: ${institutional.managers?.[0]?.manager || '1 manager'} has position`);
+  }
+
+  // ── 7. Market events signal (+12 max) ────────────────────────────────────
+  // Checks market-events.json for events where this ticker is a named beneficiary.
+  // Also checks news signal score from Yahoo Finance RSS headline detection.
+  const eventSignals = newsData?.ticker_event_signals?.[ticker] || [];
+  const positiveEvents = eventSignals.filter(e => e.impact === 'POSITIVE');
+  if (positiveEvents.length > 0) {
+    const bestEvent = positiveEvents.sort((a, b) => b.score_boost - a.score_boost)[0];
+    score += bestEvent.score_boost;
+    const newsNote = bestEvent.news_active ? ' (in news cycle this build)' : ' (anticipated)';
+    evidence.push(`Market event: ${bestEvent.event_name} — ${bestEvent.signal_strength} signal${newsNote}`);
+  } else {
+    // Fallback: general news signal score
+    const newsScore = newsData?.tickers?.[ticker]?.news_signal_score || 0;
+    if (newsScore >= 8) {
+      score += Math.min(8, newsScore);
+      const sigs = (newsData.tickers[ticker].positive_signals || []).slice(0, 2).join(', ');
+      evidence.push(`News signals: ${sigs} in recent headlines`);
+    }
+  }
+
+  // Also check for negative event risk
+  const negativeEvents = eventSignals.filter(e => e.impact === 'NEGATIVE');
+  if (negativeEvents.length > 0) {
+    const worstEvent = negativeEvents.sort((a, b) => a.score_boost - b.score_boost)[0];
+    score += worstEvent.score_boost; // negative value
+    gaps.push(`Risk: ${worstEvent.event_name} — ${worstEvent.signal_strength} headwind`);
   }
 
   // ── PROMOTION TIER ────────────────────────────────────────────────────────
@@ -277,6 +314,71 @@ const promotedEntries = [
   ...watchlistPromotions.map(s => buildUniverseEntry(s.candidate, s.scoreResult)),
 ];
 
+// ── EVENT-DRIVEN CANDIDATES ───────────────────────────────────────────────────
+// Tickers in market-events.json beneficiary lists that are:
+// - In the scanner universe (have a defined moat)
+// - Have live price data
+// - NOT already in conviction or watchlist promotions
+// These are event-watch candidates even before scanner FULL_SIGNAL is reached.
+const alreadyPromoted = new Set([
+  ...convictionPromotions.map(s => s.candidate.ticker),
+  ...watchlistPromotions.map(s => s.candidate.ticker),
+]);
+const scannerCandidateMap = Object.fromEntries(
+  (scannerUniverse?.candidates || []).map(c => [c.ticker, c])
+);
+
+const eventDrivenCandidates = [];
+for (const event of (marketEventsRaw?.events || [])) {
+  if (event.signal_strength === 'LOW') continue;
+  for (const ticker of (event.beneficiary_tickers || [])) {
+    if (alreadyPromoted.has(ticker)) continue;
+    // Allow static universe tickers with low conviction scores (<70) to surface as event-driven.
+    // Tickers already well-covered by conviction (≥70) don't need the event-driven card.
+    const isStatic = STATIC_TICKERS.has(ticker);
+    const convScore = staticConvictionScores[ticker] || 0;
+    if (isStatic && convScore >= 70) continue;
+
+    // Look up in scanner universe for metadata; for static tickers, also try opportunity-universe
+    const scannerDef = scannerCandidateMap[ticker];
+    const staticDef  = isStatic ? (staticUniverse.tickers || []).find(t => t.ticker === ticker) : null;
+    if (!scannerDef && !staticDef) continue; // not tracked anywhere
+    const mkt = marketData?.tickers?.[ticker];
+    if (!mkt?.currentPrice) continue; // no price data
+    // Don't add the same ticker twice
+    if (eventDrivenCandidates.find(e => e.ticker === ticker)) continue;
+    const newsSignal = newsData?.tickers?.[ticker]?.news_signal_score || 0;
+    const scannerEntry = (scannerResults?.all_scored || []).find(c => c.ticker === ticker);
+    // Static tickers use conviction score as partial; scanner tickers use scanner total_score
+    const partialScore = isStatic
+      ? Math.round(Math.min(convScore, 60) / 100 * 30)
+      : scannerEntry ? Math.round((scannerEntry.total_score || 0) / 100 * 30) : 10;
+    const eventBoost = event.signal_strength === 'HIGH' ? 20 : 10;
+    const totalScore = partialScore + eventBoost + Math.min(6, newsSignal);
+    eventDrivenCandidates.push({
+      ticker,
+      name:            scannerDef?.name || staticDef?.name || ticker,
+      sector:          scannerDef?.sector || staticDef?.theme || '',
+      score:           totalScore,
+      event_id:        event.id,
+      event_name:      event.name,
+      event_type:      event.type,
+      event_signal_strength: event.signal_strength,
+      supply_chain_note: event.supply_chain_note,
+      live_price:       mkt.currentPrice,
+      pct_from_52w_high: mkt.pctFrom52wHigh,
+      rsi14:            mkt.rsi14,
+      moat_summary:     scannerDef?.moat || staticDef?.moat || '',
+      demand_inflection: scannerDef?.demandInflectionSignal || '',
+      theme_adjacency:  scannerDef?.themeAdjacency || [],
+      from_static_universe: isStatic,
+      static_conviction_score: isStatic ? convScore : undefined,
+    });
+  }
+}
+eventDrivenCandidates.sort((a, b) => b.score - a.score);
+console.log(`Event-driven candidates: ${eventDrivenCandidates.length}  ${eventDrivenCandidates.map(e => `${e.ticker}(${e.event_id})`).join(', ')}`);
+
 // Static universe tickers (pass through unchanged for reference)
 const staticTickers = (staticUniverse.tickers || []).map(t => ({
   ...t,
@@ -299,6 +401,8 @@ const output = {
     short_interest: !!shortData,
     market_data:    !!marketData,
     institutional:  !!institutionalData,
+    market_news:    !!newsData,
+    market_events:  !!marketEventsRaw,
   },
   summary: {
     static_universe_tickers:  STATIC_TICKERS.size,
@@ -306,8 +410,9 @@ const output = {
     partial_signal_evaluated: partialSignalCandidates.length,
     conviction_promotions:    convictionPromotions.length,
     watchlist_promotions:     watchlistPromotions.length,
+    event_driven_candidates:  eventDrivenCandidates.length,
     not_yet:                  notYet.length,
-    total_dynamic_universe:   STATIC_TICKERS.size + promotedEntries.length,
+    total_dynamic_universe:   STATIC_TICKERS.size + promotedEntries.length + eventDrivenCandidates.length,
   },
   // Promoted entries (scanner-generated)
   conviction_promotions: convictionPromotions.map(s => {
@@ -364,6 +469,8 @@ const output = {
     score:  s.scoreResult.promotion_score,
     gaps:   s.scoreResult.gaps,
   })),
+  // Event-driven candidates: in market-events.json but not yet scanner-promoted
+  event_driven_candidates: eventDrivenCandidates,
   // Full universe entries (static + promoted) for downstream use
   all_entries: [...staticTickers, ...promotedEntries],
   promoted_entries: promotedEntries,
@@ -375,6 +482,7 @@ console.log('\n═══ DYNAMIC UNIVERSE PROMOTION RESULTS ═══');
 console.log(`Static universe:    ${STATIC_TICKERS.size} tickers`);
 console.log(`Conviction promoted: ${convictionPromotions.length}  ${convictionPromotions.map(s=>s.candidate.ticker).join(', ')}`);
 console.log(`Watchlist promoted:  ${watchlistPromotions.length}  ${watchlistPromotions.map(s=>s.candidate.ticker).join(', ')}`);
+console.log(`Event-driven:        ${eventDrivenCandidates.length}  ${eventDrivenCandidates.map(e=>e.ticker).join(', ')}`);
 console.log(`Not yet:             ${notYet.length}  ${notYet.slice(0,5).map(s=>s.candidate.ticker).join(', ')}`);
 console.log(`Total dynamic universe: ${STATIC_TICKERS.size + promotedEntries.length} tickers`);
 if (convictionPromotions.length > 0) {

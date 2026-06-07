@@ -391,13 +391,8 @@ function snip(str, max) {
 }
 
 function dynOneLiner(e) {
-  const moat = snip(e.moat_summary || '', 120);
-  // "Revenue growing 23.4% YoY — recovery confirmed" → "+23.4% YoY"  (fix double-YoY bug)
-  const rev  = (e.revenue_interp || '')
-    .replace('Revenue growing ', '+')
-    .replace(/ — recovery confirmed$/, '')
-    .slice(0, 40);
-  return [moat, rev].filter(Boolean).join(' · ');
+  // Pure company description — revenue growth is shown separately in metric chips
+  return snip(e.moat_summary || '', 160);
 }
 
 function buildUnifiedList(conviction, dynamicUniverse) {
@@ -430,20 +425,26 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       tag = 'Promoted';
       reason = evClean || 'Scanner + multi-source confirmed';
     }
+    const revLabel = e.revenue_interp
+      ? e.revenue_interp.replace('Revenue growing ', '+').replace(/ — recovery confirmed$/i, '')
+      : (e.revenue_inflection || null);
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_conviction', tag, reason, why: dynOneLiner(e),
-      price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: e.revenue_inflection });
+      price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: revLabel });
   }
 
   for (const e of arr(dynamicUniverse?.watchlist_promotions)) {
     seen.add(e.ticker);
     const boost = attentionBoost(e.pct_from_52w_high, e.open_market_signal, 0, true);
     const pctStr = e.pct_from_52w_high != null ? `${e.pct_from_52w_high}% from peak` : 'at trough';
+    const revLabel2 = e.revenue_interp
+      ? e.revenue_interp.replace('Revenue growing ', '+').replace(/ — recovery confirmed$/i, '')
+      : (e.revenue_inflection || null);
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_watchlist', tag: 'Full scan',
       reason: `Moat, trough, and demand all confirmed · ${pctStr}`,
       why: dynOneLiner(e), price: e.live_price, pct52wh: e.pct_from_52w_high,
-      rsi: e.rsi14, rev: e.revenue_inflection });
+      rsi: e.rsi14, rev: revLabel2 });
   }
 
   // Event-driven: top 3 by score, guaranteed slots (market events are time-sensitive)
@@ -485,36 +486,62 @@ function buildUnifiedList(conviction, dynamicUniverse) {
   return [...merged, ...tier3.slice(0, Math.max(0, remaining))];
 }
 
-function renderBriefCard(item) {
+function renderBriefCard(item, rank) {
   const isEvent  = item.source === 'event_driven';
   const isSignal = item.source === 'dynamic_conviction' || item.source === 'dynamic_watchlist';
   const isActive = item.source === 'conviction' && item.window_score === 3;
   const cardCls  = isSignal ? 'ub-signal' : isEvent ? 'ub-event' : isActive ? 'ub-active' : 'ub-research';
   const tagCls   = isSignal ? 'ub-tag-signal' : isEvent ? 'ub-tag-event' : isActive ? 'ub-tag-active' : 'ub-tag-research';
 
-  const fmtP  = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
-  const pctTx = item.pct52wh != null ? `${item.pct52wh > 0 ? '+' : ''}${item.pct52wh}% from 52wH` : null;
-  const rsiTx = item.rsi  != null ? `RSI ${item.rsi}` : null;
-  const revTx = item.rev  ? item.rev.charAt(0).toUpperCase() + item.rev.slice(1).toLowerCase() : null;
+  // Action word — tells the user what to do with this card right now
+  let action, actionCls, signalLabel;
+  if (isSignal && item.tag === 'Insider buy') {
+    action = 'Research entry now'; actionCls = 'ub-action-signal';
+    signalLabel = 'Signal';
+  } else if (isSignal) {
+    action = 'Research entry'; actionCls = 'ub-action-signal';
+    signalLabel = 'Signal';
+  } else if (isEvent) {
+    action = 'Watch — catalyst pending'; actionCls = 'ub-action-event';
+    signalLabel = 'Catalyst';
+  } else if (isActive) {
+    action = 'Entry zone open'; actionCls = 'ub-action-active';
+    signalLabel = 'Timing';
+  } else {
+    action = 'Monitor'; actionCls = 'ub-action-research';
+    signalLabel = 'Next catalyst';
+  }
 
-  const metrics = [
-    fmtP(item.price) ? `<span>${esc(fmtP(item.price))}</span>` : '',
-    pctTx ? `<span class="${item.pct52wh != null && item.pct52wh <= -40 ? 'ub-deep' : ''}">${esc(pctTx)}</span>` : '',
-    rsiTx ? `<span>${esc(rsiTx)}</span>` : '',
-    revTx ? `<span class="ub-rev">${esc(revTx)}</span>` : '',
-  ].join('');
+  const fmtP  = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const deepPct = item.pct52wh != null && item.pct52wh <= -40;
+  const pctTx = item.pct52wh != null
+    ? `${item.pct52wh > 0 ? '+' : ''}${item.pct52wh}% from peak`
+    : null;
+  const rsiTx = item.rsi != null ? `RSI ${item.rsi}` : null;
+  const revTx = item.rev
+    ? (item.rev.startsWith('+') ? item.rev : item.rev.charAt(0).toUpperCase() + item.rev.slice(1).toLowerCase())
+    : null;
+
+  const chips = [
+    fmtP(item.price) ? `<span class="ub-chip">${esc(fmtP(item.price))}</span>` : '',
+    pctTx ? `<span class="ub-chip ${deepPct ? 'ub-deep' : ''}">${esc(pctTx)}</span>` : '',
+    rsiTx ? `<span class="ub-chip">${esc(rsiTx)}</span>` : '',
+    revTx ? `<span class="ub-chip ub-rev">${esc(revTx)}</span>` : '',
+  ].filter(Boolean).join('');
 
   return `<article class="ub-card ${cardCls}">
-    <div class="ub-header">
-      <div class="ub-id">
+    <div class="ub-row-top">
+      <div class="ub-rank">${rank}</div>
+      <div class="ub-identity">
         <b class="ub-ticker">${esc(item.ticker)}</b>
         <span class="ub-name">${esc(item.name)}</span>
+        <span class="ub-tag ${tagCls}">${esc(item.tag)}</span>
       </div>
-      <span class="ub-tag ${tagCls}">${esc(item.tag)}</span>
+      <span class="ub-action ${actionCls}">${esc(action)}</span>
     </div>
-    <p class="ub-reason">${esc(item.reason || '')}</p>
-    <p class="ub-why">${esc(item.why || '')}</p>
-    ${metrics ? `<div class="ub-metrics">${metrics}</div>` : ''}
+    ${item.why ? `<p class="ub-desc">${esc(item.why)}</p>` : ''}
+    ${item.reason ? `<p class="ub-signal-line"><span class="ub-signal-label">${signalLabel}:</span> ${esc(item.reason)}</p>` : ''}
+    ${chips ? `<div class="ub-chips">${chips}</div>` : ''}
   </article>`;
 }
 
@@ -622,7 +649,7 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
   ).join('');
 
   const unified = buildUnifiedList(conviction, dynamicUniverse);
-  const cards   = unified.map(renderBriefCard).join('');
+  const cards   = unified.map((item, i) => renderBriefCard(item, i + 1)).join('');
 
   return `<section id="opportunities-section" class="panel">
     <div class="section-head">
@@ -648,27 +675,38 @@ function renderOpportunitiesStyle() {
 .trust-strip article{border:1px solid var(--rule);border-radius:999px;padding:5px 14px;background:rgba(251,250,246,.28);display:flex;align-items:center;gap:8px}
 .trust-strip span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 .trust-strip b{font-size:13px;font-weight:600;letter-spacing:-.01em;color:rgba(36,35,31,.88)}
-/* Unified brief card list */
-.ub-list{display:flex;flex-direction:column;gap:7px;margin-top:0}
-.ub-card{border:1px solid var(--rule);border-left-width:3px;border-left-color:transparent;border-radius:16px;padding:12px 15px;background:rgba(251,250,246,.14);min-width:0}
+/* Ranked card list */
+.ub-list{display:flex;flex-direction:column;gap:8px;margin-top:0}
+.ub-card{border:1px solid var(--rule);border-left:3px solid transparent;border-radius:16px;padding:14px 16px;background:rgba(251,250,246,.14);min-width:0}
 /* Signal colors — aligned to app palette: --green #2f6f4e, --blue #405f9f, --warn #8a6a2c */
 .ub-signal{border-left-color:rgba(47,111,78,.65);background:rgba(47,111,78,.04)}
 .ub-event{border-left-color:rgba(64,95,159,.65);background:rgba(64,95,159,.04)}
 .ub-active{border-left-color:rgba(138,106,44,.65);background:rgba(138,106,44,.04)}
-.ub-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
-.ub-id{display:flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden}
-.ub-ticker{font-size:22px;font-weight:700;letter-spacing:-.04em;line-height:1;flex-shrink:0}
-.ub-name{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Tags — pill shape to match every other badge in the app (mu-signal-badge, brief-badge) */
-.ub-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;text-transform:uppercase;border:1px solid var(--rule);color:var(--muted)}
+/* Top row: rank + identity + action */
+.ub-row-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ub-rank{font-size:11px;font-weight:700;color:var(--soft);width:18px;flex-shrink:0;letter-spacing:-.01em}
+.ub-identity{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.ub-ticker{font-size:20px;font-weight:700;letter-spacing:-.04em;line-height:1;flex-shrink:0}
+.ub-name{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+/* Tags — pill shape */
+.ub-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.05em;white-space:nowrap;flex-shrink:0;text-transform:uppercase;border:1px solid var(--rule);color:var(--muted)}
 .ub-tag-signal{background:rgba(47,111,78,.08);border-color:rgba(47,111,78,.32);color:var(--green)}
 .ub-tag-event{background:rgba(64,95,159,.08);border-color:rgba(64,95,159,.32);color:var(--blue)}
 .ub-tag-active{background:rgba(138,106,44,.08);border-color:rgba(138,106,44,.32);color:var(--warn)}
 .ub-tag-research{background:rgba(251,250,246,.12);border-color:var(--rule);color:var(--muted)}
-.ub-reason{font-size:12px;font-weight:600;color:rgba(36,35,31,.85);margin:0 0 3px;line-height:1.35;overflow-wrap:anywhere}
-.ub-why{font-size:12px;color:rgba(36,35,31,.65);margin:0 0 7px;line-height:1.42;overflow-wrap:anywhere}
-.ub-metrics{display:flex;flex-wrap:wrap;gap:5px}
-.ub-metrics span{font-size:11px;color:rgba(36,35,31,.68);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}
+/* Action badge — tells user what to do */
+.ub-action{font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0;padding:4px 10px;border-radius:999px;border:1px solid}
+.ub-action-signal{color:var(--green);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.07)}
+.ub-action-event{color:var(--blue);border-color:rgba(64,95,159,.3);background:rgba(64,95,159,.06)}
+.ub-action-active{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.07)}
+.ub-action-research{color:var(--muted);border-color:var(--rule);background:transparent}
+/* Card body text */
+.ub-desc{font-size:12.5px;color:rgba(36,35,31,.80);margin:0 0 5px;line-height:1.45;padding-left:28px}
+.ub-signal-line{font-size:12px;color:rgba(36,35,31,.65);margin:0 0 8px;line-height:1.4;padding-left:28px}
+.ub-signal-label{font-weight:600;color:rgba(36,35,31,.55);font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-right:4px}
+/* Metric chips */
+.ub-chips{display:flex;flex-wrap:wrap;gap:5px;padding-left:28px}
+.ub-chip{font-size:11px;color:rgba(36,35,31,.62);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 /* Legend — explains the 4 card tiers */

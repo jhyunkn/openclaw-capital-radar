@@ -63,7 +63,12 @@ const dynamicForRender = dynamic ? {
   event_driven_candidates: dynamic.event_driven_candidates || [],
 } : null;
 
-const section = renderOpportunitiesSection(state, ranking, conviction, scanner, dynamicForRender);
+// Strip manual pipeline: pass empty clusters so only AI-screened results display.
+// The hardcoded opportunity-asymmetry-state pipeline is retired — dynamic universe drives everything.
+const stateForRender = { ...state, opportunity_clusters: [] };
+
+// Pass no static conviction list — the screener is the authority, not the hardcoded top10.
+const section = renderOpportunitiesSection(stateForRender, null, null, scanner, dynamicForRender);
 const style   = renderOpportunitiesStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');

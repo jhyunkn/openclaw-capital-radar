@@ -272,12 +272,10 @@ function buildUniverseEntry(candidate, scoreResult) {
 
 // ── MAIN ─────────────────────────────────────────────────────────────────────
 
-// Score all FULL_SIGNAL candidates not already in static universe
-const fullSignalCandidates = (scannerResults.full_signal_candidates || [])
-  .filter(c => !STATIC_TICKERS.has(c.ticker));
-
-const partialSignalCandidates = (scannerResults.partial_signal_candidates || [])
-  .filter(c => !STATIC_TICKERS.has(c.ticker));
+// Score all FULL_SIGNAL and PARTIAL_SIGNAL candidates from the scanner
+// No static list filter — the scanner result IS the ground truth
+const fullSignalCandidates    = (scannerResults.full_signal_candidates    || []);
+const partialSignalCandidates = (scannerResults.partial_signal_candidates || []);
 
 console.log(`Evaluating ${fullSignalCandidates.length} FULL_SIGNAL candidates for promotion...`);
 console.log(`Evaluating ${partialSignalCandidates.length} PARTIAL_SIGNAL candidates for watchlist...`);

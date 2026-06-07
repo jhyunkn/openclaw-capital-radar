@@ -477,6 +477,7 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring', explain,
       why: snip(cv.why_core || '', 140),
       price: e.currentPrice ?? e.currentEst, pct52wh: e.pctFrom52wHigh, rsi: e.rsi14, rev: null,
+      entryLow: e.low ?? null, entryHigh: e.high ?? null,
       window_score: cv.window_score });
   }
 
@@ -527,8 +528,13 @@ function renderBriefCard(item, rank) {
     : null;
 
   const priceDisplay = fmtP(item.price);
+  const fmtShort = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const entryTx = (item.entryLow && item.entryHigh)
+    ? `Entry ${fmtShort(item.entryLow)}–${fmtShort(item.entryHigh)}`
+    : null;
   const chips = [
     pctTx ? `<span class="ub-chip ${deepPct ? 'ub-deep' : ''}">${esc(pctTx)}</span>` : '',
+    entryTx ? `<span class="ub-chip ub-entry">${esc(entryTx)}</span>` : '',
     rsiTx ? `<span class="ub-chip">${esc(rsiTx)}</span>` : '',
     revTx ? `<span class="ub-chip ub-rev">${esc(revTx)}</span>` : '',
   ].filter(Boolean).join('');
@@ -714,6 +720,7 @@ function renderOpportunitiesStyle() {
 .ub-chip{font-size:11px;color:rgba(36,35,31,.62);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
+.ub-entry{color:var(--warn)!important;border-color:rgba(138,106,44,.28)!important;background:rgba(138,106,44,.05)!important}
 /* Legend — explains the 4 card tiers */
 .ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid var(--rule);border-radius:12px;background:rgba(251,250,246,.18)}
 .ub-legend-row{display:flex;align-items:baseline;gap:10px}

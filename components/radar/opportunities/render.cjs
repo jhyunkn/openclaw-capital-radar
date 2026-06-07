@@ -526,8 +526,8 @@ function renderBriefCard(item, rank) {
     ? (item.rev.startsWith('+') ? item.rev : item.rev.charAt(0).toUpperCase() + item.rev.slice(1).toLowerCase())
     : null;
 
+  const priceDisplay = fmtP(item.price);
   const chips = [
-    fmtP(item.price) ? `<span class="ub-chip">${esc(fmtP(item.price))}</span>` : '',
     pctTx ? `<span class="ub-chip ${deepPct ? 'ub-deep' : ''}">${esc(pctTx)}</span>` : '',
     rsiTx ? `<span class="ub-chip">${esc(rsiTx)}</span>` : '',
     revTx ? `<span class="ub-chip ub-rev">${esc(revTx)}</span>` : '',
@@ -538,6 +538,7 @@ function renderBriefCard(item, rank) {
       <div class="ub-rank">${rank}</div>
       <div class="ub-identity">
         <b class="ub-ticker">${esc(item.ticker)}</b>
+        ${priceDisplay ? `<span class="ub-price">${esc(priceDisplay)}</span>` : ''}
         <span class="ub-name">${esc(item.name)}</span>
         <span class="ub-tag ${tagCls}">${esc(item.tag)}</span>
       </div>
@@ -691,6 +692,7 @@ function renderOpportunitiesStyle() {
 .ub-rank{font-size:11px;font-weight:700;color:var(--soft);width:18px;flex-shrink:0;letter-spacing:-.01em}
 .ub-identity{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
 .ub-ticker{font-size:20px;font-weight:700;letter-spacing:-.04em;line-height:1;flex-shrink:0}
+.ub-price{font-size:15px;font-weight:600;letter-spacing:-.02em;color:rgba(36,35,31,.88);flex-shrink:0}
 .ub-name{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
 /* Tags — pill shape */
 .ub-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.05em;white-space:nowrap;flex-shrink:0;text-transform:uppercase;border:1px solid var(--rule);color:var(--muted)}

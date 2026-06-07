@@ -1429,7 +1429,7 @@ p {
   line-height: 1.45
 }
 
-/* ── Design system shared tokens — matches macro section layout ── */
+/* ── Design system — shared layout tokens ── */
 .cr-wrap {
   width: min(1280px, calc(100% - 48px));
   margin: 0 auto
@@ -1442,4 +1442,100 @@ p {
 
 @media(max-width:560px) {
   .cr-wrap { width: calc(100% - 28px) }
+}
+
+/* ── GEOMETRY UNIFICATION — all sections match macro section ── */
+/* Perpendicular boxes: every container, card, panel gets border-radius:0 */
+.status,
+.card, .metric, .board-card, .strategy-card,
+.decision-side article, .risk-tile, .module,
+.story-main, .story-center, .story-rails article,
+.analysis-chart,
+.reaction-chips span, .indicator-strip span,
+.mu-holding-card, .holding-card, .zone-card,
+.working-verdict article, .level-grid article,
+.scenario-cards article, .confirmation-row article,
+.decision-chart-top-strip article, .decision-chart-rail article,
+.decision-chart-confirmation-strip article,
+.lwc-chart, .op-level-rail,
+.macro-executive-read > div, .macro-executive-read aside,
+.macro-compression, .macro-compression aside,
+.macro-compression-grid article,
+.macro-signal-tile, .macro-engine-card,
+.macro-evidence-board article, .macro-invalidation-strip article,
+.macro-source-ledger,
+.brief-badge,
+.permission-matrix table,
+.macro-value-grid article,
+.money-cash-chart-shell, .money-cash-sidecar article,
+.money-cash-annotation-table, .money-cash-current-strip article, .money-cash-note, .money-cash-empty,
+.duration-chart-shell, .duration-sidecar article,
+.duration-curve-card, .duration-annotation-card, .duration-current-strip article,
+.duration-evidence-banner, .duration-empty,
+.credit-chart-shell, .credit-sidecar article,
+.credit-bank-card, .credit-current-strip article, .credit-empty,
+.mu-chart-legend, .mu-levels-strip,
+.mu-posture-row, .mu-permission-row,
+.mu-substance-strip, .mu-substance-bar,
+.crank-top-card, .crank-table-wrap, .crank-news-alert,
+.signal, .button,
+.oc-search input, .oc-search-results button,
+.lens-strip span,
+.mu-level-card, .decision-chart-cell,
+.market-tape article { border-radius: 0 !important }
+
+/* Progress bars — square ends */
+.bar-track, .bar-fill,
+.intensity, .intensity i,
+.gauge, .gauge i,
+.zone-track,
+.weight-wrap i { border-radius: 0 !important }
+
+/* Warm rule color across all section borders — matches macro rgba(201,191,173,.45) */
+.mu-holding-card, .zone-card,
+.working-verdict article, .level-grid article,
+.scenario-cards article, .confirmation-row article,
+.decision-chart-top-strip article, .decision-chart-rail article,
+.decision-chart-confirmation-strip article,
+.macro-executive-read aside, .macro-compression-grid article,
+.macro-value-grid article,
+.money-cash-sidecar article, .money-cash-current-strip article,
+.duration-sidecar article, .duration-current-strip article,
+.credit-sidecar article, .credit-current-strip article,
+.crank-top-card,
+.status, .card, .metric, .market-tape article,
+.decision-side article, .risk-tile { border-color: rgba(201,191,173,.45) !important }
+
+/* Section eyebrow typography — matches macro MACRO INTELLIGENCE label style */
+.eyebrow, .section-head > div > .eyebrow,
+.command-kicker, .mu-section-desc {
+  font-size: 9px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .14em !important;
+  font-family: var(--mono, ui-monospace, monospace) !important;
+  color: rgba(26,23,20,.42) !important;
+  font-weight: 500 !important
+}
+
+/* Full-width panel sections — inner content constrained by child wrappers */
+section.panel {
+  padding-left: 0 !important;
+  padding-right: 0 !important
+}
+
+.mu-holdings-section > .section-head,
+.mu-holdings-section > .mu-section-desc,
+.mu-holdings-section > .mu-permission-explainer,
+.mu-holdings-section > .mu-holdings-stack,
+.operational-chart > .section-head,
+.operational-chart > .working-verdict,
+.operational-chart > .decision-chart-v2-shell,
+.operational-chart > .level-grid,
+.operational-chart > .scenario-cards,
+.operational-chart > .confirmation-row {
+  max-width: 1280px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: clamp(18px,2.4vw,24px);
+  padding-right: clamp(18px,2.4vw,24px)
 }

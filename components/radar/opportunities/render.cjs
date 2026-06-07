@@ -662,19 +662,21 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
   const unified = buildUnifiedList(conviction, dynamicUniverse);
   const cards   = unified.map((item, i) => renderBriefCard(item, i + 1)).join('');
 
-  return `<section id="opportunities-section" class="panel">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">Opportunity</p>
-        <h2>Radar</h2>
-        <p class="op-stance">System-ranked by signal strength, trough depth, and conviction. Research only — no buy authorization.</p>
+  return `<section id="opportunities-section" class="cr-section">
+    <div class="cr-wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Opportunity radar · system-ranked · research only</p>
+          <h2>Radar</h2>
+          <p class="op-stance">Ranked by signal strength, trough depth, and conviction. No buy authorization until macro Phase D.</p>
+        </div>
+        <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
       </div>
-      <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
+      <div class="trust-strip">${trustStrip}</div>
+      <div class="ub-legend">${legend}</div>
+      <div class="ub-list">${cards}</div>
+      <p class="ub-footer">${esc(opportunities.length)} in research pipeline · <a href="outputs/conviction-ranking.json">Full conviction ranking →</a></p>
     </div>
-    <div class="trust-strip">${trustStrip}</div>
-    <div class="ub-legend">${legend}</div>
-    <div class="ub-list">${cards}</div>
-    <p class="ub-footer">${esc(opportunities.length)} in research pipeline · <a href="outputs/conviction-ranking.json">Full conviction ranking →</a></p>
   </section>`;
 }
 
@@ -683,12 +685,12 @@ function renderOpportunitiesStyle() {
 .op-stance{color:var(--muted);font-size:13px;margin:6px 0 0}
 /* Trust strip — 4 stat chips above the card list */
 .trust-strip{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 14px}
-.trust-strip article{border:1px solid var(--rule);border-radius:999px;padding:5px 14px;background:rgba(251,250,246,.28);display:flex;align-items:center;gap:8px}
+.trust-strip article{border:1px solid rgba(201,191,173,.45);border-radius:2px;padding:6px 14px;background:rgba(251,250,246,.28);display:flex;align-items:center;gap:8px}
 .trust-strip span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 .trust-strip b{font-size:13px;font-weight:600;letter-spacing:-.01em;color:rgba(36,35,31,.88)}
 /* Ranked card list */
 .ub-list{display:flex;flex-direction:column;gap:8px;margin-top:0}
-.ub-card{border:1px solid var(--rule);border-left:3px solid transparent;border-radius:16px;padding:14px 16px;background:rgba(251,250,246,.14);min-width:0}
+.ub-card{border:1px solid rgba(201,191,173,.45);border-left:3px solid transparent;border-radius:2px;padding:14px 16px;background:rgba(251,250,246,.14);min-width:0}
 /* Signal colors — aligned to app palette: --green #2f6f4e, --blue #405f9f, --warn #8a6a2c */
 .ub-signal{border-left-color:rgba(47,111,78,.65);background:rgba(47,111,78,.04)}
 .ub-event{border-left-color:rgba(64,95,159,.65);background:rgba(64,95,159,.04)}
@@ -707,7 +709,7 @@ function renderOpportunitiesStyle() {
 .ub-tag-active{background:rgba(138,106,44,.08);border-color:rgba(138,106,44,.32);color:var(--warn)}
 .ub-tag-research{background:rgba(251,250,246,.12);border-color:var(--rule);color:var(--muted)}
 /* Action badge — tells user what to do */
-.ub-action{font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0;padding:4px 10px;border-radius:999px;border:1px solid}
+.ub-action{font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;padding:3px 8px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono,monospace)}
 .ub-action-signal{color:var(--green);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.07)}
 .ub-action-event{color:var(--blue);border-color:rgba(64,95,159,.3);background:rgba(64,95,159,.06)}
 .ub-action-active{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.07)}
@@ -722,7 +724,7 @@ function renderOpportunitiesStyle() {
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 .ub-entry{color:var(--warn)!important;border-color:rgba(138,106,44,.28)!important;background:rgba(138,106,44,.05)!important}
 /* Legend — explains the 4 card tiers */
-.ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid var(--rule);border-radius:12px;background:rgba(251,250,246,.18)}
+.ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(201,191,173,.45);border-radius:2px;background:rgba(251,250,246,.18)}
 .ub-legend-row{display:flex;align-items:baseline;gap:10px}
 .ub-legend-row .ub-tag{flex-shrink:0;pointer-events:none}
 .ub-legend-text{font-size:12px;color:rgba(36,35,31,.72);line-height:1.4}

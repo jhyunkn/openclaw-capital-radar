@@ -402,20 +402,11 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   <!-- Year ticks -->
   ${yearTicks}
 
-  <!-- Legend -->
-  <line x1="${pL}" y1="${(pT+H_PRICE+18)}" x2="${pL+18}" y2="${(pT+H_PRICE+18)}" stroke="rgba(138,106,44,.65)" stroke-width="1" stroke-dasharray="2 2"/>
-  <text x="${pL+21}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(138,106,44,.8)" font-family="inherit">MA50</text>
-  <line x1="${pL+50}" y1="${(pT+H_PRICE+18)}" x2="${pL+68}" y2="${(pT+H_PRICE+18)}" stroke="rgba(164,80,47,.65)" stroke-width="1" stroke-dasharray="5 2"/>
-  <text x="${pL+71}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(164,80,47,.8)" font-family="inherit">MA200</text>
-  <rect x="${pL+108}" y="${(pT+H_PRICE+11)}" width="12" height="8" fill="rgba(42,107,74,.25)"/>
-  <text x="${pL+123}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(42,107,74,.85)" font-family="inherit">Add zone</text>
-  <rect x="${pL+172}" y="${(pT+H_PRICE+11)}" width="12" height="8" fill="rgba(164,80,47,.2)"/>
-  <text x="${pL+187}" y="${(pT+H_PRICE+22)}" font-size="8.5" fill="rgba(164,80,47,.8)" font-family="inherit">Trim zone</text>
-
   <!-- Rate panel separator -->
   <line x1="${pL}" y1="${(rY0-7)}" x2="${(pL+cW)}" y2="${(rY0-7)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
-  <text x="${pL}" y="${(rY0-11)}" font-size="8" fill="rgba(26,23,20,.35)" letter-spacing=".12em" font-family="inherit">FED FUNDS RATE (DFF)</text>
-  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0-11)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
+  <!-- FED FUNDS RATE label moved inside rate panel to avoid year-label collision -->
+  <text x="${pL}" y="${(rY0+12)}" font-size="8" fill="rgba(26,23,20,.28)" letter-spacing=".12em" font-family="inherit">FED FUNDS RATE (DFF)</text>
+  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0+12)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
 
   <!-- Rate panel -->
   ${rateGrid}
@@ -423,7 +414,13 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad)"/>` : ''}
   ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
   ${dffNow != null && dffNowX != null ? `<circle cx="${dffNowX.toFixed(1)}" cy="${pyR(dffNow).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
-</svg>`;
+</svg>
+<div class="mu-chart-legend">
+  <span class="mu-cl-ma50"><svg width="18" height="8" viewBox="0 0 18 8" style="vertical-align:middle;margin-right:4px"><line x1="0" y1="4" x2="18" y2="4" stroke="rgba(138,106,44,.65)" stroke-width="1.2" stroke-dasharray="2 2"/></svg>MA50</span>
+  <span class="mu-cl-ma200"><svg width="18" height="8" viewBox="0 0 18 8" style="vertical-align:middle;margin-right:4px"><line x1="0" y1="4" x2="18" y2="4" stroke="rgba(164,80,47,.65)" stroke-width="1.2" stroke-dasharray="5 2"/></svg>MA200</span>
+  <span class="mu-cl-add"><svg width="12" height="8" viewBox="0 0 12 8" style="vertical-align:middle;margin-right:4px"><rect x="0" y="0" width="12" height="8" fill="rgba(42,107,74,.28)"/></svg>Add zone</span>
+  <span class="mu-cl-trim"><svg width="12" height="8" viewBox="0 0 12 8" style="vertical-align:middle;margin-right:4px"><rect x="0" y="0" width="12" height="8" fill="rgba(164,80,47,.22)"/></svg>Trim zone</span>
+</div>`;
 }
 
 function buildIndicesPulse() {
@@ -1519,6 +1516,8 @@ const style = `<style id="macro-unified-style">
 .mu-chart-block{padding-right:20px;border-right:1px solid rgba(201,191,173,.38)}
 .mu-vix-block{padding-left:20px}
 .mu-chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.mu-chart-legend{display:flex;gap:16px;margin-top:8px;padding-top:6px;border-top:1px solid rgba(201,191,173,.28)}
+.mu-chart-legend span{font-size:10px;color:rgba(26,23,20,.5);display:flex;align-items:center;font-family:var(--mono,monospace)}
 .mu-chart-head h3{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:rgba(26,23,20,.45);font-weight:500;margin:0;font-family:var(--mono,monospace)}
 .mu-chart-head span{font-size:11px;color:rgba(26,23,20,.5)}
 .mu-chart-legend{display:flex;gap:14px;margin-top:6px;font-size:9px;color:rgba(26,23,20,.45)}
@@ -1597,7 +1596,7 @@ b.mu-db-metric-val{display:block;font-size:20px;font-weight:500;letter-spacing:-
 .mu-tension-head.mu-bad{color:#A4502F}
 .mu-tension-head{color:rgba(26,23,20,.45)}
 .mu-tension-head small{display:block;font-size:9px;font-weight:400;margin-top:2px;color:rgba(26,23,20,.38);text-transform:none;letter-spacing:0}
-.mu-tension-row{display:grid;grid-template-columns:90px 48px 1fr;gap:6px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
+.mu-tension-row{display:grid;grid-template-columns:90px minmax(72px,auto) 1fr;gap:6px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
 .mu-tension-row:last-child{border-bottom:none}
 .mu-tension-name{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
 .mu-tension-val{font-size:12px;font-weight:600;font-family:var(--mono,monospace);color:rgba(26,23,20,.8)}

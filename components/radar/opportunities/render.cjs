@@ -406,43 +406,41 @@ function buildUnifiedList(conviction, dynamicUniverse) {
   for (const e of arr(dynamicUniverse?.conviction_promotions)) {
     seen.add(e.ticker);
     const boost = attentionBoost(e.pct_from_52w_high, e.open_market_signal, 0, false);
-    let tag, reason;
+    const pctDown = e.pct_from_52w_high != null ? `${Math.abs(e.pct_from_52w_high)}%` : null;
+    const revGrowth = e.revenue_interp
+      ? e.revenue_interp.replace('Revenue growing ', '').replace(/ — recovery confirmed$/i, '').trim()
+      : null;
+    const revLabel = revGrowth ? `+${revGrowth}` : (e.revenue_inflection || null);
+
+    let tag, explain;
     if (e.open_market_signal === 'STRONG') {
-      const mm = e.open_market_value_mm ? `$${Number(e.open_market_value_mm).toFixed(2)}M` : '';
+      const mm = e.open_market_value_mm ? `$${Number(e.open_market_value_mm).toFixed(1)}M` : 'significant';
       tag = 'Insider buy';
-      reason = mm ? `${mm} open-market buy at the trough` : 'Open-market insider purchase';
+      explain = `${pctDown ? `Down ${pctDown} from its 52-week high` : 'At a cyclical trough'}${revGrowth ? `, yet revenue is still growing ${revGrowth}` : ''}. That gap — stock falling while the business grows — is the setup. An insider put ${mm} of personal money in at this price. Executives don't do that when they expect it to go lower.`;
     } else {
-      // Prefer market event > insider > revenue (skip boilerplate scanner/price lines)
-      const ev = arr(e.evidence).find(s => /market event/i.test(s))
-              || arr(e.evidence).find(s => /revenue/i.test(s))
-              || arr(e.evidence)[2] || '';
-      const evClean = ev
-        .replace(/^[^:]+:\s*/, '')        // strip "Revenue RECOVERY: " prefix
-        .replace(/ — recovery confirmed/i, '')  // strip boilerplate suffix
-        .replace(/ \(.*?\)$/, '')          // strip parenthetical notes
-        .trim()
-        .slice(0, 85);
+      const eventEv = arr(e.evidence).find(s => /market event/i.test(s)) || '';
+      const eventNote = eventEv
+        ? ' ' + eventEv.replace(/^[^:]+:\s*/, '').replace(/ \(.*?\)$/, '').replace(/ — HIGH signal$/i, ' is also in play.').slice(0, 90)
+        : '';
       tag = 'Promoted';
-      reason = evClean || 'Scanner + multi-source confirmed';
+      explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${revGrowth ? ` with ${revGrowth} revenue growth` : ''}.${eventNote} The system confirmed: competitive position is intact, price is at a trough, and demand is beginning to recover.`;
     }
-    const revLabel = e.revenue_interp
-      ? e.revenue_interp.replace('Revenue growing ', '+').replace(/ — recovery confirmed$/i, '')
-      : (e.revenue_inflection || null);
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
-      source: 'dynamic_conviction', tag, reason, why: dynOneLiner(e),
+      source: 'dynamic_conviction', tag, explain, why: dynOneLiner(e),
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: revLabel });
   }
 
   for (const e of arr(dynamicUniverse?.watchlist_promotions)) {
     seen.add(e.ticker);
     const boost = attentionBoost(e.pct_from_52w_high, e.open_market_signal, 0, true);
-    const pctStr = e.pct_from_52w_high != null ? `${e.pct_from_52w_high}% from peak` : 'at trough';
-    const revLabel2 = e.revenue_interp
-      ? e.revenue_interp.replace('Revenue growing ', '+').replace(/ — recovery confirmed$/i, '')
-      : (e.revenue_inflection || null);
+    const pctDown = e.pct_from_52w_high != null ? `${Math.abs(e.pct_from_52w_high)}%` : null;
+    const revGrowth = e.revenue_interp
+      ? e.revenue_interp.replace('Revenue growing ', '').replace(/ — recovery confirmed$/i, '').trim()
+      : null;
+    const revLabel2 = revGrowth ? `+${revGrowth}` : (e.revenue_inflection || null);
+    const explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${revGrowth ? ` with ${revGrowth} revenue growth` : ''}. The scanner confirmed all three criteria: durable competitive moat, price at a cyclical trough, and demand starting to inflect. No insider confirmation yet — keep on close watch before acting.`;
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
-      source: 'dynamic_watchlist', tag: 'Full scan',
-      reason: `Moat, trough, and demand all confirmed · ${pctStr}`,
+      source: 'dynamic_watchlist', tag: 'Full scan', explain,
       why: dynOneLiner(e), price: e.live_price, pct52wh: e.pct_from_52w_high,
       rsi: e.rsi14, rev: revLabel2 });
   }
@@ -456,10 +454,11 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     seen.add(e.ticker);
     const troughBoost = (e.pct_from_52w_high != null && e.pct_from_52w_high <= -50) ? 8
                       : (e.pct_from_52w_high != null && e.pct_from_52w_high <= -30) ? 4 : 0;
+    const pctDown = e.pct_from_52w_high != null ? `${Math.abs(e.pct_from_52w_high)}%` : null;
+    const explain = `${e.event_name || 'A major market event'} creates a direct tailwind here. ${pctDown ? `Currently ${pctDown} below its 52-week high. ` : ''}No scanner entry signal yet — this is early positioning before the market prices in the catalyst. If it materializes, you want to already be watching.`;
     tier2.push({ ticker: e.ticker, name: e.name || '', attention: e.score + troughBoost,
-      source: 'event_driven', tag: 'Catalyst',
-      reason: snip(e.event_name || '', 60),
-      why: snip(e.moat_summary || '', 160),
+      source: 'event_driven', tag: 'Catalyst', explain,
+      why: snip(e.moat_summary || '', 140),
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: null });
   }
 
@@ -468,10 +467,15 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const e = cv.entry || {};
     const boost = attentionBoost(e.pctFrom52wHigh, null, cv.window_score, false);
     const isActive = cv.window_score === 3;
+    const pctDown = e.pctFrom52wHigh != null ? `${Math.abs(e.pctFrom52wHigh)}%` : null;
+    const timingNote = isActive ? (cv.timing_note || cv.timing_status || '') : '';
+    const nextCat = !isActive ? (cv.next_catalyst || '') : '';
+    const explain = isActive
+      ? `One of the top-ranked businesses in this universe, and the system sees price in an active entry zone right now. ${snip(timingNote, 120)} Worth researching a position within a name you'd want to hold long-term.`
+      : `Top-conviction name with no active buy signal — only ${pctDown || 'a small amount'} below its 52-week high, not at a trough. ${nextCat ? `Watch for: ${snip(nextCat, 100)}.` : 'Track for the next meaningful pullback.'} If it corrects 15–20%, it becomes a high-priority research target.`;
     tier3.push({ ticker: cv.ticker, name: cv.name || '', attention: cv.conviction_score + boost,
-      source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring',
-      reason: snip((isActive ? (cv.timing_note || cv.timing_status || '') : (cv.next_catalyst || cv.timing_status || '')), 90),
-      why: snip(cv.why_core || '', 160),
+      source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring', explain,
+      why: snip(cv.why_core || '', 140),
       price: e.currentPrice ?? e.currentEst, pct52wh: e.pctFrom52wHigh, rsi: e.rsi14, rev: null,
       window_score: cv.window_score });
   }
@@ -539,8 +543,8 @@ function renderBriefCard(item, rank) {
       </div>
       <span class="ub-action ${actionCls}">${esc(action)}</span>
     </div>
-    ${item.why ? `<p class="ub-desc">${esc(item.why)}</p>` : ''}
-    ${item.reason ? `<p class="ub-signal-line"><span class="ub-signal-label">${signalLabel}:</span> ${esc(item.reason)}</p>` : ''}
+    ${item.why   ? `<p class="ub-desc">${esc(item.why)}</p>` : ''}
+    ${item.explain ? `<p class="ub-explain">${esc(item.explain)}</p>` : ''}
     ${chips ? `<div class="ub-chips">${chips}</div>` : ''}
   </article>`;
 }
@@ -701,9 +705,8 @@ function renderOpportunitiesStyle() {
 .ub-action-active{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.07)}
 .ub-action-research{color:var(--muted);border-color:var(--rule);background:transparent}
 /* Card body text */
-.ub-desc{font-size:12.5px;color:rgba(36,35,31,.80);margin:0 0 5px;line-height:1.45;padding-left:28px}
-.ub-signal-line{font-size:12px;color:rgba(36,35,31,.65);margin:0 0 8px;line-height:1.4;padding-left:28px}
-.ub-signal-label{font-weight:600;color:rgba(36,35,31,.55);font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-right:4px}
+.ub-desc{font-size:12px;font-weight:600;color:rgba(36,35,31,.72);margin:0 0 5px;line-height:1.4;padding-left:28px}
+.ub-explain{font-size:12.5px;color:rgba(36,35,31,.82);margin:0 0 8px;line-height:1.5;padding-left:28px}
 /* Metric chips */
 .ub-chips{display:flex;flex-wrap:wrap;gap:5px;padding-left:28px}
 .ub-chip{font-size:11px;color:rgba(36,35,31,.62);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}

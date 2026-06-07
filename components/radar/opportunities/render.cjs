@@ -607,20 +607,27 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
 function renderOpportunitiesStyle() {
   return `<style>
 .op-stance{color:var(--muted);font-size:13px;margin:6px 0 0}
+/* Trust strip — 4 stat chips above the card list */
+.trust-strip{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 14px}
+.trust-strip article{border:1px solid var(--rule);border-radius:999px;padding:5px 14px;background:rgba(251,250,246,.28);display:flex;align-items:center;gap:8px}
+.trust-strip span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.trust-strip b{font-size:13px;font-weight:600;letter-spacing:-.01em;color:rgba(36,35,31,.88)}
 /* Unified brief card list */
-.ub-list{display:flex;flex-direction:column;gap:7px;margin-top:14px}
-.ub-card{border:1px solid var(--rule);border-left-width:3px;border-left-color:transparent;border-radius:14px;padding:12px 15px;background:rgba(251,250,246,.10);min-width:0}
-.ub-signal{border-left-color:rgba(16,185,129,.7);background:rgba(16,185,129,.025)}
-.ub-event{border-left-color:rgba(99,102,241,.7);background:rgba(99,102,241,.025)}
-.ub-active{border-left-color:rgba(174,124,44,.7);background:rgba(174,124,44,.025)}
+.ub-list{display:flex;flex-direction:column;gap:7px;margin-top:0}
+.ub-card{border:1px solid var(--rule);border-left-width:3px;border-left-color:transparent;border-radius:16px;padding:12px 15px;background:rgba(251,250,246,.14);min-width:0}
+/* Signal colors — aligned to app palette: --green #2f6f4e, --blue #405f9f, --warn #8a6a2c */
+.ub-signal{border-left-color:rgba(47,111,78,.65);background:rgba(47,111,78,.04)}
+.ub-event{border-left-color:rgba(64,95,159,.65);background:rgba(64,95,159,.04)}
+.ub-active{border-left-color:rgba(138,106,44,.65);background:rgba(138,106,44,.04)}
 .ub-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
 .ub-id{display:flex;align-items:baseline;gap:8px;min-width:0;overflow:hidden}
 .ub-ticker{font-size:22px;font-weight:700;letter-spacing:-.04em;line-height:1;flex-shrink:0}
 .ub-name{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ub-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;text-transform:uppercase;border:1px solid var(--rule);color:var(--muted)}
-.ub-tag-signal{background:rgba(16,185,129,.10);border-color:rgba(16,185,129,.4);color:rgb(5,150,105)}
-.ub-tag-event{background:rgba(99,102,241,.10);border-color:rgba(99,102,241,.4);color:rgb(79,70,229)}
-.ub-tag-active{background:rgba(174,124,44,.08);border-color:rgba(174,124,44,.38);color:var(--warn)}
+/* Tags — pill shape to match every other badge in the app (mu-signal-badge, brief-badge) */
+.ub-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;text-transform:uppercase;border:1px solid var(--rule);color:var(--muted)}
+.ub-tag-signal{background:rgba(47,111,78,.08);border-color:rgba(47,111,78,.32);color:var(--green)}
+.ub-tag-event{background:rgba(64,95,159,.08);border-color:rgba(64,95,159,.32);color:var(--blue)}
+.ub-tag-active{background:rgba(138,106,44,.08);border-color:rgba(138,106,44,.32);color:var(--warn)}
 .ub-tag-research{background:rgba(251,250,246,.12);border-color:var(--rule);color:var(--muted)}
 .ub-reason{font-size:12px;font-weight:600;color:rgba(36,35,31,.85);margin:0 0 3px;line-height:1.35;overflow-wrap:anywhere}
 .ub-why{font-size:12px;color:rgba(36,35,31,.65);margin:0 0 7px;line-height:1.42;overflow-wrap:anywhere}
@@ -629,7 +636,7 @@ function renderOpportunitiesStyle() {
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 .ub-footer{font-size:12px;color:var(--muted);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule)}
-.ub-footer a{color:rgba(64,95,159,.8);text-decoration:none}
+.ub-footer a{color:var(--blue);text-decoration:none}
 .ub-footer a:hover{text-decoration:underline}
 </style>`;
 }

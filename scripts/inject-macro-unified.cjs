@@ -796,8 +796,8 @@ function mktSignal(key, value, chart) {
     display = n ? Math.round(n) + '/100' : '—';
     trend   = n >= 75 ? '↑' : '→';
   } else if (key === 'rsi14') {
-    color   = n > 75 ? 'red' : n > 65 ? 'amber' : n >= 35 ? 'green' : 'red';
-    label   = n > 75 ? 'Overbought' : n > 65 ? 'Extended' : n >= 35 ? 'Healthy' : 'Oversold';
+    color   = n > 70 ? 'red' : n >= 55 ? 'green' : n >= 40 ? 'amber' : 'red';
+    label   = n > 70 ? 'Overbought' : n >= 55 ? 'Healthy' : n >= 40 ? 'Neutral' : 'Weakened';
     display = n ? n.toFixed(1) : '—';
     trend   = n > 65 ? '↑' : '→';
   } else {
@@ -1567,11 +1567,7 @@ const defStr      = chart.defense_below ? chart.defense_below.toLocaleString('en
 // ── Assemble section ──────────────────────────────────────────────────────────
 
 const section = `<section id="macro-unified-section" class="macro-unified">
-${style}
 <div class="mu-wrap">
-
-  <!-- Daily briefing -->
-  ${dailyBriefingHtml}
 
   <!-- Regime header -->
   <div class="mu-regime">
@@ -1607,6 +1603,9 @@ ${style}
       <b>${topAnalogLesson}</b>
     </div>` : ''}
   </div>
+
+  <!-- Daily briefing: today's session read -->
+  ${dailyBriefingHtml}
 
   <!-- Phase C tension + transition gates -->
   ${tensionGatesHtml}

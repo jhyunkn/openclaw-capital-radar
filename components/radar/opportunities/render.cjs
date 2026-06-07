@@ -383,10 +383,21 @@ function attentionBoost(pct52wh, openMktSignal, windowScore, isFullSignal) {
   return b;
 }
 
+function snip(str, max) {
+  if (!str || str.length <= max) return str || '';
+  const cut = str.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut) + '…';
+}
+
 function dynOneLiner(e) {
-  const moat = (e.moat_summary || '').slice(0, 100);
-  const rev  = (e.revenue_interp || '').replace('Revenue growing ', '+').replace(' — recovery confirmed', ' YoY').slice(0, 55);
-  return [moat, rev].filter(Boolean).join(' · ').slice(0, 165);
+  const moat = snip(e.moat_summary || '', 120);
+  // "Revenue growing 23.4% YoY — recovery confirmed" → "+23.4% YoY"  (fix double-YoY bug)
+  const rev  = (e.revenue_interp || '')
+    .replace('Revenue growing ', '+')
+    .replace(/ — recovery confirmed$/, '')
+    .slice(0, 40);
+  return [moat, rev].filter(Boolean).join(' · ');
 }
 
 function buildUnifiedList(conviction, dynamicUniverse) {
@@ -400,10 +411,24 @@ function buildUnifiedList(conviction, dynamicUniverse) {
   for (const e of arr(dynamicUniverse?.conviction_promotions)) {
     seen.add(e.ticker);
     const boost = attentionBoost(e.pct_from_52w_high, e.open_market_signal, 0, false);
-    let tag = 'Signal confirmed', reason = 'Multi-signal promoted';
+    let tag, reason;
     if (e.open_market_signal === 'STRONG') {
-      const mm = e.open_market_value_mm ? `$${Number(e.open_market_value_mm).toFixed(2)}M insider buy` : 'Insider buy';
-      tag = 'Insider buy'; reason = mm;
+      const mm = e.open_market_value_mm ? `$${Number(e.open_market_value_mm).toFixed(2)}M` : '';
+      tag = 'Insider buy';
+      reason = mm ? `${mm} open-market buy at the trough` : 'Open-market insider purchase';
+    } else {
+      // Prefer market event > insider > revenue (skip boilerplate scanner/price lines)
+      const ev = arr(e.evidence).find(s => /market event/i.test(s))
+              || arr(e.evidence).find(s => /revenue/i.test(s))
+              || arr(e.evidence)[2] || '';
+      const evClean = ev
+        .replace(/^[^:]+:\s*/, '')        // strip "Revenue RECOVERY: " prefix
+        .replace(/ — recovery confirmed/i, '')  // strip boilerplate suffix
+        .replace(/ \(.*?\)$/, '')          // strip parenthetical notes
+        .trim()
+        .slice(0, 85);
+      tag = 'Promoted';
+      reason = evClean || 'Scanner + multi-source confirmed';
     }
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_conviction', tag, reason, why: dynOneLiner(e),
@@ -415,7 +440,8 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const boost = attentionBoost(e.pct_from_52w_high, e.open_market_signal, 0, true);
     const pctStr = e.pct_from_52w_high != null ? `${e.pct_from_52w_high}% from peak` : 'at trough';
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
-      source: 'dynamic_watchlist', tag: 'All 3 criteria', reason: `FULL SIGNAL · ${pctStr}`,
+      source: 'dynamic_watchlist', tag: 'Full scan',
+      reason: `Moat, trough, and demand all confirmed · ${pctStr}`,
       why: dynOneLiner(e), price: e.live_price, pct52wh: e.pct_from_52w_high,
       rsi: e.rsi14, rev: e.revenue_inflection });
   }
@@ -430,9 +456,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const troughBoost = (e.pct_from_52w_high != null && e.pct_from_52w_high <= -50) ? 8
                       : (e.pct_from_52w_high != null && e.pct_from_52w_high <= -30) ? 4 : 0;
     tier2.push({ ticker: e.ticker, name: e.name || '', attention: e.score + troughBoost,
-      source: 'event_driven', tag: 'Event signal',
-      reason: `${e.event_name} — ${e.event_signal_strength} signal`,
-      why: (e.moat_summary || '').slice(0, 165),
+      source: 'event_driven', tag: 'Catalyst',
+      reason: snip(e.event_name || '', 60),
+      why: snip(e.moat_summary || '', 160),
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: null });
   }
 
@@ -442,9 +468,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const boost = attentionBoost(e.pctFrom52wHigh, null, cv.window_score, false);
     const isActive = cv.window_score === 3;
     tier3.push({ ticker: cv.ticker, name: cv.name || '', attention: cv.conviction_score + boost,
-      source: 'conviction', tag: isActive ? 'Entry window' : `Tier ${cv.conviction_tier}`,
-      reason: (isActive ? (cv.timing_note || cv.timing_status || '') : (cv.next_catalyst || cv.timing_status || '')).slice(0, 90),
-      why: (cv.why_core || '').slice(0, 165),
+      source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring',
+      reason: snip((isActive ? (cv.timing_note || cv.timing_status || '') : (cv.next_catalyst || cv.timing_status || '')), 90),
+      why: snip(cv.why_core || '', 160),
       price: e.currentPrice ?? e.currentEst, pct52wh: e.pctFrom52wHigh, rsi: e.rsi14, rev: null,
       window_score: cv.window_score });
   }
@@ -577,13 +603,22 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
     : '—';
 
   const stripItems = [
-    ['Data signals', dynConv + dynWatch],
-    ['Event signals', dynEvent],
+    ['System picks', dynConv + dynWatch],
+    ['Catalysts', dynEvent],
     ['Entry windows', cvSummary.active_windows || 0],
     ['As of', asOf, true],
   ];
   const trustStrip = stripItems.map(([label, value, isText]) =>
     `<article><span>${esc(label)}</span><b>${isText ? esc(value) : fmt(value)}</b></article>`
+  ).join('');
+
+  const legend = [
+    ['ub-tag-signal',   'Green — Scanner promoted', 'Multiple data sources converged: moat, trough depth, insider buy, and/or revenue recovery. Highest-priority for research.'],
+    ['ub-tag-event',    'Blue — Catalyst',           'A major market event (IPO, permitting, defense program) directly benefits this name. Not yet scanner-confirmed — early watch.'],
+    ['ub-tag-active',   'Amber — Entry window',      'The system sees a tactical entry zone open right now based on price levels and timing signals.'],
+    ['ub-tag-research', 'Neutral — Monitoring',      'High-conviction core holding or top-ranked name. No active signal — track for next catalyst or pullback.'],
+  ].map(([cls, label, desc]) =>
+    `<div class="ub-legend-row"><span class="ub-tag ${cls}">${label.split(' — ')[0]}</span><span class="ub-legend-text"><b>${label.split(' — ')[1]}</b> — ${desc}</span></div>`
   ).join('');
 
   const unified = buildUnifiedList(conviction, dynamicUniverse);
@@ -593,12 +628,13 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
     <div class="section-head">
       <div>
         <p class="eyebrow">Opportunity</p>
-        <h2>What to watch</h2>
-        <p class="op-stance">Ranked by signal strength, trough depth, and conviction — system-determined. Research only, no buy authorization.</p>
+        <h2>Radar</h2>
+        <p class="op-stance">System-ranked by signal strength, trough depth, and conviction. Research only — no buy authorization.</p>
       </div>
       <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
     </div>
     <div class="trust-strip">${trustStrip}</div>
+    <div class="ub-legend">${legend}</div>
     <div class="ub-list">${cards}</div>
     <p class="ub-footer">${esc(opportunities.length)} in research pipeline · <a href="outputs/conviction-ranking.json">Full conviction ranking →</a></p>
   </section>`;
@@ -635,6 +671,12 @@ function renderOpportunitiesStyle() {
 .ub-metrics span{font-size:11px;color:rgba(36,35,31,.68);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
+/* Legend — explains the 4 card tiers */
+.ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid var(--rule);border-radius:12px;background:rgba(251,250,246,.18)}
+.ub-legend-row{display:flex;align-items:baseline;gap:10px}
+.ub-legend-row .ub-tag{flex-shrink:0;pointer-events:none}
+.ub-legend-text{font-size:12px;color:rgba(36,35,31,.72);line-height:1.4}
+.ub-legend-text b{font-weight:600;color:rgba(36,35,31,.88)}
 .ub-footer{font-size:12px;color:var(--muted);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule)}
 .ub-footer a{color:var(--blue);text-decoration:none}
 .ub-footer a:hover{text-decoration:underline}

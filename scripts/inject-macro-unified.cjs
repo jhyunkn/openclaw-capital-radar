@@ -1224,7 +1224,8 @@ const cycleHtml = `<div class="mu-arc-wrap">
 
   function draw(W,H){
     c.clearRect(0,0,W,H);
-    var pL=44,pR=26,pT=28,pB=44;
+    // pB=62 reserves room for the label strip below x-axis
+    var pL=44,pR=26,pT=32,pB=62;
     var cW=W-pL-pR, cH=H-pT-pB;
     var n=RATE_DATA.length;
     var curIdx=RATE_DATA.findIndex(function(d){return d.current;});
@@ -1271,51 +1272,61 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.strokeStyle="rgba(42,37,32,0.16)";c.lineWidth=1;c.stroke();
     c.setLineDash([]);c.restore();
 
-    // Neutral ~3% reference line
+    // Neutral ~3% reference line (projected side only)
     var neutralY=yOf(3.0);
     c.save();c.setLineDash([3,5]);c.beginPath();
     c.moveTo(xOf(curIdx),neutralY);c.lineTo(pL+cW,neutralY);
     c.strokeStyle="rgba(122,158,130,0.36)";c.lineWidth=0.75;c.stroke();
     c.setLineDash([]);
     c.font="8px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(122,158,130,0.58)";
+    c.fillStyle="rgba(122,158,130,0.55)";
     c.textAlign="right";c.textBaseline="middle";
-    c.fillText("neutral ~3%",pL+cW-2,neutralY-7);c.restore();
+    c.fillText("neutral ~3%",pL+cW-3,neutralY-7);c.restore();
 
-    // Divider at current + "projected" label
+    // Divider at current + "← projected" label
     c.save();
     c.beginPath();c.moveTo(xOf(curIdx),pT);c.lineTo(xOf(curIdx),pT+cH);
     c.strokeStyle="rgba(184,92,56,0.14)";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);
     c.font="7.5px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(42,37,32,0.18)";
+    c.fillStyle="rgba(42,37,32,0.16)";
     c.textAlign="left";c.textBaseline="top";
-    c.fillText("← projected",xOf(curIdx+1)+3,pT+4);
+    c.fillText("← projected",xOf(curIdx+1)+4,pT+4);
     c.restore();
 
-    // X axis line + date labels
+    // "Rate pressure" annotation — top-right corner, fixed position, away from rate line
+    var rpX=pL+cW-88, rpY=pT+8;
+    c.save();
+    rr(c,rpX,rpY,84,15,2);
+    c.fillStyle="rgba(251,250,246,0.85)";c.fill();
+    c.strokeStyle="rgba(184,92,56,0.22)";c.lineWidth=0.5;c.stroke();
+    c.font="7.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(184,92,56,0.58)";
+    c.textAlign="center";c.textBaseline="middle";
+    c.fillText("Rate pressure",rpX+42,rpY+7.5);c.restore();
+
+    // X axis line (no date labels — the phase strip below handles dates)
     c.beginPath();c.moveTo(pL,pT+cH);c.lineTo(pL+cW,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
-    [0,3,7,11,13,16,19].forEach(function(i){
-      if(i>=RATE_DATA.length)return;
-      var d=RATE_DATA[i];
-      c.font="8px IBM Plex Mono,monospace";
-      c.fillStyle=d.projected?"rgba(42,37,32,0.16)":"rgba(42,37,32,0.28)";
-      c.textAlign="center";c.textBaseline="top";
-      c.fillText(d.d,xOf(i),pT+cH+5);
-    });
 
-    // "Rate pressure" annotation box
-    var annX=xOf(curIdx)+8, annY=yOf(5.1);
+    // "YOU ARE HERE" callout — pinned to top of chart above current node
+    var curX=xOf(NODES.find(function(n){return n.current;}).di);
+    var curCol="#b85c38";
     c.save();
-    rr(c,annX,annY-8,88,16,2);
-    c.fillStyle="rgba(251,250,246,0.82)";c.fill();
-    c.strokeStyle="rgba(184,92,56,0.24)";c.lineWidth=0.5;c.stroke();
-    c.font="8px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.62)";
-    c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Rate pressure",annX+44,annY);c.restore();
+    var bw=82,bh=14;
+    rr(c,curX-bw/2,pT+2,bw,bh,2);
+    c.fillStyle="rgba(184,92,56,0.08)";c.fill();
+    c.strokeStyle="rgba(184,92,56,0.35)";c.lineWidth=0.5;c.stroke();
+    c.font="500 7.5px IBM Plex Mono,monospace";
+    c.fillStyle=curCol;c.textAlign="center";c.textBaseline="middle";
+    c.fillText("YOU ARE HERE",curX,pT+9);
+    // Live data one row below badge
+    c.font="7px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(138,106,44,0.60)";
+    c.textBaseline="top";
+    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,curX,pT+18);
+    c.restore();
 
-    // Phase nodes
+    // Phase nodes — circles only, no in-chart text labels
     NODES.forEach(function(nd){
       var ph=PHASES.find(function(p){return p.id===nd.id;});
       var rd=RATE_DATA[nd.di];
@@ -1323,8 +1334,6 @@ const cycleHtml = `<div class="mu-arc-wrap">
       var col=ph.color;
       var isCur=!!nd.current;
       var isPast=nd.di<=curIdx;
-      var rateNorm=(rd.r-RATE_MIN)/(RATE_MAX-RATE_MIN);
-      var above=rateNorm<0.55;
 
       // Animated glow on current node
       if(isCur){
@@ -1348,45 +1357,44 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.beginPath();c.arc(x,y,isCur?2:1.5,0,2*Math.PI);
       c.fillStyle=isPast?"rgba(244,239,230,0.85)":col;c.fill();
 
-      // Drop line for current node
+      // Drop line from current node to x-axis
       if(isCur){
         c.save();c.beginPath();c.moveTo(x,y+r);c.lineTo(x,pT+cH);
-        c.strokeStyle=col+"1a";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();
+        c.strokeStyle=col+"18";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();
         c.setLineDash([]);c.restore();
       }
+    });
 
-      var labelOff=13;
-      var labelY=above?y-r-labelOff:y+r+labelOff;
+    // ── LABEL STRIP — below x-axis, no overlap possible ──────────────────────
+    // All phase IDs + names sit in a dedicated row, 62px below x-axis top
+    var stripY0=pT+cH+8;   // row 1: phase ID code
+    var stripY1=pT+cH+20;  // row 2: phase name
+    NODES.forEach(function(nd,idx){
+      var ph=PHASES.find(function(p){return p.id===nd.id;});
+      var x=xOf(nd.di);
+      var isPast=nd.di<=curIdx;
+      var col=ph.color;
 
-      // "YOU ARE HERE" badge with live data
-      if(isCur){
-        var bw=80,bh=13,bx=x-bw/2;
-        var by=above?labelY-20:labelY+12;
-        c.save();
-        rr(c,bx,by,bw,bh,2);
-        c.fillStyle=col+"14";c.fill();
-        c.strokeStyle=col+"44";c.lineWidth=0.5;c.stroke();
-        c.font="500 7.5px IBM Plex Mono,monospace";
-        c.fillStyle=col;c.textAlign="center";c.textBaseline="middle";
-        c.fillText("YOU ARE HERE",x,by+bh/2);c.restore();
-        // Live data row below badge
+      // Tick mark from x-axis to strip
+      c.beginPath();c.moveTo(x,pT+cH);c.lineTo(x,pT+cH+5);
+      c.strokeStyle=isPast?col+"70":"rgba(42,37,32,0.12)";
+      c.lineWidth=1;c.stroke();
+
+      // Phase ID — always shown
+      c.font="500 8.5px IBM Plex Mono,monospace";
+      c.fillStyle=isPast?col:"rgba(42,37,32,0.22)";
+      c.textAlign="center";c.textBaseline="top";
+      c.fillText(nd.id,x,stripY0);
+
+      // Phase name — skip if next node is closer than 68px to prevent collision
+      var nextX=NODES[idx+1]?xOf(NODES[idx+1].di):x+9999;
+      var prevX=NODES[idx-1]?xOf(NODES[idx-1].di):x-9999;
+      var gap=Math.min(x-prevX, nextX-x);
+      if(gap>68){
         c.font="7.5px IBM Plex Mono,monospace";
-        c.fillStyle="rgba(138,106,44,0.65)";
-        c.textAlign="center";c.textBaseline="top";
-        var dataY=above?by+bh+3:by-12;
-        c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,x,dataY);
+        c.fillStyle=isPast?"rgba(42,37,32,0.32)":"rgba(42,37,32,0.14)";
+        c.fillText(ph.label,x,stripY1);
       }
-
-      // Phase ID
-      c.font="500 9px IBM Plex Mono,monospace";
-      c.fillStyle=isPast?col:"rgba(42,37,32,0.26)";
-      c.textAlign="center";c.textBaseline="alphabetic";
-      c.fillText(nd.id,x,above?labelY:labelY+11);
-
-      // Phase name
-      c.font="8.5px IBM Plex Mono,monospace";
-      c.fillStyle=isPast?"rgba(42,37,32,0.40)":"rgba(42,37,32,0.18)";
-      c.fillText(ph.label,x,above?labelY-11:labelY+22);
     });
   }
 
@@ -1795,7 +1803,7 @@ const style = `<style id="macro-unified-style">
 .mu-conf span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.38);margin-bottom:4px;font-family:var(--mono,monospace)}
 .mu-conf b{display:block;font-size:clamp(42px,4.2vw,60px);line-height:.88;letter-spacing:-.07em;font-weight:560;color:#A4502F;margin-top:12px}
 .mu-conf small{font-size:11px;color:rgba(26,23,20,.48);display:block;text-align:left;margin-top:7px;line-height:1.35}
-.mu-stress-badge{display:block;padding:8px 10px;border:1px solid rgba(164,80,47,.35);background:rgba(164,80,47,.07);font-size:10px;color:#A4502F;letter-spacing:.06em;text-align:center}
+.mu-stress-badge{display:inline-block;align-self:flex-start;padding:3px 9px;border:0.5px solid rgba(164,80,47,.35);background:rgba(164,80,47,.06);font-size:9px;color:#A4502F;letter-spacing:.10em;text-transform:uppercase;border-radius:2px}
 
 /* ── Cycle analysis ── */
 .mu-cycle-analysis{padding:24px 0 0;border-bottom:1px solid rgba(201,191,173,.45)}
@@ -1878,7 +1886,7 @@ const style = `<style id="macro-unified-style">
 .mu-arc-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 9px;border-bottom:0.5px solid rgba(201,191,173,.28);margin-bottom:10px}
 .mu-arc-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(44,42,37,.36);font-family:var(--mono,monospace)}
 .mu-arc-meta{font-size:9px;color:rgba(44,42,37,.32);font-family:var(--mono,monospace)}
-.mu-arc-canvas-box{position:relative;width:100%;height:280px}
+.mu-arc-canvas-box{position:relative;width:100%;height:300px}
 .mu-arc-canvas-box canvas{width:100%;height:100%;display:block}
 .mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 /* Regime column */

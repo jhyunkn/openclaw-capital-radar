@@ -514,6 +514,73 @@ details[open].mu-details summary:before{content:'↑'}
 .kh-info{margin-top:10px;padding:10px 14px;border-radius:14px;
   border:1px solid rgba(201,191,173,.45);background:rgba(251,250,246,.34);
   font-size:12.5px;color:rgba(26,23,20,.55);min-height:44px;line-height:1.5}
+</style><style id="narrative-reality-style">
+/* ── Section shell ──────────────────────────────────────────────────── */
+.nr-section{margin-top:28px}
+.nr-wrap{max-width:1080px}
+.nr-desc{max-width:760px;color:var(--muted);font-size:13px;line-height:1.5;margin:5px 0 0}
+
+/* ── Summary strip ──────────────────────────────────────────────────── */
+.nr-summary-strip{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 20px}
+.nr-summary-strip article{border:1px solid rgba(201,191,173,.45);border-radius:2px;padding:8px 16px;background:rgba(251,250,246,.22);display:flex;flex-direction:column;gap:3px;min-width:160px}
+.nr-summary-strip span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.nr-summary-strip b{font-size:18px;font-weight:700;letter-spacing:-.02em;color:rgba(36,35,31,.9)}
+.nr-summary-strip small{font-size:10px;color:var(--muted)}
+.nr-posture-short{font-size:13px!important;font-weight:600!important;letter-spacing:0!important;line-height:1.3}
+
+/* ── Theme card list ────────────────────────────────────────────────── */
+.nr-theme-list{display:flex;flex-direction:column;gap:10px}
+.nr-theme-card{border:1px solid rgba(201,191,173,.4);border-left:3px solid transparent;border-radius:2px;padding:16px 18px;background:rgba(251,250,246,.1)}
+
+/* Classification colors */
+.nr-narrative-ahead{border-left-color:rgba(164,80,47,.6);background:rgba(164,80,47,.03)}
+.nr-data-ahead{border-left-color:rgba(47,111,78,.6);background:rgba(47,111,78,.03)}
+.nr-aligned{border-left-color:rgba(138,106,44,.45);background:rgba(138,106,44,.02)}
+
+/* Card head */
+.nr-card-head{margin-bottom:12px}
+.nr-label-row{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.nr-theme-label{font-size:15px;font-weight:700;color:rgba(36,35,31,.9);letter-spacing:-.01em}
+.nr-classification{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:999px;border:1px solid}
+.nr-narrative-ahead .nr-classification{color:rgba(164,80,47,.9);border-color:rgba(164,80,47,.35);background:rgba(164,80,47,.06)}
+.nr-data-ahead .nr-classification{color:var(--green);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.06)}
+.nr-aligned .nr-classification{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.06)}
+
+/* Ticker chips */
+.nr-tickers{display:flex;flex-wrap:wrap;gap:5px}
+.nr-ticker{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid rgba(201,191,173,.5);background:rgba(251,250,246,.18);color:rgba(36,35,31,.62);letter-spacing:.03em}
+
+/* Three-column body */
+.nr-columns{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:12px;margin-bottom:10px}
+.nr-col{min-width:0}
+.nr-col-head{display:block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
+.nr-col p{margin:0;font-size:12.5px;line-height:1.55;color:rgba(36,35,31,.78)}
+.nr-col-counter p{font-size:12.5px;font-weight:500;color:rgba(36,35,31,.88)}
+.nr-data-ahead .nr-col-counter p{color:rgba(47,111,78,.9)}
+.nr-narrative-ahead .nr-col-counter p{color:rgba(164,80,47,.85)}
+
+/* Watch for row */
+.nr-watch{border-top:1px solid rgba(201,191,173,.25);padding-top:8px;display:flex;gap:10px;align-items:baseline}
+.nr-watch>span{flex-shrink:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);min-width:58px}
+.nr-watch>p{margin:0;font-size:11px;color:var(--muted);line-height:1.4}
+
+/* Bottom row: wave + change-posture */
+.nr-bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(201,191,173,.3)}
+.nr-wave span,.nr-watchfor span{display:block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.nr-wave p{margin:0;font-size:13px;line-height:1.55;color:rgba(36,35,31,.85);font-weight:500}
+.nr-watchfor ul{margin:0;padding-left:14px}
+.nr-watchfor li{font-size:12px;color:rgba(36,35,31,.72);line-height:1.6}
+
+/* Responsive */
+@media(max-width:900px){
+  .nr-columns{grid-template-columns:1fr 1fr}
+  .nr-col-counter{grid-column:1/-1}
+}
+@media(max-width:600px){
+  .nr-columns{grid-template-columns:1fr}
+  .nr-bottom-row{grid-template-columns:1fr}
+  .nr-summary-strip article{min-width:0;flex:1}
+}
 </style></head>
 <body>
   <main class="shell">
@@ -1326,6 +1393,151 @@ details[open].mu-details summary:before{content:'↑'}
   </details>
 
 </div>
+</section>
+<section id="narrative-reality-section" class="panel nr-section">
+  <div class="nr-wrap">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Narrative vs. Reality · Jun 8</p>
+        <h2>Market read</h2>
+        <p class="nr-desc">Where the prevailing narrative diverges from what the data actually says. That gap is where capital either gets destroyed or positioned correctly.</p>
+      </div>
+    </div>
+
+    <div class="nr-summary-strip">
+      <article><span>Narrative ahead</span><b>2</b><small>Story priced beyond data</small></article>
+      <article><span>Data ahead</span><b>2</b><small>Fundamentals building opportunity</small></article>
+      <article><span>Strategy</span><b class="nr-posture-short">Hold and sharpen</b></article>
+    </div>
+
+    <div class="nr-theme-list"><article class="nr-theme-card nr-narrative-ahead">
+    <div class="nr-card-head">
+      <div class="nr-label-row">
+        <span class="nr-theme-label">Nuclear / AI Power</span>
+        <span class="nr-classification">Narrative ahead</span>
+      </div>
+      <div class="nr-tickers"><span class="nr-ticker">OKLO</span><span class="nr-ticker">SMR</span><span class="nr-ticker">CEG</span><span class="nr-ticker">CCJ</span><span class="nr-ticker">BWXT</span><span class="nr-ticker">LEU</span></div>
+    </div>
+    <div class="nr-columns">
+      <div class="nr-col">
+        <span class="nr-col-head">Market says</span>
+        <p>AI will require massive clean baseload power. Nuclear — specifically SMRs — is the only viable answer. The EPA is signaling support for SMR buildout and hyperscalers are signing LOIs.</p>
+      </div>
+      <div class="nr-col">
+        <span class="nr-col-head">Data shows</span>
+        <p>OKLO -26% (1m), SMR -23%, URA -22%, CEG -22%. No signed PPAs at commercial scale. NRC permitting timeline: 5-7 years minimum. The active event signal shows 6 news hits for &#39;Nuclear SMR Accelerated Permitting&#39; but zero contracted revenue in our tracked universe. EPA chief commentary is political signaling, not a capital commitment.</p>
+      </div>
+      <div class="nr-col nr-col-counter">
+        <span class="nr-col-head">Counter-read</span>
+        <p>The thesis is directionally correct — AI does need power, and nuclear is part of the long-run answer. But the market priced 2027 delivery into names where 2032 is the realistic timeline. The reset is the market repricing the timeline, not the thesis. Re-entry is warranted when permit milestones are real (first NRC construction approval) or when a major hyperscaler signs a binding PPA.</p>
+      </div>
+    </div>
+    <div class="nr-watch"><span>Watch for</span><p>Binding PPA announcement (Microsoft/Google/Amazon + nuclear operator). First NRC construction permit issued for a light-water SMR design. CEG or OKLO revenue guidance with contracted megawatts.</p></div>
+  </article><article class="nr-theme-card nr-data-ahead">
+    <div class="nr-card-head">
+      <div class="nr-label-row">
+        <span class="nr-theme-label">Credit / Macro</span>
+        <span class="nr-classification">Data ahead</span>
+      </div>
+      <div class="nr-tickers"><span class="nr-ticker">SPY</span><span class="nr-ticker">IWM</span><span class="nr-ticker">QQQ</span><span class="nr-ticker">MA</span></div>
+    </div>
+    <div class="nr-columns">
+      <div class="nr-col">
+        <span class="nr-col-head">Market says</span>
+        <p>The market is pricing rising recession fears. Rate hikes damaged growth, the consumer is weakening, and the equity selloff signals deteriorating confidence.</p>
+      </div>
+      <div class="nr-col">
+        <span class="nr-col-head">Data shows</span>
+        <p>HY OAS: 2.75% — historically tight. Not pricing credit stress. SPY is 7.8% above its 200d MA (~$684). Yield curve: 2s10s +41bp (steepening, not inverted — historically a recovery signal). Real 10Y: 2.08%. DFF: 3.62% with cuts still underway. The data describes a soft landing in progress, not a recession.</p>
+      </div>
+      <div class="nr-col nr-col-counter">
+        <span class="nr-col-head">Counter-read</span>
+        <p>The fear narrative is not supported by the credit market. HY spreads widen before recessions — they&#39;re tightening. The equity selloff is a multiple compression event (growth stocks repricing on duration sensitivity) not a credit event. The Kostolany cycle supports Phase D: rate cuts deepening, credit available, economy stabilizing. The posture is Hold and sharpen, not Defend and reduce.</p>
+      </div>
+    </div>
+    <div class="nr-watch"><span>Watch for</span><p>HY OAS above 4.0% (credit starting to price stress). SPY breaks below 200d MA (~$684). Fed pauses or reverses cuts — DFF stops falling. 10Y yield spikes above 5% on inflation re-acceleration.</p></div>
+  </article><article class="nr-theme-card nr-data-ahead">
+    <div class="nr-card-head">
+      <div class="nr-label-row">
+        <span class="nr-theme-label">Software / SaaS compounders</span>
+        <span class="nr-classification">Data ahead</span>
+      </div>
+      <div class="nr-tickers"><span class="nr-ticker">GTLB</span><span class="nr-ticker">HUBS</span><span class="nr-ticker">NOW</span><span class="nr-ticker">RDDT</span><span class="nr-ticker">PLTR</span></div>
+    </div>
+    <div class="nr-columns">
+      <div class="nr-col">
+        <span class="nr-col-head">Market says</span>
+        <p>AI is commoditizing software. GitHub Copilot, ChatGPT, and open models are eating SaaS ARR. Enterprise buyers are pausing renewals. The multiple compression in software is structural, not cyclical.</p>
+      </div>
+      <div class="nr-col">
+        <span class="nr-col-head">Data shows</span>
+        <p>GTLB: revenue +23.1% YoY, stock -40.7% from 52wH. HUBS: revenue +23.4% YoY, stock -65.6% from 52wH — CTO bought $2.59M open-market. NOW: revenue +22.1% YoY, stock -46% from 52wH. RDDT: +8.4% (1m) with data licensing and DAU growth intact. The data shows businesses growing 20-60% while prices have collapsed 40-65%. GTLB earnings this month will be the first real AI-attach-rate proof point.</p>
+      </div>
+      <div class="nr-col nr-col-counter">
+        <span class="nr-col-head">Counter-read</span>
+        <p>The narrative that AI kills SaaS is not showing up in the revenue lines yet. The stocks are down because growth investors sold duration-sensitive assets as real rates rose — not because the businesses are breaking. When earnings prove AI is additive to ARR (GTLB AI Duo attach rate, HUBS AI CRM), the narrative flips and these re-rate sharply. HUBS with insider confirmation is the clearest signal the data is ahead of the narrative.</p>
+      </div>
+    </div>
+    <div class="nr-watch"><span>Watch for</span><p>GTLB Q1 FY2027 earnings: ARR beat + AI Duo attach rate &gt; 15%. HUBS Q2 2026: SMB ARR stabilization + AI CRM net new ARR. NOW Q2 2026 cRPO acceleration. Any major SaaS name cutting guidance on AI competitive pressure (would validate the narrative).</p></div>
+  </article><article class="nr-theme-card nr-aligned">
+    <div class="nr-card-head">
+      <div class="nr-label-row">
+        <span class="nr-theme-label">Financial rails</span>
+        <span class="nr-classification">Aligned</span>
+      </div>
+      <div class="nr-tickers"><span class="nr-ticker">MA</span></div>
+    </div>
+    <div class="nr-columns">
+      <div class="nr-col">
+        <span class="nr-col-head">Market says</span>
+        <p>Digitization of payments is a multi-decade secular trend. Fintech is compressing margins at the edges but the core rails (Visa, MA) are structurally protected.</p>
+      </div>
+      <div class="nr-col">
+        <span class="nr-col-head">Data shows</span>
+        <p>MA: +1.6% today while QQQ -3.2% and SPY -1.7%. MA: -0.4% over 1 month vs QQQ -2.5% and SPY -1.4%. This relative outperformance is a signal. Steepening yield curve (2s10s +41bp) directly benefits payment networks through improved float income. Dollar strength (+2.1% over 1m) benefits dollar-denominated global transaction volumes.</p>
+      </div>
+      <div class="nr-col nr-col-counter">
+        <span class="nr-col-head">Counter-read</span>
+        <p>No significant divergence. The narrative and the price action agree. MA is behaving exactly as it should in a risk-compression / quality rotation environment. It is not a high-upside opportunity from here — it is the right place to be already positioned. If you&#39;re not in it, this is not a chase setup. It confirms the broader thesis: credit-quality businesses with real transaction volume hold in risk-off, and re-rate in Phase D.</p>
+      </div>
+    </div>
+    <div class="nr-watch"><span>Watch for</span><p>MA quarterly transaction volume growth below 5% (would signal consumer slowdown). Dollar reversal weakening below DXY 97 (would reduce international transaction tailwind). Fintech regulatory action targeting interchange fees.</p></div>
+  </article><article class="nr-theme-card nr-narrative-ahead">
+    <div class="nr-card-head">
+      <div class="nr-label-row">
+        <span class="nr-theme-label">AI infrastructure (hardware)</span>
+        <span class="nr-classification">Narrative ahead</span>
+      </div>
+      <div class="nr-tickers"><span class="nr-ticker">AVGO</span><span class="nr-ticker">VRT</span><span class="nr-ticker">NXT</span><span class="nr-ticker">GEV</span><span class="nr-ticker">ETN</span><span class="nr-ticker">PWR</span></div>
+    </div>
+    <div class="nr-columns">
+      <div class="nr-col">
+        <span class="nr-col-head">Market says</span>
+        <p>AI capex is infinite. Every hyperscaler is committing $50B+ to data centers. NVDA, AVGO, VRT, and power infrastructure cannot keep up with demand.</p>
+      </div>
+      <div class="nr-col">
+        <span class="nr-col-head">Data shows</span>
+        <p>AVGO: -13.1% (1m), -5.8% today. VRT: -17.7% (1m), -6.9% today. GEV: -14.6% (1m). NXT: -7.7% (1m). These names ran 12-15% in 3 months then sold off hard. AVGO Apollo/$35B deal is real (matched in event signals) but the multiple already priced perfect execution. VRT RSI: 33.6 — oversold but not yet at a dislocation depth that warrants entry (still only -26% from 52wH for a high-multiple stock). TMDX earnings miss (materiality 8) is a reminder that even thesis-correct names miss.</p>
+      </div>
+      <div class="nr-col nr-col-counter">
+        <span class="nr-col-head">Counter-read</span>
+        <p>The AI capex thesis is real but the market over-indexed on it in Q1. The correction is healthy — it&#39;s moving from &#39;narrative multiple&#39; to &#39;show me the order books.&#39; VRT and NXT earnings in July will determine whether the order rate justifies the re-rating. If Q2 order books are strong, these snap back sharply. If they disappoint, the reset goes deeper. AVGO custom ASIC supercycle has an Apollo $35B backing — the institutional money is real. Wait for earnings to confirm before re-entering.</p>
+      </div>
+    </div>
+    <div class="nr-watch"><span>Watch for</span><p>VRT Q2 2026: data center cooling order rate + margin guidance. NXT Q1 FY2027: tracker shipment guidance + tariff impact clarity. AVGO Q3 FY2026: custom ASIC pipeline size. Any hyperscaler capex guidance cut (would break the thesis).</p></div>
+  </article></div>
+
+    <div class="nr-bottom-row">
+      <div class="nr-wave">
+        <span>Where the wave builds</span>
+        <p>Software compounders with AI-attach-rate proof (GTLB earnings this month is the first test). Financial rails (MA relative strength is already leading). Phase D compounders at deep dislocation depth — HUBS with insider confirmation at -65.6% from high is the clearest data-ahead-of-narrative setup in the current universe.</p>
+      </div>
+      <div class="nr-watchfor">
+        <span>Change the posture if</span>
+        <ul><li>HY OAS above 4.0% → posture shifts to defensive</li><li>SPY breaks 200d MA (~$684) → structural breakdown signal, re-evaluate all positions</li><li>GTLB Q1 FY2027 earnings: ARR + AI Duo attach rate → software thesis proof or invalidation</li><li>VRT/NXT Q2 order books → AI infrastructure thesis proof or deeper reset</li><li>Nuclear: first binding hyperscaler PPA at commercial scale → nuclear re-enters as fundamental, not narrative</li></ul>
+      </div>
+    </div>
+  </div>
 </section>
 <section id="kostolany-history-section" class="kh-section">
 <div class="kh-wrap">

@@ -8,12 +8,13 @@ It is not a generic finance blog, not a market-news page, and not a startup land
 
 ## Product architecture
 
-The public homepage is a four-section decision surface:
+The public homepage is a five-section decision surface:
 
-1. Macro
-2. Decision chart
-3. Holdings
-4. Opportunity
+1. Narrative vs. Reality (Market read)
+2. Macro
+3. Decision chart
+4. Holdings
+5. Opportunity
 
 Supporting modules may exist as internal evidence inputs, but they should not return as standalone visible homepage sections unless explicitly approved.
 
@@ -25,6 +26,55 @@ Latent modules should be compressed into the four-section surface:
 - Kostolany Egg -> Macro cycle regime interpretation, not a standalone diagram.
 - Trust / Data Quality -> source authority, freshness, and confidence signals inside each relevant section.
 - System Health -> internal edit-readiness artifact unless explicitly surfaced as a small status badge.
+
+## Narrative vs. Reality synthesis (operating loop step)
+
+After running the build pipeline, Claude Code must synthesize `outputs/narrative-reality-brief.json` from `outputs/narrative-reality-input.json`. This is a required step in every operating loop run.
+
+**How to run it:**
+1. Read `outputs/narrative-reality-input.json` — it contains the current market snapshot, dislocation data, active event signals, filtered news, and synthesis instructions.
+2. Synthesize the brief following the `synthesisInstructions` field in that file.
+3. Write the result to `outputs/narrative-reality-brief.json` using the schema below.
+4. The inject script will pick it up automatically on the next build.
+
+**Schema for `outputs/narrative-reality-brief.json`:**
+```json
+{
+  "generatedAt": "<ISO timestamp>",
+  "generatedBy": "openclaw-synthesis",
+  "themes": [
+    {
+      "id": "<snake_case_id>",
+      "label": "<Theme name, e.g. Nuclear / AI Power>",
+      "classification": "NARRATIVE_AHEAD | DATA_AHEAD | ALIGNED",
+      "narrative": "<1-2 sentences: what the market/news implies the world believes>",
+      "dataAnchor": "<2-4 sentences: what the hard data actually shows — cite specific numbers>",
+      "counterRead": "<2-4 sentences: where narrative and data diverge, and what it means for positioning>",
+      "watchFor": "<1 sentence: specific measurable trigger that would change this read>",
+      "relevantTickers": ["<TICKER>", ...]
+    }
+  ],
+  "strategyPosture": "<1-2 sentences: current action posture for the portfolio>",
+  "whereWaveBuilds": "<1-2 sentences: where the next move is most likely to materialize and what the trigger is>",
+  "watchFor": ["<specific measurable signal>", ...]
+}
+```
+
+**Classification rules:**
+- `NARRATIVE_AHEAD` — price is ahead of fundamentals. The story has run past what the data supports. Caution.
+- `DATA_AHEAD` — fundamentals are ahead of price. The business is building while the narrative hasn't caught up. Opportunity.
+- `ALIGNED` — narrative and data broadly agree. No significant divergence. Useful for confirming existing posture.
+
+**Filtering — what to include as themes:**
+- Themes from `activeEvents` in narrative-reality-input.json (these are confirmed by news signal detection)
+- Themes where a tracked ticker (holdings or opportunity universe) shows significant dislocation (>20% from 52wH) AND has news context
+- Macro themes (credit, rates, dollar) when they diverge from equity price action
+- Maximum 5-6 themes. Quality over coverage.
+
+**What not to do:**
+- Do not summarize headlines. The brief is a thesis audit, not a news digest.
+- Do not invent data points. Every claim must be anchored to a number in narrative-reality-input.json.
+- Do not use filler language ("it remains to be seen", "investors should monitor"). Be direct.
 
 ## Investment analysis standard
 

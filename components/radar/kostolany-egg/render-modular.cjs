@@ -4,138 +4,267 @@ function esc(value) {
   }[c]));
 }
 
-function arr(value) { return Array.isArray(value) ? value : []; }
-function attrs(input = {}) { return Object.entries(input).filter(([,v]) => v !== undefined && v !== null && v !== false).map(([k,v]) => ` ${k}="${esc(v)}"`).join(''); }
-function el(name, input, children = '') { return `<${name}${attrs(input)}>${children}</${name}>`; }
-function leaf(name, input) { return `<${name}${attrs(input)}/>`; }
-function tspan(x, dy, className, text) { return el('tspan', { x, dy, class: className }, esc(text)); }
-
-function stance(value) {
-  const x = String(value || '').toLowerCase();
-  if (/favored|accumulate|overweight|increase/.test(x)) return ['Favored', 'stance-green'];
-  if (/avoid|reduce|underweight|strict|research only/.test(x)) return ['Reduce', 'stance-red'];
-  if (/wait|trim|cautious|no chase|pullback only/.test(x)) return ['Cautious', 'stance-red'];
-  return ['Neutral', 'stance-neutral'];
-}
-
-function orderIndex(order, key) { const i = order.indexOf(key); return i < 0 ? 999 : i; }
-function scoreAxis(state, id, fallback) { return Object.values(state.axis || {}).find(axis => String(axis.label || '').toLowerCase().includes(id)) || fallback; }
-function axisTone(axis) { return Number(axis.score) < 50 ? 'bad' : Number(axis.score) > 70 ? 'good' : 'warn'; }
-
-function renderMeter(label, axis) {
-  const width = Math.max(0, Math.min(100, Number(axis.score) || 0));
-  const tone = axisTone(axis);
-  return `<article class="ke-axis-box ${tone}"><span>${esc(label)}</span><b>${esc(axis.score)} /100</b><div class="ke-axis-bar"><i style="width:${width}%"></i></div><p>${esc(axis.read || '')}</p></article>`;
-}
-
-function renderAllocationRows(items) {
-  const assetOrder = ['Cash', 'Bonds / TLT', 'Gold', 'Oil / energy', 'SPX core', 'QQQ / growth', 'BTC / crypto beta', 'Small caps', 'New opportunities'];
-  return arr(items).sort((a,b) => orderIndex(assetOrder, a.asset) - orderIndex(assetOrder, b.asset)).map(item => {
-    const st = stance(`${item.posture || ''} ${item.tilt || ''}`);
-    return `<article><span>${esc(item.asset)}</span><b class="${st[1]}">${esc(st[0])}</b></article>`;
-  }).join('');
-}
-
-function renderEquityRows(items) {
-  const eqOrder = ['Quality growth', 'AI / semis', 'Dividend / income', 'Defensive sectors', 'Healthcare', 'Utilities', 'Value', 'Cyclicals', 'Financials', 'Small caps', 'Speculative growth', 'Energy equities'];
-  return arr(items).sort((a,b) => orderIndex(eqOrder, a.bucket) - orderIndex(eqOrder, b.bucket)).map(item => {
-    const st = stance(`${item.posture || ''} ${item.tilt || ''}`);
-    return `<article><span>${esc(item.bucket)}</span><b class="${st[1]}">${esc(st[0])}</b></article>`;
-  }).join('');
-}
-
-const PHASE_NODES = [
-  ['A1', 420, 118, 'Capitulation', 'Panic low'],
-  ['A2', 270, 205, 'Reset', 'Policy turn'],
-  ['B', 570, 205, 'Recovery', 'Liquidity'],
-  ['C', 610, 330, 'Verification', 'Test'],
-  ['D', 488, 485, 'Expansion', 'Beta'],
-  ['E', 345, 485, 'Euphoria', 'Excess'],
-  ['F', 230, 330, 'Distribution', 'Defense'],
+// Phase definitions — Kostolany Egg standard 7-phase cycle
+const PHASE_DEFS = [
+  ['A1', 'Capitulation',  'Forced selling; max pessimism; bottom zone'],
+  ['B',  'Recovery',      'Prices stabilise; early buyers accumulate quietly'],
+  ['C',  'Verification',  'Prices rise; sceptics still cautious; "is it real?"'],
+  ['D',  'Expansion',     'Broad participation; clear uptrend; optimism grows'],
+  ['E',  'Euphoria',      'Peak prices; max optimism; late buyers flood in'],
+  ['F',  'Distribution',  'Smart money exits; volatility spikes; top zone'],
+  ['A2', 'Reset',         'Prices roll over; cycle re-enters capitulation'],
 ];
 
-const CALLOUTS = [
-  { cls: 'ke-callout-defense', x: 142, y: 112, title: 'Defense', ticker: 'cash · TLT · gold' },
-  { cls: 'ke-callout-growth', x: 738, y: 112, title: 'Recovery / growth', ticker: 'SPX · quality growth' },
-  { cls: 'ke-callout-risk', x: 738, y: 518, title: 'Excess risk', ticker: 'small caps · crypto beta' },
-  { cls: 'ke-callout-trim', x: 142, y: 518, title: 'Distribution', ticker: 'trim beta · raise cash' },
+// ── Ring diagram ──────────────────────────────────────────────────────────────
+const RING = [
+  { code: 'A1', angle: -90 },
+  { code: 'B',  angle: -38 },
+  { code: 'C',  angle:  12 },
+  { code: 'D',  angle:  58 },
+  { code: 'E',  angle: 122 },
+  { code: 'F',  angle: 168 },
+  { code: 'A2', angle: 218 },
 ];
+const RCX = 108, RCY = 110, RRX = 78, RRY = 88;
 
-function renderCallout(item) {
-  return el('g', { class: `ke-callout ${item.cls}` }, el('text', { x: item.x, y: item.y, 'text-anchor': 'middle', class: 'egg-quadrant-label' }, tspan(item.x, 0, 'egg-quadrant-title', item.title) + tspan(item.x, '1.4em', 'egg-quadrant-ticker', item.ticker)));
+function rPt(angle, rx, ry) {
+  const rad = angle * Math.PI / 180;
+  return [+(RCX + rx * Math.cos(rad)).toFixed(1), +(RCY + ry * Math.sin(rad)).toFixed(1)];
+}
+function rAnchor(angle) {
+  const cos = Math.cos(angle * Math.PI / 180);
+  if (cos > 0.3)  return 'start';
+  if (cos < -0.3) return 'end';
+  return 'middle';
 }
 
-function renderPhaseNode(current, node) {
-  const [code, x, y, label, note] = node;
-  const cls = `ke-svg-node${code === current ? ' current' : ''}`;
-  return el('g', { class: cls, transform: `translate(${x} ${y})` }, leaf('circle', { r: code === current ? 54 : 46 }) + el('text', { class: 'code', y: -10 }, esc(code)) + el('text', { class: 'label', y: 12 }, esc(label)) + el('text', { class: 'note', y: 30 }, esc(note)));
+function renderRingSvg(current) {
+  const ellipse = `<ellipse cx="${RCX}" cy="${RCY}" rx="${RRX}" ry="${RRY}"
+    fill="none" stroke="rgba(44,42,37,.12)" stroke-width="1.2" stroke-dasharray="5 7"/>`;
+
+  // Small clockwise arc cue in upper-right quadrant
+  const [ax0, ay0] = rPt(-75, RRX + 10, RRY + 10);
+  const [ax1, ay1] = rPt(-30, RRX + 10, RRY + 10);
+  const dirCue = `<path d="M ${ax0},${ay0} A ${RRX+10} ${RRY+10} 0 0 1 ${ax1},${ay1}"
+    fill="none" stroke="rgba(44,42,37,.20)" stroke-width="1"
+    marker-end="url(#rdirArrow)"/>`;
+
+  const nodes = RING.map(({ code, angle }) => {
+    const isCur = code === current;
+    const [nx, ny] = rPt(angle, RRX, RRY);
+    const loff = isCur ? 24 : 20;
+    const [lx, ly] = rPt(angle, RRX + loff, RRY + loff);
+    const anchor = rAnchor(angle);
+    return [
+      `<circle cx="${nx}" cy="${ny}" r="${isCur ? 10 : 6.5}"
+        fill="${isCur ? 'rgba(47,111,78,.14)' : '#f6f4ee'}"
+        stroke="${isCur ? 'rgba(47,111,78,.72)' : 'rgba(44,42,37,.22)'}"
+        stroke-width="${isCur ? 2 : 1}"/>`,
+      `<text x="${lx}" y="${+ly + 4}" text-anchor="${anchor}"
+        font-size="${isCur ? 10 : 8}"
+        font-weight="${isCur ? '700' : '400'}"
+        fill="${isCur ? 'rgba(47,111,78,.82)' : 'rgba(44,42,37,.40)'}">${code}</text>`,
+    ].join('\n');
+  }).join('\n');
+
+  return `<svg viewBox="0 -14 216 244" class="ke-ring-svg"
+    aria-label="Kostolany cycle ring — current phase ${current}">
+    <defs>
+      <marker id="rdirArrow" markerWidth="5" markerHeight="5"
+        refX="4" refY="2.5" orient="auto">
+        <path d="M0,.8 L4.5,2.5 L0,4.2Z" fill="rgba(44,42,37,.22)"/>
+      </marker>
+    </defs>
+    ${ellipse}
+    ${dirCue}
+    ${nodes}
+  </svg>`;
 }
 
-function renderEggSvg(current) {
-  const marker = el('defs', {}, el('marker', { id: 'keExactArrow', markerWidth: 10, markerHeight: 10, refX: 6, refY: 3, orient: 'auto' }, el('path', { d: 'M0,0 L6,3 L0,6 Z', fill: '#949089' })));
-  const frame = [leaf('rect', { x: 0, y: 0, width: 900, height: 640, fill: 'transparent' }), leaf('ellipse', { cx: 420, cy: 318, rx: 226, ry: 252, class: 'ke-svg-shell' }), leaf('line', { x1: 420, y1: 88, x2: 420, y2: 548, class: 'ke-svg-axis' }), leaf('line', { x1: 180, y1: 318, x2: 660, y2: 318, class: 'ke-svg-axis' }), el('text', { x: 420, y: 42, class: 'ke-svg-soft ke-svg-center' }, 'More defensive / liquidity preference'), el('text', { x: 420, y: 604, class: 'ke-svg-soft ke-svg-center' }, 'More aggressive / beta exposure'), el('text', { x: 58, y: 306, class: 'ke-svg-axis-title' }, 'Risk-off'), el('text', { x: 58, y: 334, class: 'ke-svg-axis-note' }, 'preserve capital'), el('text', { x: 704, y: 306, class: 'ke-svg-axis-title' }, 'Risk-on'), el('text', { x: 704, y: 334, class: 'ke-svg-axis-note' }, 'seek return')].join('');
-  const flows = ['M300 152 Q355 108 410 104', 'M470 104 Q548 125 594 188', 'M620 252 Q648 294 642 330', 'M626 394 Q596 470 528 502', 'M438 538 Q368 540 315 506', 'M264 468 Q212 412 205 350', 'M206 284 Q222 220 282 172'].map((d, i) => leaf('path', { d, class: i === 2 ? 'ke-svg-active-flow' : 'ke-svg-flow', 'marker-end': 'url(#keExactArrow)' })).join('');
-  return el('svg', { class: 'ke-cycle-map-v4', viewBox: '0 0 900 640', 'aria-label': 'Kostolany Egg allocation cycle' }, marker + frame + CALLOUTS.map(renderCallout).join('') + flows + PHASE_NODES.map(node => renderPhaseNode(current, node)).join(''));
+// HTML phase legend — listed below the ring, current phase highlighted
+function renderPhaseLegend(current) {
+  const items = PHASE_DEFS.map(([code, name, desc]) => {
+    const isCur = code === current;
+    const liClass = isCur ? ' class="ke-pk-cur"' : '';
+    return `<li${liClass}><b>${esc(code)}</b><span>${esc(name)}</span></li>`;
+  }).join('');
+  return `<ul class="ke-phase-key">${items}</ul>`;
 }
 
-function renderAxisSummary(axes) {
-  const rows = [
-    ['Monetary', axes.mon],
-    ['Liquidity', axes.liq],
-    ['Psychology', axes.psy],
-    ['Structure', axes.str],
-    ['Valuation', axes.val],
-  ];
-  return `<div class="ke-axis-board">${rows.map(([label, axis]) => renderMeter(label, axis)).join('')}</div>`;
+// ── Wave diagram ──────────────────────────────────────────────────────────────
+// Both cycles now run the full A1→B→C→D→E→F sequence for consistency.
+// Cycle 1: Oct'22 (A1) → Jan'23 (A2) → Jun'23 (B) → Oct'23 (C) → Dec'23 (D) → May'24 (E) → Sep'24 (F)
+// Cycle 2: Feb'25 (A1) → Jun'25 (A2) → Dec'25 (B) → Jun'26 (C, current)
+const WAVE = [
+  [30,  192, 'A1', "Oct '22"],
+  [90,  172, 'A2', "Jan '23"],
+  [170, 108, 'B',  "Jun '23"],
+  [212,  92, 'C',  "Oct '23"],   // verification pause before year-end expansion
+  [252,  52, 'D',  "Dec '23"],
+  [318,  40, 'E',  "May '24"],
+  [374,  80, 'F',  "Sep '24"],
+  [424, 196, 'A1', "Feb '25"],
+  [468, 170, 'A2', "Jun '25"],
+  [548, 110, 'B',  "Dec '25"],
+  [626, 138, 'C',  "Jun '26"],   // ← current
+];
+const W = 700, WH = 234, WB = 208, WM = 126;
+
+// Dates to display (sparse to avoid x-axis crowding):
+// Oct'22, Jun'23, Dec'23, May'24, Feb'25, Dec'25, Jun'26
+const SHOW_DATE = new Set([0, 2, 4, 5, 7, 9, 10]);
+
+function buildCurve(pts) {
+  let d = `M ${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    const cp = (x1 - x0) / 3;
+    d += ` C ${+(x0+cp).toFixed(1)},${y0} ${+(x1-cp).toFixed(1)},${y1} ${x1},${y1}`;
+  }
+  return d;
 }
 
-function renderStrategySummary(state) {
-  return `<div class="ke-strategy-board">
-    <article class="ke-strategy-primary"><span>Cycle decision</span><b>${esc(state.capital_action)}</b><p>${esc(state.phase_market_meaning)}. Egg defines allocation bias. Movement confirms the tape. Route decides permission.</p></article>
-    <article><span>Phase</span><b>${esc(state.phase_code)} · ${esc(state.macro_phase)}</b><small>Cycle location, not a prediction.</small></article>
-    <article><span>Stress type</span><b>${esc(state.stress_type)}</b><small>Primary constraint on risk-taking.</small></article>
-    <article><span>Invalidation</span><b>${esc(state.invalidation)}</b><small>What breaks the phase read.</small></article>
-  </div>`;
+function renderWaveSvg(current) {
+  const [ex, ey] = [WAVE[WAVE.length - 1][0], WAVE[WAVE.length - 1][1]];
+  const histPath = buildCurve(WAVE.map(p => [p[0], p[1]]));
+  const px = ex + 52, py = ey - 48;
+  const projPath = `M ${ex},${ey} C ${ex+18},${ey-16} ${ex+36},${py+12} ${px},${py}`;
+
+  const L = [];
+
+  // Background fill under curve
+  L.push(`<path d="${histPath} L${ex},${WB} L30,${WB} Z"
+    fill="rgba(44,42,37,.022)" stroke="none"/>`);
+
+  // Horizontal midline dividing risk-on / risk-off
+  L.push(`<line x1="8" y1="${WM}" x2="${W-6}" y2="${WM}"
+    stroke="rgba(44,42,37,.07)" stroke-width="1" stroke-dasharray="3 9"/>`);
+  L.push(`<text x="10" y="${WM-5}" font-size="7.5" letter-spacing=".08em"
+    fill="rgba(44,42,37,.20)">RISK-ON</text>`);
+  L.push(`<text x="${W-8}" y="${WM-5}" text-anchor="end" font-size="7.5"
+    letter-spacing=".08em" fill="rgba(44,42,37,.20)">RISK-OFF</text>`);
+
+  // Wave lines
+  L.push(`<path d="${histPath}" fill="none"
+    stroke="rgba(44,42,37,.65)" stroke-width="2"
+    stroke-linejoin="round" stroke-linecap="round"/>`);
+  L.push(`<path d="${projPath}" fill="none"
+    stroke="rgba(44,42,37,.26)" stroke-width="1.5" stroke-dasharray="5 4"
+    stroke-linecap="round" marker-end="url(#wvArrow)"/>`);
+
+  // Historical dots
+  WAVE.slice(0, -1).forEach(([x, y]) => {
+    L.push(`<circle cx="${x}" cy="${y}" r="3.5"
+      fill="#f5f3ed" stroke="rgba(44,42,37,.32)" stroke-width="1.2"/>`);
+  });
+
+  // Current position — green halo
+  L.push(`<circle cx="${ex}" cy="${ey}" r="9"
+    fill="rgba(47,111,78,.10)" stroke="rgba(47,111,78,.55)" stroke-width="1.5"/>`);
+  L.push(`<circle cx="${ex}" cy="${ey}" r="4.5"
+    fill="rgba(47,111,78,.80)" stroke="none"/>`);
+
+  // Phase code labels — all above their dot at y-14, min y=16
+  WAVE.forEach(([x, y, code], i) => {
+    const isCur = i === WAVE.length - 1;
+    const ly = Math.max(16, y - 14);
+    L.push(`<text x="${x}" y="${ly}" text-anchor="middle"
+      font-size="${isCur ? 10 : 8.5}"
+      font-weight="${isCur ? '700' : '500'}"
+      fill="${isCur ? 'rgba(47,111,78,.80)' : 'rgba(44,42,37,.44)'}">${code}</text>`);
+  });
+
+  // Baseline ticks
+  WAVE.forEach(([x]) => {
+    L.push(`<line x1="${x}" y1="${WB-1}" x2="${x}" y2="${WB+3}"
+      stroke="rgba(44,42,37,.16)" stroke-width="1"/>`);
+  });
+
+  // Date labels (sparse)
+  WAVE.forEach(([x, , , date], i) => {
+    if (!SHOW_DATE.has(i)) return;
+    const isCur = i === WAVE.length - 1;
+    L.push(`<text x="${x}" y="${WB+14}" text-anchor="middle" font-size="8.5"
+      fill="${isCur ? 'rgba(47,111,78,.60)' : 'rgba(44,42,37,.35)'}">${date}</text>`);
+  });
+
+  // Projected label
+  L.push(`<text x="${px}" y="${WB+14}" text-anchor="middle"
+    font-size="8" fill="rgba(44,42,37,.20)" font-style="italic">→ D</text>`);
+
+  return `<svg viewBox="0 0 ${W} ${WH}" class="ke-wave-svg"
+    aria-label="Kostolany cycle wave — current phase ${current}">
+    <defs>
+      <marker id="wvArrow" markerWidth="7" markerHeight="7"
+        refX="5" refY="3.5" orient="auto">
+        <path d="M0,1 L6,3.5 L0,6Z" fill="rgba(44,42,37,.28)"/>
+      </marker>
+    </defs>
+    ${L.join('\n    ')}
+  </svg>`;
 }
 
-function renderPhaseRail(current) {
-  return `<div class="ke-phase-rail">${['A1','A2','B','C','D','E','F'].map(c => `<article class="${c === current ? 'active' : ''}"><span>${c}</span><b>${c === current ? 'Current' : 'Watch'}</b></article>`).join('')}</div>`;
+// HTML phase strip — one line below the wave explaining all codes; current bold
+function renderPhaseStrip(current) {
+  return PHASE_DEFS.map(([code, name]) => {
+    const isCur = code === current;
+    return isCur
+      ? `<strong>${esc(code)} ${esc(name)}</strong>`
+      : `<span>${esc(code)} ${esc(name)}</span>`;
+  }).join('<i> · </i>');
 }
 
+// ── Section ───────────────────────────────────────────────────────────────────
 function renderKostolanyEggSection(state) {
   const current = state.phase_code || 'C';
-  const broadRows = renderAllocationRows(state.broad_asset_posture);
-  const equityRows = renderEquityRows(state.equity_subcategory_posture);
-  const axes = {
-    mon: scoreAxis(state, 'monetary', { label: 'Monetary', score: 50, read: 'mixed' }),
-    liq: scoreAxis(state, 'liquidity', { label: 'Liquidity', score: 50, read: 'mixed' }),
-    psy: scoreAxis(state, 'psychology', { label: 'Psychology', score: 50, read: 'mixed' }),
-    str: scoreAxis(state, 'structure', { label: 'Structure', score: 50, read: 'mixed' }),
-    val: scoreAxis(state, 'valuation', { label: 'Valuation', score: 50, read: 'mixed' }),
-  };
-  const asOf = esc(new Date(state.as_of || Date.now()).toISOString().slice(0, 16).replace('T', ' '));
-  return `<section id="kostolany-egg-section" class="kostolany-egg-v3 egg-strategy-instrument">
-    <div class="ke-exact-app">
-      <section class="ke-masthead">
-        <div class="ke-hero"><p class="ke-eyebrow">Egg</p><h1>Kostolany Egg Diagram</h1><p class="ke-cycle-sub">Cycle allocation instrument: phase, allocation bias, stress type, and invalidation before any ticker-level decision.</p></div>
-        <div class="ke-operational"><span class="ke-dot"></span>Operational render<br>${asOf} UTC</div>
-      </section>
-      <section class="ke-cycle-stage">
-        <article class="ke-cycle-map-card"><div class="ke-egg-caption">Where are we in the cycle?</div>${renderEggSvg(current)}</article>
-        <article class="ke-current-read"><h3>What this phase tells us</h3><div class="ke-read-box"><div class="label">Market meaning</div><div class="value">${esc(state.phase_market_meaning)}</div></div><div class="ke-read-box"><div class="label">Capital action</div><div class="value">${esc(state.capital_action)}</div></div><div class="ke-read-box"><div class="label">Invalidation</div><div class="value">${esc(state.invalidation)}</div></div></article>
-      </section>
-      ${renderStrategySummary(state)}
-      ${renderAxisSummary(axes)}
-      ${renderPhaseRail(current)}
-      <section class="ke-allocation-row">
-        <article class="ke-card"><h3>Broad allocation guide</h3><div class="ke-rect-grid">${broadRows}</div></article>
-        <article class="ke-card"><h3>Equity rotation guide</h3><div class="ke-rect-grid ke-rect-grid-wide">${equityRows}</div></article>
-      </section>
-      <section class="ke-decision-use">
-        <article><span>Route handoff</span><b>Bias is not permission.</b><p>Egg tells Route whether the cycle favors defense, verification, accumulation, expansion, or distribution.</p></article>
-        <article><span>Decision use</span><b>Size the posture.</b><p>Use Egg for allocation bias, Movement for tape confirmation, and Route for capital permission.</p></article>
-      </section>
-      <div class="ke-footnote"><span class="ke-info">i</span> This macro allocation framework is not a prediction. It defines bias, constraints, and invalidation for downstream strategy.</div>
+  const asOf = esc(new Date(state.as_of || Date.now()).toISOString().slice(0, 10));
+
+  return `<section id="kostolany-egg-section" class="ke-section">
+    <div class="ke-wrap">
+      <div class="ke-bar">
+        <span class="ke-eyebrow">Kostolany Egg · Macro Cycle</span>
+        <span class="ke-asof">${asOf}</span>
+      </div>
+      <div class="ke-instrument">
+
+        <div class="ke-ring-col">
+          ${renderRingSvg(current)}
+          ${renderPhaseLegend(current)}
+        </div>
+
+        <div class="ke-divider"></div>
+
+        <div class="ke-wave-col">
+          ${renderWaveSvg(current)}
+          <p class="ke-phase-strip">${renderPhaseStrip(current)}</p>
+        </div>
+
+        <div class="ke-divider"></div>
+
+        <div class="ke-data-col">
+          <div class="ke-data-item">
+            <span>Phase</span>
+            <b>${esc(current)} · ${esc(state.macro_phase || 'Verification')}</b>
+          </div>
+          <div class="ke-data-item">
+            <span>Action</span>
+            <b class="ke-action">${esc(state.capital_action || '—')}</b>
+          </div>
+          <div class="ke-data-item">
+            <span>Stress type</span>
+            <b>${esc(state.stress_type || '—')}</b>
+          </div>
+          <div class="ke-data-item">
+            <span>Invalidation</span>
+            <b>${esc(state.invalidation || '—')}</b>
+          </div>
+          <div class="ke-data-item">
+            <span>Confidence</span>
+            <b>${esc(state.phase_confidence || '—')} /100</b>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>`;
 }

@@ -1,6 +1,6 @@
 # CCJ Opportunity Dossier
 
-Generated: 2026-06-06T21:07:36.045Z
+Generated: 2026-06-07T16:33:05.749Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 

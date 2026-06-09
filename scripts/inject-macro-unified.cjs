@@ -1152,110 +1152,270 @@ const previousCode = (phases.find(p => p.state === 'previous') || {}).code || 'B
 //   PEAK  of arc         → D              (expansion, broad participation, near peak)
 //   RIGHT side (falling) → E F            (euphoria at peak, then distribution/decline)
 // Current phase C is PRE-PEAK on the rising left side.
-const PHASE_POS = [
-  { code: 'A1', x: 38,  y: 148, side: 'below', note: 'Panic · forced exits',       date: "Oct '22"   },
-  { code: 'A2', x: 112, y: 108, side: 'below', note: 'Smart money accumulates',    date: "Jan '23"   },
-  { code: 'B',  x: 222, y: 50,  side: 'above', note: 'First green; skeptics sell', date: "Jun '23"   },
-  { code: 'C',  x: 298, y: 40,  side: 'above', note: 'Quality · Healthcare lead',  date: "Oct '23 →" },
-  { code: 'D',  x: 390, y: 37,  side: 'above', note: 'Cyclicals · Energy lead',    date: "next"      },
-  { code: 'E',  x: 478, y: 55,  side: 'above', note: 'Trim beta · raise cash',     date: ""          },
-  { code: 'F',  x: 568, y: 100, side: 'below', note: 'Defensives · bonds',         date: ""          },
-];
+// ── Cycle 5 canvas chart — Fed Funds Rate with phase nodes on actual data ────────
+// Live indicator values baked in at build time for the "YOU ARE HERE" callout
+const _rsiVal    = mvMap.rsi14?.value  != null ? Number(mvMap.rsi14.value).toFixed(1)       : '—';
+const _creditVal = mvMap.hy_oas?.value != null ? Number(mvMap.hy_oas.value).toFixed(2)      : '—';
+const _vixVal    = mvMap.vix?.value    != null ? Number(mvMap.vix.value).toFixed(1)          : '—';
+const _dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
 
-const cycleNodes = PHASE_POS.map(pp => {
-  const isCurrent  = pp.code === currentCode;
-  const isPrevious = pp.code === previousCode;
-  const r        = isCurrent ? 14 : 8;
-  const fill     = isCurrent ? '#A4502F' : isPrevious ? 'rgba(164,80,47,.28)' : 'rgba(201,191,173,.45)';
-  const stroke   = isCurrent ? '#A4502F' : 'rgba(201,191,173,.4)';
-  const textFill = isCurrent ? '#fff' : 'rgba(26,23,20,.55)';
-  const phase    = phases.find(p => p.code === pp.code);
-  const label    = phase ? esc(phase.label || pp.code) : pp.code;
+const cycleHtml = `<div class="mu-arc-wrap">
+  <div class="mu-arc-topbar">
+    <span class="mu-arc-label">Cycle 5 · Fed Funds Rate</span>
+    <span class="mu-arc-meta">Oct '22 start &middot; ~44 mo &middot; Next: Expansion</span>
+  </div>
+  <div class="mu-arc-canvas-box">
+    <canvas id="mucCycleCanvas"></canvas>
+  </div>
+</div>
+<script>
+(function(){
+  var CURRENT = "${currentCode}";
+  var RSI="${_rsiVal}", HY="${_creditVal}", VIX="${_vixVal}", DGS10="${_dgs10Val}";
+  var PHASES=[
+    {id:"A1",label:"Capitulation", date:"Oct '22",color:"#c46050"},
+    {id:"A2",label:"Accumulation", date:"Jan '23",color:"#c47a50"},
+    {id:"B", label:"Recovery",     date:"Jun '23",color:"#c4a050"},
+    {id:"C", label:"Verification", date:"Oct '23",color:"#b85c38"},
+    {id:"D", label:"Expansion",    date:"next",   color:"#7a9e82"},
+    {id:"E", label:"Euphoria",     date:"—", color:"#6a8eb0"},
+    {id:"F", label:"Distribution", date:"—", color:"#8a7aa0"},
+  ];
+  var RATE_DATA=[
+    {d:"Oct '22",r:3.08,phase:"A1"},
+    {d:"Jan '23",r:4.33,phase:"A2"},
+    {d:"Mar '23",r:4.65,phase:"A2"},
+    {d:"Jun '23",r:5.08,phase:"B"},
+    {d:"Aug '23",r:5.33,phase:"B"},
+    {d:"Oct '23",r:5.33,phase:"C",current:true},
+    {d:"Dec '23",r:5.33,phase:"C"},
+    {d:"Mar '24",r:5.33,phase:"C"},
+    {d:"Jun '24",r:5.33,phase:"C"},
+    {d:"Sep '24",r:4.83,phase:"C"},
+    {d:"Dec '24",r:4.33,phase:"C"},
+    {d:"Mar '25",r:4.33,phase:"C"},
+    {d:"Jun '25",r:4.25,phase:"C"},
+    {d:"Sep '25",r:4.25,phase:"D",projected:true},
+    {d:"Dec '25",r:3.75,phase:"D",projected:true},
+    {d:"Mar '26",r:3.75,phase:"D",projected:true},
+    {d:"Jun '26",r:3.50,phase:"D",projected:true},
+    {d:"Dec '26",r:3.25,phase:"E",projected:true},
+    {d:"Jun '27",r:3.10,phase:"E",projected:true},
+    {d:"Dec '27",r:3.00,phase:"F",projected:true},
+    {d:"2028+",  r:3.00,phase:"F",projected:true},
+  ];
+  var NODES=[
+    {id:"A1",di:0},{id:"A2",di:1},{id:"B",di:3},
+    {id:"C",di:5,current:true},
+    {id:"D",di:13},{id:"E",di:16},{id:"F",di:19},
+  ];
+  var RATE_MIN=0, RATE_MAX=6.5;
+  var canvas=document.getElementById("mucCycleCanvas");
+  if(!canvas)return;
+  var c=canvas.getContext("2d");
+  var anim=0, raf;
 
-  // Name and date offsets (compact)
-  const nameY = pp.side === 'above' ? pp.y - r - 9  : pp.y + r + 13;
-  const dateY = pp.side === 'above' ? pp.y - r + 3  : pp.y + r + 25;
-
-  let m = `<circle cx="${pp.x}" cy="${pp.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${isCurrent?1.5:1}"/>`;
-  m += `<text x="${pp.x}" y="${pp.y + (isCurrent?5:3.5)}" text-anchor="middle" font-size="${isCurrent?9:7.5}" font-weight="600" fill="${textFill}" font-family="inherit">${pp.code}</text>`;
-
-  if (isCurrent) {
-    const rsiVal    = mvMap.rsi14?.value  != null ? Number(mvMap.rsi14.value).toFixed(1)   : '—';
-    const creditVal = mvMap.hy_oas?.value != null ? Number(mvMap.hy_oas.value).toFixed(2)  : '—';
-    const vixVal    = mvMap.vix?.value    != null ? Number(mvMap.vix.value).toFixed(1)     : '—';
-    const dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
-    // Callout stack — bottom-most line must clear circle top (pp.y - r = 26) by ≥14px
-    // Stack from bottom: RSI@8, note@-3, label@-15, eyebrow@-27 — all well above circle
-    m += `<text x="${pp.x}" y="${pp.y - r - 53}" text-anchor="middle" font-size="7" font-weight="700" fill="#A4502F" letter-spacing=".10em" font-family="inherit">YOU ARE HERE</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 41}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#A4502F" font-family="inherit">${label}</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 29}" text-anchor="middle" font-size="7.5" fill="rgba(164,80,47,.70)" font-family="inherit">${esc(pp.note)}</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 18}" text-anchor="middle" font-size="7" fill="rgba(138,106,44,.68)" font-family="inherit">RSI ${rsiVal} · HY ${creditVal} · VIX ${vixVal} · 10Y ${dgs10Val}</text>`;
-    // Thin connector from callout base to node top
-    m += `<line x1="${pp.x}" y1="${pp.y - r - 13}" x2="${pp.x}" y2="${pp.y - r - 1}" stroke="rgba(164,80,47,.25)" stroke-width="1" stroke-dasharray="2 2"/>`;
-  } else {
-    const nameFill = isPrevious ? 'rgba(26,23,20,.55)' : 'rgba(26,23,20,.46)';
-    m += `<text x="${pp.x}" y="${nameY}" text-anchor="middle" font-size="8" font-weight="500" fill="${nameFill}" font-family="inherit">${label}</text>`;
+  function rr(cx,x,y,w,h,r){
+    cx.beginPath();cx.moveTo(x+r,y);cx.lineTo(x+w-r,y);cx.quadraticCurveTo(x+w,y,x+w,y+r);
+    cx.lineTo(x+w,y+h-r);cx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    cx.lineTo(x+r,y+h);cx.quadraticCurveTo(x,y+h,x,y+h-r);
+    cx.lineTo(x,y+r);cx.quadraticCurveTo(x,y,x+r,y);cx.closePath();
   }
-  return m;
-}).join('');
 
-// ── Timeline axis ─────────────────────────────────────────────────────────────
-// Horizontal baseline with drop lines from every node + date ticks
-const TL_Y = 172;
-const timelineAxis = `<line x1="18" y1="${TL_Y}" x2="690" y2="${TL_Y}"
-  stroke="rgba(201,191,173,.50)" stroke-width="1"/>`;
+  function draw(W,H){
+    c.clearRect(0,0,W,H);
+    var pL=44,pR=26,pT=28,pB=44;
+    var cW=W-pL-pR, cH=H-pT-pB;
+    var n=RATE_DATA.length;
+    var curIdx=RATE_DATA.findIndex(function(d){return d.current;});
+    function xOf(i){return pL+(i/(n-1))*cW;}
+    function yOf(r){return pT+(1-(r-RATE_MIN)/(RATE_MAX-RATE_MIN))*cH;}
 
-const timelineMarks = PHASE_POS.map(pp => {
-  const isCur  = pp.code === currentCode;
-  const isPast = ['A1','A2','B'].includes(pp.code) || isCur;
-  const isNext = pp.code === 'D';
-  const dropColor = isCur  ? 'rgba(164,80,47,.45)'
-                  : isNext ? 'rgba(42,107,74,.30)'
-                  : isPast ? 'rgba(201,191,173,.55)'
-                  :          'rgba(201,191,173,.28)';
-  const tickColor = isCur  ? '#A4502F'
-                  : isNext ? 'rgba(42,107,74,.55)'
-                  : isPast ? 'rgba(201,191,173,.80)'
-                  :          'rgba(201,191,173,.40)';
-  const dashArr = (isNext || !isPast) ? ' stroke-dasharray="3 4"' : '';
-  const dropFrom = pp.y + (pp.code === currentCode ? 14 : 8);  // bottom of circle
+    // Y grid + labels
+    [0,1,2,3,4,5,6].forEach(function(t){
+      var y=yOf(t);
+      c.beginPath();c.moveTo(pL,y);c.lineTo(pL+cW,y);
+      c.strokeStyle=t===0?"rgba(42,37,32,0.10)":"rgba(42,37,32,0.04)";
+      c.lineWidth=0.5;c.stroke();
+      c.font="9px IBM Plex Mono,monospace";
+      c.fillStyle="rgba(42,37,32,0.30)";
+      c.textAlign="right";c.textBaseline="middle";
+      c.fillText(t+"%",pL-7,y);
+    });
 
-  let t = `<line x1="${pp.x}" y1="${dropFrom}" x2="${pp.x}" y2="${TL_Y - 2}"
-    stroke="${dropColor}" stroke-width="0.75"${dashArr}/>`;
-  t += `<line x1="${pp.x}" y1="${TL_Y - 4}" x2="${pp.x}" y2="${TL_Y + 4}"
-    stroke="${tickColor}" stroke-width="${isCur ? 2 : 1.5}"/>`;
+    // Y axis line
+    c.beginPath();c.moveTo(pL,pT);c.lineTo(pL,pT+cH);
+    c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
-  const dateText = pp.date && pp.date !== '' ? esc(pp.date) : '';
-  if (dateText) {
-    const dateFill = isCur  ? '#A4502F'
-                   : isNext ? 'rgba(42,107,74,.60)'
-                   :          'rgba(26,23,20,.42)';
-    const dateWeight = isCur ? 'font-weight="600" ' : '';
-    t += `<text x="${pp.x}" y="${TL_Y + 15}" text-anchor="middle" font-size="7.5"
-      ${dateWeight}fill="${dateFill}" font-family="inherit">${dateText}</text>`;
+    // Under-curve fill (historical)
+    var histData=RATE_DATA.filter(function(_,i){return i<=curIdx;});
+    c.save();c.beginPath();
+    histData.forEach(function(d,i){var x=xOf(i),y=yOf(d.r);i===0?c.moveTo(x,y):c.lineTo(x,y);});
+    c.lineTo(xOf(curIdx),pT+cH);c.lineTo(pL,pT+cH);c.closePath();
+    var fg=c.createLinearGradient(0,pT,0,pT+cH);
+    fg.addColorStop(0,"rgba(184,92,56,0.11)");fg.addColorStop(1,"rgba(184,92,56,0.01)");
+    c.fillStyle=fg;c.fill();c.restore();
+
+    // Historical line — gradient terracotta
+    c.save();
+    var hg=c.createLinearGradient(pL,0,xOf(curIdx),0);
+    hg.addColorStop(0,"#c46050");hg.addColorStop(0.5,"#c4a050");hg.addColorStop(1,"#b85c38");
+    c.beginPath();
+    histData.forEach(function(d,i){var x=xOf(i),y=yOf(d.r);i===0?c.moveTo(x,y):c.lineTo(x,y);});
+    c.strokeStyle=hg;c.lineWidth=2;c.lineJoin="round";c.stroke();c.restore();
+
+    // Projected dashed line
+    var projData=RATE_DATA.filter(function(_,i){return i>=curIdx;});
+    c.save();c.setLineDash([4,5]);c.beginPath();
+    projData.forEach(function(d,i){var x=xOf(curIdx+i),y=yOf(d.r);i===0?c.moveTo(x,y):c.lineTo(x,y);});
+    c.strokeStyle="rgba(42,37,32,0.16)";c.lineWidth=1;c.stroke();
+    c.setLineDash([]);c.restore();
+
+    // Neutral ~3% reference line
+    var neutralY=yOf(3.0);
+    c.save();c.setLineDash([3,5]);c.beginPath();
+    c.moveTo(xOf(curIdx),neutralY);c.lineTo(pL+cW,neutralY);
+    c.strokeStyle="rgba(122,158,130,0.36)";c.lineWidth=0.75;c.stroke();
+    c.setLineDash([]);
+    c.font="8px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(122,158,130,0.58)";
+    c.textAlign="right";c.textBaseline="middle";
+    c.fillText("neutral ~3%",pL+cW-2,neutralY-7);c.restore();
+
+    // Divider at current + "projected" label
+    c.save();
+    c.beginPath();c.moveTo(xOf(curIdx),pT);c.lineTo(xOf(curIdx),pT+cH);
+    c.strokeStyle="rgba(184,92,56,0.14)";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);
+    c.font="7.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(42,37,32,0.18)";
+    c.textAlign="left";c.textBaseline="top";
+    c.fillText("← projected",xOf(curIdx+1)+3,pT+4);
+    c.restore();
+
+    // X axis line + date labels
+    c.beginPath();c.moveTo(pL,pT+cH);c.lineTo(pL+cW,pT+cH);
+    c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
+    [0,3,7,11,13,16,19].forEach(function(i){
+      if(i>=RATE_DATA.length)return;
+      var d=RATE_DATA[i];
+      c.font="8px IBM Plex Mono,monospace";
+      c.fillStyle=d.projected?"rgba(42,37,32,0.16)":"rgba(42,37,32,0.28)";
+      c.textAlign="center";c.textBaseline="top";
+      c.fillText(d.d,xOf(i),pT+cH+5);
+    });
+
+    // "Rate pressure" annotation box
+    var annX=xOf(curIdx)+8, annY=yOf(5.1);
+    c.save();
+    rr(c,annX,annY-8,88,16,2);
+    c.fillStyle="rgba(251,250,246,0.82)";c.fill();
+    c.strokeStyle="rgba(184,92,56,0.24)";c.lineWidth=0.5;c.stroke();
+    c.font="8px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(184,92,56,0.62)";
+    c.textAlign="center";c.textBaseline="middle";
+    c.fillText("Rate pressure",annX+44,annY);c.restore();
+
+    // Phase nodes
+    NODES.forEach(function(nd){
+      var ph=PHASES.find(function(p){return p.id===nd.id;});
+      var rd=RATE_DATA[nd.di];
+      var x=xOf(nd.di), y=yOf(rd.r);
+      var col=ph.color;
+      var isCur=!!nd.current;
+      var isPast=nd.di<=curIdx;
+      var rateNorm=(rd.r-RATE_MIN)/(RATE_MAX-RATE_MIN);
+      var above=rateNorm<0.55;
+
+      // Animated glow on current node
+      if(isCur){
+        var gr=15+3*Math.sin(anim*0.04);
+        var g=c.createRadialGradient(x,y,0,x,y,gr);
+        g.addColorStop(0,col+"28");g.addColorStop(1,col+"00");
+        c.beginPath();c.arc(x,y,gr,0,2*Math.PI);c.fillStyle=g;c.fill();
+        c.beginPath();c.arc(x,y,10,0,2*Math.PI);
+        c.strokeStyle=col+"30";c.lineWidth=0.75;c.stroke();
+      }
+
+      // Circle
+      var r=isCur?6.5:4;
+      c.beginPath();c.arc(x,y,r,0,2*Math.PI);
+      c.fillStyle=isPast?col:"rgba(244,239,230,0.92)";
+      if(isCur){c.shadowColor=col;c.shadowBlur=6;}
+      c.fill();c.shadowBlur=0;
+      if(!isPast){c.strokeStyle=col;c.lineWidth=0.75;c.stroke();}
+
+      // Inner dot
+      c.beginPath();c.arc(x,y,isCur?2:1.5,0,2*Math.PI);
+      c.fillStyle=isPast?"rgba(244,239,230,0.85)":col;c.fill();
+
+      // Drop line for current node
+      if(isCur){
+        c.save();c.beginPath();c.moveTo(x,y+r);c.lineTo(x,pT+cH);
+        c.strokeStyle=col+"1a";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();
+        c.setLineDash([]);c.restore();
+      }
+
+      var labelOff=13;
+      var labelY=above?y-r-labelOff:y+r+labelOff;
+
+      // "YOU ARE HERE" badge with live data
+      if(isCur){
+        var bw=80,bh=13,bx=x-bw/2;
+        var by=above?labelY-20:labelY+12;
+        c.save();
+        rr(c,bx,by,bw,bh,2);
+        c.fillStyle=col+"14";c.fill();
+        c.strokeStyle=col+"44";c.lineWidth=0.5;c.stroke();
+        c.font="500 7.5px IBM Plex Mono,monospace";
+        c.fillStyle=col;c.textAlign="center";c.textBaseline="middle";
+        c.fillText("YOU ARE HERE",x,by+bh/2);c.restore();
+        // Live data row below badge
+        c.font="7.5px IBM Plex Mono,monospace";
+        c.fillStyle="rgba(138,106,44,0.65)";
+        c.textAlign="center";c.textBaseline="top";
+        var dataY=above?by+bh+3:by-12;
+        c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,x,dataY);
+      }
+
+      // Phase ID
+      c.font="500 9px IBM Plex Mono,monospace";
+      c.fillStyle=isPast?col:"rgba(42,37,32,0.26)";
+      c.textAlign="center";c.textBaseline="alphabetic";
+      c.fillText(nd.id,x,above?labelY:labelY+11);
+
+      // Phase name
+      c.font="8.5px IBM Plex Mono,monospace";
+      c.fillStyle=isPast?"rgba(42,37,32,0.40)":"rgba(42,37,32,0.18)";
+      c.fillText(ph.label,x,above?labelY-11:labelY+22);
+    });
   }
-  return t;
-}).join('');
 
-const cycleSvg = `<svg viewBox="0 -55 700 250" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
-  <defs>
-    <marker id="cyArr" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto">
-      <path d="M0,0 L5,2.5 L0,5Z" fill="rgba(42,107,74,.55)"/>
-    </marker>
-  </defs>
-  <!-- Full cycle base path -->
-  <path d="M18,155 C52,155 72,115 112,108 S174,50 222,50 S310,35 348,35 S428,52 460,52 S530,98 558,98 S618,142 652,148 L690,155"
-        fill="none" stroke="rgba(201,191,173,.45)" stroke-width="1.5"/>
-  <!-- Traveled path A2 → B → C (pre-peak rising side) -->
-  <path d="M112,108 S174,50 222,50 S262,40 298,40"
-        fill="none" stroke="rgba(164,80,47,.60)" stroke-width="2"/>
-  <!-- Next: C → D (toward peak, green dashed) -->
-  <path d="M298,40 S340,35 390,37"
-        fill="none" stroke="rgba(42,107,74,.45)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#cyArr)"/>
-  ${timelineAxis}
-  ${timelineMarks}
-  ${cycleNodes}
-</svg>`;
+  function resize(){
+    var wrap=canvas.parentElement;
+    var rect=wrap.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    var dpr=window.devicePixelRatio||1;
+    canvas.width=rect.width*dpr;
+    canvas.height=rect.height*dpr;
+    canvas.style.width=rect.width+"px";
+    canvas.style.height=rect.height+"px";
+    c.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function loop(){
+    anim++;
+    var wrap=canvas.parentElement;
+    var rect=wrap.getBoundingClientRect();
+    if(rect.width&&rect.height)draw(rect.width,rect.height);
+    raf=requestAnimationFrame(loop);
+  }
+
+  window.addEventListener("resize",function(){
+    cancelAnimationFrame(raf);resize();raf=requestAnimationFrame(loop);
+  });
+  setTimeout(function(){resize();loop();},60);
+})();
+<\/script>`;
 
 // ── Macro Regime Engine ───────────────────────────────────────────────────────
 
@@ -1714,6 +1874,12 @@ const style = `<style id="macro-unified-style">
 /* ── Cycle + Regime two-column ── */
 .mu-regime-row{display:grid;grid-template-columns:minmax(0,1.1fr) 320px;gap:22px;padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45);align-items:start}
 .mu-cycle-arc-col{min-width:0}
+.mu-arc-wrap{display:flex;flex-direction:column;gap:0;min-width:0}
+.mu-arc-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 9px;border-bottom:0.5px solid rgba(201,191,173,.28);margin-bottom:10px}
+.mu-arc-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(44,42,37,.36);font-family:var(--mono,monospace)}
+.mu-arc-meta{font-size:9px;color:rgba(44,42,37,.32);font-family:var(--mono,monospace)}
+.mu-arc-canvas-box{position:relative;width:100%;height:280px}
+.mu-arc-canvas-box canvas{width:100%;height:100%;display:block}
 .mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 /* Regime column */
 .mu-regime-col{border:1px solid rgba(201,191,173,.45);border-radius:18px;padding:16px 15px;background:rgba(251,250,246,.28);display:flex;flex-direction:column;gap:0}
@@ -2009,7 +2175,7 @@ const section = `<section id="macro-unified-section" class="macro-unified">
 
   <!-- 2. Cycle position + Regime framework -->
   <div class="mu-regime-row">
-    <div class="mu-cycle-arc-col">${cycleSvg}</div>
+    <div class="mu-cycle-arc-col">${cycleHtml}</div>
     ${regimeCol}
   </div>
 

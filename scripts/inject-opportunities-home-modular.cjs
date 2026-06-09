@@ -67,8 +67,7 @@ const dynamicForRender = dynamic ? {
 // The hardcoded opportunity-asymmetry-state pipeline is retired — dynamic universe drives everything.
 const stateForRender = { ...state, opportunity_clusters: [] };
 
-// Pass no static conviction list — the screener is the authority, not the hardcoded top10.
-const section = renderOpportunitiesSection(stateForRender, null, null, scanner, dynamicForRender);
+const section = renderOpportunitiesSection(stateForRender, null, conviction, scanner, dynamicForRender);
 const style   = renderOpportunitiesStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');

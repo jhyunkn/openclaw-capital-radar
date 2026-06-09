@@ -412,22 +412,24 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       : null;
     const revLabel = revGrowth ? `+${revGrowth}` : (e.revenue_inflection || null);
 
+    const isRevRecovery = e.revenue_inflection === 'RECOVERY' || (e.revenue_interp || '').startsWith('Revenue growing');
     let tag, explain;
     if (e.open_market_signal === 'STRONG') {
       const mm = e.open_market_value_mm ? `$${Number(e.open_market_value_mm).toFixed(1)}M` : 'significant';
       tag = 'Insider buy';
-      explain = `${pctDown ? `Down ${pctDown} from its 52-week high` : 'At a cyclical trough'}${revGrowth ? `, yet revenue is still growing ${revGrowth}` : ''}. That gap — stock falling while the business grows — is the setup. An insider put ${mm} of personal money in at this price. Executives don't do that when they expect it to go lower.`;
+      explain = `${pctDown ? `Down ${pctDown} from its 52-week high` : 'At a cyclical trough'}${isRevRecovery && revGrowth ? `, yet revenue is still growing ${revGrowth}` : ''}. That gap — stock falling while the business grows — is the setup. An insider put ${mm} of personal money in at this price. Executives don't do that when they expect it to go lower.`;
     } else {
       const eventEv = arr(e.evidence).find(s => /market event/i.test(s)) || '';
       const eventNote = eventEv
         ? ' ' + eventEv.replace(/^[^:]+:\s*/, '').replace(/ \(.*?\)$/, '').replace(/ — HIGH signal$/i, ' is also in play.').slice(0, 90)
         : '';
       tag = 'Promoted';
-      explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${revGrowth ? ` with ${revGrowth} revenue growth` : ''}.${eventNote} The system confirmed: competitive position is intact, price is at a trough, and demand is beginning to recover.`;
+      explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${isRevRecovery && revGrowth ? ` with ${revGrowth} revenue growth` : ''}.${eventNote} The system confirmed: competitive position is intact, price is at a trough, and demand is beginning to recover.`;
     }
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_conviction', tag, explain, why: dynOneLiner(e),
-      price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: revLabel });
+      price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14,
+      rev: isRevRecovery ? revLabel : null });
   }
 
   for (const e of arr(dynamicUniverse?.watchlist_promotions)) {
@@ -437,8 +439,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const revGrowth = e.revenue_interp
       ? e.revenue_interp.replace('Revenue growing ', '').replace(/ — recovery confirmed$/i, '').trim()
       : null;
-    const revLabel2 = revGrowth ? `+${revGrowth}` : (e.revenue_inflection || null);
-    const explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${revGrowth ? ` with ${revGrowth} revenue growth` : ''}. The scanner confirmed all three criteria: durable competitive moat, price at a cyclical trough, and demand starting to inflect. No insider confirmation yet — keep on close watch before acting.`;
+    const isRevRecovery2 = e.revenue_inflection === 'RECOVERY' || (e.revenue_interp || '').startsWith('Revenue growing');
+    const revLabel2 = isRevRecovery2 && revGrowth ? `+${revGrowth}` : null;
+    const explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${isRevRecovery2 && revGrowth ? ` with ${revGrowth} revenue growth` : ''}. The scanner confirmed all three criteria: durable competitive moat, price at a cyclical trough, and demand starting to inflect. No insider confirmation yet — keep on close watch before acting.`;
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_watchlist', tag: 'Full scan', explain,
       why: dynOneLiner(e), price: e.live_price, pct52wh: e.pct_from_52w_high,
@@ -464,19 +467,27 @@ function buildUnifiedList(conviction, dynamicUniverse) {
 
   for (const cv of arr(conviction?.top10)) {
     if (seen.has(cv.ticker)) continue;
+    // Live data lives at top level (snake_case), not inside cv.entry (which is null)
     const e = cv.entry || {};
-    const boost = attentionBoost(e.pctFrom52wHigh, null, cv.window_score, false);
+    const livePct = cv.pct_from_52w_high ?? e.pctFrom52wHigh;
+    const boost = attentionBoost(livePct, null, cv.window_score, false);
     const isActive = cv.window_score === 3;
-    const pctDown = e.pctFrom52wHigh != null ? `${Math.abs(e.pctFrom52wHigh)}%` : null;
-    const timingNote = isActive ? (cv.timing_note || cv.timing_status || '') : '';
+    const pctDown = livePct != null ? `${Math.abs(livePct)}%` : null;
+    // Strip "Watch:" prefix so timing reads naturally in the explain sentence
+    const rawTiming = cv.timing_note || cv.timing_status || '';
+    const timingNote = isActive ? rawTiming.replace(/^Watch:\s*/i, '') : '';
     const nextCat = !isActive ? (cv.next_catalyst || '') : '';
     const explain = isActive
-      ? `One of the top-ranked businesses in this universe, and the system sees price in an active entry zone right now. ${snip(timingNote, 120)} Worth researching a position within a name you'd want to hold long-term.`
-      : `Top-conviction name with no active buy signal — only ${pctDown || 'a small amount'} below its 52-week high, not at a trough. ${nextCat ? `Watch for: ${snip(nextCat, 100)}.` : 'Track for the next meaningful pullback.'} If it corrects 15–20%, it becomes a high-priority research target.`;
+      ? `One of the top-ranked businesses in this universe, and the system sees price in an active entry zone right now. ${timingNote ? snip(timingNote, 120) + ' ' : ''}Worth researching a position within a name you'd want to hold long-term.`
+      : `Top-conviction name with no active buy signal — ${pctDown ? `${pctDown} below its 52-week high` : 'not at a trough'}, not in buy territory yet. ${nextCat ? `Watch for: ${snip(nextCat, 100)}.` : 'Track for the next meaningful pullback.'} If it corrects further, it becomes a high-priority research target.`;
     tier3.push({ ticker: cv.ticker, name: cv.name || '', attention: cv.conviction_score + boost,
       source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring', explain,
-      why: snip(cv.why_core || '', 140),
-      price: e.currentPrice ?? e.currentEst, pct52wh: e.pctFrom52wHigh, rsi: e.rsi14, rev: null,
+      why: snip(cv.why_core || cv.decline_explanation || '', 140),
+      price: cv.live_price ?? e.currentPrice ?? e.currentEst,
+      pct52wh: livePct,
+      rsi: cv.rsi14 ?? e.rsi14,
+      rev: null,
+      timing: isActive ? (cv.timing_status || '') : '',
       entryLow: e.low ?? null, entryHigh: e.high ?? null,
       window_score: cv.window_score });
   }
@@ -532,11 +543,14 @@ function renderBriefCard(item, rank) {
   const entryTx = (item.entryLow && item.entryHigh)
     ? `Entry ${fmtShort(item.entryLow)}–${fmtShort(item.entryHigh)}`
     : null;
+  const isUrgent = item.timing && (/this month|high urgency/i.test(item.timing));
+  const timingTx = item.timing || null;
   const chips = [
     pctTx ? `<span class="ub-chip ${deepPct ? 'ub-deep' : ''}">${esc(pctTx)}</span>` : '',
     entryTx ? `<span class="ub-chip ub-entry">${esc(entryTx)}</span>` : '',
     rsiTx ? `<span class="ub-chip">${esc(rsiTx)}</span>` : '',
     revTx ? `<span class="ub-chip ub-rev">${esc(revTx)}</span>` : '',
+    timingTx ? `<span class="ub-chip ${isUrgent ? 'ub-urgent' : 'ub-timing'}">${esc(timingTx)}</span>` : '',
   ].filter(Boolean).join('');
 
   return `<article class="ub-card ${cardCls}">
@@ -632,10 +646,10 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
   const allRows = flattenOpportunityRows(state || {});
   const { opportunities } = selectDisplayRows(allRows);
 
-  const cvSummary = conviction?.summary || {};
   const dynConv   = arr(dynamicUniverse?.conviction_promotions).length;
   const dynWatch  = arr(dynamicUniverse?.watchlist_promotions).length;
   const dynEvent  = arr(dynamicUniverse?.event_driven_candidates).length;
+  const activeWindows = arr(conviction?.top10).filter(c => c.window_score === 3).length;
   const asOf = conviction?.generated_at
     ? new Date(conviction.generated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : '—';
@@ -643,7 +657,7 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
   const stripItems = [
     ['System picks', dynConv + dynWatch],
     ['Catalysts', dynEvent],
-    ['Entry windows', cvSummary.active_windows || 0],
+    ['Entry windows', activeWindows],
     ['As of', asOf, true],
   ];
   const trustStrip = stripItems.map(([label, value, isText]) =>
@@ -723,6 +737,8 @@ function renderOpportunitiesStyle() {
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 .ub-entry{color:var(--warn)!important;border-color:rgba(138,106,44,.28)!important;background:rgba(138,106,44,.05)!important}
+.ub-timing{color:rgba(36,35,31,.52)!important;border-color:rgba(201,191,173,.5)!important;background:rgba(251,250,246,.18)!important}
+.ub-urgent{color:var(--warn)!important;border-color:rgba(138,106,44,.38)!important;background:rgba(138,106,44,.08)!important;font-weight:700!important}
 /* Legend — explains the 4 card tiers */
 .ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(201,191,173,.45);border-radius:2px;background:rgba(251,250,246,.18)}
 .ub-legend-row{display:flex;align-items:baseline;gap:10px}

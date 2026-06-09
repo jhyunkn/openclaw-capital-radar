@@ -1158,6 +1158,9 @@ const _rsiVal    = mvMap.rsi14?.value  != null ? Number(mvMap.rsi14.value).toFix
 const _creditVal = mvMap.hy_oas?.value != null ? Number(mvMap.hy_oas.value).toFixed(2)      : '—';
 const _vixVal    = mvMap.vix?.value    != null ? Number(mvMap.vix.value).toFixed(1)          : '—';
 const _dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
+// Live Fed Funds Rate (DFF) from liveRatesCredit — used as the "now" data point
+const _dffEntry  = (liveState.liveRatesCredit || []).find(r => r.id === 'DFF');
+const _dffRate   = _dffEntry?.value != null ? Number(_dffEntry.value).toFixed(2) : '3.62';
 
 const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-topbar">
@@ -1181,33 +1184,40 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {id:"E", label:"Euphoria",     date:"—", color:"#6a8eb0"},
     {id:"F", label:"Distribution", date:"—", color:"#8a7aa0"},
   ];
+  // Historical data: actual FEDFUNDS through Jun '26 (DFF=${_dffRate}%).
+  // Sep '25–Mar '26 are estimated based on Fed cutting path.
+  // current:true marks the solid/dashed boundary = today.
   var RATE_DATA=[
-    {d:"Oct '22",r:3.08,phase:"A1"},
-    {d:"Jan '23",r:4.33,phase:"A2"},
-    {d:"Mar '23",r:4.65,phase:"A2"},
-    {d:"Jun '23",r:5.08,phase:"B"},
-    {d:"Aug '23",r:5.33,phase:"B"},
-    {d:"Oct '23",r:5.33,phase:"C",current:true},
-    {d:"Dec '23",r:5.33,phase:"C"},
-    {d:"Mar '24",r:5.33,phase:"C"},
-    {d:"Jun '24",r:5.33,phase:"C"},
-    {d:"Sep '24",r:4.83,phase:"C"},
-    {d:"Dec '24",r:4.33,phase:"C"},
-    {d:"Mar '25",r:4.33,phase:"C"},
-    {d:"Jun '25",r:4.25,phase:"C"},
-    {d:"Sep '25",r:4.25,phase:"D",projected:true},
-    {d:"Dec '25",r:3.75,phase:"D",projected:true},
-    {d:"Mar '26",r:3.75,phase:"D",projected:true},
-    {d:"Jun '26",r:3.50,phase:"D",projected:true},
-    {d:"Dec '26",r:3.25,phase:"E",projected:true},
-    {d:"Jun '27",r:3.10,phase:"E",projected:true},
-    {d:"Dec '27",r:3.00,phase:"F",projected:true},
-    {d:"2028+",  r:3.00,phase:"F",projected:true},
+    {d:"Oct '22",r:3.08,phase:"A1"},          // 0
+    {d:"Jan '23",r:4.33,phase:"A2"},          // 1
+    {d:"Mar '23",r:4.65,phase:"A2"},          // 2
+    {d:"Jun '23",r:5.08,phase:"B"},           // 3
+    {d:"Aug '23",r:5.33,phase:"B"},           // 4
+    {d:"Oct '23",r:5.33,phase:"C"},           // 5  ← rate peak
+    {d:"Dec '23",r:5.33,phase:"C"},           // 6
+    {d:"Mar '24",r:5.33,phase:"C"},           // 7
+    {d:"Jun '24",r:5.33,phase:"C"},           // 8
+    {d:"Sep '24",r:4.83,phase:"C"},           // 9  ← first cut (-50bp)
+    {d:"Nov '24",r:4.58,phase:"C"},           // 10 ← cut (-25bp)
+    {d:"Dec '24",r:4.33,phase:"C"},           // 11 ← cut (-25bp)
+    {d:"Mar '25",r:4.33,phase:"C"},           // 12 ← held (tariff pause)
+    {d:"Jun '25",r:4.25,phase:"C"},           // 13
+    {d:"Sep '25",r:4.00,phase:"C"},           // 14 ← estimated
+    {d:"Dec '25",r:3.75,phase:"D"},           // 15 ← estimated
+    {d:"Mar '26",r:3.62,phase:"D"},           // 16 ← estimated
+    {d:"Jun '26",r:${_dffRate},phase:"D",current:true}, // 17 ← LIVE DFF
+    {d:"Dec '26",r:3.25,phase:"E",projected:true},      // 18
+    {d:"Jun '27",r:3.10,phase:"E",projected:true},      // 19
+    {d:"Dec '27",r:3.00,phase:"F",projected:true},      // 20
+    {d:"2028+",  r:3.00,phase:"F",projected:true},      // 21
   ];
+  // Node di values reference the RATE_DATA index where each phase was identified.
+  // Glow / "YOU ARE HERE" is driven by nd.id === CURRENT (live Kostolany phase).
   var NODES=[
     {id:"A1",di:0},{id:"A2",di:1},{id:"B",di:3},
-    {id:"C",di:5,current:true},
-    {id:"D",di:13},{id:"E",di:16},{id:"F",di:19},
+    {id:"C",di:5},   // phase C identified at Oct '23 peak
+    {id:"D",di:17},  // D transition at Jun '26
+    {id:"E",di:18},{id:"F",di:20},
   ];
   var RATE_MIN=0, RATE_MAX=6.5;
   var canvas=document.getElementById("mucCycleCanvas");
@@ -1308,8 +1318,8 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.beginPath();c.moveTo(pL,pT+cH);c.lineTo(pL+cW,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
-    // "YOU ARE HERE" callout — pinned to top of chart above current node
-    var curX=xOf(NODES.find(function(n){return n.current;}).di);
+    // "YOU ARE HERE" callout — pinned to top of chart above current Kostolany phase node
+    var curX=xOf((NODES.find(function(n){return n.id===CURRENT;})||NODES[3]).di);
     var curCol="#b85c38";
     c.save();
     var bw=82,bh=14;
@@ -1332,7 +1342,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
       var rd=RATE_DATA[nd.di];
       var x=xOf(nd.di), y=yOf(rd.r);
       var col=ph.color;
-      var isCur=!!nd.current;
+      var isCur=(nd.id===CURRENT);  // driven by live Kostolany phase
       var isPast=nd.di<=curIdx;
 
       // Animated glow on current node

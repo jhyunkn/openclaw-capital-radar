@@ -210,6 +210,7 @@ function verifyFinalOutput() {
 archiveLiveReport();
 normalizeLiveState();
 runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection failed before Vercel copy');
+runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 rm(out);
 fs.mkdirSync(out, { recursive: true });

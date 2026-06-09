@@ -1147,50 +1147,97 @@ const phases = Array.isArray(egg.phases) ? egg.phases : [];
 const currentCode  = egg.phase_code || 'C';
 const previousCode = (phases.find(p => p.state === 'previous') || {}).code || 'B';
 
+// Phase positions follow the arc geometry:
+//   LEFT  side (rising)  → A1 A2 B C      (accumulation → verification, prices climbing)
+//   PEAK  of arc         → D              (expansion, broad participation, near peak)
+//   RIGHT side (falling) → E F            (euphoria at peak, then distribution/decline)
+// Current phase C is PRE-PEAK on the rising left side.
 const PHASE_POS = [
-  { code: 'A1', x: 38,  y: 148, side: 'below', note: 'Panic · Bonds · Gold',     behavior: "panic · forced exits · Oct '22" },
-  { code: 'A2', x: 112, y: 108, side: 'below', note: 'Policy pivot · Prepare',   behavior: 'smart money buys · press silent' },
-  { code: 'B',  x: 222, y: 50,  side: 'above', note: 'Tech · Discretionary',     behavior: 'first green · skeptics sell rallies' },
-  { code: 'C',  x: 348, y: 35,  side: 'above', note: 'Quality · Healthcare',     behavior: 'Quality leads · No FOMO yet' },
-  { code: 'D',  x: 460, y: 52,  side: 'above', note: 'Cyclicals · Energy',       behavior: 'FOMO begins · breadth expands' },
-  { code: 'E',  x: 558, y: 98,  side: 'below', note: 'Trim beta · Raise cash',   behavior: 'everyone in · PE at peak' },
-  { code: 'F',  x: 636, y: 142, side: 'below', note: 'Defensives · Bonds',       behavior: 'smart exits · late buyers arrive' },
+  { code: 'A1', x: 38,  y: 148, side: 'below', note: 'Panic · forced exits',       date: "Oct '22"   },
+  { code: 'A2', x: 112, y: 108, side: 'below', note: 'Smart money accumulates',    date: "Jan '23"   },
+  { code: 'B',  x: 222, y: 50,  side: 'above', note: 'First green; skeptics sell', date: "Jun '23"   },
+  { code: 'C',  x: 298, y: 40,  side: 'above', note: 'Quality · Healthcare lead',  date: "Oct '23 →" },
+  { code: 'D',  x: 390, y: 37,  side: 'above', note: 'Cyclicals · Energy lead',    date: "next"      },
+  { code: 'E',  x: 478, y: 55,  side: 'above', note: 'Trim beta · raise cash',     date: ""          },
+  { code: 'F',  x: 568, y: 100, side: 'below', note: 'Defensives · bonds',         date: ""          },
 ];
 
 const cycleNodes = PHASE_POS.map(pp => {
   const isCurrent  = pp.code === currentCode;
   const isPrevious = pp.code === previousCode;
-  const r = isCurrent ? 18 : 11;
-  const fill   = isCurrent ? '#A4502F' : isPrevious ? 'rgba(164,80,47,.28)' : 'rgba(201,191,173,.45)';
-  const stroke = isCurrent ? '#A4502F' : 'rgba(201,191,173,.4)';
+  const r        = isCurrent ? 14 : 8;
+  const fill     = isCurrent ? '#A4502F' : isPrevious ? 'rgba(164,80,47,.28)' : 'rgba(201,191,173,.45)';
+  const stroke   = isCurrent ? '#A4502F' : 'rgba(201,191,173,.4)';
   const textFill = isCurrent ? '#fff' : 'rgba(26,23,20,.55)';
-  const labelY = pp.side === 'above' ? pp.y - r - 26 : pp.y + r + 13;
-  const noteY  = pp.side === 'above' ? pp.y - r - 10 : pp.y + r + 27;
-  const phase  = phases.find(p => p.code === pp.code);
-  const label  = phase ? esc(phase.label || pp.code) : pp.code;
+  const phase    = phases.find(p => p.code === pp.code);
+  const label    = phase ? esc(phase.label || pp.code) : pp.code;
 
-  let m = `<circle cx="${pp.x}" cy="${pp.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${isCurrent?2:1}"/>`;
-  m += `<text x="${pp.x}" y="${pp.y+4}" text-anchor="middle" font-size="${isCurrent?9:8}" font-weight="600" fill="${textFill}" font-family="inherit">${pp.code}</text>`;
+  // Name and date offsets (compact)
+  const nameY = pp.side === 'above' ? pp.y - r - 9  : pp.y + r + 13;
+  const dateY = pp.side === 'above' ? pp.y - r + 3  : pp.y + r + 25;
+
+  let m = `<circle cx="${pp.x}" cy="${pp.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${isCurrent?1.5:1}"/>`;
+  m += `<text x="${pp.x}" y="${pp.y + (isCurrent?5:3.5)}" text-anchor="middle" font-size="${isCurrent?9:7.5}" font-weight="600" fill="${textFill}" font-family="inherit">${pp.code}</text>`;
+
   if (isCurrent) {
-    const rsiVal    = mvMap.rsi14?.value   != null ? Number(mvMap.rsi14.value).toFixed(1)  : '—';
-    const creditVal = mvMap.hy_oas?.value  != null ? Number(mvMap.hy_oas.value).toFixed(2) : '—';
-    const vixVal    = mvMap.vix?.value     != null ? Number(mvMap.vix.value).toFixed(1)    : '—';
-    const dgs10Val  = mvMap.dgs10?.value   != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
-    m += `<text x="${pp.x}" y="${pp.y - r - 44}" text-anchor="middle" font-size="7.5" font-weight="700" fill="#A4502F" letter-spacing=".12em" font-family="inherit">YOU ARE HERE</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 31}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#A4502F" font-family="inherit">${label}</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 18}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.75)" font-family="inherit">${esc(pp.note)}</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r - 7}" text-anchor="middle" font-size="8" fill="rgba(138,106,44,.72)" font-family="inherit">RSI ${rsiVal} · Credit ${creditVal} · VIX ${vixVal} · 10Y ${dgs10Val}</text>`;
-    m += `<text x="${pp.x}" y="${pp.y - r + 5}" text-anchor="middle" font-size="7.5" fill="rgba(26,23,20,.42)" font-family="inherit">Fed 3.65% cutting · D not yet confirmed</text>`;
+    const rsiVal    = mvMap.rsi14?.value  != null ? Number(mvMap.rsi14.value).toFixed(1)   : '—';
+    const creditVal = mvMap.hy_oas?.value != null ? Number(mvMap.hy_oas.value).toFixed(2)  : '—';
+    const vixVal    = mvMap.vix?.value    != null ? Number(mvMap.vix.value).toFixed(1)     : '—';
+    const dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
+    // Callout stack — bottom-most line must clear circle top (pp.y - r = 26) by ≥14px
+    // Stack from bottom: RSI@8, note@-3, label@-15, eyebrow@-27 — all well above circle
+    m += `<text x="${pp.x}" y="${pp.y - r - 53}" text-anchor="middle" font-size="7" font-weight="700" fill="#A4502F" letter-spacing=".10em" font-family="inherit">YOU ARE HERE</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r - 41}" text-anchor="middle" font-size="9.5" font-weight="600" fill="#A4502F" font-family="inherit">${label}</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r - 29}" text-anchor="middle" font-size="7.5" fill="rgba(164,80,47,.70)" font-family="inherit">${esc(pp.note)}</text>`;
+    m += `<text x="${pp.x}" y="${pp.y - r - 18}" text-anchor="middle" font-size="7" fill="rgba(138,106,44,.68)" font-family="inherit">RSI ${rsiVal} · HY ${creditVal} · VIX ${vixVal} · 10Y ${dgs10Val}</text>`;
+    // Thin connector from callout base to node top
+    m += `<line x1="${pp.x}" y1="${pp.y - r - 13}" x2="${pp.x}" y2="${pp.y - r - 1}" stroke="rgba(164,80,47,.25)" stroke-width="1" stroke-dasharray="2 2"/>`;
   } else {
-    m += `<text x="${pp.x}" y="${labelY}" text-anchor="middle" font-size="9" font-weight="500" fill="${isPrevious?'rgba(26,23,20,.55)':'rgba(26,23,20,.5)'}" font-family="inherit">${label}</text>`;
-    if (pp.behavior) {
-      m += `<text x="${pp.x}" y="${noteY}" text-anchor="middle" font-size="7.5" fill="rgba(26,23,20,.38)" font-family="inherit">${esc(pp.behavior)}</text>`;
-    }
+    const nameFill = isPrevious ? 'rgba(26,23,20,.55)' : 'rgba(26,23,20,.46)';
+    m += `<text x="${pp.x}" y="${nameY}" text-anchor="middle" font-size="8" font-weight="500" fill="${nameFill}" font-family="inherit">${label}</text>`;
   }
   return m;
 }).join('');
 
-const cycleSvg = `<svg viewBox="0 -48 700 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+// ── Timeline axis ─────────────────────────────────────────────────────────────
+// Horizontal baseline with drop lines from every node + date ticks
+const TL_Y = 172;
+const timelineAxis = `<line x1="18" y1="${TL_Y}" x2="690" y2="${TL_Y}"
+  stroke="rgba(201,191,173,.50)" stroke-width="1"/>`;
+
+const timelineMarks = PHASE_POS.map(pp => {
+  const isCur  = pp.code === currentCode;
+  const isPast = ['A1','A2','B'].includes(pp.code) || isCur;
+  const isNext = pp.code === 'D';
+  const dropColor = isCur  ? 'rgba(164,80,47,.45)'
+                  : isNext ? 'rgba(42,107,74,.30)'
+                  : isPast ? 'rgba(201,191,173,.55)'
+                  :          'rgba(201,191,173,.28)';
+  const tickColor = isCur  ? '#A4502F'
+                  : isNext ? 'rgba(42,107,74,.55)'
+                  : isPast ? 'rgba(201,191,173,.80)'
+                  :          'rgba(201,191,173,.40)';
+  const dashArr = (isNext || !isPast) ? ' stroke-dasharray="3 4"' : '';
+  const dropFrom = pp.y + (pp.code === currentCode ? 14 : 8);  // bottom of circle
+
+  let t = `<line x1="${pp.x}" y1="${dropFrom}" x2="${pp.x}" y2="${TL_Y - 2}"
+    stroke="${dropColor}" stroke-width="0.75"${dashArr}/>`;
+  t += `<line x1="${pp.x}" y1="${TL_Y - 4}" x2="${pp.x}" y2="${TL_Y + 4}"
+    stroke="${tickColor}" stroke-width="${isCur ? 2 : 1.5}"/>`;
+
+  const dateText = pp.date && pp.date !== '' ? esc(pp.date) : '';
+  if (dateText) {
+    const dateFill = isCur  ? '#A4502F'
+                   : isNext ? 'rgba(42,107,74,.60)'
+                   :          'rgba(26,23,20,.42)';
+    const dateWeight = isCur ? 'font-weight="600" ' : '';
+    t += `<text x="${pp.x}" y="${TL_Y + 15}" text-anchor="middle" font-size="7.5"
+      ${dateWeight}fill="${dateFill}" font-family="inherit">${dateText}</text>`;
+  }
+  return t;
+}).join('');
+
+const cycleSvg = `<svg viewBox="0 -55 700 250" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
   <defs>
     <marker id="cyArr" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto">
       <path d="M0,0 L5,2.5 L0,5Z" fill="rgba(42,107,74,.55)"/>
@@ -1198,17 +1245,136 @@ const cycleSvg = `<svg viewBox="0 -48 700 240" xmlns="http://www.w3.org/2000/svg
   </defs>
   <!-- Full cycle base path -->
   <path d="M18,155 C52,155 72,115 112,108 S174,50 222,50 S310,35 348,35 S428,52 460,52 S530,98 558,98 S618,142 652,148 L690,155"
-        fill="none" stroke="rgba(201,191,173,.45)" stroke-width="2"/>
-  <!-- Traveled path: A2 → B → C (full journey) -->
-  <path d="M112,108 S174,50 222,50 S310,35 348,35"
-        fill="none" stroke="rgba(164,80,47,.65)" stroke-width="2.5"/>
-  <!-- Next path: C → D (dotted green, what's coming) -->
-  <path d="M348,35 S428,52 460,52"
+        fill="none" stroke="rgba(201,191,173,.45)" stroke-width="1.5"/>
+  <!-- Traveled path A2 → B → C (pre-peak rising side) -->
+  <path d="M112,108 S174,50 222,50 S262,40 298,40"
+        fill="none" stroke="rgba(164,80,47,.60)" stroke-width="2"/>
+  <!-- Next: C → D (toward peak, green dashed) -->
+  <path d="M298,40 S340,35 390,37"
         fill="none" stroke="rgba(42,107,74,.45)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#cyArr)"/>
-  <!-- Footer -->
-  <text x="350" y="185" text-anchor="middle" font-size="7.5" fill="rgba(26,23,20,.28)" letter-spacing=".12em" font-family="inherit">ECONOMIC CYCLE · KOSTOLANY FRAMEWORK · 2022–PRESENT</text>
+  ${timelineAxis}
+  ${timelineMarks}
   ${cycleNodes}
 </svg>`;
+
+// ── Macro Regime Engine ───────────────────────────────────────────────────────
+
+function computeRegime(mvMap) {
+  const vix   = num(mvMap.vix?.value);
+  const oas   = num(mvMap.hy_oas?.value);
+  const rsi   = num(mvMap.rsi14?.value);
+  const dgs10 = num(mvMap.dgs10?.value);
+
+  // Growth axis: +1 supportive, 0 neutral, -1 headwind
+  const gInputs = [];
+  let gScore = 0;
+  if (vix !== null) {
+    const d = vix < 18 ? '↑' : vix >= 25 ? '↓' : '→';
+    const s = vix < 18 ? 1 : vix >= 25 ? -1 : 0;
+    gScore += s; gInputs.push({ label: 'VIX', val: vix.toFixed(1), dir: d, s });
+  }
+  if (oas !== null) {
+    const d = oas < 3.2 ? '↑' : oas >= 4.5 ? '↓' : '→';
+    const s = oas < 3.2 ? 1 : oas >= 4.5 ? -1 : 0;
+    gScore += s; gInputs.push({ label: 'HY OAS', val: oas.toFixed(2), dir: d, s });
+  }
+  if (rsi !== null) {
+    const d = rsi > 55 ? '↑' : rsi < 45 ? '↓' : '→';
+    const s = rsi > 55 ? 1 : rsi < 45 ? -1 : 0;
+    gScore += s; gInputs.push({ label: 'RSI', val: rsi.toFixed(1), dir: d, s });
+  }
+
+  // Inflation axis: +1 pressure rising, 0 neutral, -1 easing
+  const iInputs = [];
+  let iScore = 0;
+  if (dgs10 !== null) {
+    const d = dgs10 > 4.5 ? '↑' : dgs10 < 3.5 ? '↓' : '→';
+    const s = dgs10 > 4.5 ? 1 : dgs10 < 3.5 ? -1 : 0;
+    iScore += s; iInputs.push({ label: '10Y Yield', val: dgs10.toFixed(2) + '%', dir: d, s });
+  }
+  if (oas !== null) {
+    const d = oas < 2.8 ? '↑' : oas >= 5.0 ? '↓' : '→';
+    const s = oas < 2.8 ? 1 : oas >= 5.0 ? -1 : 0;
+    iScore += s; iInputs.push({ label: 'Credit (HY)', val: oas.toFixed(2), dir: d, s });
+  }
+
+  const gRising = gScore >= 0;
+  const iRising = iScore > 0;
+
+  let name, sub, favor, avoid, watch;
+  if  (gRising && !iRising) {
+    name = 'GOLDILOCKS';   sub = 'Growth solid · inflation contained';
+    favor = 'Tech · Healthcare · Quality compounders';
+    avoid = 'Commodities · EM · Leveraged beta';
+    watch = 'HY OAS > 3.5 or 10Y > 5% → shift to Reflation';
+  } else if (gRising && iRising) {
+    name = 'REFLATION';    sub = 'Growth rising · inflation climbing';
+    favor = 'Cyclicals · Energy · Real assets · EM';
+    avoid = 'Long-duration growth · Bonds';
+    watch = 'Credit widening or PMI rollover → regime peak';
+  } else if (!gRising && iRising) {
+    name = 'STAGFLATION';  sub = 'Growth stalling · inflation sticky';
+    favor = 'Cash · Real assets · Short-duration';
+    avoid = 'Equities broadly · Duration';
+    watch = 'Fed pivot signal → path back to Goldilocks';
+  } else {
+    name = 'DEFLATION';    sub = 'Growth slowing · inflation easing';
+    favor = 'Bonds · Defensives · Quality';
+    avoid = 'Cyclicals · Commodities · EM';
+    watch = 'Stimulus or credit stabilisation → recovery';
+  }
+
+  return { name, sub, favor, avoid, watch, gScore, iScore, gRising, iRising, gInputs, iInputs };
+}
+
+const regime = computeRegime(mvMap);
+
+function dirColor(dir) {
+  return dir === '↑' ? '#2a6b4a' : dir === '↓' ? '#A4502F' : 'rgba(26,23,20,.40)';
+}
+
+function regimeInputRow(inp) {
+  return `<div class="mu-rg-inp-row">
+    <span class="mu-rg-inp-label">${esc(inp.label)}</span>
+    <b class="mu-rg-inp-val">${esc(inp.val)}</b>
+    <em class="mu-rg-inp-dir" style="color:${dirColor(inp.dir)}">${inp.dir}</em>
+  </div>`;
+}
+
+const regimeCol = `<div class="mu-regime-col">
+  <span class="mu-rg-eyebrow">Macro Regime Engine</span>
+  <b class="mu-rg-name">${esc(regime.name)}</b>
+  <p class="mu-rg-sub">${esc(regime.sub)}</p>
+
+  <div class="mu-rg-quad-wrap">
+    <div class="mu-rg-axis-y">Growth ↑</div>
+    <div class="mu-rg-grid">
+      <div class="mu-rg-cell ${regime.name === 'GOLDILOCKS'   ? 'mu-rg-on' : ''}"><b>Goldilocks</b><small>Tech · Quality</small></div>
+      <div class="mu-rg-cell ${regime.name === 'REFLATION'    ? 'mu-rg-on' : ''}"><b>Reflation</b><small>Cyclicals · Energy</small></div>
+      <div class="mu-rg-cell ${regime.name === 'DEFLATION'    ? 'mu-rg-on' : ''}"><b>Deflation</b><small>Bonds · Defensives</small></div>
+      <div class="mu-rg-cell ${regime.name === 'STAGFLATION'  ? 'mu-rg-on' : ''}"><b>Stagflation</b><small>Cash · Real assets</small></div>
+    </div>
+    <div class="mu-rg-axis-x">Inflation →</div>
+  </div>
+
+  <div class="mu-rg-inputs">
+    <div class="mu-rg-inp-col">
+      <span class="mu-rg-inp-head">Growth</span>
+      ${regime.gInputs.map(regimeInputRow).join('')}
+    </div>
+    <div class="mu-rg-inp-col">
+      <span class="mu-rg-inp-head">Inflation</span>
+      ${regime.iInputs.map(regimeInputRow).join('')}
+    </div>
+  </div>
+
+  <div class="mu-rg-impl">
+    <div><span>Kostolany</span>Phase ${phaseCode} · consistent with ${esc(regime.name)}</div>
+    <div><span>Favor</span>${esc(regime.favor)}</div>
+    <div><span>Avoid</span>${esc(regime.avoid)}</div>
+    <div><span>Watch</span>${esc(regime.watch)}</div>
+  </div>
+</div>`;
 
 // ── Phase → portfolio bridge ──────────────────────────────────────────────────
 
@@ -1545,8 +1711,38 @@ const style = `<style id="macro-unified-style">
 .mu-sig-val{display:block;font-size:16px;letter-spacing:-.04em;font-weight:500;color:var(--c);line-height:1}
 .mu-sig-sub{display:block;font-size:9px;color:rgba(26,23,20,.45);margin-top:3px;white-space:nowrap;overflow:hidden}
 
-/* ── Cycle + Sectors ── */
+/* ── Cycle + Regime two-column ── */
+.mu-regime-row{display:grid;grid-template-columns:minmax(0,1.1fr) 320px;gap:22px;padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45);align-items:start}
+.mu-cycle-arc-col{min-width:0}
 .mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
+/* Regime column */
+.mu-regime-col{border:1px solid rgba(201,191,173,.45);border-radius:18px;padding:16px 15px;background:rgba(251,250,246,.28);display:flex;flex-direction:column;gap:0}
+.mu-rg-eyebrow{font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block}
+.mu-rg-name{display:block;font-size:20px;font-weight:500;letter-spacing:-.04em;margin:3px 0 1px;color:rgba(26,23,20,.88)}
+.mu-rg-sub{font-size:10.5px;color:var(--muted);margin:0 0 13px;line-height:1.4}
+/* Quadrant grid */
+.mu-rg-quad-wrap{margin-bottom:12px}
+.mu-rg-axis-y{font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);opacity:.55;margin-bottom:3px}
+.mu-rg-axis-x{font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);opacity:.55;margin-top:3px;text-align:right}
+.mu-rg-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(201,191,173,.38);border-radius:10px;overflow:hidden}
+.mu-rg-cell{padding:9px 11px;border:1px solid rgba(201,191,173,.22);box-sizing:border-box}
+.mu-rg-cell b{display:block;font-size:9.5px;font-weight:600;color:rgba(26,23,20,.35);line-height:1.2}
+.mu-rg-cell small{font-size:8px;color:rgba(26,23,20,.28)}
+.mu-rg-on{background:rgba(47,111,78,.07)}
+.mu-rg-on b{color:rgba(47,111,78,.80)}
+.mu-rg-on small{color:rgba(47,111,78,.50)}
+/* Inputs */
+.mu-rg-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.mu-rg-inp-head{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
+.mu-rg-inp-row{display:flex;align-items:baseline;gap:4px;padding:2px 0;border-bottom:1px solid rgba(201,191,173,.18);font-size:9.5px}
+.mu-rg-inp-label{flex:1;color:rgba(26,23,20,.45)}
+.mu-rg-inp-val{font-weight:500;color:rgba(26,23,20,.68)}
+.mu-rg-inp-dir{font-style:normal;font-size:10px}
+/* Implications */
+.mu-rg-impl{border-top:1px solid rgba(201,191,173,.35);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+.mu-rg-impl>div{font-size:9.5px;color:rgba(26,23,20,.62);line-height:1.4}
+.mu-rg-impl span{display:inline-block;font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);min-width:50px;margin-right:4px}
+@media(max-width:860px){.mu-regime-row{grid-template-columns:1fr}.mu-regime-col{margin-top:0}}
 .mu-zone-label{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:rgba(26,23,20,.38);margin:0 0 14px;font-family:var(--mono,monospace)}
 .mu-sector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .mu-sector{border:1px solid var(--bd);background:var(--bg);border-left:2.5px solid var(--c);padding:8px 9px 7px;display:flex;flex-direction:column;gap:2px}
@@ -1663,6 +1859,34 @@ details[open].mu-details summary:before{content:'↑'}
 @media(max-width:1100px){.mu-regime{grid-template-columns:1fr}.mu-regime-meta{flex-direction:row;align-items:center;flex-wrap:wrap}.mu-conf{text-align:left}}
 @media(max-width:960px){.mu-charts-row{grid-template-columns:1fr}.mu-chart-block{padding-right:0;border-right:none;border-bottom:1px solid rgba(201,191,173,.38);padding-bottom:20px}.mu-vix-block{padding-left:0;padding-top:20px}.mu-sc-strip{grid-template-columns:repeat(5,1fr)}.mu-cycle-row{grid-template-columns:1fr}.mu-action-row{grid-template-columns:1fr}}
 @media(max-width:640px){.mu-sc-strip{grid-template-columns:repeat(3,1fr)}.mu-sector-grid{grid-template-columns:repeat(2,1fr)}}
+/* ── Axis evidence (Why Phase C) ── */
+.mu-axis-block{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-axis-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.mu-axis-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;font-family:var(--mono,monospace)}
+.mu-axis-note-head{font-size:10.5px;color:rgba(164,80,47,.7)}
+.mu-axis-list{display:flex;flex-direction:column;gap:9px}
+.mu-axis-row{display:grid;grid-template-columns:130px 1fr 34px 1fr;gap:8px;align-items:center}
+.mu-axis-label{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
+.mu-axis-bar-track{height:5px;background:rgba(201,191,173,.25)}
+.mu-axis-bar-fill{height:100%}
+.mu-axis-score-num{font-size:11px;font-weight:600;font-family:var(--mono,monospace);text-align:right}
+.mu-axis-read{font-size:10.5px;color:rgba(26,23,20,.5);line-height:1.3}
+.mu-axis-tension{font-size:12.5px;color:rgba(26,23,20,.65);margin:14px 0 0;padding:10px 14px;border-left:2.5px solid rgba(164,80,47,.45);background:rgba(164,80,47,.04);line-height:1.5}
+@media(max-width:700px){.mu-axis-row{grid-template-columns:90px 1fr 28px}.mu-axis-read{display:none}}
+/* ── Phase C history ── */
+.mu-phase-history{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-ph-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.mu-ph-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;font-family:var(--mono,monospace)}
+.mu-ph-sub{font-size:10.5px;color:rgba(26,23,20,.42)}
+.mu-ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(201,191,173,.45)}
+.mu-ph-item{padding:16px 18px;border-right:1px solid rgba(201,191,173,.38)}
+.mu-ph-item:last-child{border-right:none}
+.mu-ph-period{font-size:16px;font-weight:600;letter-spacing:-.03em;color:#1A1714;margin-bottom:8px}
+.mu-ph-dur{font-size:11px;font-weight:400;color:rgba(26,23,20,.42);margin-left:6px;letter-spacing:0}
+.mu-ph-item p{font-size:12px;color:rgba(26,23,20,.6);margin:0 0 5px;line-height:1.5}
+.mu-ph-item p b{color:rgba(26,23,20,.75)}
+.mu-ph-today{color:#2a6b4a!important}
+@media(max-width:700px){.mu-ph-grid{grid-template-columns:1fr}.mu-ph-item{border-right:none;border-bottom:1px solid rgba(201,191,173,.38)}.mu-ph-item:last-child{border-bottom:none}}
 </style>`;
 
 // ── Scorecard strip HTML ──────────────────────────────────────────────────────
@@ -1681,19 +1905,94 @@ const addZoneStr  = Array.isArray(chart.add_zone)  ? chart.add_zone.map(v => v.t
 const trimZoneStr = Array.isArray(chart.trim_zone) ? chart.trim_zone.map(v => v.toLocaleString('en-US',{maximumFractionDigits:0})).join('–') : '—';
 const defStr      = chart.defense_below ? chart.defense_below.toLocaleString('en-US',{maximumFractionDigits:0}) : '—';
 
+// ── Axis evidence: Why Phase C ────────────────────────────────────────────────
+const AXIS_DEFS = [
+  { key: 'monetary_axis',         blocking: true  },
+  { key: 'liquidity_axis',        blocking: true  },
+  { key: 'psychology_axis',       blocking: false },
+  { key: 'market_structure_axis', blocking: false },
+  { key: 'valuation_axis',        blocking: false },
+];
+const eggAxis = egg.axis || {};
+const axisList = AXIS_DEFS.map(d => ({ ...eggAxis[d.key], blocking: d.blocking })).filter(a => a && a.label);
+
+function axisColor(score, blocking) {
+  if (blocking) return score < 40 ? '#A4502F' : score < 60 ? '#8a6a2c' : '#2a6b4a';
+  return score >= 65 ? '#2a6b4a' : score >= 45 ? '#8a6a2c' : '#A4502F';
+}
+
+const blockingFail = axisList.filter(a => a.blocking && (num(a.score) ?? 50) < 60).length;
+
+const axisEvidenceHtml = axisList.length > 0 ? `<div class="mu-axis-block">
+  <div class="mu-axis-head">
+    <span class="mu-axis-title">Why Phase ${phaseCode} — the evidence</span>
+    <span class="mu-axis-note-head">${blockingFail} of 2 monetary axes below Phase D threshold</span>
+  </div>
+  <div class="mu-axis-list">
+    ${axisList.map(ax => {
+      const score = num(ax.score) ?? 50;
+      const color = axisColor(score, ax.blocking);
+      const blockNote = ax.blocking && score < 60 ? ' · blocking Phase D' : '';
+      return `<div class="mu-axis-row">
+        <div class="mu-axis-label">${esc(ax.label)}</div>
+        <div class="mu-axis-bar-track"><div class="mu-axis-bar-fill" style="width:${score}%;background:${color}"></div></div>
+        <div class="mu-axis-score-num" style="color:${color}">${score}</div>
+        <div class="mu-axis-read">${esc(ax.read || '')}${esc(blockNote)}</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <p class="mu-axis-tension">The tension: Market Structure (${num(eggAxis.market_structure_axis?.score) ?? '—'}/100) has moved toward Phase D — price held above the 200D. Monetary (${num(eggAxis.monetary_axis?.score) ?? '—'}/100) and Liquidity (${num(eggAxis.liquidity_axis?.score) ?? '—'}/100) have not. That gap is Phase C.</p>
+</div>` : '';
+
+// ── Historical Phase C reference ──────────────────────────────────────────────
+const PHASE_C_PERIODS = [
+  {
+    period: '2019 Q1–Q2',
+    duration: '4 months',
+    context: 'Post-2018 Q4 selloff. Fed had hiked 9 times and then signaled a pause.',
+    resolved: 'Phase D unlocked when Fed pivoted — first rate cut signal in July 2019 broke the stall.',
+    pattern: 'SPX consolidated above 200D for months, then broke higher once cut narrative solidified.',
+    today: 'Same rate pressure dynamic: Fed has begun cutting but 10Y remains elevated above 4.2%.',
+  },
+  {
+    period: '2023 H2',
+    duration: '3 months',
+    context: 'Post-regional bank stress. Inflation moderating but Fed still restrictive at 5.25%.',
+    resolved: 'Phase D unlocked when market priced in 2024 cuts — 10Y peaked at ~5% in October 2023.',
+    pattern: 'SPX tested 200D twice and held both times. Rally began when rate expectations turned.',
+    today: 'Same resolution mechanism: watch for 10Y sustained move below 4.0% and VIX below 15.',
+  },
+];
+
+const historicalPhaseCHtml = `<div class="mu-phase-history">
+  <div class="mu-ph-head">
+    <span class="mu-ph-title">When we were here before — Phase C reference periods</span>
+    <span class="mu-ph-sub">Both resolved into Phase D when monetary conditions eased</span>
+  </div>
+  <div class="mu-ph-grid">
+    ${PHASE_C_PERIODS.map(h => `<div class="mu-ph-item">
+      <div class="mu-ph-period">${esc(h.period)} <span class="mu-ph-dur">${esc(h.duration)}</span></div>
+      <p>${esc(h.context)}</p>
+      <p><b>Resolved:</b> ${esc(h.resolved)}</p>
+      <p><b>Pattern:</b> ${esc(h.pattern)}</p>
+      <p class="mu-ph-today"><b>Today:</b> ${esc(h.today)}</p>
+    </div>`).join('')}
+  </div>
+</div>`;
+
 // ── Assemble section ──────────────────────────────────────────────────────────
 
 const section = `<section id="macro-unified-section" class="macro-unified">
 <div class="mu-wrap">
 
-  <!-- Regime header -->
+  <!-- 1. Regime header: diagnosis anchor -->
   <div class="mu-regime">
     <div>
       <p class="mu-phase-eyebrow">Macro intelligence · Phase ${phaseCode} · ${diagLabel}</p>
       <h2 class="mu-phase-title">${phaseName}</h2>
       ${signalBarHtml}
       <div class="mu-action">
-        <span>What to do</span>
+        <span>Capital action</span>
         <b>${action}</b>
         <small>${changeRule}</small>
       </div>
@@ -1708,48 +2007,37 @@ const section = `<section id="macro-unified-section" class="macro-unified">
     </div>
   </div>
 
-  <!-- Unified SPX chart: 5-year journey + tactical zones + rate cycle -->
+  <!-- 2. Cycle position + Regime framework -->
+  <div class="mu-regime-row">
+    <div class="mu-cycle-arc-col">${cycleSvg}</div>
+    ${regimeCol}
+  </div>
+
+  <!-- 3. Why Phase C: axis evidence -->
+  ${axisEvidenceHtml}
+
+  <!-- 4. What unlocks Phase D: forward triggers -->
+  ${tensionGatesHtml}
+
+  <!-- 5. When we were here before: historical Phase C reference -->
+  ${historicalPhaseCHtml}
+
+  <!-- 6. SPX chart: price confirmation -->
   <div class="mu-unified-chart-block">
     <div class="mu-chart-head">
-      <h3>S&amp;P 500 — full journey · add/trim/defense zones · rate cycle</h3>
-      <span>The 90-day tactical view is the highlighted right tail of this chart — same frame, full context</span>
+      <h3>S&amp;P 500 — price confirmation · add/trim/defense zones</h3>
+      <span>Above 200D · consolidating · consistent with Phase C thesis</span>
     </div>
     ${unifiedChart}
   </div>
 
-  <!-- Bear leg comparison: 2022 bear vs 2025 correction, both normalized from peak -->
-  ${bearComparisonChart ? `<div class="mu-comparison-block">
-    <div class="mu-chart-head">
-      <h3>2022 bear vs 2025 correction — both anchored at their peak, normalized</h3>
-      <span>X-axis = trading days since each peak · dark = current cycle · amber = 2022 bear</span>
-    </div>
-    ${bearComparisonChart}
-  </div>` : ''}
-
-  <!-- Daily briefing: today's session read -->
-  ${dailyBriefingHtml}
-
-  <!-- Phase C tension + transition gates -->
-  ${tensionGatesHtml}
-
-  <!-- Cycle + sector rotation -->
-  <div class="mu-cycle-row">
-    <div>
-      ${cycleSvg}
-    </div>
-    <div>
-      <div class="mu-sector-grid">${sectorGrid}</div>
-      <div class="mu-sector-legend">
-        <span><i style="background:#2a6b4a"></i>Favor</span>
-        <span><i style="background:#8a6a2c"></i>Watch</span>
-        <span><i style="background:#A4502F"></i>Reduce</span>
-      </div>
-    </div>
-  </div>
-
+  <!-- 7. Holdings alignment with phase -->
   ${phaseBridge}
 
-  <!-- Action block -->
+  <!-- 8. Today's session read -->
+  ${dailyBriefingHtml}
+
+  <!-- 9. Capital action zones -->
   <div class="mu-action-row">
     <div class="mu-action-card mu-action-green">
       <span>Add zone (S&amp;P 500)</span>
@@ -1765,10 +2053,15 @@ const section = `<section id="macro-unified-section" class="macro-unified">
     </div>
   </div>
 
-  <!-- Tier 2: Full analysis -->
+  <!-- 10. Deep research: collapsed -->
   <details class="mu-details">
-    <summary>Full macro analysis — historical analogs, decision brief, market tape</summary>
+    <summary>Full analysis — 2022 vs 2025 comparison, historical analogs, decision brief</summary>
     <div class="mu-details-body">
+      ${bearComparisonChart ? `<div class="mu-detail-group">
+        <h4>2022 bear vs 2025 correction — normalized from peak</h4>
+        <p style="font-size:12px;color:rgba(26,23,20,.55);margin:0 0 12px;line-height:1.5">Both anchored at their respective peaks, normalized to 0. Shows trajectory depth relative to 2022. <em>Note: different causal regimes</em> — 2022 was Fed-driven structural tightening; 2025 was tariff/sentiment shock with a different resolution mechanism. Illustrative, not predictive.</p>
+        ${bearComparisonChart}
+      </div>` : ''}
       ${remainingAnalogs ? `<div class="mu-detail-group"><h4>Historical analogs</h4>${remainingAnalogs}</div>` : ''}
       ${cmsHtml ? `<div class="mu-detail-group">${cmsHtml}</div>` : ''}
       ${dbHtml  ? `<div class="mu-detail-group">${dbHtml}</div>`  : ''}
@@ -1820,7 +2113,10 @@ const removals = REMOVE_IDS
 
 for (const { start, end } of removals) html = html.slice(0, start) + html.slice(end);
 
-const insertPos = findPos(html, 'operational-chart-section');
+// macro-unified is always first — find the earliest existing section after <header>
+const headerEnd = html.indexOf('</header>');
+const firstSectionAfterHeader = html.indexOf('<section', headerEnd >= 0 ? headerEnd : 0);
+const insertPos = firstSectionAfterHeader >= 0 ? firstSectionAfterHeader : (findPos(html, 'operational-chart-section') || -1);
 html = insertPos >= 0
   ? html.slice(0, insertPos) + section + html.slice(insertPos)
   : html.slice(0, html.lastIndexOf('</main>')) + section + html.slice(html.lastIndexOf('</main>'));

@@ -383,6 +383,9 @@ for (const event of (marketEventsRaw?.events || [])) {
       rsi14:            mkt.rsi14,
       moat_summary:     scannerDef?.moat || staticDef?.moat || '',
       demand_inflection: scannerDef?.demandInflectionSignal || '',
+      early_entry_signal: scannerDef?.demandInflectionSignal || staticDef?.earlyEntrySignal || null,
+      invalidation:     scannerDef?.invalidation || staticDef?.invalidation || null,
+      next_catalyst:    scannerDef?.catalystWindow || staticDef?.catalystWindow || null,
       theme_adjacency:  scannerDef?.themeAdjacency || [],
       from_static_universe: isStatic,
       static_conviction_score: isStatic ? convScore : undefined,
@@ -429,9 +432,10 @@ const output = {
   },
   // Promoted entries (scanner-generated)
   conviction_promotions: convictionPromotions.map(s => {
-    const mkt = marketData?.tickers?.[s.candidate.ticker];
-    const xbrl = xbrlData?.tickers?.[s.candidate.ticker];
-    const form4 = form4Data?.tickers?.[s.candidate.ticker];
+    const mkt    = marketData?.tickers?.[s.candidate.ticker];
+    const xbrl   = xbrlData?.tickers?.[s.candidate.ticker];
+    const form4  = form4Data?.tickers?.[s.candidate.ticker];
+    const scanDef = scannerCandidateMap[s.candidate.ticker];
     return {
       ticker:              s.candidate.ticker,
       name:                s.candidate.name,
@@ -439,6 +443,9 @@ const output = {
       score:               s.scoreResult.promotion_score,
       evidence:            s.scoreResult.evidence,
       thesis:              generateThesis(s.candidate, s.scoreResult).summary,
+      early_entry_signal:  scanDef?.demandInflectionSignal || null,
+      invalidation:        scanDef?.invalidation || null,
+      next_catalyst:       scanDef?.catalystWindow || null,
       live_price:          mkt?.currentPrice ?? null,
       pct_from_52w_high:   mkt?.pctFrom52wHigh ?? null,
       rsi14:               mkt?.rsi14 ?? null,
@@ -453,9 +460,10 @@ const output = {
     };
   }),
   watchlist_promotions: watchlistPromotions.map(s => {
-    const mkt = marketData?.tickers?.[s.candidate.ticker];
-    const xbrl = xbrlData?.tickers?.[s.candidate.ticker];
-    const form4 = form4Data?.tickers?.[s.candidate.ticker];
+    const mkt    = marketData?.tickers?.[s.candidate.ticker];
+    const xbrl   = xbrlData?.tickers?.[s.candidate.ticker];
+    const form4  = form4Data?.tickers?.[s.candidate.ticker];
+    const scanDef = scannerCandidateMap[s.candidate.ticker];
     return {
       ticker:              s.candidate.ticker,
       name:                s.candidate.name,
@@ -463,6 +471,9 @@ const output = {
       score:               s.scoreResult.promotion_score,
       evidence:            s.scoreResult.evidence,
       thesis:              generateThesis(s.candidate, s.scoreResult).summary,
+      early_entry_signal:  scanDef?.demandInflectionSignal || null,
+      invalidation:        scanDef?.invalidation || null,
+      next_catalyst:       scanDef?.catalystWindow || null,
       gaps:                s.scoreResult.gaps,
       live_price:          mkt?.currentPrice ?? null,
       pct_from_52w_high:   mkt?.pctFrom52wHigh ?? null,

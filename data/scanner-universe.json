@@ -1,289 +1,337 @@
 {
-  "version": 2,
-  "asOf": "2026-06-09",
-  "policy": "Extended universe for the Moat-at-Trough scanner. These are NOT in the active conviction universe \u2014 they are candidates the scanner watches for promotion. Each ticker has moat criteria that define whether the competitive advantage is durable even in a downcycle, and trough signals that define when the cyclical low may be forming.",
+  "version": 3,
+  "asOf": "2026-06-10",
+  "policy": "Extended universe for the Moat-at-Trough scanner. These are NOT in the active conviction universe — they are candidates the scanner watches for promotion. Each ticker has moat criteria that define whether the competitive advantage is durable even in a downcycle, and trough signals that define when the cyclical low may be forming.",
   "candidates": [
     {
       "ticker": "MU",
       "name": "Micron Technology",
       "sector": "Memory & Storage",
-      "themeAdjacency": [
-        "AI_INFRASTRUCTURE",
-        "AI_INFERENCE_DEMAND"
-      ],
+      "themeAdjacency": ["AI_INFRASTRUCTURE", "AI_INFERENCE_DEMAND"],
       "supplyChainLevel": 3,
-      "moat": "Top-3 global HBM/DRAM manufacturer. Only 3 companies can make HBM (Micron, SK Hynix, Samsung) \u2014 spec-qualified in NVIDIA GPU supply chain. 40 years of process IP.",
+      "moat": "Top-3 global HBM/DRAM manufacturer. Only 3 companies can make HBM (Micron, SK Hynix, Samsung) — spec-qualified in NVIDIA GPU supply chain. 40 years of process IP.",
       "historicalGrossMarginPct": 42,
       "cyclicalNature": "highly_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
       "demandInflectionSignal": "HBM allocation sold out per earnings calls. AI GPU density increasing memory per chip.",
-      "promotionCriteria": "nearTrough=true AND (themeAdjacency active) AND (insider buying OR revenue QoQ inflecting)"
+      "promotionCriteria": "nearTrough=true AND (themeAdjacency active) AND (insider buying OR revenue QoQ inflecting)",
+      "invalidation": "HBM pricing collapses on Samsung oversupply. Memory capex cycle peaks before AI inference demand ramps. Revenue growth decelerates two consecutive quarters.",
+      "catalystWindow": "Next earnings: AI revenue breakdown + HBM allocation expansion. Any NVIDIA GPU architecture shift away from HBM."
     },
     {
       "ticker": "WDC",
       "name": "Western Digital (SanDisk NAND)",
       "sector": "Memory & Storage",
-      "themeAdjacency": [
-        "AI_INFRASTRUCTURE",
-        "AI_INFERENCE_DEMAND"
-      ],
+      "themeAdjacency": ["AI_INFRASTRUCTURE", "AI_INFERENCE_DEMAND"],
       "supplyChainLevel": 3,
       "moat": "Top-3 global NAND flash manufacturer. Spinning out SanDisk brand as standalone entity. AI model storage, data lake expansion, and edge inference all require NAND at scale.",
       "historicalGrossMarginPct": 38,
       "cyclicalNature": "highly_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
       "demandInflectionSignal": "NAND pricing recovering. Enterprise SSD demand accelerating from AI workload data lakes.",
-      "promotionCriteria": "nearTrough=true AND NAND pricing inflection confirmed in earnings"
+      "promotionCriteria": "nearTrough=true AND NAND pricing inflection confirmed in earnings",
+      "invalidation": "NAND pricing reversal — Samsung or Kioxia oversupply restarts pricing war. SanDisk spinout execution risk. Enterprise SSD demand weakens.",
+      "catalystWindow": "SanDisk spinout completion (late 2026). Next earnings: NAND pricing + enterprise SSD ASP trend."
+    },
+    {
+      "ticker": "ETN",
+      "name": "Eaton Corporation",
+      "sector": "Power Management / Electrical",
+      "themeAdjacency": ["AI_INFRASTRUCTURE", "GRID_MODERNIZATION"],
+      "supplyChainLevel": 2,
+      "moat": "Industrial switching costs in power management — utilities and data centers run multi-decade procurement relationships with Eaton. Electrical infrastructure (switchgear, PDUs, UPS systems) is spec'd into data center designs years before construction. Near-impossible to displace mid-project.",
+      "historicalGrossMarginPct": 35,
+      "cyclicalNature": "low_cyclical",
+      "troughThresholdPctFrom52wHigh": -20,
+      "demandInflectionSignal": "Eaton is down 13.5% from its 52-week high while AI data center electrical buildout is accelerating. Every hyperscaler data center requires Eaton power distribution. The company has $14B+ backlog driven by data center orders. Insider bought $390K at trough — recent open-market purchase, not an option exercise.",
+      "promotionCriteria": "nearTrough=true AND data center order book growth AND insider buy confirmed",
+      "invalidation": "Hyperscaler capex guidance cut >20% — direct impact on data center electrical buildout. Revenue growth falls below 10% for two consecutive quarters. Backlog growth turns negative.",
+      "catalystWindow": "Q2 2026 earnings (Jul 2026): data center order book size + margin expansion. Any major hyperscaler data center campus announcement is a direct catalyst."
+    },
+    {
+      "ticker": "NXT",
+      "name": "Nextracker",
+      "sector": "Solar Tracking Systems",
+      "themeAdjacency": ["GRID_MODERNIZATION", "AI_INFRASTRUCTURE"],
+      "supplyChainLevel": 3,
+      "moat": "Software-enabled solar tracking hardware — NX Horizon tracking algorithm creates switching costs because changing tracker systems requires recertifying the entire site model. #1 global market share in utility-scale solar trackers. AI data centers require enormous grid power, driving utility-scale solar buildout that needs trackers.",
+      "historicalGrossMarginPct": 20,
+      "cyclicalNature": "moderately_cyclical",
+      "troughThresholdPctFrom52wHigh": -30,
+      "demandInflectionSignal": "Down 32% from peak while utility-scale solar backlog is growing. Revenue +31.6% YoY — recovery already confirmed. AI data center power demand is forcing massive grid buildout, driving solar installation rates that Nextracker trackers directly benefit from.",
+      "promotionCriteria": "nearTrough=true AND revenue recovery sustained AND tracker ASP stable through tariff cycle",
+      "invalidation": "Tariff escalation on Chinese components raises tracker cost uneconomically. US solar installation rate declines due to ITC phase-out. Top customer concentration risk — loss of a major utility developer relationship.",
+      "catalystWindow": "Q1 FY2027 (Jul 2026): tracker shipment volumes + tariff impact on margins. Any US solar tariff policy clarity is a positive catalyst. AI data center power purchase agreement announcements drive solar buildout."
+    },
+    {
+      "ticker": "VST",
+      "name": "Vistra Energy",
+      "sector": "Nuclear Power / Energy",
+      "themeAdjacency": ["AI_INFRASTRUCTURE", "NUCLEAR_POWER"],
+      "supplyChainLevel": 1,
+      "moat": "Nuclear plants are irreplaceable 40-year assets — cannot build new ones quickly, cannot decommission existing ones without energy crisis. AI data centers are the largest new US electricity demand source. Vistra's nuclear fleet (including Comanche Peak) provides 24/7 carbon-free baseload that data centers specifically want via power purchase agreements. Cannot be replicated.",
+      "historicalGrossMarginPct": 45,
+      "cyclicalNature": "low_cyclical",
+      "troughThresholdPctFrom52wHigh": -30,
+      "demandInflectionSignal": "AI Data Center Power Demand Crisis — every major hyperscaler is hunting for reliable baseload power. Vistra nuclear fleet is the most direct beneficiary. Microsoft, Google, and Amazon have all signed nuclear PPAs with other utilities; Vistra is the logical next counterparty.",
+      "promotionCriteria": "nearTrough=true AND nuclear PPA announcement OR data center power contract signed",
+      "invalidation": "Nuclear plant license challenge or unexpected shutdown. Hyperscaler AI infrastructure capex cuts reduce power demand growth. Competing nuclear PPA supply from SMR deployment compresses pricing power.",
+      "catalystWindow": "Nuclear PPA announcement with a hyperscaler (Microsoft, Google, or Amazon). Federal nuclear permitting fast-track decision. Q2 2026 earnings: capacity factor + forward power pricing."
+    },
+    {
+      "ticker": "CCJ",
+      "name": "Cameco Corporation",
+      "sector": "Uranium Mining",
+      "themeAdjacency": ["NUCLEAR_POWER"],
+      "supplyChainLevel": 3,
+      "moat": "Tier-1 uranium mines with 20+ year reserves. Permitting for new uranium mines takes decades — no competitor can build new supply quickly. Cigar Lake is the highest-grade uranium mine operating in the world. As nuclear renaissance accelerates for AI power demand, Cameco is the first call for long-term supply contracts.",
+      "historicalGrossMarginPct": 35,
+      "cyclicalNature": "moderately_cyclical",
+      "troughThresholdPctFrom52wHigh": -35,
+      "demandInflectionSignal": "Nuclear SMR Accelerated Permitting is reducing the timeline for new reactor deployment. Cameco is already contracted with utilities adding nuclear capacity. AI data center demand for baseload power is the new structural uranium demand driver beyond climate policy.",
+      "promotionCriteria": "nearTrough=true AND long-term uranium contract announcements AND SMR permitting timeline acceleration",
+      "invalidation": "SMR commercial deployment delayed >3 years from current projections. Uranium spot price drops below $60/lb on inventory destocking. Cigar Lake production disruption. US nuclear reactor retirements accelerate.",
+      "catalystWindow": "SMR vendor selection and NRC permitting fast-track announcement. New long-term uranium supply contract with a utility. Q2 2026: realized uranium price + contract book update."
     },
     {
       "ticker": "KLAC",
       "name": "KLA Corporation",
       "sector": "Semiconductor Equipment",
-      "themeAdjacency": [
-        "SEMICONDUCTOR_CAPEX",
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["SEMICONDUCTOR_CAPEX", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 2,
-      "moat": "Dominant in process control and yield management equipment \u2014 the quality control layer every fab needs. Near-monopoly in specific inspection categories. Cannot cut capex without degrading yield.",
+      "moat": "Dominant in process control and yield management equipment — the quality control layer every fab needs. Near-monopoly in specific inspection categories. Cannot cut capex without degrading yield.",
       "historicalGrossMarginPct": 60,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
       "demandInflectionSignal": "WFE (wafer fab equipment) spend recovering. Leading-edge node ramp at TSMC/Samsung requires process control at every layer.",
-      "promotionCriteria": "nearTrough=true AND WFE spend cycle inflecting upward"
+      "promotionCriteria": "nearTrough=true AND WFE spend cycle inflecting upward",
+      "invalidation": "WFE spending cycle reversal — two consecutive quarters of equipment order decline. TSMC or Samsung delays next-node capex. US export controls reduce China WFE exposure >30%.",
+      "catalystWindow": "Next earnings: WFE order book + China exposure. TSMC quarterly capex guidance — direct KLA demand signal."
     },
     {
       "ticker": "LRCX",
       "name": "Lam Research",
       "sector": "Semiconductor Equipment",
-      "themeAdjacency": [
-        "SEMICONDUCTOR_CAPEX",
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["SEMICONDUCTOR_CAPEX", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 2,
-      "moat": "Leading etch and deposition equipment \u2014 critical for 3D NAND, leading-edge logic, and advanced packaging. Strong position in memory fab tooling which benefits directly from HBM capex.",
+      "moat": "Leading etch and deposition equipment — critical for 3D NAND, leading-edge logic, and advanced packaging. Strong position in memory fab tooling which benefits directly from HBM capex.",
       "historicalGrossMarginPct": 47,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
       "demandInflectionSignal": "HBM requires more etch/dep steps per die. Memory capex recovery creates direct demand pull.",
-      "promotionCriteria": "nearTrough=true AND memory capex recovery signals in AMAT/ASML earnings"
+      "promotionCriteria": "nearTrough=true AND memory capex recovery signals in AMAT/ASML earnings",
+      "invalidation": "Memory capex cycle peaks before HBM demand ramp materializes. China WFE export control escalation. NAND pricing collapse delays fab investment.",
+      "catalystWindow": "Next earnings: HBM-specific etch orders + memory customer capex plans. Any Samsung or SK Hynix HBM capacity expansion announcement."
     },
     {
       "ticker": "ANET",
       "name": "Arista Networks",
       "sector": "Data Center Networking",
-      "themeAdjacency": [
-        "AI_INFRASTRUCTURE",
-        "AI_INFERENCE_DEMAND"
-      ],
+      "themeAdjacency": ["AI_INFRASTRUCTURE", "AI_INFERENCE_DEMAND"],
       "supplyChainLevel": 2,
-      "moat": "Dominant AI data center networking \u2014 400GbE/800GbE ethernet fabric for GPU clusters. NVIDIA switched from InfiniBand to ethernet for some workloads, expanding Arista's TAM. >98% gross retention.",
+      "moat": "Dominant AI data center networking — 400GbE/800GbE ethernet fabric for GPU clusters. NVIDIA switched from InfiniBand to ethernet for some workloads, expanding Arista's TAM. >98% gross retention.",
       "historicalGrossMarginPct": 64,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
       "demandInflectionSignal": "AI cluster networking orders from hyperscalers (MSFT, META, GOOGL, AMZN) accelerating.",
-      "promotionCriteria": "nearTrough=true AND hyperscaler capex guidance up"
+      "promotionCriteria": "nearTrough=true AND hyperscaler capex guidance up",
+      "invalidation": "NVIDIA InfiniBand reasserts as preferred AI cluster fabric — reduces ethernet TAM. Hyperscaler capex cuts reduce networking orders. Cisco regains enterprise switching share.",
+      "catalystWindow": "Next hyperscaler earnings: networking capex line. NVIDIA architecture announcement on interconnect preference."
     },
     {
       "ticker": "CIEN",
       "name": "Ciena Corporation",
       "sector": "Optical Networking",
-      "themeAdjacency": [
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["AI_INFRASTRUCTURE"],
       "supplyChainLevel": 4,
-      "moat": "Leading optical networking equipment \u2014 the fiber backbone that carries AI data between data centers. AI training across distributed GPU clusters requires massive optical capacity upgrades.",
+      "moat": "Leading optical networking equipment — the fiber backbone that carries AI data between data centers. AI training across distributed GPU clusters requires massive optical capacity upgrades.",
       "historicalGrossMarginPct": 45,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -35,
       "demandInflectionSignal": "Fiber capacity between data centers must scale with GPU compute growth. Pre-consensus opportunity.",
-      "promotionCriteria": "nearTrough=true AND hyperscaler networking spend inflecting"
+      "promotionCriteria": "nearTrough=true AND hyperscaler networking spend inflecting",
+      "invalidation": "Hyperscaler data center networking spend shifts to intra-campus (shorter distance, lower optical content). Inventory correction extends beyond 2 quarters.",
+      "catalystWindow": "Next earnings: hyperscaler order book + backlog. Any hyperscaler announcement on inter-data center capacity expansion."
     },
     {
       "ticker": "ONTO",
       "name": "Onto Innovation",
       "sector": "Semiconductor Equipment",
-      "themeAdjacency": [
-        "SEMICONDUCTOR_CAPEX",
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["SEMICONDUCTOR_CAPEX", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 3,
-      "moat": "Process control and metrology for advanced packaging (CoWoS, HBM integration). CoWoS is TSMC's packaging technology for NVIDIA GPUs \u2014 every HBM stack requires ONTO's inspection systems.",
+      "moat": "Process control and metrology for advanced packaging (CoWoS, HBM integration). CoWoS is TSMC's packaging technology for NVIDIA GPUs — every HBM stack requires ONTO's inspection systems.",
       "historicalGrossMarginPct": 50,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
-      "demandInflectionSignal": "Advanced packaging capex growing rapidly \u2014 TSMC expanding CoWoS capacity by 3x for AI GPU demand.",
-      "promotionCriteria": "nearTrough=true AND advanced packaging capex signals"
+      "demandInflectionSignal": "Advanced packaging capex growing rapidly — TSMC expanding CoWoS capacity by 3x for AI GPU demand.",
+      "promotionCriteria": "nearTrough=true AND advanced packaging capex signals",
+      "invalidation": "TSMC CoWoS capacity expansion pauses — reduces ONTO metrology orders. NVIDIA shifts to different packaging architecture that doesn't require ONTO systems. Advanced packaging capex peak before volume ramp.",
+      "catalystWindow": "TSMC quarterly capex update: CoWoS capacity expansion rate. Q2 2026 earnings: advanced packaging revenue mix + order book. Any NVIDIA next-gen GPU packaging architecture announcement."
     },
     {
       "ticker": "TER",
       "name": "Teradyne",
       "sector": "Semiconductor Test",
-      "themeAdjacency": [
-        "SEMICONDUCTOR_CAPEX",
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["SEMICONDUCTOR_CAPEX", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 3,
-      "moat": "Dominant semiconductor test equipment \u2014 every chip (NVDA, AVGO, AMD) is tested on Teradyne equipment before shipping. Near-monopoly in complex SoC testing. Non-discretionary spend.",
+      "moat": "Dominant semiconductor test equipment — every chip (NVDA, AVGO, AMD) is tested on Teradyne equipment before shipping. Near-monopoly in complex SoC testing. Non-discretionary spend.",
       "historicalGrossMarginPct": 57,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
       "demandInflectionSignal": "Advanced chip complexity increases test time per die. AI chip shipment volumes multiplying = test capacity expansion required.",
-      "promotionCriteria": "nearTrough=true AND unit shipment volumes of AI chips growing"
+      "promotionCriteria": "nearTrough=true AND unit shipment volumes of AI chips growing",
+      "invalidation": "AI chip volumes plateau — test capacity already sufficient. Advanced SoC test time efficiency improvements reduce tester demand per chip. New entrant gains NVIDIA test qualification.",
+      "catalystWindow": "Next NVDA and AVGO earnings: chip shipment volume guidance. Q2 2026 Teradyne earnings: AI chip test revenue + backlog."
     },
     {
       "ticker": "ENTG",
       "name": "Entegris",
       "sector": "Semiconductor Materials",
-      "themeAdjacency": [
-        "SEMICONDUCTOR_CAPEX"
-      ],
+      "themeAdjacency": ["SEMICONDUCTOR_CAPEX"],
       "supplyChainLevel": 3,
-      "moat": "Specialty chemicals, gases, and filtration for leading-edge semiconductor fabs. Consumable \u2014 recurring revenue every time a wafer is processed. Critical but invisible in the supply chain.",
+      "moat": "Specialty chemicals, gases, and filtration for leading-edge semiconductor fabs. Consumable — recurring revenue every time a wafer is processed. Critical but invisible in the supply chain.",
       "historicalGrossMarginPct": 46,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
       "demandInflectionSignal": "Wafer starts recovering at TSMC/Samsung. Consumable spend recovers with fab utilization.",
-      "promotionCriteria": "nearTrough=true AND fab utilization rates recovering"
+      "promotionCriteria": "nearTrough=true AND fab utilization rates recovering",
+      "invalidation": "Fab utilization rates fall below 70% — consumable spend contracts sharply. China export control expansion reduces revenue from Chinese fabs. High debt load ($4B+) creates refinancing risk if credit conditions tighten.",
+      "catalystWindow": "Next TSMC monthly revenue data: fab utilization proxy. Q2 2026 earnings: wafer starts volume + advanced node consumable mix. AMAT and LRCX orders as leading indicator."
     },
     {
       "ticker": "SNOW",
       "name": "Snowflake",
       "sector": "Data Cloud",
-      "themeAdjacency": [
-        "AI_INFERENCE_DEMAND",
-        "ENTERPRISE_AI_SOFTWARE"
-      ],
+      "themeAdjacency": ["AI_INFERENCE_DEMAND", "ENTERPRISE_AI_SOFTWARE"],
       "supplyChainLevel": 2,
-      "moat": "Data cloud platform \u2014 where enterprises store the data that feeds AI models. Strong network effects as data sharing within the ecosystem creates switching costs. New CEO (Sridhar Ramaswamy) with AI product push.",
+      "moat": "Data cloud platform — where enterprises store the data that feeds AI models. Strong network effects as data sharing within the ecosystem creates switching costs. New CEO (Sridhar Ramaswamy) with AI product push.",
       "historicalGrossMarginPct": 66,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -40,
       "demandInflectionSignal": "AI Cortex (Snowflake's AI layer) driving consumption growth re-acceleration. Enterprises need centralized data to feed LLMs.",
-      "promotionCriteria": "nearTrough=true AND product revenue re-acceleration signals"
+      "promotionCriteria": "nearTrough=true AND product revenue re-acceleration signals",
+      "invalidation": "Revenue growth decelerates below 20% for two consecutive quarters. Cloud data warehouse commoditizes with Databricks and BigQuery pricing wars. AI Cortex adoption fails to drive incremental consumption.",
+      "catalystWindow": "Q2 2026 earnings: RPO (remaining performance obligation) + consumption growth rate. Any Cortex AI adoption metric disclosed. Databricks IPO — market will re-rate the data AI infrastructure category."
     },
     {
       "ticker": "MDB",
       "name": "MongoDB",
       "sector": "Database",
-      "themeAdjacency": [
-        "AI_INFERENCE_DEMAND",
-        "ENTERPRISE_AI_SOFTWARE"
-      ],
+      "themeAdjacency": ["AI_INFERENCE_DEMAND", "ENTERPRISE_AI_SOFTWARE"],
       "supplyChainLevel": 2,
-      "moat": "Dominant document database \u2014 the database of choice for AI-native applications. As developers build AI applications, they reach for MongoDB first. Extreme developer mindshare.",
+      "moat": "Dominant document database — the database of choice for AI-native applications. As developers build AI applications, they reach for MongoDB first. Extreme developer mindshare.",
       "historicalGrossMarginPct": 72,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -40,
       "demandInflectionSignal": "AI application development boom drives new workload creation on MongoDB. Atlas consumption growing.",
-      "promotionCriteria": "nearTrough=true AND Atlas ARR re-acceleration"
+      "promotionCriteria": "nearTrough=true AND Atlas ARR re-acceleration",
+      "invalidation": "Atlas ARR growth decelerates below 20%. PostgreSQL or DynamoDB displaces MongoDB as AI application default. Developer mindshare shifts to vector databases for AI-native use cases.",
+      "catalystWindow": "Q2 2026 earnings: Atlas ARR + developer seat expansion. Any major AI platform (OpenAI, Anthropic) announces native MongoDB integration."
     },
     {
       "ticker": "NET",
       "name": "Cloudflare",
       "sector": "Edge Networking + Security",
-      "themeAdjacency": [
-        "AI_INFERENCE_DEMAND",
-        "ENTERPRISE_AI_SOFTWARE"
-      ],
+      "themeAdjacency": ["AI_INFERENCE_DEMAND", "ENTERPRISE_AI_SOFTWARE"],
       "supplyChainLevel": 2,
-      "moat": "Global edge network (300+ cities) \u2014 AI inference at the edge runs on Cloudflare Workers. Unique position: security + networking + AI inference on one network. No competitor has this scale.",
+      "moat": "Global edge network (300+ cities) — AI inference at the edge runs on Cloudflare Workers. Unique position: security + networking + AI inference on one network. No competitor has this scale.",
       "historicalGrossMarginPct": 77,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -35,
       "demandInflectionSignal": "AI inference at the edge is the next wave after centralized training. Workers AI is early but positioned correctly.",
-      "promotionCriteria": "nearTrough=true AND Workers AI adoption signals"
+      "promotionCriteria": "nearTrough=true AND Workers AI adoption signals",
+      "invalidation": "Hyperscaler edge networks (AWS Lambda@Edge, Fastly) undercut Cloudflare on price. Workers AI fails to achieve meaningful revenue contribution. Sales cycle elongation in enterprise — dollar-based net retention decelerates below 115%.",
+      "catalystWindow": "Q2 2026 earnings: large customer adds + DBNRR. Any major Workers AI enterprise deployment announced publicly."
     },
     {
       "ticker": "AEHR",
       "name": "Aehr Test Systems",
       "sector": "Semiconductor Test (SiC)",
-      "themeAdjacency": [
-        "GRID_MODERNIZATION"
-      ],
+      "themeAdjacency": ["GRID_MODERNIZATION"],
       "supplyChainLevel": 4,
       "moat": "Near-monopoly in wafer-level burn-in testing for silicon carbide (SiC) chips used in EV powertrains and grid inverters. SiC requires extended burn-in that only Aehr can perform at wafer scale.",
       "historicalGrossMarginPct": 55,
       "cyclicalNature": "highly_cyclical",
       "troughThresholdPctFrom52wHigh": -60,
       "demandInflectionSignal": "EV adoption recovery + grid modernization drives SiC chip demand. Aehr is the only wafer-level burn-in solution.",
-      "promotionCriteria": "nearTrough=true AND SiC chip orders recovering + EV demand signals"
+      "promotionCriteria": "nearTrough=true AND SiC chip orders recovering + EV demand signals",
+      "invalidation": "EV demand structural slowdown reduces SiC volume below breakeven utilization. On-Semiconductor or Wolfspeed reduces external test reliance. SiC burn-in time improvement reduces tester capacity requirements.",
+      "catalystWindow": "Q2 2026 earnings: FOX-XP wafer order volume. Any major SiC chip maker (ON Semi, Wolfspeed, STMicro) announces capacity expansion."
     },
     {
       "ticker": "BWXT",
       "name": "BWX Technologies",
       "sector": "Nuclear Components / Defense",
-      "themeAdjacency": [
-        "NUCLEAR_POWER",
-        "DEFENSE_AI"
-      ],
+      "themeAdjacency": ["NUCLEAR_POWER", "DEFENSE_AI"],
       "supplyChainLevel": 2,
       "moat": "Only US manufacturer of naval nuclear reactor components. No substitutes — US Navy submarines and aircraft carriers are legally mandated to use BWXT components. $8.65B backlog (+77% YoY) as of Q1 2026 = 2.3x annual revenue in contracted work.",
       "historicalGrossMarginPct": 25,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
       "demandInflectionSignal": "Q1 2026: $860M revenue, FY guided $3.75B+. $1.29B long-lead naval nuclear award + $165M Ford-class reactor contract. 60% of backlog converts by 2027. Deutsche Bank just upgraded. This passes capital preservation filter — revenue is essentially pre-sold.",
-      "promotionCriteria": "PROMOTION READY. Backlog $8.65B (+77% YoY), confirmed naval awards $1.4B+, Deutsche Bank upgrade. Consider moving to opportunity-universe at next conviction ranking."
+      "promotionCriteria": "PROMOTION READY. Backlog $8.65B (+77% YoY), confirmed naval awards $1.4B+, Deutsche Bank upgrade. Consider moving to opportunity-universe at next conviction ranking.",
+      "invalidation": "Defense budget cut >20% to naval nuclear programs — the only scenario that reduces the legally mandated backlog. Quarterly revenue falls below $800M for two consecutive quarters, signaling production constraint.",
+      "catalystWindow": "Additional naval nuclear contract awards throughout 2026. Q2 2026 earnings: backlog growth above $9B would confirm acceleration. SMR commercial contract with a utility would be upside — not the base case."
     },
     {
       "ticker": "LEU",
       "name": "Centrus Energy",
       "sector": "Uranium Enrichment",
-      "themeAdjacency": [
-        "NUCLEAR_POWER"
-      ],
+      "themeAdjacency": ["NUCLEAR_POWER"],
       "supplyChainLevel": 3,
-      "moat": "Only US-licensed enriched uranium producer. Post-Russia sanctions, critical for US energy independence. HALEU (high-assay low-enriched uranium) required for next-gen SMR reactors \u2014 Centrus is the only US source.",
+      "moat": "Only US-licensed enriched uranium producer. Post-Russia sanctions, critical for US energy independence. HALEU (high-assay low-enriched uranium) required for next-gen SMR reactors — Centrus is the only US source.",
       "historicalGrossMarginPct": 30,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -40,
       "demandInflectionSignal": "SMR reactors require HALEU that only Centrus makes. Post-Russia sanctions creates structural supply gap.",
-      "promotionCriteria": "nearTrough=true AND SMR timeline + HALEU contract awards"
+      "promotionCriteria": "nearTrough=true AND SMR timeline + HALEU contract awards",
+      "invalidation": "Russia sanctions relief restores Rosatom enrichment supply to US utilities. SMR commercial deployment delayed more than 3 years. HALEU demand fails to materialize before DOE funding expires.",
+      "catalystWindow": "HALEU production contract award from DOE or a commercial SMR developer. SMR NRC permit fast-track announcement. Q2 2026: HALEU production volume + contract pipeline."
     },
     {
       "ticker": "EMR",
       "name": "Emerson Electric",
       "sector": "Industrial Automation",
-      "themeAdjacency": [
-        "GRID_MODERNIZATION",
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["GRID_MODERNIZATION", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 2,
-      "moat": "Industrial automation and process control \u2014 the software and hardware that runs factories, power plants, and refineries. High switching costs. AI is now embedded in process control systems.",
+      "moat": "Industrial automation and process control — the software and hardware that runs factories, power plants, and refineries. High switching costs. AI is now embedded in process control systems.",
       "historicalGrossMarginPct": 45,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
       "demandInflectionSignal": "Reshoring of manufacturing + grid modernization drives industrial automation spend.",
-      "promotionCriteria": "nearTrough=true AND industrial orders recovering + reshoring signals"
+      "promotionCriteria": "nearTrough=true AND industrial orders recovering + reshoring signals",
+      "invalidation": "US manufacturing reshoring stalls — CHIPS Act investment delays. Industrial capital spending cycle peaks. Software segment margin compression from higher R&D spend.",
+      "catalystWindow": "Q2 2026 earnings: Intelligent Devices segment order book + margins. Any major semiconductor fab automation contract win announcement."
     },
     {
       "ticker": "ROK",
       "name": "Rockwell Automation",
       "sector": "Industrial Automation",
-      "themeAdjacency": [
-        "GRID_MODERNIZATION"
-      ],
+      "themeAdjacency": ["GRID_MODERNIZATION"],
       "supplyChainLevel": 2,
-      "moat": "Dominant US industrial automation platform \u2014 PLCs, drives, software. Semiconductor fabs, EV battery plants, and data center facilities all run on Rockwell. Deep switching costs.",
+      "moat": "Dominant US industrial automation platform — PLCs, drives, software. Semiconductor fabs, EV battery plants, and data center facilities all run on Rockwell. Deep switching costs.",
       "historicalGrossMarginPct": 40,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
       "demandInflectionSignal": "Semiconductor fab construction (TSMC Arizona, Intel Ohio) requires massive Rockwell automation systems.",
-      "promotionCriteria": "nearTrough=true AND semiconductor fab construction contracts"
+      "promotionCriteria": "nearTrough=true AND semiconductor fab construction contracts",
+      "invalidation": "Semiconductor fab construction delays — CHIPS Act execution risk. Manufacturing PMI contracts below 48 for two consecutive months. Intel foundry scale-back reduces automation spend.",
+      "catalystWindow": "TSMC Arizona production ramp announcement (Fab 21 Phase 2). Q2 2026 earnings: order book + backlog by end market. Any major US battery or semiconductor fab construction announcement."
     },
     {
       "ticker": "HUBB",
       "name": "Hubbell",
       "sector": "Electrical Products",
-      "themeAdjacency": [
-        "GRID_MODERNIZATION"
-      ],
+      "themeAdjacency": ["GRID_MODERNIZATION", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 2,
-      "moat": "Electrical components and grid infrastructure products \u2014 transformers, switchgear, wiring devices. Every data center and utility substation uses Hubbell products. Non-discretionary infrastructure.",
+      "moat": "Electrical components and grid infrastructure products — transformers, switchgear, wiring devices. Every data center and utility substation uses Hubbell products. Non-discretionary infrastructure.",
       "historicalGrossMarginPct": 36,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
-      "demandInflectionSignal": "Grid modernization is a multi-decade program. Every new data center requires Hubbell electrical products.",
-      "promotionCriteria": "nearTrough=true AND grid/data center construction rates"
+      "demandInflectionSignal": "Grid modernization is a multi-decade program. Every new data center requires Hubbell electrical products — from switchgear to PDUs. AI data center construction boom is a direct demand driver.",
+      "promotionCriteria": "nearTrough=true AND grid/data center construction rates",
+      "invalidation": "Data center construction starts decline QoQ for two consecutive quarters. Grid modernization budget cuts in IRA reauthorization. Transformer supply chain normalizes and reduces Hubbell's pricing power.",
+      "catalystWindow": "Q2 2026 earnings: electrical products order book + data center end-market revenue. Grid Solutions segment growth rate. Any major utility or hyperscaler grid investment announcement."
     },
     {
       "ticker": "ISRG",
@@ -291,152 +339,149 @@
       "sector": "Robotic Surgery",
       "themeAdjacency": [],
       "supplyChainLevel": 1,
-      "moat": "Dominant robotic surgery platform \u2014 da Vinci installed in 8,000+ hospitals globally. Razor/blade model: sell the robot, earn on instruments and services forever. Surgeons train on it and never switch.",
+      "moat": "Dominant robotic surgery platform — da Vinci installed in 8,000+ hospitals globally. Razor/blade model: sell the robot, earn on instruments and services forever. Surgeons train on it and never switch.",
       "historicalGrossMarginPct": 67,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
       "demandInflectionSignal": "Procedure volumes recovering post-COVID backlog. Ion lung biopsy system adds new TAM.",
-      "promotionCriteria": "nearTrough=true AND procedure volume recovery"
+      "promotionCriteria": "nearTrough=true AND procedure volume recovery",
+      "invalidation": "Medicare/Medicaid reimbursement cut for robotic procedures. da Vinci 5 adoption slower than expected — installed base migration delays. Medtronic or Johnson & Johnson competitive system achieves significant hospital wins.",
+      "catalystWindow": "Q2 2026 earnings: da Vinci 5 system placements + procedure volume growth. FDA clearance for new Ion indications."
     },
     {
       "ticker": "KTOS",
       "name": "Kratos Defense & Security",
       "sector": "Defense Technology",
-      "themeAdjacency": [
-        "DEFENSE_AI",
-        "SPACE_ECONOMY"
-      ],
+      "themeAdjacency": ["DEFENSE_AI", "SPACE_ECONOMY"],
       "supplyChainLevel": 2,
-      "moat": "Low-cost autonomous military drone systems \u2014 XQ-58 Valkyrie is only production-scale loyal wingman drone in US. Satellite ground systems business provides recurring revenue. Proprietary radar and electronic warfare tech embedded in military programs.",
+      "moat": "Low-cost autonomous military drone systems — XQ-58 Valkyrie is only production-scale loyal wingman drone in US. Satellite ground systems business provides recurring revenue. Proprietary radar and electronic warfare tech embedded in military programs.",
       "historicalGrossMarginPct": 25,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
-      "demandInflectionSignal": "Golden Dome missile defense specifically cites autonomous intercept drones \u2014 Kratos Valkyrie is the reference platform. Ukraine conflict validating drone-centric warfare doctrine. Defense budget expansion 2026.",
-      "promotionCriteria": "nearTrough=true AND (Golden Dome contract OR DOD drone program expansion)"
+      "demandInflectionSignal": "Golden Dome missile defense specifically cites autonomous intercept drones — Kratos Valkyrie is the reference platform. Ukraine conflict validating drone-centric warfare doctrine. Defense budget expansion 2026.",
+      "promotionCriteria": "nearTrough=true AND (Golden Dome contract OR DOD drone program expansion)",
+      "invalidation": "Golden Dome program defunded or significantly restructured. DOD drone acquisition policy shifts to commercial off-the-shelf platforms. Revenue growth below 10% for two consecutive quarters.",
+      "catalystWindow": "Golden Dome contract awards (multiple rounds expected through 2026). Q2 2026 earnings: unmanned systems revenue + classified contract pipeline. Ukraine conflict escalation/de-escalation — direct drone demand signal."
     },
     {
       "ticker": "IRDM",
       "name": "Iridium Communications",
       "sector": "Satellite Communications",
-      "themeAdjacency": [
-        "SPACE_ECONOMY"
-      ],
+      "themeAdjacency": ["SPACE_ECONOMY"],
       "supplyChainLevel": 3,
-      "moat": "Only truly global satellite constellation \u2014 66 LEO satellites provide pole-to-pole coverage. Maritime, aviation, government, and IoT connectivity markets. Starlink success validates the LEO model and makes IRDM a credible M&A target for hyperscalers or telecom.",
+      "moat": "Only truly global satellite constellation — 66 LEO satellites provide pole-to-pole coverage. Maritime, aviation, government, and IoT connectivity markets. Starlink success validates the LEO model and makes IRDM a credible M&A target for hyperscalers or telecom.",
       "historicalGrossMarginPct": 54,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
-      "demandInflectionSignal": "SpaceX Starlink IPO will spotlight the satellite comms sector. IRDM's global coverage moat (poles, oceans) is unique \u2014 Starlink cannot serve all IRDM customers without regulatory and hardware changes. M&A premium plausible.",
-      "promotionCriteria": "nearTrough=true AND (SpaceX IPO news OR government contract expansion OR M&A speculation)"
+      "demandInflectionSignal": "SpaceX Starlink IPO will spotlight the satellite comms sector. IRDM's global coverage moat (poles, oceans) is unique — Starlink cannot serve all IRDM customers without regulatory and hardware changes. M&A premium plausible.",
+      "promotionCriteria": "nearTrough=true AND (SpaceX IPO news OR government contract expansion OR M&A speculation)",
+      "invalidation": "SpaceX Starlink achieves polar coverage and directly competes with Iridium's core government/maritime market. Government contract loss — DoD switches primary satcom provider. Revenue growth turns negative.",
+      "catalystWindow": "SpaceX Starlink IPO filing or direct listing announcement. DoD satcom contract renewal or expansion. Q2 2026 earnings: subscriber growth + government services revenue."
     },
     {
       "ticker": "HUBS",
       "name": "HubSpot",
       "sector": "Marketing Automation",
-      "themeAdjacency": [
-        "ENTERPRISE_AI_SOFTWARE"
-      ],
+      "themeAdjacency": ["ENTERPRISE_AI_SOFTWARE"],
       "supplyChainLevel": 3,
       "moat": "Dominant SMB CRM and marketing platform. AI is embedding deeply into content generation, lead scoring, and sales automation. Salesforce threat is real but SMB inertia is high.",
       "historicalGrossMarginPct": 84,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
       "demandInflectionSignal": "AI Breeze features driving new seat expansion. SMB AI adoption is accelerating via HubSpot.",
-      "promotionCriteria": "nearTrough=true AND seat expansion + AI feature adoption"
+      "promotionCriteria": "nearTrough=true AND seat expansion + AI feature adoption",
+      "invalidation": "Management warned on AI agent disruption to seat-based CRM — this is the fundamental risk they themselves disclosed. Capital preservation filter: do not promote while management sees existential risk to the revenue model.",
+      "catalystWindow": "Q2 2026: seat expansion rate + AI Breeze revenue contribution. Only promote if management reverses its AI disruption warning with concrete seat growth data."
     },
     {
       "ticker": "UBER",
       "name": "Uber Technologies",
       "sector": "Mobility / AV Platform",
-      "themeAdjacency": [
-        "AI_INFERENCE_DEMAND",
-        "AUTONOMOUS_MOBILITY"
-      ],
+      "themeAdjacency": ["AI_INFERENCE_DEMAND", "AUTONOMOUS_MOBILITY"],
       "supplyChainLevel": 1,
       "moat": "Network effects in ride-sharing and food delivery — more riders and drivers improves matching and pricing. AV strategy is asset-light: Waymo and others pay Uber to access its demand network. No AV capex, all AV upside.",
       "historicalGrossMarginPct": 39,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
-      "demandInflectionSignal": "Q1 2026: Gross Bookings +25% YoY, EBITDA +33%. Waymo rides now bookable on Uber app in multiple cities. Thesis is real — but stock is already +40% YTD. Ackman (Pershing Square) and Tepper (Appaloosa) held Q1 positions. Following a 40% run does not produce asymmetric returns.",
-      "promotionCriteria": "nearTrough=true requiring 15%+ pullback from current levels AND AV partnership expansion to new city confirmed. Do not promote at current valuation — too much 2026 momentum already priced. The thesis is right; the entry timing is wrong."
+      "demandInflectionSignal": "Q1 2026: Gross Bookings +25% YoY, EBITDA +33%. Waymo rides now bookable on Uber app in multiple cities. Thesis is real — but stock is already +40% YTD.",
+      "promotionCriteria": "nearTrough=true requiring 15%+ pullback from current levels AND AV partnership expansion to new city confirmed. Do not promote at current valuation — too much 2026 momentum already priced.",
+      "invalidation": "AV partner (Waymo, Cruise) exits Uber platform and launches own consumer app. Regulatory challenge to ride-sharing in a major market. Gross Bookings growth decelerates below 15% YoY.",
+      "catalystWindow": "15%+ price pullback to trough entry. AV expansion to 3+ new cities. Q2 2026 earnings: autonomous booking % of total rides."
     },
     {
       "ticker": "NTRA",
       "name": "Natera",
       "sector": "Genomic Diagnostics / Liquid Biopsy",
-      "themeAdjacency": [
-        "PRECISION_MEDICINE"
-      ],
+      "themeAdjacency": ["PRECISION_MEDICINE"],
       "supplyChainLevel": 1,
-      "moat": "Signatera ctDNA assay is the leading liquid biopsy test for cancer recurrence monitoring with FDA clearances across multiple tumor types. Oncology practices embed Signatera into standard of care protocols — extremely sticky once adopted. Clinical validation moat deepens with every published study.",
+      "moat": "Signatera ctDNA assay is the leading liquid biopsy test for cancer recurrence monitoring with FDA clearances across multiple tumor types. Oncology practices embed Signatera into standard of care protocols.",
       "historicalGrossMarginPct": 55,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
-      "demandInflectionSignal": "Q1 2026: revenue +38.8% YoY, oncology +54%. Druckenmiller (Duquesne) holds 18.1% portfolio weight — his highest single conviction. TAM: $70B liquid biopsy market by 2030. CRITICAL BLOCKER: net loss widening, not FCF positive. Druckenmiller has the capital and conviction to hold through losses — capital preservation mandate does not.",
-      "promotionCriteria": "FCF positive for TWO consecutive quarters AND oncology revenue growth rate sustained above 40% AND net loss narrowing confirmed in earnings trend. Follow the data, not the fund — Druckenmiller may have bought at a much lower entry. Do not promote while burning cash."
+      "demandInflectionSignal": "Q1 2026: revenue +38.8% YoY, oncology +54%. Druckenmiller holds 18.1% portfolio weight. TAM: $70B liquid biopsy market by 2030.",
+      "promotionCriteria": "FCF positive for TWO consecutive quarters AND oncology revenue growth sustained above 40% AND net loss narrowing confirmed. Do not promote while burning cash.",
+      "invalidation": "Net losses widen — cash burn exceeds quarterly revenue pace. Grail or Foundation Medicine achieves competitive ctDNA sensitivity. Medicare reimbursement reduction for Signatera.",
+      "catalystWindow": "First FCF-positive quarter — the single gate that unlocks promotion. Q2 2026: oncology revenue growth rate + gross margin trajectory. Any new tumor type FDA clearance."
     },
     {
       "ticker": "FIX",
       "name": "Comfort Systems USA",
       "sector": "Mechanical / HVAC Contractors",
-      "themeAdjacency": [
-        "AI_INFRASTRUCTURE",
-        "DATA_CENTER_CONSTRUCTION"
-      ],
+      "themeAdjacency": ["AI_INFRASTRUCTURE", "DATA_CENTER_CONSTRUCTION"],
       "supplyChainLevel": 3,
-      "moat": "Skilled mechanical trade labor scarcity is a genuine barrier to entry that no capital can quickly replicate. Framework agreements with hyperscalers and data center developers for multi-year HVAC system installation. Technical expertise in precision cooling for high-density compute environments.",
+      "moat": "Skilled mechanical trade labor scarcity is a genuine barrier to entry. Framework agreements with hyperscalers for multi-year HVAC system installation. Technical expertise in precision cooling for high-density compute environments.",
       "historicalGrossMarginPct": 21,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
-      "demandInflectionSignal": "Every AI data center requires precision HVAC and mechanical cooling. FIX is a direct contractor on hyperscaler data center construction programs. Backlog growing with AI infrastructure buildout. Pre-consensus: classified as construction, not AI infrastructure.",
-      "promotionCriteria": "nearTrough=true AND data center backlog exceeds 24-month revenue coverage AND organic revenue growth sustained >15% confirmed in two consecutive quarters"
+      "demandInflectionSignal": "Every AI data center requires precision HVAC. FIX is a direct contractor on hyperscaler data center construction programs.",
+      "promotionCriteria": "nearTrough=true AND data center backlog exceeds 24-month revenue coverage AND organic revenue growth sustained >15%",
+      "invalidation": "Hyperscaler data center construction pause. Labor cost inflation squeezes margins below 18% gross. Loss of a major framework agreement with a hyperscaler customer.",
+      "catalystWindow": "Q2 2026 earnings: data center segment backlog + revenue mix. Any hyperscaler data center construction announcement in a new geography."
     },
     {
       "ticker": "CACI",
       "name": "CACI International",
       "sector": "Defense IT / Intelligence Analytics",
-      "themeAdjacency": [
-        "DEFENSE_AI"
-      ],
+      "themeAdjacency": ["DEFENSE_AI"],
       "supplyChainLevel": 2,
-      "moat": "Classified government contracts for intelligence analysis, cyber operations, and defense IT modernization. Security clearance requirements create near-impenetrable barriers — a workforce with top-secret clearances cannot be rapidly assembled by competitors. Long-duration contracts (5-10 year base + options) provide revenue visibility that appears low but is actually high.",
+      "moat": "Classified government contracts for intelligence analysis, cyber operations, and defense IT modernization. Security clearance requirements create near-impenetrable barriers.",
       "historicalGrossMarginPct": 26,
       "cyclicalNature": "low_cyclical",
       "troughThresholdPctFrom52wHigh": -20,
-      "demandInflectionSignal": "Every US military branch is upgrading intelligence and cyber AI capabilities under classified programs. CACI is embedded in programs that cannot be publicly disclosed — actual revenue visibility is higher than it appears from the outside.",
-      "promotionCriteria": "nearTrough=true AND contract win rate stable AND revenue growth >10% for two consecutive quarters AND no material contract loss announced"
+      "demandInflectionSignal": "Every US military branch is upgrading intelligence and cyber AI capabilities under classified programs. CACI is embedded in programs that cannot be publicly disclosed.",
+      "promotionCriteria": "nearTrough=true AND contract win rate stable AND revenue growth >10% for two consecutive quarters",
+      "invalidation": "Material contract loss or protest of a major program. Defense budget sequestration cuts IT modernization before classified AI programs. Revenue growth decelerates below 8% for two quarters.",
+      "catalystWindow": "Q2 2026 earnings: contract win rate + revenue growth. Golden Dome or classified AI program contract award announcement. Defense budget continuing resolution — impacts new contract starts."
     },
     {
       "ticker": "APO",
       "name": "Apollo Global Management",
       "sector": "Alternative Asset Management / Private Credit",
-      "themeAdjacency": [
-        "PRIVATE_CREDIT",
-        "INFRASTRUCTURE_FINANCING"
-      ],
+      "themeAdjacency": ["PRIVATE_CREDIT", "INFRASTRUCTURE_FINANCING"],
       "supplyChainLevel": 1,
-      "moat": "Largest private credit platform globally. As banks retreated from complex leveraged lending under capital requirements, Apollo filled the void and now has a structural position. AI infrastructure, data centers, and energy transition all require private capital at scale that public markets cannot efficiently provide.",
+      "moat": "Largest private credit platform globally. AI infrastructure, data centers, and energy transition all require private capital at scale that public markets cannot efficiently provide.",
       "historicalGrossMarginPct": 65,
       "cyclicalNature": "moderately_cyclical",
       "troughThresholdPctFrom52wHigh": -25,
-      "demandInflectionSignal": "AI infrastructure investment requires trillions in private capital over the next decade. Apollo's credit platform is directly positioned as the financial infrastructure for the buildout. Fee-related earnings (FRE) growing 20%+ annually and is not correlated to public equity markets.",
-      "promotionCriteria": "nearTrough=true AND FRE growth sustained >15% AND credit conditions stable (HY OAS <4.0%) AND AUM growth confirms institutional capital inflows"
+      "demandInflectionSignal": "AI infrastructure investment requires trillions in private capital. Apollo's credit platform is directly positioned as the financial infrastructure for the buildout.",
+      "promotionCriteria": "nearTrough=true AND FRE growth sustained >15% AND credit conditions stable",
+      "invalidation": "HY OAS rises above 4.0% — credit stress reduces private credit demand and increases default rates. FRE growth decelerates below 10% for two consecutive quarters. Major LBO default creates reputational contagion.",
+      "catalystWindow": "Q2 2026 earnings: FRE growth + AUM inflows. Any major AI infrastructure private credit deal announced. HY OAS staying below 3.5% confirms credit environment."
     },
     {
       "ticker": "SCCO",
       "name": "Southern Copper Corporation",
       "sector": "Copper Mining",
-      "themeAdjacency": [
-        "GRID_MODERNIZATION",
-        "AI_INFRASTRUCTURE"
-      ],
+      "themeAdjacency": ["GRID_MODERNIZATION", "AI_INFRASTRUCTURE"],
       "supplyChainLevel": 4,
-      "moat": "World's largest copper reserves with the lowest-cost production profile in the industry. Fully integrated mining-to-refining operations. Copper is irreplaceable in power transmission, EV motors, and data center electrical systems — no viable substitute exists at industrial scale.",
+      "moat": "World's largest copper reserves with the lowest-cost production profile. Copper is irreplaceable in power transmission, EV motors, and data center electrical systems — no viable substitute at industrial scale.",
       "historicalGrossMarginPct": 45,
       "cyclicalNature": "highly_cyclical",
       "troughThresholdPctFrom52wHigh": -30,
-      "demandInflectionSignal": "AI data center electrical infrastructure + grid modernization for AI power expansion all require copper. IEA projects 60%+ copper demand increase by 2030 from energy transition alone. New mine supply is severely constrained — permitting timelines are 15-20 years. Supply-demand imbalance building structurally.",
-      "promotionCriteria": "nearTrough=true AND copper spot price confirmed trend above $5/lb AND China infrastructure stimulus signal visible in PMI data. Highly cyclical — entry timing is everything."
+      "demandInflectionSignal": "AI data center electrical infrastructure + grid modernization all require copper. IEA projects 60%+ copper demand increase by 2030. New mine supply is severely constrained — permitting timelines are 15-20 years.",
+      "promotionCriteria": "nearTrough=true AND copper spot price confirmed trend above $5/lb AND China infrastructure stimulus signal visible in PMI data. Highly cyclical — entry timing is everything.",
+      "invalidation": "Copper spot price drops below $4/lb — eliminates the thesis immediately. China infrastructure stimulus fails to materialize. Global recession reduces industrial demand. Battery technology shifts reduce copper intensity per EV.",
+      "catalystWindow": "China PMI above 52 for two consecutive months — copper demand signal. Copper spot price sustained above $5/lb. Any major AI data center construction project announcement (copper intensity per MW is high)."
     }
   ]
 }

@@ -428,8 +428,10 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     }
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_conviction', tag, explain, why: dynOneLiner(e),
-      earlyEntrySignal: null, catalyst: e.next_catalyst || null,
-      invalidation: null, crowding: null,
+      earlyEntrySignal: e.early_entry_signal || null,
+      catalyst: e.next_catalyst || null,
+      invalidation: e.invalidation || null,
+      crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14,
       rev: isRevRecovery ? revLabel : null });
   }
@@ -446,8 +448,11 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${isRevRecovery2 && revGrowth ? ` with ${revGrowth} revenue growth` : ''}. The scanner confirmed all three criteria: durable competitive moat, price at a cyclical trough, and demand starting to inflect. No insider confirmation yet — keep on close watch before acting.`;
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_watchlist', tag: 'Full scan', explain,
-      why: dynOneLiner(e), earlyEntrySignal: null, catalyst: e.next_catalyst || null,
-      invalidation: null, crowding: null,
+      why: dynOneLiner(e),
+      earlyEntrySignal: e.early_entry_signal || null,
+      catalyst: e.next_catalyst || null,
+      invalidation: e.invalidation || null,
+      crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high,
       rsi: e.rsi14, rev: revLabel2 });
   }
@@ -465,9 +470,11 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const explain = `${e.event_name || 'A major market event'} creates a direct tailwind here. ${pctDown ? `Currently ${pctDown} below its 52-week high. ` : ''}No scanner entry signal yet — this is early positioning before the market prices in the catalyst. If it materializes, you want to already be watching.`;
     tier2.push({ ticker: e.ticker, name: e.name || '', attention: e.score + troughBoost,
       source: 'event_driven', tag: 'Catalyst', explain,
-      why: snip(e.moat_summary || '', 140), earlyEntrySignal: null,
-      catalyst: e.event_name ? `Catalyst: ${e.event_name}` : null,
-      invalidation: null, crowding: null,
+      why: snip(e.moat_summary || '', 160),
+      earlyEntrySignal: e.early_entry_signal || null,
+      catalyst: e.next_catalyst || (e.event_name ? `${e.event_name}: watch for materializing catalyst.` : null),
+      invalidation: e.invalidation || null,
+      crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: null });
   }
 
@@ -554,8 +561,8 @@ function renderBriefCard(item, rank) {
     timingTx ? `<span class="ub-chip ${isUrgent ? 'ub-urgent' : 'ub-timing'}">${esc(timingTx)}</span>` : '',
   ].filter(Boolean).join('');
 
-  // Thesis block — show earlyEntrySignal for framework picks, fallback to explain/why for scanner picks
-  const thesisText = item.earlyEntrySignal || item.explain || item.why || '';
+  // Thesis: earlyEntrySignal (framework/scanner thesis) > moat+demand (why) > boilerplate explain
+  const thesisText = item.earlyEntrySignal || item.why || item.explain || '';
   const moatLine   = item.earlyEntrySignal ? null : null; // suppress redundant moat when thesis is shown
 
   const crowdingLabel = item.crowding === 'low' ? 'Low — pre-consensus'

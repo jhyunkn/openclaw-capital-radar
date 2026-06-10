@@ -5,14 +5,14 @@ const path = require('path');
 const { renderNarrativeRealitySection, renderNarrativeRealityStyle } = require('../components/radar/narrative-reality/render.cjs');
 
 const root       = path.join(__dirname, '..');
-const indexPath  = path.join(root, 'index.html');
+const indexPath  = process.argv[2] ? path.resolve(root, process.argv[2]) : path.join(root, 'index.html');
 const briefPath  = path.join(root, 'outputs', 'narrative-reality-brief.json');
 
 function readJson(p, fallback = null) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fallback; }
 }
 
-if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
+if (!fs.existsSync(indexPath)) throw new Error(`index.html missing at ${indexPath}`);
 
 const brief = readJson(briefPath, null);
 if (!brief || !Array.isArray(brief.themes) || !brief.themes.length) {
@@ -40,13 +40,34 @@ if (html.includes(`id="${STYLE_ID}"`)) {
 const SECTION_ID = 'narrative-reality-section';
 const MACRO_ID   = 'macro-unified-section';
 
+function findMatchingSection(h, openIdx) {
+  // Walk forward from the <section at openIdx, tracking depth to find the matching </section>
+  let depth = 0;
+  let pos   = openIdx;
+  while (pos < h.length) {
+    const nextOpen  = h.indexOf('<section', pos);
+    const nextClose = h.indexOf('</section>', pos);
+    if (nextClose < 0) return -1;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth++;
+      pos = nextOpen + '<section'.length;
+    } else {
+      depth--;
+      if (depth === 0) return nextClose;
+      pos = nextClose + '</section>'.length;
+    }
+  }
+  return -1;
+}
+
 function removeSection(h, id) {
   const token = `id="${id}"`;
   const idx   = h.indexOf(token);
   if (idx < 0) return h;
   const start = h.lastIndexOf('<section', idx);
-  const end   = h.indexOf('</section>', idx);
-  if (start < 0 || end < 0) return h;
+  if (start < 0) return h;
+  const end = findMatchingSection(h, start);
+  if (end < 0) return h;
   return h.slice(0, start) + h.slice(end + '</section>'.length);
 }
 
@@ -54,7 +75,9 @@ function insertAfterSection(h, anchorId, newSection) {
   const token = `id="${anchorId}"`;
   const idx   = h.indexOf(token);
   if (idx < 0) return h;
-  const end = h.indexOf('</section>', idx);
+  const start = h.lastIndexOf('<section', idx);
+  if (start < 0) return h;
+  const end = findMatchingSection(h, start);
   if (end < 0) return h;
   const pos = end + '</section>'.length;
   return h.slice(0, pos) + '\n' + newSection + h.slice(pos);

@@ -221,6 +221,7 @@ for (const entry of copyEntries) {
 // Macro panels (cycle, intelligence) are already reordered in index.html before the copy.
 // Only re-run injectors that must target public/index.html for Vercel-specific paths.
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality section injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

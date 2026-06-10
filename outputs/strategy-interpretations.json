@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T12:43:04.445Z",
+  "generatedAt": "2026-06-10T16:48:19.756Z",
   "policy": "Strategy Interpreter uses h.signalThresholds as the authoritative signal-change source. Index instruments use the index ballast cap framework rather than the single-name cap.",
   "homepage": {
     "actNow": [
@@ -32,10 +32,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 4.41,
+          "value": 4.52,
           "thresholdPct": -9.88,
           "tone": "positive",
-          "distancePct": -9.81595092024539,
+          "distancePct": -9.780439121756492,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -43,7 +43,7 @@
           "tone": "positive",
           "cap": 5,
           "framework": "Levered / decay risk framework",
-          "reason": "0.34% is inside 5% levered / decay risk framework cap."
+          "reason": "0.35% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -68,9 +68,81 @@
           "reason": "Decision is constrained by weak data, risk, trend, or thesis conflict."
         },
         "signalChangeConditions": [
-          "Add review only near $4.41 (-9.88% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $6.55 (+34.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $3.23 (-34.00% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $4.52 (-9.88% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $6.71 (+34.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $3.31 (-34.00% vol-adjusted band) or thesis invalidation triggers."
+        ]
+      },
+      {
+        "ticker": "SPY",
+        "signal": "HOLD",
+        "role": "Portfolio ballast / market beta",
+        "exposureType": "index",
+        "riskCap": 55,
+        "capFramework": "Index ballast framework",
+        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "thesisStatus": {
+          "status": "Intact",
+          "tone": "positive",
+          "reason": "Thesis, rationale, and invalidation language are present."
+        },
+        "actionPermission": {
+          "status": "Hold only",
+          "tone": "caution",
+          "reason": "Position is over budget under Index ballast framework; adding is blocked by risk budget."
+        },
+        "urgency": {
+          "level": "Now",
+          "tone": "danger",
+          "reason": "Exit/risk-budget pressure requires immediate review."
+        },
+        "newInformation": [
+          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
+          "55.01% exceeds 55% index ballast framework cap.",
+          "Momentum signals are split."
+        ],
+        "nearestDecisionBoundary": {
+          "label": "vol-adjusted add zone",
+          "value": 717.56,
+          "thresholdPct": -1.68,
+          "tone": "positive",
+          "distancePct": -1.6744772397160828,
+          "source": "signalThresholds"
+        },
+        "positionPressure": {
+          "status": "Over budget",
+          "tone": "danger",
+          "cap": 55,
+          "framework": "Index ballast framework",
+          "reason": "55.01% exceeds 55% index ballast framework cap."
+        },
+        "trendRead": {
+          "status": "Mixed",
+          "tone": "caution",
+          "reason": "Momentum signals are split."
+        },
+        "dataConfidence": {
+          "status": "Usable data",
+          "tone": "positive",
+          "missing": [],
+          "reason": "Core valuation/event fields are available."
+        },
+        "portfolioConflict": {
+          "status": "Index ballast concentration",
+          "tone": "caution",
+          "reason": "SPY is 55.01% of the account; acceptable only under index ballast framework, not single-name logic."
+        },
+        "decisionConfidence": {
+          "level": "Medium",
+          "score": 60,
+          "tone": "caution",
+          "reason": "Several factors conflict or require verification."
+        },
+        "signalChangeConditions": [
+          "Add review only near $717.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $795.46 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $681.43 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
+          "Adding remains blocked until position pressure is reduced."
         ]
       }
     ],
@@ -99,16 +171,16 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-1.95%; -1.95% threshold).",
+          "Near vol-adjusted add zone (-1.94%; -1.94% threshold).",
           "5D, 1M, and 3M are negative.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 395.27,
-          "thresholdPct": -1.95,
+          "value": 394.9,
+          "thresholdPct": -1.94,
           "tone": "positive",
-          "distancePct": -1.947310974399688,
+          "distancePct": -1.9417957886372788,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -116,7 +188,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "2.09% is inside 15% single-name concentration framework cap."
+          "reason": "2.11% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -141,9 +213,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $395.27 (-1.95% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $444.27 (+10.21% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $372.16 (-7.68% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $394.90 (-1.94% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $443.73 (+10.18% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $371.87 (-7.66% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -170,16 +242,16 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.23%; -2.22% threshold).",
-          "14.02% is near 15% single-name concentration framework cap.",
+          "Near vol-adjusted add zone (-2.25%; -2.25% threshold).",
+          "13.87% is near 15% single-name concentration framework cap.",
           "Momentum signals are split."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 238.44,
-          "thresholdPct": -2.22,
+          "value": 233.35,
+          "thresholdPct": -2.25,
           "tone": "positive",
-          "distancePct": -2.2265961372862617,
+          "distancePct": -2.2454023710778825,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -187,7 +259,7 @@
           "tone": "caution",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "14.02% is near 15% single-name concentration framework cap."
+          "reason": "13.87% is near 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -212,9 +284,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $238.44 (-2.22% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $276.69 (+13.46% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $217.83 (-10.68% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $233.35 (-2.25% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $271.14 (+13.58% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $212.96 (-10.79% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -241,16 +313,16 @@
           "reason": "Trend deterioration should be monitored."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-3.23%; -3.23% threshold).",
+          "Near vol-adjusted add zone (-3.25%; -3.25% threshold).",
           "5D, 1M, and 3M are negative.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 243.27,
-          "thresholdPct": -3.23,
+          "value": 235.53,
+          "thresholdPct": -3.25,
           "tone": "positive",
-          "distancePct": -3.233890214797134,
+          "distancePct": -3.253234750462102,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -258,7 +330,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "1.30% is inside 15% single-name concentration framework cap."
+          "reason": "1.27% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -283,9 +355,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $243.27 (-3.23% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $299.42 (+19.10% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $212.39 (-15.52% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $235.53 (-3.25% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $290.21 (+19.21% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $205.45 (-15.61% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -318,10 +390,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 572.47,
+          "value": 561.54,
           "thresholdPct": -2.56,
           "tone": "positive",
-          "distancePct": -2.558297872340421,
+          "distancePct": -2.5628567958216903,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -329,7 +401,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "8.45% is inside 15% single-name concentration framework cap."
+          "reason": "8.37% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -354,9 +426,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $572.47 (-2.56% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $677.54 (+15.33% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $515.36 (-12.28% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $561.54 (-2.56% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $664.81 (+15.36% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $505.40 (-12.30% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -388,10 +460,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 16.25,
-          "thresholdPct": -9.75,
+          "value": 15.13,
+          "thresholdPct": -9.86,
           "tone": "positive",
-          "distancePct": -9.772348695169358,
+          "distancePct": -9.886837403216191,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -399,7 +471,7 @@
           "tone": "positive",
           "cap": 5,
           "framework": "Levered / decay risk framework",
-          "reason": "0.47% is inside 5% levered / decay risk framework cap."
+          "reason": "0.44% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -424,80 +496,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $16.25 (-9.75% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $24.06 (+33.60% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $11.96 (-33.60% vol-adjusted band) or thesis invalidation triggers."
-        ]
-      },
-      {
-        "ticker": "SPY",
-        "signal": "HOLD",
-        "role": "Portfolio ballast / market beta",
-        "exposureType": "index",
-        "riskCap": 55,
-        "capFramework": "Index ballast framework",
-        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
-        "thesisStatus": {
-          "status": "Intact",
-          "tone": "positive",
-          "reason": "Thesis, rationale, and invalidation language are present."
-        },
-        "actionPermission": {
-          "status": "Add review allowed",
-          "tone": "positive",
-          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
-        },
-        "urgency": {
-          "level": "Soon",
-          "tone": "caution",
-          "reason": "Near vol-adjusted add zone."
-        },
-        "newInformation": [
-          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-          "54.88% is near 55% index ballast framework cap.",
-          "Momentum signals are split."
-        ],
-        "nearestDecisionBoundary": {
-          "label": "vol-adjusted add zone",
-          "value": 723.38,
-          "thresholdPct": -1.68,
-          "tone": "positive",
-          "distancePct": -1.6745956232159915,
-          "source": "signalThresholds"
-        },
-        "positionPressure": {
-          "status": "Near cap",
-          "tone": "caution",
-          "cap": 55,
-          "framework": "Index ballast framework",
-          "reason": "54.88% is near 55% index ballast framework cap."
-        },
-        "trendRead": {
-          "status": "Mixed",
-          "tone": "caution",
-          "reason": "Momentum signals are split."
-        },
-        "dataConfidence": {
-          "status": "Usable data",
-          "tone": "positive",
-          "missing": [],
-          "reason": "Core valuation/event fields are available."
-        },
-        "portfolioConflict": {
-          "status": "Index ballast concentration",
-          "tone": "caution",
-          "reason": "SPY is 54.88% of the account; acceptable only under index ballast framework, not single-name logic."
-        },
-        "decisionConfidence": {
-          "level": "Medium",
-          "score": 70,
-          "tone": "caution",
-          "reason": "Several factors conflict or require verification."
-        },
-        "signalChangeConditions": [
-          "Add review only near $723.38 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $801.91 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $686.96 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $15.13 (-9.86% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $22.49 (+33.96% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $11.09 (-33.96% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -529,10 +530,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 486.51,
+          "value": 479.56,
           "thresholdPct": -1.68,
           "tone": "positive",
-          "distancePct": -1.675424413904612,
+          "distancePct": -1.6751071289442963,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -540,7 +541,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "3.42% is inside 15% single-name concentration framework cap."
+          "reason": "3.41% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -565,9 +566,9 @@
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $486.51 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $539.33 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $462.02 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $479.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $531.63 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $455.42 (-6.63% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -599,10 +600,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 14.79,
-          "thresholdPct": -7.48,
+          "value": 14.66,
+          "thresholdPct": -7.39,
           "tone": "positive",
-          "distancePct": -7.504690431519706,
+          "distancePct": -7.39102969046115,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -610,7 +611,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "9.38% is inside 15% single-name concentration framework cap."
+          "reason": "9.39% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -637,9 +638,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $14.79 (-7.48% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $20.41 (+27.67% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $11.53 (-27.91% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $14.66 (-7.39% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $20.16 (+27.35% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $11.47 (-27.54% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -666,14 +667,14 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.73%; -2.72% threshold)."
+          "Near vol-adjusted add zone (-2.70%; -2.71% threshold)."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 29.93,
-          "thresholdPct": -2.72,
+          "value": 30.6,
+          "thresholdPct": -2.71,
           "tone": "positive",
-          "distancePct": -2.729931751706207,
+          "distancePct": -2.702702702702696,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -681,7 +682,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "2.12% is inside 15% single-name concentration framework cap."
+          "reason": "2.19% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -706,9 +707,9 @@
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $29.93 (-2.72% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $35.77 (+16.26% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $26.75 (-13.08% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $30.60 (-2.71% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $36.54 (+16.18% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $27.36 (-13.01% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -735,15 +736,15 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-          "5D, 1M, and 3M are negative."
+          "Near vol-adjusted add zone (-2.18%; -2.19% threshold).",
+          "1M and 3M trend are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 80.11,
+          "value": 80.58,
           "thresholdPct": -2.19,
           "tone": "positive",
-          "distancePct": -2.185592185592193,
+          "distancePct": -2.1849963583393994,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -751,12 +752,12 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "3.53% is inside 15% single-name concentration framework cap."
+          "reason": "3.59% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Deteriorating",
-          "tone": "danger",
-          "reason": "5D, 1M, and 3M are negative."
+          "status": "Weakening",
+          "tone": "caution",
+          "reason": "1M and 3M trend are negative."
         },
         "dataConfidence": {
           "status": "Usable data",
@@ -771,14 +772,14 @@
         },
         "decisionConfidence": {
           "level": "High",
-          "score": 80,
+          "score": 90,
           "tone": "positive",
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $80.11 (-2.19% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $92.75 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $73.30 (-10.50% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $80.58 (-2.19% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $93.30 (+13.25% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $73.73 (-10.50% vol-adjusted band) or thesis invalidation triggers."
         ]
       }
     ],
@@ -812,10 +813,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 16.25,
-          "thresholdPct": -9.75,
+          "value": 15.13,
+          "thresholdPct": -9.86,
           "tone": "positive",
-          "distancePct": -9.772348695169358,
+          "distancePct": -9.886837403216191,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -823,7 +824,7 @@
           "tone": "positive",
           "cap": 5,
           "framework": "Levered / decay risk framework",
-          "reason": "0.47% is inside 5% levered / decay risk framework cap."
+          "reason": "0.44% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -848,9 +849,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $16.25 (-9.75% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $24.06 (+33.60% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $11.96 (-33.60% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $15.13 (-9.86% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $22.49 (+33.96% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $11.09 (-33.96% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -882,10 +883,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 4.41,
+          "value": 4.52,
           "thresholdPct": -9.88,
           "tone": "positive",
-          "distancePct": -9.81595092024539,
+          "distancePct": -9.780439121756492,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -893,7 +894,7 @@
           "tone": "positive",
           "cap": 5,
           "framework": "Levered / decay risk framework",
-          "reason": "0.34% is inside 5% levered / decay risk framework cap."
+          "reason": "0.35% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -918,9 +919,81 @@
           "reason": "Decision is constrained by weak data, risk, trend, or thesis conflict."
         },
         "signalChangeConditions": [
-          "Add review only near $4.41 (-9.88% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $6.55 (+34.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $3.23 (-34.00% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $4.52 (-9.88% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $6.71 (+34.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $3.31 (-34.00% vol-adjusted band) or thesis invalidation triggers."
+        ]
+      },
+      {
+        "ticker": "SPY",
+        "signal": "HOLD",
+        "role": "Portfolio ballast / market beta",
+        "exposureType": "index",
+        "riskCap": 55,
+        "capFramework": "Index ballast framework",
+        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "thesisStatus": {
+          "status": "Intact",
+          "tone": "positive",
+          "reason": "Thesis, rationale, and invalidation language are present."
+        },
+        "actionPermission": {
+          "status": "Hold only",
+          "tone": "caution",
+          "reason": "Position is over budget under Index ballast framework; adding is blocked by risk budget."
+        },
+        "urgency": {
+          "level": "Now",
+          "tone": "danger",
+          "reason": "Exit/risk-budget pressure requires immediate review."
+        },
+        "newInformation": [
+          "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
+          "55.01% exceeds 55% index ballast framework cap.",
+          "Momentum signals are split."
+        ],
+        "nearestDecisionBoundary": {
+          "label": "vol-adjusted add zone",
+          "value": 717.56,
+          "thresholdPct": -1.68,
+          "tone": "positive",
+          "distancePct": -1.6744772397160828,
+          "source": "signalThresholds"
+        },
+        "positionPressure": {
+          "status": "Over budget",
+          "tone": "danger",
+          "cap": 55,
+          "framework": "Index ballast framework",
+          "reason": "55.01% exceeds 55% index ballast framework cap."
+        },
+        "trendRead": {
+          "status": "Mixed",
+          "tone": "caution",
+          "reason": "Momentum signals are split."
+        },
+        "dataConfidence": {
+          "status": "Usable data",
+          "tone": "positive",
+          "missing": [],
+          "reason": "Core valuation/event fields are available."
+        },
+        "portfolioConflict": {
+          "status": "Index ballast concentration",
+          "tone": "caution",
+          "reason": "SPY is 55.01% of the account; acceptable only under index ballast framework, not single-name logic."
+        },
+        "decisionConfidence": {
+          "level": "Medium",
+          "score": 60,
+          "tone": "caution",
+          "reason": "Several factors conflict or require verification."
+        },
+        "signalChangeConditions": [
+          "Add review only near $717.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $795.46 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $681.43 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
+          "Adding remains blocked until position pressure is reduced."
         ]
       },
       {
@@ -952,10 +1025,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 14.79,
-          "thresholdPct": -7.48,
+          "value": 14.66,
+          "thresholdPct": -7.39,
           "tone": "positive",
-          "distancePct": -7.504690431519706,
+          "distancePct": -7.39102969046115,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -963,7 +1036,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "9.38% is inside 15% single-name concentration framework cap."
+          "reason": "9.39% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -990,9 +1063,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $14.79 (-7.48% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $20.41 (+27.67% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $11.53 (-27.91% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $14.66 (-7.39% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $20.16 (+27.35% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $11.47 (-27.54% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1019,14 +1092,14 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.73%; -2.72% threshold)."
+          "Near vol-adjusted add zone (-2.70%; -2.71% threshold)."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 29.93,
-          "thresholdPct": -2.72,
+          "value": 30.6,
+          "thresholdPct": -2.71,
           "tone": "positive",
-          "distancePct": -2.729931751706207,
+          "distancePct": -2.702702702702696,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1034,7 +1107,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "2.12% is inside 15% single-name concentration framework cap."
+          "reason": "2.19% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -1059,9 +1132,9 @@
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $29.93 (-2.72% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $35.77 (+16.26% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $26.75 (-13.08% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $30.60 (-2.71% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $36.54 (+16.18% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $27.36 (-13.01% vol-adjusted band) or thesis invalidation triggers."
         ]
       }
     ],
@@ -1095,10 +1168,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 14.79,
-          "thresholdPct": -7.48,
+          "value": 14.66,
+          "thresholdPct": -7.39,
           "tone": "positive",
-          "distancePct": -7.504690431519706,
+          "distancePct": -7.39102969046115,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1106,7 +1179,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "9.38% is inside 15% single-name concentration framework cap."
+          "reason": "9.39% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1133,9 +1206,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $14.79 (-7.48% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $20.41 (+27.67% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $11.53 (-27.91% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $14.66 (-7.39% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $20.16 (+27.35% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $11.47 (-27.54% vol-adjusted band) or thesis invalidation triggers."
         ]
       }
     ],
@@ -1164,16 +1237,16 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-1.95%; -1.95% threshold).",
+          "Near vol-adjusted add zone (-1.94%; -1.94% threshold).",
           "5D, 1M, and 3M are negative.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 395.27,
-          "thresholdPct": -1.95,
+          "value": 394.9,
+          "thresholdPct": -1.94,
           "tone": "positive",
-          "distancePct": -1.947310974399688,
+          "distancePct": -1.9417957886372788,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1181,7 +1254,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "2.09% is inside 15% single-name concentration framework cap."
+          "reason": "2.11% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1206,9 +1279,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $395.27 (-1.95% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $444.27 (+10.21% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $372.16 (-7.68% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $394.90 (-1.94% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $443.73 (+10.18% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $371.87 (-7.66% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1235,16 +1308,16 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.23%; -2.22% threshold).",
-          "14.02% is near 15% single-name concentration framework cap.",
+          "Near vol-adjusted add zone (-2.25%; -2.25% threshold).",
+          "13.87% is near 15% single-name concentration framework cap.",
           "Momentum signals are split."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 238.44,
-          "thresholdPct": -2.22,
+          "value": 233.35,
+          "thresholdPct": -2.25,
           "tone": "positive",
-          "distancePct": -2.2265961372862617,
+          "distancePct": -2.2454023710778825,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1252,7 +1325,7 @@
           "tone": "caution",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "14.02% is near 15% single-name concentration framework cap."
+          "reason": "13.87% is near 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -1277,9 +1350,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $238.44 (-2.22% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $276.69 (+13.46% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $217.83 (-10.68% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $233.35 (-2.25% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $271.14 (+13.58% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $212.96 (-10.79% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1306,16 +1379,16 @@
           "reason": "Trend deterioration should be monitored."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-3.23%; -3.23% threshold).",
+          "Near vol-adjusted add zone (-3.25%; -3.25% threshold).",
           "5D, 1M, and 3M are negative.",
           "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 243.27,
-          "thresholdPct": -3.23,
+          "value": 235.53,
+          "thresholdPct": -3.25,
           "tone": "positive",
-          "distancePct": -3.233890214797134,
+          "distancePct": -3.253234750462102,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1323,7 +1396,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "1.30% is inside 15% single-name concentration framework cap."
+          "reason": "1.27% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1348,9 +1421,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $243.27 (-3.23% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $299.42 (+19.10% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $212.39 (-15.52% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $235.53 (-3.25% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $290.21 (+19.21% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $205.45 (-15.61% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1383,10 +1456,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 572.47,
+          "value": 561.54,
           "thresholdPct": -2.56,
           "tone": "positive",
-          "distancePct": -2.558297872340421,
+          "distancePct": -2.5628567958216903,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1394,7 +1467,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "8.45% is inside 15% single-name concentration framework cap."
+          "reason": "8.37% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1419,9 +1492,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $572.47 (-2.56% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $677.54 (+15.33% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $515.36 (-12.28% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $561.54 (-2.56% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $664.81 (+15.36% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $505.40 (-12.30% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1453,10 +1526,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 16.25,
-          "thresholdPct": -9.75,
+          "value": 15.13,
+          "thresholdPct": -9.86,
           "tone": "positive",
-          "distancePct": -9.772348695169358,
+          "distancePct": -9.886837403216191,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1464,7 +1537,7 @@
           "tone": "positive",
           "cap": 5,
           "framework": "Levered / decay risk framework",
-          "reason": "0.47% is inside 5% levered / decay risk framework cap."
+          "reason": "0.44% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1489,9 +1562,9 @@
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $16.25 (-9.75% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $24.06 (+33.60% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $11.96 (-33.60% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $15.13 (-9.86% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $22.49 (+33.96% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $11.09 (-33.96% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1523,10 +1596,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 4.41,
+          "value": 4.52,
           "thresholdPct": -9.88,
           "tone": "positive",
-          "distancePct": -9.81595092024539,
+          "distancePct": -9.780439121756492,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1534,7 +1607,7 @@
           "tone": "positive",
           "cap": 5,
           "framework": "Levered / decay risk framework",
-          "reason": "0.34% is inside 5% levered / decay risk framework cap."
+          "reason": "0.35% is inside 5% levered / decay risk framework cap."
         },
         "trendRead": {
           "status": "Deteriorating",
@@ -1559,9 +1632,9 @@
           "reason": "Decision is constrained by weak data, risk, trend, or thesis conflict."
         },
         "signalChangeConditions": [
-          "Add review only near $4.41 (-9.88% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $6.55 (+34.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $3.23 (-34.00% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $4.52 (-9.88% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $6.71 (+34.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $3.31 (-34.00% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1578,34 +1651,34 @@
           "reason": "Thesis, rationale, and invalidation language are present."
         },
         "actionPermission": {
-          "status": "Add review allowed",
-          "tone": "positive",
-          "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
+          "status": "Hold only",
+          "tone": "caution",
+          "reason": "Position is over budget under Index ballast framework; adding is blocked by risk budget."
         },
         "urgency": {
-          "level": "Soon",
-          "tone": "caution",
-          "reason": "Near vol-adjusted add zone."
+          "level": "Now",
+          "tone": "danger",
+          "reason": "Exit/risk-budget pressure requires immediate review."
         },
         "newInformation": [
           "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-          "54.88% is near 55% index ballast framework cap.",
+          "55.01% exceeds 55% index ballast framework cap.",
           "Momentum signals are split."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 723.38,
+          "value": 717.56,
           "thresholdPct": -1.68,
           "tone": "positive",
-          "distancePct": -1.6745956232159915,
+          "distancePct": -1.6744772397160828,
           "source": "signalThresholds"
         },
         "positionPressure": {
-          "status": "Near cap",
-          "tone": "caution",
+          "status": "Over budget",
+          "tone": "danger",
           "cap": 55,
           "framework": "Index ballast framework",
-          "reason": "54.88% is near 55% index ballast framework cap."
+          "reason": "55.01% exceeds 55% index ballast framework cap."
         },
         "trendRead": {
           "status": "Mixed",
@@ -1621,18 +1694,19 @@
         "portfolioConflict": {
           "status": "Index ballast concentration",
           "tone": "caution",
-          "reason": "SPY is 54.88% of the account; acceptable only under index ballast framework, not single-name logic."
+          "reason": "SPY is 55.01% of the account; acceptable only under index ballast framework, not single-name logic."
         },
         "decisionConfidence": {
           "level": "Medium",
-          "score": 70,
+          "score": 60,
           "tone": "caution",
           "reason": "Several factors conflict or require verification."
         },
         "signalChangeConditions": [
-          "Add review only near $723.38 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $801.91 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $686.96 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $717.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $795.46 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $681.43 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
+          "Adding remains blocked until position pressure is reduced."
         ]
       }
     ],
@@ -1666,10 +1740,10 @@
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 486.51,
+          "value": 479.56,
           "thresholdPct": -1.68,
           "tone": "positive",
-          "distancePct": -1.675424413904612,
+          "distancePct": -1.6751071289442963,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1677,7 +1751,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "3.42% is inside 15% single-name concentration framework cap."
+          "reason": "3.41% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Weakening",
@@ -1702,9 +1776,9 @@
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $486.51 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $539.33 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $462.02 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $479.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $531.63 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $455.42 (-6.63% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1731,14 +1805,14 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.73%; -2.72% threshold)."
+          "Near vol-adjusted add zone (-2.70%; -2.71% threshold)."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 29.93,
-          "thresholdPct": -2.72,
+          "value": 30.6,
+          "thresholdPct": -2.71,
           "tone": "positive",
-          "distancePct": -2.729931751706207,
+          "distancePct": -2.702702702702696,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1746,7 +1820,7 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "2.12% is inside 15% single-name concentration framework cap."
+          "reason": "2.19% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
           "status": "Supportive",
@@ -1771,9 +1845,9 @@
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $29.93 (-2.72% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $35.77 (+16.26% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $26.75 (-13.08% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $30.60 (-2.71% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $36.54 (+16.18% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $27.36 (-13.01% vol-adjusted band) or thesis invalidation triggers."
         ]
       },
       {
@@ -1800,15 +1874,15 @@
           "reason": "Near vol-adjusted add zone."
         },
         "newInformation": [
-          "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-          "5D, 1M, and 3M are negative."
+          "Near vol-adjusted add zone (-2.18%; -2.19% threshold).",
+          "1M and 3M trend are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 80.11,
+          "value": 80.58,
           "thresholdPct": -2.19,
           "tone": "positive",
-          "distancePct": -2.185592185592193,
+          "distancePct": -2.1849963583393994,
           "source": "signalThresholds"
         },
         "positionPressure": {
@@ -1816,12 +1890,12 @@
           "tone": "positive",
           "cap": 15,
           "framework": "Single-name concentration framework",
-          "reason": "3.53% is inside 15% single-name concentration framework cap."
+          "reason": "3.59% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Deteriorating",
-          "tone": "danger",
-          "reason": "5D, 1M, and 3M are negative."
+          "status": "Weakening",
+          "tone": "caution",
+          "reason": "1M and 3M trend are negative."
         },
         "dataConfidence": {
           "status": "Usable data",
@@ -1836,14 +1910,14 @@
         },
         "decisionConfidence": {
           "level": "High",
-          "score": 80,
+          "score": 90,
           "tone": "positive",
           "reason": "Most decision factors are supportive."
         },
         "signalChangeConditions": [
-          "Add review only near $80.11 (-2.19% vol-adjusted band) with thesis/data gates clear.",
-          "Trim/rebalance review near $92.75 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-          "Risk/exit review if price breaks $73.30 (-10.50% vol-adjusted band) or thesis invalidation triggers."
+          "Add review only near $80.58 (-2.19% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $93.30 (+13.25% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $73.73 (-10.50% vol-adjusted band) or thesis invalidation triggers."
         ]
       }
     ]
@@ -1873,16 +1947,16 @@
         "reason": "Near vol-adjusted add zone."
       },
       "newInformation": [
-        "Near vol-adjusted add zone (-1.95%; -1.95% threshold).",
+        "Near vol-adjusted add zone (-1.94%; -1.94% threshold).",
         "5D, 1M, and 3M are negative.",
         "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 395.27,
-        "thresholdPct": -1.95,
+        "value": 394.9,
+        "thresholdPct": -1.94,
         "tone": "positive",
-        "distancePct": -1.947310974399688,
+        "distancePct": -1.9417957886372788,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -1890,7 +1964,7 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "2.09% is inside 15% single-name concentration framework cap."
+        "reason": "2.11% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -1915,9 +1989,9 @@
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $395.27 (-1.95% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $444.27 (+10.21% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $372.16 (-7.68% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $394.90 (-1.94% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $443.73 (+10.18% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $371.87 (-7.66% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -1944,16 +2018,16 @@
         "reason": "Near vol-adjusted add zone."
       },
       "newInformation": [
-        "Near vol-adjusted add zone (-2.23%; -2.22% threshold).",
-        "14.02% is near 15% single-name concentration framework cap.",
+        "Near vol-adjusted add zone (-2.25%; -2.25% threshold).",
+        "13.87% is near 15% single-name concentration framework cap.",
         "Momentum signals are split."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 238.44,
-        "thresholdPct": -2.22,
+        "value": 233.35,
+        "thresholdPct": -2.25,
         "tone": "positive",
-        "distancePct": -2.2265961372862617,
+        "distancePct": -2.2454023710778825,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -1961,7 +2035,7 @@
         "tone": "caution",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "14.02% is near 15% single-name concentration framework cap."
+        "reason": "13.87% is near 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Mixed",
@@ -1986,9 +2060,9 @@
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $238.44 (-2.22% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $276.69 (+13.46% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $217.83 (-10.68% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $233.35 (-2.25% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $271.14 (+13.58% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $212.96 (-10.79% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2015,16 +2089,16 @@
         "reason": "Trend deterioration should be monitored."
       },
       "newInformation": [
-        "Near vol-adjusted add zone (-3.23%; -3.23% threshold).",
+        "Near vol-adjusted add zone (-3.25%; -3.25% threshold).",
         "5D, 1M, and 3M are negative.",
         "4 holdings map to AI/infrastructure exposure; avoid treating each as independent risk."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 243.27,
-        "thresholdPct": -3.23,
+        "value": 235.53,
+        "thresholdPct": -3.25,
         "tone": "positive",
-        "distancePct": -3.233890214797134,
+        "distancePct": -3.253234750462102,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2032,7 +2106,7 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "1.30% is inside 15% single-name concentration framework cap."
+        "reason": "1.27% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2057,9 +2131,9 @@
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $243.27 (-3.23% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $299.42 (+19.10% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $212.39 (-15.52% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $235.53 (-3.25% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $290.21 (+19.21% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $205.45 (-15.61% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2092,10 +2166,10 @@
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 572.47,
+        "value": 561.54,
         "thresholdPct": -2.56,
         "tone": "positive",
-        "distancePct": -2.558297872340421,
+        "distancePct": -2.5628567958216903,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2103,7 +2177,7 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "8.45% is inside 15% single-name concentration framework cap."
+        "reason": "8.37% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2128,9 +2202,9 @@
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $572.47 (-2.56% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $677.54 (+15.33% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $515.36 (-12.28% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $561.54 (-2.56% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $664.81 (+15.36% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $505.40 (-12.30% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2162,10 +2236,10 @@
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 16.25,
-        "thresholdPct": -9.75,
+        "value": 15.13,
+        "thresholdPct": -9.86,
         "tone": "positive",
-        "distancePct": -9.772348695169358,
+        "distancePct": -9.886837403216191,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2173,7 +2247,7 @@
         "tone": "positive",
         "cap": 5,
         "framework": "Levered / decay risk framework",
-        "reason": "0.47% is inside 5% levered / decay risk framework cap."
+        "reason": "0.44% is inside 5% levered / decay risk framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2198,9 +2272,9 @@
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $16.25 (-9.75% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $24.06 (+33.60% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $11.96 (-33.60% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $15.13 (-9.86% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $22.49 (+33.96% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $11.09 (-33.96% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2232,10 +2306,10 @@
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 4.41,
+        "value": 4.52,
         "thresholdPct": -9.88,
         "tone": "positive",
-        "distancePct": -9.81595092024539,
+        "distancePct": -9.780439121756492,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2243,7 +2317,7 @@
         "tone": "positive",
         "cap": 5,
         "framework": "Levered / decay risk framework",
-        "reason": "0.34% is inside 5% levered / decay risk framework cap."
+        "reason": "0.35% is inside 5% levered / decay risk framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2268,9 +2342,9 @@
         "reason": "Decision is constrained by weak data, risk, trend, or thesis conflict."
       },
       "signalChangeConditions": [
-        "Add review only near $4.41 (-9.88% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $6.55 (+34.00% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $3.23 (-34.00% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $4.52 (-9.88% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $6.71 (+34.00% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $3.31 (-34.00% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2287,34 +2361,34 @@
         "reason": "Thesis, rationale, and invalidation language are present."
       },
       "actionPermission": {
-        "status": "Add review allowed",
-        "tone": "positive",
-        "reason": "Price is near volatility-adjusted add zone and no risk-budget block is detected."
+        "status": "Hold only",
+        "tone": "caution",
+        "reason": "Position is over budget under Index ballast framework; adding is blocked by risk budget."
       },
       "urgency": {
-        "level": "Soon",
-        "tone": "caution",
-        "reason": "Near vol-adjusted add zone."
+        "level": "Now",
+        "tone": "danger",
+        "reason": "Exit/risk-budget pressure requires immediate review."
       },
       "newInformation": [
         "Near vol-adjusted add zone (-1.67%; -1.68% threshold).",
-        "54.88% is near 55% index ballast framework cap.",
+        "55.01% exceeds 55% index ballast framework cap.",
         "Momentum signals are split."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 723.38,
+        "value": 717.56,
         "thresholdPct": -1.68,
         "tone": "positive",
-        "distancePct": -1.6745956232159915,
+        "distancePct": -1.6744772397160828,
         "source": "signalThresholds"
       },
       "positionPressure": {
-        "status": "Near cap",
-        "tone": "caution",
+        "status": "Over budget",
+        "tone": "danger",
         "cap": 55,
         "framework": "Index ballast framework",
-        "reason": "54.88% is near 55% index ballast framework cap."
+        "reason": "55.01% exceeds 55% index ballast framework cap."
       },
       "trendRead": {
         "status": "Mixed",
@@ -2330,18 +2404,19 @@
       "portfolioConflict": {
         "status": "Index ballast concentration",
         "tone": "caution",
-        "reason": "SPY is 54.88% of the account; acceptable only under index ballast framework, not single-name logic."
+        "reason": "SPY is 55.01% of the account; acceptable only under index ballast framework, not single-name logic."
       },
       "decisionConfidence": {
         "level": "Medium",
-        "score": 70,
+        "score": 60,
         "tone": "caution",
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $723.38 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $801.91 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $686.96 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $717.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $795.46 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $681.43 (-6.63% vol-adjusted band) or thesis invalidation triggers.",
+        "Adding remains blocked until position pressure is reduced."
       ]
     },
     {
@@ -2373,10 +2448,10 @@
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 486.51,
+        "value": 479.56,
         "thresholdPct": -1.68,
         "tone": "positive",
-        "distancePct": -1.675424413904612,
+        "distancePct": -1.6751071289442963,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2384,7 +2459,7 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "3.42% is inside 15% single-name concentration framework cap."
+        "reason": "3.41% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Weakening",
@@ -2409,9 +2484,9 @@
         "reason": "Most decision factors are supportive."
       },
       "signalChangeConditions": [
-        "Add review only near $486.51 (-1.68% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $539.33 (+9.00% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $462.02 (-6.63% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $479.56 (-1.68% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $531.63 (+9.00% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $455.42 (-6.63% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2443,10 +2518,10 @@
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 14.79,
-        "thresholdPct": -7.48,
+        "value": 14.66,
+        "thresholdPct": -7.39,
         "tone": "positive",
-        "distancePct": -7.504690431519706,
+        "distancePct": -7.39102969046115,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2454,7 +2529,7 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "9.38% is inside 15% single-name concentration framework cap."
+        "reason": "9.39% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Deteriorating",
@@ -2481,9 +2556,9 @@
         "reason": "Several factors conflict or require verification."
       },
       "signalChangeConditions": [
-        "Add review only near $14.79 (-7.48% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $20.41 (+27.67% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $11.53 (-27.91% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $14.66 (-7.39% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $20.16 (+27.35% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $11.47 (-27.54% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2510,14 +2585,14 @@
         "reason": "Near vol-adjusted add zone."
       },
       "newInformation": [
-        "Near vol-adjusted add zone (-2.73%; -2.72% threshold)."
+        "Near vol-adjusted add zone (-2.70%; -2.71% threshold)."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 29.93,
-        "thresholdPct": -2.72,
+        "value": 30.6,
+        "thresholdPct": -2.71,
         "tone": "positive",
-        "distancePct": -2.729931751706207,
+        "distancePct": -2.702702702702696,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2525,7 +2600,7 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "2.12% is inside 15% single-name concentration framework cap."
+        "reason": "2.19% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
         "status": "Supportive",
@@ -2550,9 +2625,9 @@
         "reason": "Most decision factors are supportive."
       },
       "signalChangeConditions": [
-        "Add review only near $29.93 (-2.72% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $35.77 (+16.26% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $26.75 (-13.08% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $30.60 (-2.71% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $36.54 (+16.18% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $27.36 (-13.01% vol-adjusted band) or thesis invalidation triggers."
       ]
     },
     {
@@ -2579,15 +2654,15 @@
         "reason": "Near vol-adjusted add zone."
       },
       "newInformation": [
-        "Near vol-adjusted add zone (-2.19%; -2.19% threshold).",
-        "5D, 1M, and 3M are negative."
+        "Near vol-adjusted add zone (-2.18%; -2.19% threshold).",
+        "1M and 3M trend are negative."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
-        "value": 80.11,
+        "value": 80.58,
         "thresholdPct": -2.19,
         "tone": "positive",
-        "distancePct": -2.185592185592193,
+        "distancePct": -2.1849963583393994,
         "source": "signalThresholds"
       },
       "positionPressure": {
@@ -2595,12 +2670,12 @@
         "tone": "positive",
         "cap": 15,
         "framework": "Single-name concentration framework",
-        "reason": "3.53% is inside 15% single-name concentration framework cap."
+        "reason": "3.59% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
-        "status": "Deteriorating",
-        "tone": "danger",
-        "reason": "5D, 1M, and 3M are negative."
+        "status": "Weakening",
+        "tone": "caution",
+        "reason": "1M and 3M trend are negative."
       },
       "dataConfidence": {
         "status": "Usable data",
@@ -2615,14 +2690,14 @@
       },
       "decisionConfidence": {
         "level": "High",
-        "score": 80,
+        "score": 90,
         "tone": "positive",
         "reason": "Most decision factors are supportive."
       },
       "signalChangeConditions": [
-        "Add review only near $80.11 (-2.19% vol-adjusted band) with thesis/data gates clear.",
-        "Trim/rebalance review near $92.75 (+13.25% vol-adjusted band) or if weight exceeds cap.",
-        "Risk/exit review if price breaks $73.30 (-10.50% vol-adjusted band) or thesis invalidation triggers."
+        "Add review only near $80.58 (-2.19% vol-adjusted band) with thesis/data gates clear.",
+        "Trim/rebalance review near $93.30 (+13.25% vol-adjusted band) or if weight exceeds cap.",
+        "Risk/exit review if price breaks $73.73 (-10.50% vol-adjusted band) or thesis invalidation triggers."
       ]
     }
   ]

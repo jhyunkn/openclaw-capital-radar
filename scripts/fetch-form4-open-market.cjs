@@ -26,7 +26,7 @@ const CACHE_DIR = path.join(root, 'outputs', 'cache', 'form4-xml');
 const OUT_PATH  = path.join(root, 'outputs', 'form4-open-market.json');
 
 const MIN_VALUE    = 10_000;  // ignore transactions below $10K (noise filter)
-const LOOKBACK_DAYS = 180;    // 6-month lookback to catch accumulation campaigns
+const LOOKBACK_DAYS = 90;     // 90-day lookback — stale signals (>90d) mislead on current conviction
 const MAX_FILINGS_PER_TICKER = 20; // cap XML fetches per ticker
 
 fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -215,9 +215,13 @@ async function getPurchasesFromFiling(filing) {
       tickerPurchases.sort((a, b) => (b.transactionDate || '').localeCompare(a.transactionDate || ''));
 
       const totalVal = tickerPurchases.reduce((s, p) => s + (p.totalValue || 0), 0);
+      // STRONG requires officer or director — non-executive insiders (large shareholders, etc.)
+      // do not have the same informational value as executives or board members.
+      const hasExecBuy = tickerPurchases.some(p => p.isOfficer || p.isDirector);
       const signal   = tickerPurchases.length === 0 ? 'NONE'
-        : totalVal >= 1_000_000 ? 'STRONG'
-        : totalVal >= 100_000   ? 'PRESENT'
+        : (hasExecBuy && totalVal >= 1_000_000) ? 'STRONG'
+        : totalVal >= 1_000_000                 ? 'PRESENT'  // large buy, non-exec
+        : totalVal >= 100_000                   ? 'PRESENT'
         : 'MINOR';
 
       results[ticker] = {

@@ -15,9 +15,25 @@ const scanner    = readJson('outputs/universe-scanner.json');
 const macro      = readJson('outputs/market-orientation-map.json');
 const watchlist  = readJson('outputs/watchlist-market-data.json');
 const reportState = readJson('data/report-state.live.json');
+const oppUniverse = readJson('data/opportunity-universe.json');
 
 if (!scanner) throw new Error('Missing outputs/universe-scanner.json — run generate-universe-scanner.cjs first');
 if (!macro)   throw new Error('Missing outputs/market-orientation-map.json');
+
+// Build opportunity-universe lookup
+const oppByTicker = {};
+for (const t of (oppUniverse?.tickers || [])) {
+  oppByTicker[String(t.ticker).toUpperCase()] = t;
+}
+
+// Capital preservation hard-excludes.
+// These explicitly fail our capital preservation filter — do NOT show in opportunity list
+// regardless of trough depth or revenue growth score from the scanner.
+// HUBS: management itself warned on AI seat-based CRM disruption (not narrative mismatch — genuine fundamental)
+// TMDX: not FCF positive — fails capital preservation filter
+// RDDT: not FCF positive, ad-cycle sensitivity
+// HIMS: speculative growth, pre-profitability at scale
+const CAPITAL_PRESERVATION_EXCLUDE = new Set(['HUBS', 'TMDX', 'RDDT', 'HIMS']);
 
 // ── TIMING CALENDAR ──────────────────────────────────────────────────────────
 // Next earnings / catalyst per ticker (Jun 2026).
@@ -27,6 +43,16 @@ const TIMING = {
   NXT:  { nextEarnings: 'Jul 2026',  catalyst: 'Q1 FY2027 tracker shipments + tariff impact' },
   RDDT: { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 DAU + data licensing renewal pipeline' },
   HUBS: { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 SMB ARR + AI CRM adoption rate' },
+  ET:   { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 DCF confirms AI data center gas volume ramp — $25B contracted fee revenue' },
+  KNSL: { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 combined ratio below 80% confirms underwriting quality intact through E&S softening' },
+  CLS:  { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 FY guide raised above $19B — AI hardware manufacturing demand confirmation' },
+  GE:   { nextEarnings: 'Jul 2026',  catalyst: 'Q2 2026 backlog growth + FCF trajectory — aviation supercycle confirmation' },
+  UBER: { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 Gross Bookings + AV city expansion announcement' },
+  NTRA: { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 FCF trajectory — must show narrowing losses to promote' },
+  SCCO: { nextEarnings: 'Jul 2026',  catalyst: 'Q2 2026 copper volume + China infrastructure demand signals' },
+  APO:  { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 FRE growth + AUM inflows from AI infrastructure private credit' },
+  FIX:  { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 data center construction backlog confirmation' },
+  CACI: { nextEarnings: 'Aug 2026',  catalyst: 'Q2 2026 contract win rate + defense AI program awards' },
   VRT:  { nextEarnings: 'Jul 2026',  catalyst: 'Q2 2026 data center cooling order rate + margins' },
   MU:   { nextEarnings: 'Jun 2026',  catalyst: 'Q3 FY2026 earnings Jun 24 — HBM pricing + 2027 commitments' },
   GTLB: { nextEarnings: 'Jun 2026',  catalyst: 'Q1 FY2027 ARR + AI Duo attach rate' },
@@ -148,9 +174,73 @@ const ranked = allCandidates.map(item => {
   };
 }).sort((a, b) => b.conviction_score - a.conviction_score || b.scanner_score - a.scanner_score);
 
-ranked.forEach((r, i) => { r.rank = i + 1; });
+// ── CAPITAL PRESERVATION FILTER ───────────────────────────────────────────────
+// Remove names that explicitly fail our capital preservation mandate.
+// These may score well on the trough algorithm (high drawdown + revenue growth)
+// but are disqualified for fundamental reasons the scanner cannot see.
+const filteredRanked = ranked.filter(r => !CAPITAL_PRESERVATION_EXCLUDE.has(r.ticker));
 
-const top10 = ranked.slice(0, 10);
+// ── OPPORTUNITY-UNIVERSE INJECTION ────────────────────────────────────────────
+// Include opportunity-universe framework picks that the scanner rejected or
+// classified as NEAR_PEAK/FUNDAMENTAL_CONCERN due to data gaps or model mismatch.
+// (ET: contractual income thesis — NEAR_PEAK is expected and correct for income plays)
+// (GE: XBRL data issue — $211B backlog is real)
+// (AVGO: -3% post-earnings dip is a valid entry but not a scanner trough)
+const scannerTickers = new Set(allCandidates.map(c => c.ticker));
+for (const opp of (oppUniverse?.tickers || [])) {
+  const t = String(opp.ticker).toUpperCase();
+  if (scannerTickers.has(t)) {
+    // Already in scanner — boost conviction score if opportunity-universe baseScore is high
+    const item = filteredRanked.find(r => r.ticker === t);
+    if (item && opp.baseScore >= 80) {
+      const oppConv = Math.min(88, Math.round(opp.baseScore * 0.92));
+      if (oppConv > item.conviction_score) {
+        item.conviction_score = oppConv;
+        item.conviction_tier  = tier(oppConv);
+      }
+    }
+    continue;
+  }
+  if (CAPITAL_PRESERVATION_EXCLUDE.has(t)) continue;
+  if (!watchlist?.tickers?.[t]) continue;
+  if (!opp.fcfPositive) continue; // capital preservation: FCF positive required
+  const mkt      = watchlist.tickers[t];
+  const oppConv  = Math.min(88, Math.round(opp.baseScore * 0.92));
+  const timing   = assessTiming(t);
+  filteredRanked.push({
+    rank: 0,
+    ticker: t,
+    name: opp.name,
+    conviction_score: oppConv,
+    conviction_tier: tier(oppConv),
+    scanner_signal: 'OPP_UNIVERSE',
+    scanner_score: opp.baseScore,
+    gate_passed: ['opportunity-universe-framework', 'capital-preservation-filter'],
+    decline_reason: null,
+    fundamental_signals: [opp.earlyEntrySignal ?? ''].filter(Boolean),
+    gaps: ['institutional_crowding: ' + (opp.institutionalCrowding ?? 'unknown')],
+    moat_summary: opp.moat,
+    theme_adjacency: [opp.macroAlignment].filter(Boolean),
+    timing_status: timing.status,
+    timing_note: timing.note,
+    window_score: timing.window_score,
+    next_catalyst: opp.catalystWindow ?? (TIMING[t]?.catalyst ?? null),
+    next_earnings: TIMING[t]?.nextEarnings ?? null,
+    live_price: mkt?.currentPrice ?? null,
+    pct_from_52w_high: mkt?.pctFrom52wHigh ?? null,
+    trend_1m_pct: mkt?.trend1mPct ?? null,
+    rsi14: mkt?.rsi14 ?? null,
+    action_permission: 'RESEARCH_SCREENED — pre-consensus opportunity-universe pick. Crowding: ' + (opp.institutionalCrowding ?? 'unknown'),
+    early_entry_signal: opp.earlyEntrySignal ?? null,
+    institutional_crowding: opp.institutionalCrowding ?? null,
+    invalidation: opp.invalidation ?? null,
+  });
+}
+
+filteredRanked.sort((a, b) => b.conviction_score - a.conviction_score || b.scanner_score - a.scanner_score);
+filteredRanked.forEach((r, i) => { r.rank = i + 1; });
+
+const top10 = filteredRanked.slice(0, 10);
 
 // ── PULLBACK CONTEXT ──────────────────────────────────────────────────────────
 function buildPullbackContext() {
@@ -185,13 +275,15 @@ const output = {
   generated_at: new Date().toISOString(),
   version: 4,
   methodology: {
-    description: 'Conviction scores derived from five-gate screener output. Scanner evaluates every tracked ticker on: (1) revenue growth quality, (2) valuation (P/S, P/FCF), (3) price dislocation, (4) moat durability, (5) decline reason classification.',
-    scoring: 'conviction_score = f(scanner_total_score) + signal_tier_bonus (FULL_SIGNAL +5) + macro_theme_bonus. Range 40–95.',
+    description: 'Conviction scores derived from five-gate screener + opportunity-universe framework. Capital preservation filter removes pre-FCF and explicitly flagged names. Opportunity-universe tickers inject pre-consensus picks with low institutional crowding even if scanner classifies them as NEAR_PEAK.',
+    scoring: 'conviction_score = f(scanner_total_score) + signal_tier_bonus + macro_theme_bonus; OR f(baseScore * 0.92) for OPP_UNIVERSE injections. Range 40–95.',
     tiers: 'S ≥ 90, A ≥ 80, B ≥ 70, C ≥ 55, D < 55',
-    hard_rejects: 'Tickers within 8% of 52wH, revenue declining >5% YoY, or missing market data do not appear — they have no entry dislocation. TSM, ASML, and similar near-high names are correctly absent.',
+    capital_preservation_exclude: [...CAPITAL_PRESERVATION_EXCLUDE],
+    hard_rejects: 'Tickers within 8% of 52wH or revenue declining >5% YoY removed by scanner unless present in opportunity-universe framework list.',
   },
   data_sources: [
     'outputs/universe-scanner.json (five-gate screener — primary)',
+    'data/opportunity-universe.json (framework overrides + pre-consensus injections)',
     'outputs/market-orientation-map.json',
     watchlist ? 'outputs/watchlist-market-data.json (live)' : 'outputs/watchlist-market-data.json (not available)',
   ],
@@ -199,22 +291,24 @@ const output = {
     posture: macro.macroWeather?.posture,
     lean_into: macro.directionalThesis?.leanInto,
     avoid: macro.directionalThesis?.avoid,
-    posture_note: 'HOLD / WATCH: Research and complete evidence. No new positions without dislocation entry or regime shift.',
+    posture_note: 'GET IN EARLY: Pre-consensus positions with low institutional crowding. Capital preservation first — FCF positive, no binary risk, clear invalidation defined.',
   },
   pullback_context: buildPullbackContext(),
   summary: {
-    total_ranked: ranked.length,
+    total_ranked: filteredRanked.length,
     full_signal: allCandidates.filter(c => c.signal === 'FULL_SIGNAL').length,
     partial_signal: allCandidates.filter(c => c.signal === 'PARTIAL_SIGNAL').length,
     watch: allCandidates.filter(c => c.signal === 'WATCH').length,
-    tier_s: ranked.filter(r => r.conviction_tier === 'S').length,
-    tier_a: ranked.filter(r => r.conviction_tier === 'A').length,
-    tier_b: ranked.filter(r => r.conviction_tier === 'B').length,
-    tier_c: ranked.filter(r => r.conviction_tier === 'C').length,
-    tier_d: ranked.filter(r => r.conviction_tier === 'D').length,
+    opp_universe_injected: filteredRanked.filter(r => r.scanner_signal === 'OPP_UNIVERSE').length,
+    capital_preservation_excluded: [...CAPITAL_PRESERVATION_EXCLUDE].length,
+    tier_s: filteredRanked.filter(r => r.conviction_tier === 'S').length,
+    tier_a: filteredRanked.filter(r => r.conviction_tier === 'A').length,
+    tier_b: filteredRanked.filter(r => r.conviction_tier === 'B').length,
+    tier_c: filteredRanked.filter(r => r.conviction_tier === 'C').length,
+    tier_d: filteredRanked.filter(r => r.conviction_tier === 'D').length,
   },
   top10,
-  ranked,
+  ranked: filteredRanked,
 };
 
 const outPath = path.join(root, 'outputs', 'conviction-ranking.json');

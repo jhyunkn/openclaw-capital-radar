@@ -272,10 +272,18 @@ function buildUniverseEntry(candidate, scoreResult) {
 
 // ── MAIN ─────────────────────────────────────────────────────────────────────
 
+// Capital preservation hard-excludes — same as generate-conviction-ranking.cjs.
+// These names may score well on the trough algorithm but fail our qualitative filter.
+// HUBS: management itself warned on AI seat-based disruption — not a narrative mismatch
+// TMDX: not FCF positive — fails capital preservation filter
+// RDDT: not FCF positive — ad-cycle sensitivity
+// HIMS: speculative growth, pre-profitability
+const CAPITAL_PRESERVATION_EXCLUDE = new Set(['HUBS', 'TMDX', 'RDDT', 'HIMS']);
+
 // Score all FULL_SIGNAL and PARTIAL_SIGNAL candidates from the scanner
-// No static list filter — the scanner result IS the ground truth
-const fullSignalCandidates    = (scannerResults.full_signal_candidates    || []);
-const partialSignalCandidates = (scannerResults.partial_signal_candidates || []);
+// Apply capital preservation filter before scoring
+const fullSignalCandidates    = (scannerResults.full_signal_candidates    || []).filter(c => !CAPITAL_PRESERVATION_EXCLUDE.has(c.ticker));
+const partialSignalCandidates = (scannerResults.partial_signal_candidates || []).filter(c => !CAPITAL_PRESERVATION_EXCLUDE.has(c.ticker));
 
 console.log(`Evaluating ${fullSignalCandidates.length} FULL_SIGNAL candidates for promotion...`);
 console.log(`Evaluating ${partialSignalCandidates.length} PARTIAL_SIGNAL candidates for watchlist...`);

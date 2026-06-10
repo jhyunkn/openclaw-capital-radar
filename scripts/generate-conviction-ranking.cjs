@@ -35,6 +35,11 @@ for (const t of (oppUniverse?.tickers || [])) {
 // HIMS: speculative growth, pre-profitability at scale
 const CAPITAL_PRESERVATION_EXCLUDE = new Set(['HUBS', 'TMDX', 'RDDT', 'HIMS']);
 
+// Timing excludes — algorithm valid but entry thesis has expired (already consensus/crowded).
+// MU:   Insider bought at $337 in Jan 2026. Now $895 (+170%). Crowd arrived. Entry passed.
+// UBER: Up 40% YTD, no trough entry, high institutional crowding.
+const TIMING_EXCLUDE = new Set(['MU', 'UBER']);
+
 // ── TIMING CALENDAR ──────────────────────────────────────────────────────────
 // Next earnings / catalyst per ticker (Jun 2026).
 const TIMING = {
@@ -178,7 +183,7 @@ const ranked = allCandidates.map(item => {
 // Remove names that explicitly fail our capital preservation mandate.
 // These may score well on the trough algorithm (high drawdown + revenue growth)
 // but are disqualified for fundamental reasons the scanner cannot see.
-const filteredRanked = ranked.filter(r => !CAPITAL_PRESERVATION_EXCLUDE.has(r.ticker));
+const filteredRanked = ranked.filter(r => !CAPITAL_PRESERVATION_EXCLUDE.has(r.ticker) && !TIMING_EXCLUDE.has(r.ticker));
 
 // ── OPPORTUNITY-UNIVERSE INJECTION ────────────────────────────────────────────
 // Include opportunity-universe framework picks that the scanner rejected or
@@ -190,18 +195,26 @@ const scannerTickers = new Set(allCandidates.map(c => c.ticker));
 for (const opp of (oppUniverse?.tickers || [])) {
   const t = String(opp.ticker).toUpperCase();
   if (scannerTickers.has(t)) {
-    // Already in scanner — boost conviction score if opportunity-universe baseScore is high
+    // Already in scanner — boost conviction score if opportunity-universe baseScore is high,
+    // and enrich with qualitative framework fields (thesis, crowding, invalidation).
     const item = filteredRanked.find(r => r.ticker === t);
-    if (item && opp.baseScore >= 80) {
-      const oppConv = Math.min(88, Math.round(opp.baseScore * 0.92));
-      if (oppConv > item.conviction_score) {
-        item.conviction_score = oppConv;
-        item.conviction_tier  = tier(oppConv);
+    if (item) {
+      if (opp.baseScore >= 80) {
+        const oppConv = Math.min(88, Math.round(opp.baseScore * 0.92));
+        if (oppConv > item.conviction_score) {
+          item.conviction_score = oppConv;
+          item.conviction_tier  = tier(oppConv);
+        }
       }
+      if (opp.earlyEntrySignal)      item.early_entry_signal    = opp.earlyEntrySignal;
+      if (opp.institutionalCrowding) item.institutional_crowding = opp.institutionalCrowding;
+      if (opp.invalidation)          item.invalidation           = opp.invalidation;
+      if (opp.catalystWindow)        item.next_catalyst          = opp.catalystWindow;
     }
     continue;
   }
   if (CAPITAL_PRESERVATION_EXCLUDE.has(t)) continue;
+  if (TIMING_EXCLUDE.has(t)) continue;
   if (!watchlist?.tickers?.[t]) continue;
   if (!opp.fcfPositive) continue; // capital preservation: FCF positive required
   const mkt      = watchlist.tickers[t];

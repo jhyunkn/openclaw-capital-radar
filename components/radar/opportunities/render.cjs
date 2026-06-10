@@ -428,6 +428,8 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     }
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_conviction', tag, explain, why: dynOneLiner(e),
+      earlyEntrySignal: null, catalyst: e.next_catalyst || null,
+      invalidation: null, crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14,
       rev: isRevRecovery ? revLabel : null });
   }
@@ -444,7 +446,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${isRevRecovery2 && revGrowth ? ` with ${revGrowth} revenue growth` : ''}. The scanner confirmed all three criteria: durable competitive moat, price at a cyclical trough, and demand starting to inflect. No insider confirmation yet — keep on close watch before acting.`;
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_watchlist', tag: 'Full scan', explain,
-      why: dynOneLiner(e), price: e.live_price, pct52wh: e.pct_from_52w_high,
+      why: dynOneLiner(e), earlyEntrySignal: null, catalyst: e.next_catalyst || null,
+      invalidation: null, crowding: null,
+      price: e.live_price, pct52wh: e.pct_from_52w_high,
       rsi: e.rsi14, rev: revLabel2 });
   }
 
@@ -461,28 +465,25 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const explain = `${e.event_name || 'A major market event'} creates a direct tailwind here. ${pctDown ? `Currently ${pctDown} below its 52-week high. ` : ''}No scanner entry signal yet — this is early positioning before the market prices in the catalyst. If it materializes, you want to already be watching.`;
     tier2.push({ ticker: e.ticker, name: e.name || '', attention: e.score + troughBoost,
       source: 'event_driven', tag: 'Catalyst', explain,
-      why: snip(e.moat_summary || '', 140),
+      why: snip(e.moat_summary || '', 140), earlyEntrySignal: null,
+      catalyst: e.event_name ? `Catalyst: ${e.event_name}` : null,
+      invalidation: null, crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: null });
   }
 
   for (const cv of arr(conviction?.top10)) {
     if (seen.has(cv.ticker)) continue;
-    // Live data lives at top level (snake_case), not inside cv.entry (which is null)
     const e = cv.entry || {};
     const livePct = cv.pct_from_52w_high ?? e.pctFrom52wHigh;
     const boost = attentionBoost(livePct, null, cv.window_score, false);
     const isActive = cv.window_score === 3;
-    const pctDown = livePct != null ? `${Math.abs(livePct)}%` : null;
-    // Strip "Watch:" prefix so timing reads naturally in the explain sentence
-    const rawTiming = cv.timing_note || cv.timing_status || '';
-    const timingNote = isActive ? rawTiming.replace(/^Watch:\s*/i, '') : '';
-    const nextCat = !isActive ? (cv.next_catalyst || '') : '';
-    const explain = isActive
-      ? `One of the top-ranked businesses in this universe, and the system sees price in an active entry zone right now. ${timingNote ? snip(timingNote, 120) + ' ' : ''}Worth researching a position within a name you'd want to hold long-term.`
-      : `Top-conviction name with no active buy signal — ${pctDown ? `${pctDown} below its 52-week high` : 'not at a trough'}, not in buy territory yet. ${nextCat ? `Watch for: ${snip(nextCat, 100)}.` : 'Track for the next meaningful pullback.'} If it corrects further, it becomes a high-priority research target.`;
     tier3.push({ ticker: cv.ticker, name: cv.name || '', attention: cv.conviction_score + boost,
-      source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring', explain,
-      why: snip(cv.why_core || cv.decline_explanation || '', 140),
+      source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring',
+      why: snip(cv.why_core || cv.decline_explanation || cv.moat_summary || '', 160),
+      earlyEntrySignal: cv.early_entry_signal || null,
+      catalyst: cv.next_catalyst || null,
+      invalidation: cv.invalidation || null,
+      crowding: cv.institutional_crowding || null,
       price: cv.live_price ?? e.currentPrice ?? e.currentEst,
       pct52wh: livePct,
       rsi: cv.rsi14 ?? e.rsi14,
@@ -553,6 +554,23 @@ function renderBriefCard(item, rank) {
     timingTx ? `<span class="ub-chip ${isUrgent ? 'ub-urgent' : 'ub-timing'}">${esc(timingTx)}</span>` : '',
   ].filter(Boolean).join('');
 
+  // Thesis block — show earlyEntrySignal for framework picks, fallback to explain/why for scanner picks
+  const thesisText = item.earlyEntrySignal || item.explain || item.why || '';
+  const moatLine   = item.earlyEntrySignal ? null : null; // suppress redundant moat when thesis is shown
+
+  const crowdingLabel = item.crowding === 'low' ? 'Low — pre-consensus'
+    : item.crowding === 'medium' ? 'Medium — some institutional interest'
+    : item.crowding === 'high'   ? 'High — consensus trade'
+    : null;
+
+  const frameworkGrid = (item.catalyst || item.invalidation || item.crowding)
+    ? `<div class="ub-framework">
+        ${item.catalyst    ? `<div class="ub-fw-row"><span class="ub-fw-label">Catalyst</span><span class="ub-fw-val">${esc(snip(item.catalyst, 120))}</span></div>` : ''}
+        ${item.invalidation ? `<div class="ub-fw-row"><span class="ub-fw-label">Exit if</span><span class="ub-fw-val">${esc(snip(item.invalidation, 100))}</span></div>` : ''}
+        ${crowdingLabel     ? `<div class="ub-fw-row"><span class="ub-fw-label">Crowd</span><span class="ub-fw-val ub-fw-crowd-${esc(item.crowding)}">${esc(crowdingLabel)}</span></div>` : ''}
+      </div>`
+    : '';
+
   return `<article class="ub-card ${cardCls}">
     <div class="ub-row-top">
       <div class="ub-rank">${rank}</div>
@@ -564,8 +582,8 @@ function renderBriefCard(item, rank) {
       </div>
       <span class="ub-action ${actionCls}">${esc(action)}</span>
     </div>
-    ${item.why   ? `<p class="ub-desc">${esc(item.why)}</p>` : ''}
-    ${item.explain ? `<p class="ub-explain">${esc(item.explain)}</p>` : ''}
+    ${thesisText ? `<p class="ub-thesis">${esc(thesisText)}</p>` : ''}
+    ${frameworkGrid}
     ${chips ? `<div class="ub-chips">${chips}</div>` : ''}
   </article>`;
 }
@@ -687,7 +705,6 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
         <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
       </div>
       <div class="trust-strip">${trustStrip}</div>
-      <div class="ub-legend">${legend}</div>
       <div class="ub-list">${cards}</div>
       <p class="ub-footer">${esc(opportunities.length)} in research pipeline · <a href="outputs/conviction-ranking.json">Full conviction ranking →</a></p>
     </div>
@@ -729,8 +746,15 @@ function renderOpportunitiesStyle() {
 .ub-action-active{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.07)}
 .ub-action-research{color:var(--muted);border-color:var(--rule);background:transparent}
 /* Card body text */
-.ub-desc{font-size:12px;font-weight:600;color:rgba(36,35,31,.72);margin:0 0 5px;line-height:1.4;padding-left:28px}
-.ub-explain{font-size:12.5px;color:rgba(36,35,31,.82);margin:0 0 8px;line-height:1.5;padding-left:28px}
+.ub-thesis{font-size:13px;color:rgba(36,35,31,.85);margin:0 0 10px;line-height:1.55;padding-left:28px}
+/* Framework grid — catalyst / exit-if / crowd */
+.ub-framework{display:flex;flex-direction:column;gap:4px;padding-left:28px;margin:0 0 8px}
+.ub-fw-row{display:flex;gap:8px;align-items:baseline;font-size:12px;line-height:1.45}
+.ub-fw-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap;width:52px;flex-shrink:0}
+.ub-fw-val{color:rgba(36,35,31,.78)}
+.ub-fw-crowd-low{color:var(--green)!important;font-weight:600}
+.ub-fw-crowd-medium{color:var(--warn)!important;font-weight:600}
+.ub-fw-crowd-high{color:var(--red,#9f3f35)!important;font-weight:600}
 /* Metric chips */
 .ub-chips{display:flex;flex-wrap:wrap;gap:5px;padding-left:28px}
 .ub-chip{font-size:11px;color:rgba(36,35,31,.62);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}

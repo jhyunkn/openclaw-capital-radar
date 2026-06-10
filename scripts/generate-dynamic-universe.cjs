@@ -280,10 +280,16 @@ function buildUniverseEntry(candidate, scoreResult) {
 // HIMS: speculative growth, pre-profitability
 const CAPITAL_PRESERVATION_EXCLUDE = new Set(['HUBS', 'TMDX', 'RDDT', 'HIMS']);
 
+// Timing excludes — algorithm valid but entry thesis has expired.
+// These names pass the trough/revenue screen but are already consensus trades.
+// MU:   Insider bought at $337 in Jan 2026. Now $895 (+170%). Thesis made, crowd arrived.
+// UBER: Up 40% YTD, institutional crowding high, no trough entry available.
+const TIMING_EXCLUDE = new Set(['MU', 'UBER']);
+
 // Score all FULL_SIGNAL and PARTIAL_SIGNAL candidates from the scanner
 // Apply capital preservation filter before scoring
-const fullSignalCandidates    = (scannerResults.full_signal_candidates    || []).filter(c => !CAPITAL_PRESERVATION_EXCLUDE.has(c.ticker));
-const partialSignalCandidates = (scannerResults.partial_signal_candidates || []).filter(c => !CAPITAL_PRESERVATION_EXCLUDE.has(c.ticker));
+const fullSignalCandidates    = (scannerResults.full_signal_candidates    || []).filter(c => !CAPITAL_PRESERVATION_EXCLUDE.has(c.ticker) && !TIMING_EXCLUDE.has(c.ticker));
+const partialSignalCandidates = (scannerResults.partial_signal_candidates || []).filter(c => !CAPITAL_PRESERVATION_EXCLUDE.has(c.ticker) && !TIMING_EXCLUDE.has(c.ticker));
 
 console.log(`Evaluating ${fullSignalCandidates.length} FULL_SIGNAL candidates for promotion...`);
 console.log(`Evaluating ${partialSignalCandidates.length} PARTIAL_SIGNAL candidates for watchlist...`);
@@ -339,6 +345,7 @@ for (const event of (marketEventsRaw?.events || [])) {
   if (event.signal_strength === 'LOW') continue;
   for (const ticker of (event.beneficiary_tickers || [])) {
     if (alreadyPromoted.has(ticker)) continue;
+    if (CAPITAL_PRESERVATION_EXCLUDE.has(ticker) || TIMING_EXCLUDE.has(ticker)) continue;
     // Allow static universe tickers with low conviction scores (<70) to surface as event-driven.
     // Tickers already well-covered by conviction (≥70) don't need the event-driven card.
     const isStatic = STATIC_TICKERS.has(ticker);

@@ -44,7 +44,7 @@ function write(rel, data) {
   fs.mkdirSync(path.dirname(f), { recursive: true });
   fs.writeFileSync(f, JSON.stringify(data, null, 2) + '\n');
 }
-const num   = v => { const n = Number(v); return Number.isFinite(n) ? n : null; };
+const num   = v => { if (v == null) return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const round = (n, d = 1) => Number.isFinite(n) ? Number(n.toFixed(d)) : null;
 
@@ -105,6 +105,30 @@ for (const [ticker, td] of Object.entries(xbrlTrends?.tickers || {})) {
       xbrlByTicker[tk].revenue_growth_pct = yoy;
     }
   }
+}
+
+// Third pass: manual overrides for tickers with XBRL gaps or concept mismatches.
+// These are research-verified values from public reporting; source tagged in the file.
+const fundOverride = readJson('data/fundamentals-override.json');
+for (const [ticker, ov] of Object.entries(fundOverride?.overrides || {})) {
+  const tk = ticker.toUpperCase();
+  if (!xbrlByTicker[tk]) {
+    xbrlByTicker[tk] = {
+      revenue_ttm_usd_millions:    null,
+      revenue_growth_pct:          null,
+      gross_margin_pct:            null,
+      fcf_usd_millions:            null,
+      shares_outstanding_millions: null,
+      dilution_flag:               null,
+      data_completeness:           'manual_override',
+    };
+  }
+  if (ov.gross_margin_pct             !== undefined) xbrlByTicker[tk].gross_margin_pct             = ov.gross_margin_pct;
+  if (ov.fcf_usd_millions             !== undefined) xbrlByTicker[tk].fcf_usd_millions             = ov.fcf_usd_millions;
+  if (ov.shares_outstanding_millions  !== undefined) xbrlByTicker[tk].shares_outstanding_millions  = ov.shares_outstanding_millions;
+  if (ov.revenue_ttm_usd_millions     !== undefined) xbrlByTicker[tk].revenue_ttm_usd_millions     = ov.revenue_ttm_usd_millions;
+  if (ov.dilution_flag                !== undefined) xbrlByTicker[tk].dilution_flag                = ov.dilution_flag;
+  if (xbrlByTicker[tk].data_completeness !== 'full') xbrlByTicker[tk].data_completeness = 'manual_override';
 }
 
 const moatByTicker = {};

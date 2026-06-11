@@ -396,10 +396,11 @@ function dynOneLiner(e) {
 }
 
 function buildUnifiedList(conviction, dynamicUniverse) {
-  // Tier 1: Dynamic signals — all conviction promotions + watchlist promotions (scored, ranked)
-  // Tier 2: Event-driven — top 3 by score, always guaranteed a slot (time-sensitive, not in scanner yet)
-  // Tier 3: Static conviction — fill remaining slots up to max
-  const MAX = 12;
+  // Tier 1: Dynamic signals — conviction/watchlist promotions (scanner confirmed, highest quality)
+  // Tier 2: Event-driven — up to 2 by score, compete for slots (no guaranteed placement)
+  // Tier 3: Static conviction — framework picks, sorted by attention score
+  // All tiers compete in a single sorted list; top MAX shown. Conviction over coverage.
+  const MAX = 5;
   const seen = new Set();
   const tier1 = [], tier2 = [], tier3 = [];
 
@@ -457,11 +458,11 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       rsi: e.rsi14, rev: revLabel2 });
   }
 
-  // Event-driven: top 3 by score, guaranteed slots (market events are time-sensitive)
+  // Event-driven: up to 2 by score — compete for slots, no guarantee
   const eventCandidates = arr(dynamicUniverse?.event_driven_candidates)
     .filter(e => !seen.has(e.ticker))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
+    .slice(0, 2);
   for (const e of eventCandidates) {
     seen.add(e.ticker);
     const troughBoost = (e.pct_from_52w_high != null && e.pct_from_52w_high <= -50) ? 8
@@ -500,14 +501,11 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       window_score: cv.window_score });
   }
 
-  tier1.sort((a, b) => b.attention - a.attention);
-  tier2.sort((a, b) => b.attention - a.attention);
-  tier3.sort((a, b) => b.attention - a.attention);
-
-  // Merge: tier1 first (all), then tier2 (all, guaranteed), then fill with tier3 up to MAX
-  const merged = [...tier1, ...tier2];
-  const remaining = MAX - merged.length;
-  return [...merged, ...tier3.slice(0, Math.max(0, remaining))];
+  // Merge all tiers into a single attention-ranked list; top MAX wins.
+  // Scanner-promoted picks (tier1) already carry the highest attention scores naturally.
+  const all = [...tier1, ...tier2, ...tier3];
+  all.sort((a, b) => b.attention - a.attention);
+  return all.slice(0, MAX);
 }
 
 function renderBriefCard(item, rank) {

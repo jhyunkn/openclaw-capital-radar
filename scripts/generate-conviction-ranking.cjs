@@ -38,7 +38,8 @@ const CAPITAL_PRESERVATION_EXCLUDE = new Set(['HUBS', 'TMDX', 'RDDT', 'HIMS']);
 // Timing excludes — algorithm valid but entry thesis has expired (already consensus/crowded).
 // MU:   Insider bought at $337 in Jan 2026. Now $895 (+170%). Crowd arrived. Entry passed.
 // UBER: Up 40% YTD, no trough entry, high institutional crowding.
-const TIMING_EXCLUDE = new Set(['MU', 'UBER']);
+// NOW:  Price feed returns $108 vs known ~$850 range — data integrity failure, exclude until verified.
+const TIMING_EXCLUDE = new Set(['MU', 'UBER', 'NOW']);
 
 // ── TIMING CALENDAR ──────────────────────────────────────────────────────────
 // Next earnings / catalyst per ticker (Jun 2026).
@@ -217,6 +218,10 @@ for (const opp of (oppUniverse?.tickers || [])) {
   if (TIMING_EXCLUDE.has(t)) continue;
   if (!watchlist?.tickers?.[t]) continue;
   if (!opp.fcfPositive) continue; // capital preservation: FCF positive required
+  // Require ≥12% dislocation for OPP_UNIVERSE injections — names near 52wH are not trough entries.
+  // Exceptions handled via scanner path (scannerTickers check above) for moated names.
+  const pctFrom52wH = watchlist.tickers[t]?.pctFrom52wHigh ?? 0;
+  if (pctFrom52wH > -12) continue;
   const mkt      = watchlist.tickers[t];
   const oppConv  = Math.min(88, Math.round(opp.baseScore * 0.92));
   const timing   = assessTiming(t);

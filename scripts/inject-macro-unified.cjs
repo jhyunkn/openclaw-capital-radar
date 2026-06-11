@@ -1890,8 +1890,9 @@ const style = `<style id="macro-unified-style">
 .mu-sig-sub{display:block;font-size:9px;color:rgba(26,23,20,.45);margin-top:3px;white-space:nowrap;overflow:hidden}
 
 /* ── Cycle + Regime two-column ── */
-.mu-regime-row{display:grid;grid-template-columns:minmax(0,1.1fr) 320px;gap:22px;padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45);align-items:start}
-.mu-cycle-arc-col{min-width:0}
+.mu-regime-row{padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-cycle-arc-det{grid-column:1/-1;border-bottom:none;padding:0}.mu-cycle-arc-det>.mu-arc-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.45);cursor:pointer;padding:8px 0;display:block;border-bottom:0.5px solid rgba(201,191,173,.3);margin-bottom:0;list-style:none}.mu-cycle-arc-det[open]>.mu-arc-sum{padding-bottom:14px}.mu-cycle-arc-det>.mu-arc-sum::-webkit-details-marker{display:none}.mu-cycle-arc-det>.mu-arc-sum::before{content:"▸ ";font-size:9px;color:rgba(44,42,37,.3)}.mu-cycle-arc-det[open]>.mu-arc-sum::before{content:"▾ "}.mu-cycle-arc-col{min-width:0}
+.mu-pb-det{padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45)}.mu-pb-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.45);cursor:pointer;display:block;list-style:none;margin-bottom:0}.mu-pb-det[open]>.mu-pb-sum{margin-bottom:16px}.mu-pb-sum::-webkit-details-marker{display:none}.mu-pb-sum::before{content:"▸ ";font-size:9px;color:rgba(44,42,37,.3)}.mu-pb-det[open]>.mu-pb-sum::before{content:"▾ "}
 .mu-arc-wrap{display:flex;flex-direction:column;gap:0;min-width:0}
 .mu-arc-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 9px;border-bottom:0.5px solid rgba(201,191,173,.28);margin-bottom:10px}
 .mu-arc-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(44,42,37,.36);font-family:var(--mono,monospace)}
@@ -2191,11 +2192,10 @@ const section = `<section id="macro-unified-section" class="macro-unified">
     </div>
   </div>
 
-  <!-- 2. Cycle position + Regime framework -->
-  <div class="mu-regime-row">
-    <div class="mu-cycle-arc-col">${cycleHtml}</div>
-    ${regimeCol}
-  </div>
+  <!-- 2. Regime framework -->
+  <div class="mu-regime-row">${regimeCol}</div>
+  <!-- 2b. Rate cycle (collapsible) -->
+  <details class="mu-cycle-arc-det"><summary class="mu-arc-sum">Rate cycle · Cycle 5 · Phase C</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
 
   <!-- 3. Why Phase C: axis evidence -->
   ${axisEvidenceHtml}
@@ -2216,7 +2216,7 @@ const section = `<section id="macro-unified-section" class="macro-unified">
   </div>
 
   <!-- 7. Holdings alignment with phase -->
-  ${phaseBridge}
+  <details class="mu-pb-det"><summary class="mu-pb-sum">Portfolio alignment · ${allHoldings.length} positions</summary>${phaseBridge}</details>
 
   <!-- 8. Today's session read -->
   ${dailyBriefingHtml}

@@ -45,8 +45,6 @@ for (const id of ['chart-wall-section', 'spx-cycle-map-section', 'cycle-scenario
 html = html.replace(/<style id="operational-chart-style">[\s\S]*?<\/style>/g, '');
 html = html.replace(/<style>\.operational-chart\{[\s\S]*?<\/style>/, '');
 html = html.replace('</head>', `${style}</head>`);
-html = html.replace(/<a href="#operational-chart-section">Decision Chart<\/a>/g, '');
-html = html.replace(/<nav class="nav">/, '<nav class="nav"><a href="#operational-chart-section">Decision Chart</a>');
 html = html.replace(/(<\/header>)/, `$1${section}`);
 fs.writeFileSync(indexPath, html);
 console.log(`injected modular SPX decision map: ${state.symbol || 'SPX'}${allowedAnnotationState ? ' with annotation layer' : ''}`);

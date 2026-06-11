@@ -434,7 +434,7 @@ function renderHoldingCard(h, route = {}) {
       <div class="mu-day-chg" style="color:${dayColor}">${daySign}${fmt(dayV,2)}%</div>
     </div>
   </div>
-  <div class="mu-chart-wrap"><div class="mu-chart-legend" id="lgnd-lwc-${esc(ticker)}"></div><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div><div id="rsi-${esc(ticker)}" class="mu-rsi-lwc"></div><div id="macd-${esc(ticker)}" class="mu-macd-lwc"></div></div>
+  <details class="mu-charts-det" open><summary class="mu-charts-sum">Charts</summary><div class="mu-chart-wrap"><div class="mu-chart-legend" id="lgnd-lwc-${esc(ticker)}"></div><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div><div id="rsi-${esc(ticker)}" class="mu-rsi-lwc"></div><div id="macd-${esc(ticker)}" class="mu-macd-lwc"></div></div></details>
   <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
   ${levelsHtml}
   ${substanceHtml}
@@ -663,8 +663,10 @@ function renderHoldingsStyle() {
 .mu-perf3m{font-size:12px;font-weight:600}
 .mu-price{font-size:22px;font-weight:700;line-height:1}
 .mu-day-chg{font-size:13px;font-weight:600;margin-top:3px}
+/* Chart toggle */
+.mu-charts-det{margin:10px 0 0}.mu-charts-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.4);cursor:pointer;padding:6px 0;display:block;list-style:none;border-top:0.5px solid rgba(201,191,173,.3)}.mu-charts-sum::-webkit-details-marker{display:none}.mu-charts-sum::before{content:"▸ ";font-size:9px}.mu-charts-det[open] .mu-charts-sum::before{content:"▾ "}.mu-charts-det[open] .mu-charts-sum{padding-bottom:6px}
 /* LWC chart */
-.mu-chart-wrap{position:relative;margin:10px 0 0;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
+.mu-chart-wrap{position:relative;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
 .mu-holding-lwc{width:100%;height:240px;display:block}
 .mu-rsi-lwc{width:100%;height:70px;display:block;border-top:1px solid rgba(201,191,173,.18)}
 .mu-macd-lwc{width:100%;height:88px;display:block;border-top:1px solid rgba(201,191,173,.18)}

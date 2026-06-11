@@ -37,6 +37,21 @@ function insertBeforeSection(html, anchorId, section) {
   return html.slice(0, start) + section + html.slice(start);
 }
 
+function insertAfterSection(html, anchorId, section) {
+  const token = '<sec' + 'tion id="' + anchorId + '"';
+  const start = html.indexOf(token);
+  if (start < 0) return html + section;
+  let depth = 0, pos = start;
+  while (pos < html.length) {
+    const nextOpen = html.indexOf('<sec' + 'tion', pos + 1);
+    const nextClose = html.indexOf('</sec' + 'tion>', pos + 1);
+    if (nextClose < 0) break;
+    if (nextOpen >= 0 && nextOpen < nextClose) { depth++; pos = nextOpen; }
+    else { if (depth === 0) { const end = nextClose + '</sec'.length + 'tion>'.length; return html.slice(0, end) + section + html.slice(end); } depth--; pos = nextClose; }
+  }
+  return html + section;
+}
+
 if (!fs.existsSync(indexPath)) throw new Error('index.html missing');
 if (!fs.existsSync(zonePath)) throw new Error('holding-zone-state.json missing');
 

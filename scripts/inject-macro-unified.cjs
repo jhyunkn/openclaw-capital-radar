@@ -2307,7 +2307,7 @@ const section = `<section id="decision-brief-section" class="macro-unified">
 
 // ── Injection ─────────────────────────────────────────────────────────────────
 
-const REMOVE_IDS = ['macro-cycle-panel','decision-brief-section','current-market-state','macro-intelligence-panel','macro-unified-section','kostolany-history-section','narrative-reality-section'];
+const REMOVE_IDS = ['macro-cycle-panel','decision-brief-section','current-market-state','macro-intelligence-panel','macro-unified-section'];
 
 ['macro-unified-style','macro-cycle-panel-style','macro-intelligence-panel-style','current-market-state-style'].forEach(id => {
   html = html.replace(new RegExp(`<style id="${id}">[\\s\\S]*?<\\/style>`, 'g'), '');

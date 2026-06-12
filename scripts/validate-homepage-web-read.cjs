@@ -10,8 +10,6 @@ const forbiddenIds = [
   'data-refresh-section',
   'kostolany-egg-section',
   'macro-unified-section',
-  'kostolany-history-section',
-  'narrative-reality-section',
   'market-lens-section',
   'strategy-routing-section',
   'market-section',

@@ -58,8 +58,6 @@ const forbiddenIds = [
   'market-section',
   'system-health-section',
   'macro-unified-section',
-  'kostolany-history-section',
-  'narrative-reality-section',
   'macro-cycle-section',
   'trust-section',
   'artifact-status-section',

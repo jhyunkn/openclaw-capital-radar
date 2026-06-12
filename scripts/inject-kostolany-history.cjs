@@ -29,43 +29,56 @@ for (const tok of ['<section id="kostolany-history-section"', '<div id="kostolan
 
 // ── Style ─────────────────────────────────────────────────────────────────────
 const style = `<style id="kostolany-history-style">
-.kh-wrap{padding:0 clamp(12px,2vw,20px) 28px;box-sizing:border-box}
+.kh-wrap{border-bottom:1px solid var(--rule,#dedbd2);padding:56px clamp(18px,4vw,56px);box-sizing:border-box}
 .kh-inner{max-width:1240px;margin:0 auto}
-.kh-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.38);font-family:var(--mono,monospace);display:block;margin-bottom:6px}
-.kh-warn{font-size:10px;color:#a05010;background:#fff8f0;border:0.5px solid #e8c88a;border-radius:6px;padding:6px 10px;margin-bottom:8px;line-height:1.5}
-.kh-stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
-.kh-stat{background:#f1efe8;border-radius:7px;padding:7px 8px;text-align:center}
-.kh-stat-val{font-size:15px;font-weight:500}
-.kh-stat-lbl{font-size:9px;color:#888;margin-top:1px;line-height:1.4}
+.kh-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--rule,#dedbd2)}
+.kh-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted,#747168);font-family:var(--mono,ui-monospace,monospace);display:block;margin-bottom:8px}
+.kh-title{font-size:clamp(22px,2.8vw,38px);font-weight:500;letter-spacing:-.05em;color:var(--ink,#24231f);margin:0 0 6px;line-height:.96}
+.kh-subtitle{font-size:14px;color:var(--muted,#747168);margin:0;line-height:1.45}
+.kh-warn{font-size:11px;color:var(--warn,#8a6a2c);background:rgba(138,106,44,.05);border:1px solid rgba(138,106,44,.2);border-radius:0;padding:9px 13px;margin-bottom:20px;line-height:1.55}
+.kh-stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:20px;border:1px solid var(--rule,#dedbd2);border-right:none}
+.kh-stat{border-right:1px solid var(--rule,#dedbd2);border-radius:0;padding:14px 12px;text-align:center;background:rgba(251,250,246,.22)}
+.kh-stat-val{font-size:16px;font-weight:500;letter-spacing:-.03em;display:block;margin-bottom:5px}
+.kh-stat-lbl{font-size:10px;color:var(--muted,#747168);line-height:1.4}
+.kh-ctrl{margin-bottom:12px}
 .kh-tab-row{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
-.kh-tab{padding:4px 11px;border-radius:20px;border:0.5px solid #ccc;cursor:pointer;font-size:11px;color:#666;background:#fff;transition:all 0.15s}
-.kh-tab.active{color:#fff;background:#2c2c2a;border-color:#2c2c2a}
-.kh-ind-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.kh-ind-toggle{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;border:0.5px solid;cursor:pointer;font-size:11px;transition:all 0.15s;user-select:none}
-.kh-ind-toggle.off{opacity:0.35}
-.kh-chart-wrap{position:relative;width:100%;height:400px}
-.kh-phase-strip{display:flex;width:100%;height:26px;gap:1px;margin-top:4px}
-.kh-pcell{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;border-radius:2px;overflow:hidden;white-space:nowrap;padding:0 3px;text-align:center;cursor:pointer}
-.kh-info-box{margin-top:6px;padding:9px 13px;border-radius:8px;border:0.5px solid #ddd;background:#f9f8f5;font-size:11px;color:#5f5e5a;line-height:1.6;min-height:48px}
-.kh-sources{margin-top:10px;padding:8px 12px;border-radius:6px;background:#f1efe8;font-size:10px;color:#888;line-height:1.7}
-.kh-sources strong{color:#5f5e5a}
+.kh-tab{padding:5px 13px;border-radius:999px;border:1px solid var(--rule,#dedbd2);cursor:pointer;font-size:12px;color:var(--muted,#747168);background:transparent;transition:all 0.12s}
+.kh-tab.active{color:var(--paper,#fbfaf6);background:var(--ink,#24231f);border-color:var(--ink,#24231f)}
+.kh-ind-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.kh-ind-toggle{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid;cursor:pointer;font-size:11px;transition:opacity 0.12s;user-select:none;background:transparent}
+.kh-ind-toggle.off{opacity:0.3}
+.kh-chart-wrap{position:relative;width:100%;height:420px;border:1px solid var(--rule,#dedbd2);background:var(--bg,#f3f2ed)}
+.kh-phase-strip{display:flex;width:100%;height:22px;gap:1px;margin-top:6px}
+.kh-pcell{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;border-radius:0;overflow:hidden;white-space:nowrap;padding:0 3px;text-align:center;cursor:pointer;font-family:var(--mono,ui-monospace,monospace);text-transform:uppercase;letter-spacing:.05em}
+.kh-info-box{margin-top:8px;padding:10px 14px;border:1px solid var(--rule,#dedbd2);background:rgba(251,250,246,.38);font-size:12px;color:var(--muted,#747168);line-height:1.6;min-height:44px;border-radius:0}
+.kh-sources{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule,#dedbd2);font-size:10px;color:var(--soft,#aaa69b);line-height:1.7;background:transparent}
+.kh-sources strong{color:var(--muted,#747168);font-weight:500}
+@media(max-width:700px){.kh-stat-row{grid-template-columns:repeat(3,1fr)}.kh-wrap{padding:36px clamp(14px,3vw,28px)}}
 </style>`;
 
 // ── Chart section HTML ────────────────────────────────────────────────────────
 const section = `<!-- KH_HISTORY_START -->
 <div id="kostolany-history-section" class="kh-wrap">
 <div class="kh-inner">
-  <span class="kh-eyebrow">Historical Rate Cycles · 1970 – Present</span>
-  <p class="kh-warn">⚠ <strong>Transparency:</strong> M2 data starts 1959 (reliable from 1970). HY credit spread (ICE BofA OAS) starts 1997 — pre-1997 approximated from Moody's Baa spread. CAPE starts 1881 (full from 1970). Annual values smooth intra-year volatility.</p>
-  <div class="kh-stat-row" id="kh-stat-row"></div>
-  <div class="kh-tab-row" id="kh-tab-row">
-    <div class="kh-tab active" data-kh-view="all">All indicators</div>
-    <div class="kh-tab" data-kh-view="liquidity">Liquidity (Rate + M2)</div>
-    <div class="kh-tab" data-kh-view="valuation">Valuation (S&amp;P + CAPE)</div>
-    <div class="kh-tab" data-kh-view="credit">Credit (HY spreads)</div>
-    <div class="kh-tab" data-kh-view="recession">Recession overlay</div>
+  <div class="kh-head">
+    <div>
+      <span class="kh-eyebrow">Historical Rate Cycles · 1970 – Present</span>
+      <h2 class="kh-title">Rate Cycle History</h2>
+      <p class="kh-subtitle">Fed Funds Rate, S&amp;P 500, CAPE, M2 growth, and HY credit spreads across 56 years of market cycles.</p>
+    </div>
   </div>
-  <div class="kh-ind-row" id="kh-ind-row"></div>
+  <div class="kh-warn">⚠ <strong>Transparency:</strong> M2 data starts 1959 (reliable from 1970). HY credit spread (ICE BofA OAS) starts 1997 — pre-1997 approximated from Moody's Baa spread. CAPE starts 1881 (full from 1970). Annual values smooth intra-year volatility.</div>
+  <div class="kh-stat-row" id="kh-stat-row"></div>
+  <div class="kh-ctrl">
+    <div class="kh-tab-row" id="kh-tab-row">
+      <div class="kh-tab active" data-kh-view="all">All indicators</div>
+      <div class="kh-tab" data-kh-view="liquidity">Liquidity (Rate + M2)</div>
+      <div class="kh-tab" data-kh-view="valuation">Valuation (S&amp;P + CAPE)</div>
+      <div class="kh-tab" data-kh-view="credit">Credit (HY spreads)</div>
+      <div class="kh-tab" data-kh-view="recession">Recession overlay</div>
+    </div>
+    <div class="kh-ind-row" id="kh-ind-row"></div>
+  </div>
   <div class="kh-chart-wrap"><canvas id="kh-main-chart" role="img" aria-label="Multi-indicator Kostolany historical chart 1970–2026"></canvas></div>
   <div class="kh-phase-strip" id="kh-phase-strip"></div>
   <div class="kh-info-box" id="kh-info-box">Click any phase strip to see Kostolany capital flow analysis. Toggle indicators above to isolate signals.</div>
@@ -160,8 +173,8 @@ function initChart(){
         }}
       },
       scales:{
-        x:{type:'linear',min:1969,max:2027,ticks:{stepSize:5,autoSkip:false,callback:v=>v%5===0?String(v):'',font:{size:10},color:'#888'},grid:{color:'rgba(136,135,128,0.08)'}},
-        yRate:{type:'linear',position:'left',min:0,max:22,ticks:{callback:v=>v+'%',font:{size:10},color:'#2c2c2a'},grid:{color:'rgba(136,135,128,0.08)'},title:{display:true,text:'Rate / M2 %',font:{size:10},color:'#2c2c2a'}},
+        x:{type:'linear',min:1969,max:2027,ticks:{stepSize:5,autoSkip:false,callback:v=>v%5===0?String(v):'',font:{size:10},color:'#747168'},grid:{color:'rgba(36,35,31,.05)'}},
+        yRate:{type:'linear',position:'left',min:0,max:22,ticks:{callback:v=>v+'%',font:{size:10},color:'#24231f'},grid:{color:'rgba(36,35,31,.05)'},title:{display:true,text:'Rate / M2 %',font:{size:10},color:'#24231f'}},
         ySP:{type:'logarithmic',position:'right',min:50,max:12000,ticks:{callback:v=>[100,500,1000,2000,5000,10000].includes(v)?'$'+v.toLocaleString():'',font:{size:10},color:'#185fa5'},grid:{drawOnChartArea:false},title:{display:true,text:'S&P 500 (log)',font:{size:10},color:'#185fa5'}},
         yCAPE:{type:'linear',position:'right',min:0,max:50,ticks:{callback:v=>v+'×',font:{size:10},color:'#993C1D'},grid:{drawOnChartArea:false},title:{display:true,text:'CAPE',font:{size:10},color:'#993C1D'}},
         yHY:{type:'linear',position:'right',min:0,max:2200,ticks:{callback:v=>v+'bp',font:{size:10},color:'#e24b4a'},grid:{drawOnChartArea:false},title:{display:true,text:'HY OAS (bps)',font:{size:10},color:'#e24b4a'}},

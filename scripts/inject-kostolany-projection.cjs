@@ -29,43 +29,55 @@ for (const tok of ['<section id="kostolany-projection-section"', '<div id="kosto
 
 // ── Style ─────────────────────────────────────────────────────────────────────
 const style = `<style id="kostolany-projection-style">
-.kp-wrap{padding:0 clamp(12px,2vw,20px) 28px;box-sizing:border-box}
+.kp-wrap{border-bottom:1px solid var(--rule,#dedbd2);padding:56px clamp(18px,4vw,56px);box-sizing:border-box}
 .kp-inner{max-width:1240px;margin:0 auto}
-.kp-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.38);font-family:var(--mono,monospace);display:block;margin-bottom:6px}
-.kp-method{background:#f5f3ef;border:0.5px solid #ddd;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:11px;color:#5f5e5a;line-height:1.6}
-.kp-method strong{color:#2c2c2a}
-.kp-sc-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-.kp-stab{padding:5px 14px;border-radius:20px;border:0.5px solid #ccc;cursor:pointer;font-size:11px;color:#888;background:#fff;transition:all 0.15s}
-.kp-stab.active{color:#fff;border-color:transparent}
-.kp-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.kp-stat{border-radius:8px;padding:9px 10px;text-align:center}
-.kp-stat-val{font-size:13px;font-weight:500}
-.kp-stat-lbl{font-size:10px;color:#888;margin-top:2px;line-height:1.4}
-.kp-stat-src{font-size:9px;color:#bbb;margin-top:2px;font-style:italic}
-.kp-leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:#5f5e5a;align-items:center}
+.kp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--rule,#dedbd2)}
+.kp-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted,#747168);font-family:var(--mono,ui-monospace,monospace);display:block;margin-bottom:8px}
+.kp-title{font-size:clamp(22px,2.8vw,38px);font-weight:500;letter-spacing:-.05em;color:var(--ink,#24231f);margin:0 0 6px;line-height:.96}
+.kp-subtitle{font-size:14px;color:var(--muted,#747168);margin:0;line-height:1.45}
+.kp-method{background:rgba(251,250,246,.38);border:1px solid var(--rule,#dedbd2);border-radius:0;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted,#747168);line-height:1.6}
+.kp-method strong{color:var(--ink,#24231f);font-weight:500}
+.kp-sc-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.kp-stab{padding:6px 14px;border-radius:999px;border:1px solid var(--rule,#dedbd2);cursor:pointer;font-size:12px;color:var(--muted,#747168);background:transparent;transition:all 0.12s;font-weight:400}
+.kp-stab.active{font-weight:500}
+.kp-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:16px;border:1px solid var(--rule,#dedbd2);border-right:none}
+.kp-stat{border-right:1px solid var(--rule,#dedbd2);border-radius:0;padding:12px 10px;text-align:center;background:rgba(251,250,246,.2)}
+.kp-stat-val{font-size:15px;font-weight:500;letter-spacing:-.02em;display:block;margin-bottom:4px}
+.kp-stat-lbl{font-size:10px;color:var(--muted,#747168);line-height:1.4;display:block;margin-bottom:1px}
+.kp-stat-src{font-size:9px;color:var(--soft,#aaa69b);font-style:italic}
+.kp-leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--muted,#747168);align-items:center}
 .kp-leg-item{display:flex;align-items:center;gap:5px}
-.kp-chart-wrap{position:relative;width:100%;height:400px}
-.kp-phase-strip{display:flex;width:100%;height:28px;gap:1px;margin-top:4px}
-.kp-pcell{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;border-radius:3px;cursor:default;overflow:hidden;white-space:nowrap;padding:0 4px;text-align:center}
-.kp-info-box{margin-top:8px;padding:10px 14px;border-radius:8px;border:0.5px solid #ddd;background:#f9f8f5;font-size:12px;color:#5f5e5a;line-height:1.6;min-height:48px}
-.kp-model-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px}
-.kp-model-table th{text-align:left;padding:5px 8px;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:#888;border-bottom:1px solid #ddd}
-.kp-model-table td{padding:5px 8px;border-bottom:0.5px solid #f0ede8;vertical-align:top;line-height:1.5}
+.kp-chart-wrap{position:relative;width:100%;height:420px;border:1px solid var(--rule,#dedbd2);background:var(--bg,#f3f2ed)}
+.kp-phase-strip{display:flex;width:100%;height:22px;gap:1px;margin-top:6px}
+.kp-pcell{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;border-radius:0;cursor:default;overflow:hidden;white-space:nowrap;padding:0 4px;text-align:center;font-family:var(--mono,ui-monospace,monospace);text-transform:uppercase;letter-spacing:.05em}
+.kp-info-box{margin-top:8px;padding:10px 14px;border:1px solid var(--rule,#dedbd2);background:rgba(251,250,246,.38);font-size:12px;color:var(--muted,#747168);line-height:1.6;min-height:44px;border-radius:0}
+.kp-table-head{font-size:11px;font-weight:500;color:var(--ink,#24231f);margin:16px 0 6px;letter-spacing:-.02em}
+.kp-model-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--rule,#dedbd2)}
+.kp-model-table th{text-align:left;padding:7px 10px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#747168);border-bottom:1px solid var(--rule,#dedbd2);background:rgba(251,250,246,.5);font-weight:500}
+.kp-model-table td{padding:7px 10px;border-bottom:1px solid var(--rule2,#ebe8df);vertical-align:top;line-height:1.5;color:var(--ink,#24231f)}
 .kp-model-table tr:last-child td{border-bottom:none}
-.kp-model-table td:first-child{font-weight:500;color:#444;width:150px}
-.kp-bear{color:#c0392b}.kp-bull{color:#1d7a50}.kp-mid{color:#2c2c2a}
-.kp-risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.kp-risk-card{border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.6}
-.kp-risk-card h3{font-size:11px;font-weight:600;margin-bottom:4px}
-.kp-risk-card li{margin-left:14px;margin-bottom:2px}
-.kp-disclaimer{font-size:10px;color:#aaa;margin-top:12px;padding-top:8px;border-top:0.5px solid #eee;line-height:1.5}
+.kp-model-table td:first-child{font-weight:500;color:var(--ink,#24231f);width:160px}
+.kp-bear{color:var(--red,#9f3f35)}.kp-bull{color:var(--green,#2f6f4e)}.kp-mid{color:var(--ink,#24231f)}
+.kp-risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:12px;border:1px solid var(--rule,#dedbd2);border-right:none}
+.kp-risk-card{border-right:1px solid var(--rule,#dedbd2);border-radius:0;padding:12px 14px;font-size:12px;line-height:1.6}
+.kp-risk-card h3{font-size:10px;font-weight:500;margin:0 0 6px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink,#24231f)}
+.kp-risk-card ul{margin:0;padding-left:14px}
+.kp-risk-card li{margin-bottom:3px;color:var(--muted,#747168)}
+.kp-disclaimer{font-size:10px;color:var(--soft,#aaa69b);margin-top:14px;padding-top:12px;border-top:1px solid var(--rule,#dedbd2);line-height:1.55}
+@media(max-width:700px){.kp-stat-grid{grid-template-columns:repeat(2,1fr)}.kp-risk-grid{grid-template-columns:1fr;border-right:1px solid var(--rule,#dedbd2)}.kp-risk-card{border-bottom:1px solid var(--rule,#dedbd2)}.kp-wrap{padding:36px clamp(14px,3vw,28px)}}
 </style>`;
 
 // ── Section HTML ──────────────────────────────────────────────────────────────
 const section = `<!-- KP_PROJECTION_START -->
 <div id="kostolany-projection-section" class="kp-wrap">
 <div class="kp-inner">
-  <span class="kp-eyebrow">Cycle 5 Projection · Three Models · 2026–2030</span>
+  <div class="kp-head">
+    <div>
+      <span class="kp-eyebrow">Cycle 5 Projection · Three Models · 2026–2030</span>
+      <h2 class="kp-title">S&amp;P 500 Projection</h2>
+      <p class="kp-subtitle">Three independent models — EPS × P/E, CAPE reversion, and institutional — across base, bull, and bear scenarios.</p>
+    </div>
+  </div>
   <div class="kp-method" id="kp-method-bar">
     <strong>How this projection is built:</strong> Three independent models, not analyst price targets.
     <strong>Model 1 (EPS-driven):</strong> Price = EPS × P/E. FactSet consensus EPS + Goldman multiple assumption.
@@ -74,25 +86,25 @@ const section = `<!-- KP_PROJECTION_START -->
     Rate path = FOMC SEP median (FRED FEDTARMD, Mar 2026).
   </div>
   <div class="kp-sc-tabs" id="kp-sc-tabs">
-    <div class="kp-stab active" data-kp-sc="base" style="background:#1d9e75;color:#fff;">Base — EPS delivers, multiple flat</div>
+    <div class="kp-stab active" data-kp-sc="base" style="background:#1d9e75;border-color:#1d9e75;color:#fff;">Base — EPS delivers, multiple flat</div>
     <div class="kp-stab" data-kp-sc="bull" style="border-color:#185fa5;color:#185fa5;">Bull — EPS beats, multiple expands</div>
     <div class="kp-stab" data-kp-sc="bear" style="border-color:#e24b4a;color:#e24b4a;">Bear — CAPE mean-reverts / EPS misses</div>
   </div>
   <div class="kp-stat-grid" id="kp-stat-grid"></div>
   <div class="kp-leg-row">
-    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#2c2c2a;display:inline-block;"></span>Rate (historical)</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #666;display:inline-block;"></span>Rate (FOMC SEP)</div>
-    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#185fa5;display:inline-block;"></span>S&amp;P historical</div>
+    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#24231f;display:inline-block;"></span>Rate (historical)</div>
+    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #747168;display:inline-block;"></span>Rate (FOMC SEP)</div>
+    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#405f9f;display:inline-block;"></span>S&amp;P historical</div>
     <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px solid #1d9e75;display:inline-block;"></span>Model 1: EPS × P/E</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #e24b4a;display:inline-block;"></span>Model 2: CAPE reversion</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dotted #c49a3a;display:inline-block;"></span>Model 3: Institutional</div>
-    <div class="kp-leg-item"><span style="width:20px;height:10px;background:#aaa;display:inline-block;border-radius:2px;opacity:0.25;"></span>Institutional band</div>
+    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #9f3f35;display:inline-block;"></span>Model 2: CAPE reversion</div>
+    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dotted #8a6a2c;display:inline-block;"></span>Model 3: Institutional</div>
+    <div class="kp-leg-item"><span style="width:20px;height:10px;background:#aaa69b;display:inline-block;opacity:0.3;"></span>Institutional band</div>
   </div>
   <div class="kp-chart-wrap"><canvas id="kp-proj-chart"></canvas></div>
   <div class="kp-phase-strip" id="kp-phase-strip"></div>
   <div class="kp-info-box" id="kp-info-box">Select a scenario to see the model assumptions and outputs.</div>
-  <div style="margin-top:12px;">
-    <div style="font-size:11px;font-weight:500;color:#555;margin-bottom:6px;">Model comparison — 2030 S&amp;P 500 implied price</div>
+  <div>
+    <p class="kp-table-head">Model comparison — 2030 S&amp;P 500 implied price</p>
     <table class="kp-model-table" id="kp-model-table"></table>
   </div>
   <div class="kp-risk-grid" id="kp-risk-grid"></div>
@@ -202,13 +214,13 @@ function buildChart(sc){
   ];
   phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5};});
   const ds=[
-    {label:'Rate (hist)',data:allY.map((y,i)=>({x:y,y:rH[i]})),borderColor:'#2c2c2a',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
-    {label:'Rate (proj)',data:allY.map((y,i)=>({x:y,y:rP[i]})),borderColor:'#666',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
-    {label:'S&P (hist)',data:allY.map((y,i)=>({x:y,y:sH[i]})),borderColor:'#185fa5',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
+    {label:'Rate (hist)',data:allY.map((y,i)=>({x:y,y:rH[i]})),borderColor:'#24231f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
+    {label:'Rate (proj)',data:allY.map((y,i)=>({x:y,y:rP[i]})),borderColor:'#747168',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
+    {label:'S&P (hist)',data:allY.map((y,i)=>({x:y,y:sH[i]})),borderColor:'#405f9f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
     {label:'Inst high',data:allY.map((y,i)=>({x:y,y:sBH[i]})),borderColor:'transparent',backgroundColor:'rgba(180,180,180,0.14)',borderWidth:0,pointRadius:0,tension:0.35,showLine:true,fill:'+1',yAxisID:'ySP',spanGaps:false},
     {label:'Inst low',data:allY.map((y,i)=>({x:y,y:sBL[i]})),borderColor:'transparent',backgroundColor:'rgba(180,180,180,0.14)',borderWidth:0,pointRadius:0,tension:0.35,showLine:true,fill:false,yAxisID:'ySP',spanGaps:false},
-    {label:'Model 3',data:allY.map((y,i)=>({x:y,y:sM3[i]})),borderColor:'#c49a3a',backgroundColor:'transparent',borderWidth:1.5,borderDash:[2,3],pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
-    {label:'Model 2: CAPE',data:allY.map((y,i)=>({x:y,y:sM2[i]})),borderColor:'#e24b4a',backgroundColor:'transparent',borderWidth:1.8,borderDash:[6,3],pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
+    {label:'Model 3',data:allY.map((y,i)=>({x:y,y:sM3[i]})),borderColor:'#8a6a2c',backgroundColor:'transparent',borderWidth:1.5,borderDash:[2,3],pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
+    {label:'Model 2: CAPE',data:allY.map((y,i)=>({x:y,y:sM2[i]})),borderColor:'#9f3f35',backgroundColor:'transparent',borderWidth:1.8,borderDash:[6,3],pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
     {label:'Model 1: EPS×P/E',data:allY.map((y,i)=>({x:y,y:sM1[i]})),borderColor:S.color,backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
   ];
   if(kpChart)kpChart.destroy();
@@ -233,9 +245,9 @@ function buildChart(sc){
         }}
       },
       scales:{
-        x:{type:'linear',min:2014,max:2031,ticks:{stepSize:1,autoSkip:false,callback:v=>Number.isInteger(v)&&v>=2015?String(v):'',font:{size:10},color:'#888'},grid:{color:'rgba(136,135,128,0.07)'}},
-        yRate:{type:'linear',position:'left',min:0,max:8,ticks:{callback:v=>v+'%',font:{size:11},color:'#444'},grid:{color:'rgba(136,135,128,0.07)'},title:{display:true,text:'Fed Funds Rate (FRED)',font:{size:10},color:'#666'}},
-        ySP:{type:'linear',position:'right',min:1000,max:16000,ticks:{callback:v=>[2000,4000,6000,8000,10000,12000,14000].includes(v)?'$'+v.toLocaleString():'',font:{size:11},color:'#185fa5'},grid:{drawOnChartArea:false},title:{display:true,text:'S&P 500 (year-end)',font:{size:10},color:'#185fa5'}},
+        x:{type:'linear',min:2014,max:2031,ticks:{stepSize:1,autoSkip:false,callback:v=>Number.isInteger(v)&&v>=2015?String(v):'',font:{size:10},color:'#747168'},grid:{color:'rgba(36,35,31,.05)'}},
+        yRate:{type:'linear',position:'left',min:0,max:8,ticks:{callback:v=>v+'%',font:{size:11},color:'#24231f'},grid:{color:'rgba(36,35,31,.05)'},title:{display:true,text:'Fed Funds Rate (FRED)',font:{size:10},color:'#747168'}},
+        ySP:{type:'linear',position:'right',min:1000,max:16000,ticks:{callback:v=>[2000,4000,6000,8000,10000,12000,14000].includes(v)?'$'+v.toLocaleString():'',font:{size:11},color:'#405f9f'},grid:{drawOnChartArea:false},title:{display:true,text:'S&P 500 (year-end)',font:{size:10},color:'#405f9f'}},
       }
     }
   });
@@ -243,7 +255,7 @@ function buildChart(sc){
 
 function buildStats(sc){
   const S=SC[sc];
-  document.getElementById('kp-stat-grid').innerHTML=S.cards.map(s=>'<div class="kp-stat" style="background:'+S.color+'12;border:0.5px solid '+S.color+'40;"><div class="kp-stat-val" style="color:'+S.color+';">'+s.val+'</div><div class="kp-stat-lbl" style="font-weight:500;color:'+S.color+';">'+s.lbl+'</div><div class="kp-stat-lbl">'+s.sub+'</div><div class="kp-stat-src">'+s.src+'</div></div>').join('');
+  document.getElementById('kp-stat-grid').innerHTML=S.cards.map(s=>'<div class="kp-stat" style="background:'+S.color+'10;border-bottom:2px solid '+S.color+'60;"><div class="kp-stat-val" style="color:'+S.color+';">'+s.val+'</div><div class="kp-stat-lbl" style="font-weight:500;color:var(--ink,#24231f);">'+s.lbl+'</div><div class="kp-stat-lbl">'+s.sub+'</div><div class="kp-stat-src">'+s.src+'</div></div>').join('');
 }
 
 function buildInfo(sc){

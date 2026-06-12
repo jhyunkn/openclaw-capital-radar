@@ -12,7 +12,7 @@ const list = v => Array.isArray(v) ? v : [];
 function pass(label, ok, evidence, blocker = null) { return { label, status: ok ? 'PASS' : 'FAIL', evidence, blocker }; }
 const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
 const expected = ['decision-brief-section','operational-chart-section','holdings-section','opportunities-section'];
-const finalFour = JSON.stringify(sectionIds) === JSON.stringify(expected) && html.includes('Capital Radar · four-section decision surface');
+const finalFour = JSON.stringify(sectionIds) === JSON.stringify(expected);
 if (!finalFour) {
   const output = {
     generatedAt: new Date().toISOString(),
@@ -30,17 +30,12 @@ if (!finalFour) {
 }
 const forbidden = ['portfolio-scoreboard','live-reaction-state','native-research-engine','opportunity-evidence-engine','ticker-gate-audit','information-hierarchy','research-candidate-map','Evidence-backed Market Landscape','Decision Posture','Strategy Posture','id="market-section"','id="kostolany-egg-section"','id="market-lens-section"','id="strategy-routing-section"','id="system-health-section"'];
 const publicSectionIds = [...publicHtml.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
-// Public sync: accept the old 4-section layout or the new unified layout (inject-macro-unified replaces decision-brief-section)
-const publicOk = !publicHtml || (
-  publicSectionIds.includes('operational-chart-section') &&
-  publicSectionIds.includes('holdings-section') &&
-  publicSectionIds.includes('opportunities-section') &&
-  (publicSectionIds.includes('decision-brief-section') || publicSectionIds.includes('macro-unified-section'))
-);
+const publicOk = !publicHtml || JSON.stringify(publicSectionIds) === JSON.stringify(expected);
 const checks = [
   pass('Canonical four-section homepage', JSON.stringify(sectionIds) === JSON.stringify(expected), `Sections: ${sectionIds.join(' > ')}`),
   pass('No redundant visible homepage sections', !forbidden.some(item => html.includes(item)), 'Health, Lens, Route, Egg, and Market Tape are not visible top-level sections.'),
   pass('Macro', html.includes('id="decision-brief-section"') && /Confirmation|Macro|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(html), 'Macro / confirmation / permission verdict rendered.'),
+  pass('Kostolany Egg module', html.includes('id="kostolany-egg-module"') && /ke-cycle-map-v4|Kostolany Egg/i.test(html), 'Allocation-cycle diagram is embedded inside Macro without restoring a standalone section.'),
   pass('Decision chart', html.includes('id="operational-chart-section"') && /Operational Decision Chart|SPX|RSI|MACD|VIX|10Y|ADD|TRIM|DEFENSE/i.test(html), 'Chart, indicators, and action zones rendered.'),
   pass('Holdings', html.includes('id="holdings-section"') && /AUTH|PARTIAL|PROXY|MISSING|Buy|Trim|Stop|Exit/i.test(html), 'Holdings source tiers and price-zone fields rendered.'),
   pass('Opportunity', html.includes('id="opportunities-section"') && /Opportunity|Evidence|candidate|gate|promotion|qualification|missing|near|Research/i.test(html), 'Opportunity/research gate surface rendered.'),

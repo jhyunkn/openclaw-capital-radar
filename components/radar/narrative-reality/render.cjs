@@ -44,7 +44,7 @@ function renderThemeCard(theme) {
   </article>`;
 }
 
-function renderNarrativeRealitySection(brief) {
+function renderNarrativeRealitySection(brief, options = {}) {
   if (!brief || !arr(brief.themes).length) return '';
 
   const themes     = arr(brief.themes);
@@ -59,12 +59,18 @@ function renderNarrativeRealitySection(brief) {
   const narrAhead  = classCount('NARRATIVE_AHEAD');
   const dataAhead  = classCount('DATA_AHEAD');
 
-  return `<section id="narrative-reality-section" class="panel nr-section">
+  const moduleMode = options.module === true;
+  const shellOpen = moduleMode
+    ? '<div id="narrative-reality-module" class="nr-section nr-module">'
+    : '<section id="narrative-reality-section" class="panel nr-section">';
+  const shellClose = moduleMode ? '</div>' : '</section>';
+
+  return `${shellOpen}
   <div class="nr-wrap">
     <div class="section-head">
       <div>
         <p class="eyebrow">Narrative vs. Reality${asOf ? ` · ${esc(asOf)}` : ''}</p>
-        <h2>Market read</h2>
+        <h2>Narrative gaps</h2>
         <p class="nr-desc">Where the prevailing narrative diverges from what the data actually says. That gap is where capital either gets destroyed or positioned correctly.</p>
       </div>
     </div>
@@ -88,13 +94,14 @@ function renderNarrativeRealitySection(brief) {
       </div>` : ''}
     </div>
   </div>
-</section>`;
+${shellClose}`;
 }
 
 function renderNarrativeRealityStyle() {
   return `<style id="narrative-reality-style">
 /* ── Section shell ──────────────────────────────────────────────────── */
 .nr-section{padding-top:28px}
+.nr-module{margin-top:22px;border-top:1px solid rgba(201,191,173,.45);padding-top:22px}
 .nr-wrap{width:min(1240px,calc(100% - 48px));margin:0 auto}
 .nr-desc{max-width:760px;color:var(--muted);font-size:13px;line-height:1.5;margin:5px 0 0}
 

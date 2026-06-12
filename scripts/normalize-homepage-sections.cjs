@@ -27,7 +27,10 @@ const removeIds = [
   'cycle-scenario-section',
   'visual-regime-section',
   'regime-section',
-  // Replaced by macro-unified-section
+  'macro-unified-section',
+  'kostolany-history-section',
+  'narrative-reality-section',
+  // Compressed into the canonical Macro section.
   'evidence-annotation-layer',
   'relationship-intelligence',
   'market-diagnosis-board',

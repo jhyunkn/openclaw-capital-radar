@@ -105,10 +105,16 @@ const registry = [
       state('outputs/holding-zone-state.json', { key: 'zoneState' }),
       state('outputs/portfolio-translation-state.json', { key: 'translation', required: false, fallback: { holdings: [] } }),
       state('outputs/portfolio-decision-state.json', { key: 'decision', required: false, fallback: [] }),
+      state('outputs/holding-decision-zones.json', { key: 'decisionZones', required: false, fallback: null }),
     ],
     renderer: renderer('components/radar/holdings/render.cjs', 'renderHoldingsSection', 'renderHoldingsStyle'),
     buildArgs({ states }) {
-      return [{ zoneState: states.zoneState, translation: states.translation || { holdings: [] }, decision: states.decision || [] }];
+      return [{
+        zoneState: states.zoneState,
+        translation: states.translation || { holdings: [] },
+        decision: states.decision || [],
+        decisionZones: states.decisionZones || null,
+      }];
     },
   },
   {

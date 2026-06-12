@@ -88,6 +88,8 @@ if (!/Macro|Market permission|Decision chart|Holdings|Opportunity/i.test(text)) 
 if (!/Risk rule|Confirmation|VIX|10Y|M2|invalidation/i.test(text)) errors.push('missing_macro_decision_terms');
 if (!/SPX|ADD|TRIM|DEFENSE/i.test(text)) errors.push('missing_decision_chart_terms');
 if (!/Buy|Trim|Stop|Exit|AUTH|PARTIAL|PROXY|MISSING/i.test(text)) errors.push('missing_holdings_terms');
+if (!html.includes('id="robinhood-execution-bridge-module"') || !/Proposal-only execution rail|Robinhood bridge|Human approval/i.test(text)) errors.push('missing_robinhood_proposal_execution_bridge');
+if (/autonomous orders allowed|autonomous trading enabled|auto trade enabled/i.test(text)) errors.push('unsafe_autonomous_execution_language');
 if (!/Opportunity|Research|Evidence|candidate|gate/i.test(text)) errors.push('missing_opportunity_terms');
 if (/RegimeLiquidityActionRiskOpportunity/.test(text)) errors.push('concatenated_hero_pills_in_text_read');
 

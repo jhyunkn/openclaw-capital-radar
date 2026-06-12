@@ -48,6 +48,7 @@ const opportunity = sectionHtml(html, 'opportunities-section');
 assert(/Macro|Confirmation|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(macro), 'Macro missing regime/confirmation/permission/invalidation fields');
 assert(/Operational Decision Chart|SPX|RSI|MACD|VIX|10Y|ADD|TRIM|DEFENSE/i.test(chart), 'Decision chart missing chart/indicator/action fields');
 assert(/AUTH|PARTIAL|PROXY|MISSING|Price-zone|Buy|Trim|Stop|Exit/i.test(holdings), 'Holdings missing source tier and zone fields');
+assert(/id="robinhood-execution-bridge-module"/.test(holdings) && /Proposal-only execution rail|Capital Radar remains the decision brain/i.test(holdings), 'Holdings missing Robinhood proposal-only execution bridge');
 assert(/Opportunity|Evidence|Near|candidate|gate|promotion|qualification|missing|Research/i.test(opportunity), 'Opportunity missing evidence/research state');
 
 const forbiddenIds = [

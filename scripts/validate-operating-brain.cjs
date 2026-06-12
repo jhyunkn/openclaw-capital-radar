@@ -72,6 +72,8 @@ if (!fs.existsSync(indexPath)) {
   if (!/REAL|EST|PROJ|Data freshness|Source confidence|VIX|10Y/i.test(html)) errors.push('homepage does not expose data/trust/indicator layer');
   if (!/Operational Decision Chart/i.test(html)) errors.push('operational decision chart title missing');
   if (!/Market permission|Today's action state|Capital action/i.test(html)) errors.push('decision-first market permission title missing');
+  if (!html.includes('id="robinhood-execution-bridge-module"') || !/Proposal-only execution rail|Robinhood bridge|Human approval/i.test(html)) errors.push('Robinhood proposal-only execution bridge missing');
+  if (/autonomous orders allowed|autonomous trading enabled|auto trade enabled/i.test(html)) errors.push('unsafe autonomous execution language present');
 }
 
 if (errors.length) {

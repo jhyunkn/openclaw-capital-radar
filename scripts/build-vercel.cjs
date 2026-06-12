@@ -205,6 +205,7 @@ function verifyFinalOutput() {
     'holdings-section',
     'opportunities-section',
     'macro-design-language-style',
+    'robinhood-execution-bridge-module',
   ];
   const missing = requiredIds.filter(id => !html.includes(`id="${id}"`));
   if (missing.length) throw new Error(`Macro integration chain missing from final public/index.html: ${missing.join(', ')}`);
@@ -212,6 +213,9 @@ function verifyFinalOutput() {
   const expected = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
   if (JSON.stringify(sectionIds) !== JSON.stringify(expected)) {
     throw new Error(`public/index.html section contract drift: expected ${expected.join(' > ')} got ${sectionIds.join(' > ')}`);
+  }
+  if (!/Proposal-only execution rail|Robinhood bridge|Capital Radar remains the decision brain/i.test(html)) {
+    throw new Error('public/index.html missing Robinhood proposal-only execution bridge');
   }
   for (const id of ['macro-unified-section', 'narrative-reality-section', 'kostolany-egg-section', 'kostolany-egg-module']) {
     if (html.includes(`id="${id}"`)) throw new Error(`public/index.html contains retired standalone section: ${id}`);
@@ -224,6 +228,8 @@ runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection fa
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
+runFinalInjector('generate-robinhood-execution-bridge-state.cjs', 'Robinhood execution bridge state generation failed before Vercel copy');
+runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 rm(out);
 fs.mkdirSync(out, { recursive: true });
@@ -234,6 +240,7 @@ for (const entry of copyEntries) {
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

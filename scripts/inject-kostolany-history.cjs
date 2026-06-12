@@ -93,7 +93,7 @@ const inds=[
   {key:'sp',   label:'S&P 500',        color:'#185fa5', axis:'ySP',   data:SP500, fmt:v=>'$'+Math.round(v).toLocaleString(), dash:[6,3], w:2.5, desc:'S&P 500 annual close. Shiller dataset 1970–2019, Yahoo Finance 2020–2026.'},
   {key:'cape', label:'Shiller CAPE',   color:'#993C1D', axis:'yCAPE', data:CAPE,  fmt:v=>v.toFixed(1)+'×', dash:[3,2], w:1.8, desc:'Cyclically-adjusted P/E (10yr inflation-adj earnings). Robert Shiller / Yale. Current 39.8× — 2nd highest since 1881. Implied 10yr return: 1.6%/yr.'},
   {key:'m2',   label:'M2 Growth %',    color:'#0F6E56', axis:'yRate', data:M2,    fmt:v=>v.toFixed(1)+'%', dash:[4,2], w:1.8, desc:'M2 money supply YoY growth. Federal Reserve H.6 / FRED (M2SL). COVID peak +25%. Current +4.6%.'},
-  {key:'hy',   label:'HY Spread (bps)',color:'#e24b4a', axis:'yHY',   data:HY,    fmt:v=>v+'bps', dash:[2,2], w:1.8, desc:'High yield OAS. ICE BofA / FRED from 1997; pre-1997 Moody\'s Baa approx. Current ~275bps — near historic tight. Danger: >600bps.'},
+  {key:'hy',   label:'HY Spread (bps)',color:'#e24b4a', axis:'yHY',   data:HY,    fmt:v=>v+'bps', dash:[2,2], w:1.8, desc:"High yield OAS. ICE BofA / FRED from 1997; pre-1997 Moody's Baa approx. Current ~275bps — near historic tight. Danger: >600bps."},
 ];
 const phases=[
   {x1:1970,x2:1972,t:'cut', l:'D–E'},{x1:1972,x2:1981,t:'hike',l:'A–B: 70s'},

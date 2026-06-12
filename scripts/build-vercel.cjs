@@ -222,6 +222,8 @@ for (const entry of copyEntries) {
 // Only re-run injectors that must target public/index.html for Vercel-specific paths.
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality section injection failed after Vercel copy', ['public/index.html']);
+// Re-run kostolany-history after narrative-reality so it lands between macro and narrative in public/
+runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart re-injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

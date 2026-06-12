@@ -2194,8 +2194,8 @@ const section = `<section id="macro-unified-section" class="macro-unified">
 
   <!-- 2. Regime framework -->
   <div class="mu-regime-row">${regimeCol}</div>
-  <!-- 2b. Rate cycle (collapsible) -->
-  <details class="mu-cycle-arc-det"><summary class="mu-arc-sum">Rate cycle · Cycle 5 · Phase C</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
+  <!-- 2b. Rate cycle (open by default) -->
+  <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Rate cycle · Cycle 5 · Phase C</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
 
   <!-- 3. Why Phase C: axis evidence -->
   ${axisEvidenceHtml}

@@ -3,7 +3,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-const indexPath = path.join(__dirname, '..', 'index.html');
+const requestedPath = process.argv[2] || 'index.html';
+const indexPath = path.isAbsolute(requestedPath) ? requestedPath : path.join(__dirname, '..', requestedPath);
 if (!fs.existsSync(indexPath)) process.exit(0);
 
 let html = fs.readFileSync(indexPath, 'utf8');

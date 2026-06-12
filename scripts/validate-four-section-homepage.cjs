@@ -5,7 +5,27 @@ const indexPath = path.join(root, 'index.html');
 
 function fail(message) { console.error(`HOMEPAGE VALIDATION FAILED: ${message}`); process.exit(1); }
 function assert(condition, message) { if (!condition) fail(message); }
-function sectionHtml(html, id) { return (html.match(new RegExp(`<section[^>]*id="${id}"[\\s\\S]*?<\\/section>`)) || [''])[0]; }
+function sectionHtml(html, id) {
+  const start = html.indexOf(`<section id="${id}"`);
+  if (start < 0) return '';
+  let depth = 0;
+  let i = start;
+  while (i < html.length) {
+    if (html.startsWith('<section', i)) {
+      depth++;
+      i += 8;
+      continue;
+    }
+    if (html.startsWith('</section>', i)) {
+      depth--;
+      i += 10;
+      if (depth === 0) return html.slice(start, i);
+      continue;
+    }
+    i++;
+  }
+  return html.slice(start);
+}
 
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
@@ -26,6 +46,7 @@ const holdings = sectionHtml(html, 'holdings-section');
 const opportunity = sectionHtml(html, 'opportunities-section');
 
 assert(/Macro|Confirmation|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(macro), 'Macro missing regime/confirmation/permission/invalidation fields');
+assert(/id="kostolany-egg-module"/.test(macro) && /ke-cycle-map-v4|Kostolany Egg/i.test(macro), 'Macro missing embedded Kostolany Egg allocation cycle module');
 assert(/Operational Decision Chart|SPX|RSI|MACD|VIX|10Y|ADD|TRIM|DEFENSE/i.test(chart), 'Decision chart missing chart/indicator/action fields');
 assert(/AUTH|PARTIAL|PROXY|MISSING|Price-zone|Buy|Trim|Stop|Exit/i.test(holdings), 'Holdings missing source tier and zone fields');
 assert(/Opportunity|Evidence|Near|candidate|gate|promotion|qualification|missing|Research/i.test(opportunity), 'Opportunity missing evidence/research state');

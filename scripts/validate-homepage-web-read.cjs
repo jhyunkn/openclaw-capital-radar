@@ -88,6 +88,7 @@ if (forbiddenPresent.length) errors.push(`forbidden_sections_present=${forbidden
 if (visibleNotAvailable > 0) errors.push(`visible_not_available_count=${visibleNotAvailable}`);
 if (!/Macro|Market permission|Decision chart|Holdings|Opportunity/i.test(text)) errors.push('missing_four_section_language');
 if (!/Risk rule|Confirmation|VIX|10Y|M2|invalidation/i.test(text)) errors.push('missing_macro_decision_terms');
+if (!html.includes('id="kostolany-egg-module"') || !/Kostolany Egg|ke-cycle-map-v4/i.test(html)) errors.push('missing_embedded_kostolany_egg_module');
 if (!/SPX|ADD|TRIM|DEFENSE/i.test(text)) errors.push('missing_decision_chart_terms');
 if (!/Buy|Trim|Stop|Exit|AUTH|PARTIAL|PROXY|MISSING/i.test(text)) errors.push('missing_holdings_terms');
 if (!/Opportunity|Research|Evidence|candidate|gate/i.test(text)) errors.push('missing_opportunity_terms');

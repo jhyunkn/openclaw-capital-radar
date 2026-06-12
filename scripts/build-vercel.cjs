@@ -204,7 +204,8 @@ function verifyFinalOutput() {
     'operational-chart-section',
     'holdings-section',
     'opportunities-section',
-    'macro-design-language-style'
+    'macro-design-language-style',
+    'kostolany-egg-module'
   ];
   const missing = requiredIds.filter(id => !html.includes(`id="${id}"`));
   if (missing.length) throw new Error(`Macro integration chain missing from final public/index.html: ${missing.join(', ')}`);
@@ -213,7 +214,10 @@ function verifyFinalOutput() {
   if (JSON.stringify(sectionIds) !== JSON.stringify(expected)) {
     throw new Error(`public/index.html section contract drift: expected ${expected.join(' > ')} got ${sectionIds.join(' > ')}`);
   }
-  for (const id of ['macro-unified-section', 'kostolany-history-section', 'narrative-reality-section']) {
+  if (!html.includes('ke-cycle-map-v4') || !/Kostolany Egg/i.test(html)) {
+    throw new Error('public/index.html missing embedded Kostolany Egg allocation diagram');
+  }
+  for (const id of ['macro-unified-section', 'kostolany-history-section', 'narrative-reality-section', 'kostolany-egg-section']) {
     if (html.includes(`id="${id}"`)) throw new Error(`public/index.html contains retired standalone section: ${id}`);
   }
 }
@@ -222,6 +226,7 @@ archiveLiveReport();
 normalizeLiveState();
 runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection failed before Vercel copy');
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
+runFinalInjector('inject-kostolany-egg-v3-home.cjs', 'Kostolany Egg module injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 rm(out);
 fs.mkdirSync(out, { recursive: true });
@@ -232,6 +237,7 @@ for (const entry of copyEntries) {
 // Macro panels (cycle, intelligence) are already reordered in index.html before the copy.
 // Only re-run injectors that must target public/index.html for Vercel-specific paths.
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('inject-kostolany-egg-v3-home.cjs', 'Kostolany Egg module injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

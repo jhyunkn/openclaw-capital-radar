@@ -72,6 +72,7 @@ if (!fs.existsSync(indexPath)) {
   if (!/REAL|EST|PROJ|Data freshness|Source confidence|VIX|10Y/i.test(html)) errors.push('homepage does not expose data/trust/indicator layer');
   if (!/Operational Decision Chart/i.test(html)) errors.push('operational decision chart title missing');
   if (!/Market permission|Today's action state|Capital action/i.test(html)) errors.push('decision-first market permission title missing');
+  if (!html.includes('id="kostolany-egg-module"') || !/ke-cycle-map-v4|Kostolany Egg/i.test(html)) errors.push('embedded Kostolany Egg allocation cycle module missing');
 }
 
 if (errors.length) {

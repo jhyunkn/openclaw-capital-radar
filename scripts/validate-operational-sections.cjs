@@ -35,6 +35,7 @@ const checks = [
   pass('Canonical four-section homepage', JSON.stringify(sectionIds) === JSON.stringify(expected), `Sections: ${sectionIds.join(' > ')}`),
   pass('No redundant visible homepage sections', !forbidden.some(item => html.includes(item)), 'Health, Lens, Route, Egg, and Market Tape are not visible top-level sections.'),
   pass('Macro', html.includes('id="decision-brief-section"') && /Confirmation|Macro|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(html), 'Macro / confirmation / permission verdict rendered.'),
+  pass('Kostolany Egg module', html.includes('id="kostolany-egg-module"') && /ke-cycle-map-v4|Kostolany Egg/i.test(html), 'Allocation-cycle diagram is embedded inside Macro without restoring a standalone section.'),
   pass('Decision chart', html.includes('id="operational-chart-section"') && /Operational Decision Chart|SPX|RSI|MACD|VIX|10Y|ADD|TRIM|DEFENSE/i.test(html), 'Chart, indicators, and action zones rendered.'),
   pass('Holdings', html.includes('id="holdings-section"') && /AUTH|PARTIAL|PROXY|MISSING|Buy|Trim|Stop|Exit/i.test(html), 'Holdings source tiers and price-zone fields rendered.'),
   pass('Opportunity', html.includes('id="opportunities-section"') && /Opportunity|Evidence|candidate|gate|promotion|qualification|missing|near|Research/i.test(html), 'Opportunity/research gate surface rendered.'),

@@ -395,7 +395,7 @@ function dynOneLiner(e) {
   return snip(e.moat_summary || '', 160);
 }
 
-function buildUnifiedList(conviction, dynamicUniverse) {
+function buildUnifiedList(conviction, dynamicUniverse, bandMap) {
   // Tier 1: Dynamic signals — conviction/watchlist promotions (scanner confirmed, highest quality)
   // Tier 2: Event-driven — up to 2 by score, compete for slots (no guaranteed placement)
   // Tier 3: Static conviction — framework picks, sorted by attention score
@@ -427,6 +427,7 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       tag = 'Promoted';
       explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${isRevRecovery && revGrowth ? ` with ${revGrowth} revenue growth` : ''}.${eventNote} The system confirmed: competitive position is intact, price is at a trough, and demand is beginning to recover.`;
     }
+    const b1 = (bandMap || {})[e.ticker];
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_conviction', tag, explain, why: dynOneLiner(e),
       earlyEntrySignal: e.early_entry_signal || null,
@@ -434,7 +435,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       invalidation: e.invalidation || null,
       crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14,
-      rev: isRevRecovery ? revLabel : null });
+      rev: isRevRecovery ? revLabel : null,
+      entryLow: b1?.entry_band_low ?? null, entryHigh: b1?.entry_band_high ?? null,
+      upsideTarget: b1?.upside_reference ?? null });
   }
 
   for (const e of arr(dynamicUniverse?.watchlist_promotions)) {
@@ -447,6 +450,7 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const isRevRecovery2 = e.revenue_inflection === 'RECOVERY' || (e.revenue_interp || '').startsWith('Revenue growing');
     const revLabel2 = isRevRecovery2 && revGrowth ? `+${revGrowth}` : null;
     const explain = `${pctDown ? `Down ${pctDown} from its high` : 'At a cyclical trough'}${isRevRecovery2 && revGrowth ? ` with ${revGrowth} revenue growth` : ''}. The scanner confirmed all three criteria: durable competitive moat, price at a cyclical trough, and demand starting to inflect. No insider confirmation yet — keep on close watch before acting.`;
+    const b2 = (bandMap || {})[e.ticker];
     tier1.push({ ticker: e.ticker, name: e.name || '', attention: e.score + boost,
       source: 'dynamic_watchlist', tag: 'Full scan', explain,
       why: dynOneLiner(e),
@@ -455,7 +459,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       invalidation: e.invalidation || null,
       crowding: null,
       price: e.live_price, pct52wh: e.pct_from_52w_high,
-      rsi: e.rsi14, rev: revLabel2 });
+      rsi: e.rsi14, rev: revLabel2,
+      entryLow: b2?.entry_band_low ?? null, entryHigh: b2?.entry_band_high ?? null,
+      upsideTarget: b2?.upside_reference ?? null });
   }
 
   // Event-driven: up to 2 by score — compete for slots, no guarantee
@@ -469,6 +475,7 @@ function buildUnifiedList(conviction, dynamicUniverse) {
                       : (e.pct_from_52w_high != null && e.pct_from_52w_high <= -30) ? 4 : 0;
     const pctDown = e.pct_from_52w_high != null ? `${Math.abs(e.pct_from_52w_high)}%` : null;
     const explain = `${e.event_name || 'A major market event'} creates a direct tailwind here. ${pctDown ? `Currently ${pctDown} below its 52-week high. ` : ''}No scanner entry signal yet — this is early positioning before the market prices in the catalyst. If it materializes, you want to already be watching.`;
+    const b3 = (bandMap || {})[e.ticker];
     tier2.push({ ticker: e.ticker, name: e.name || '', attention: e.score + troughBoost,
       source: 'event_driven', tag: 'Catalyst', explain,
       why: snip(e.moat_summary || '', 160),
@@ -476,7 +483,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       catalyst: e.next_catalyst || (e.event_name ? `${e.event_name}: watch for materializing catalyst.` : null),
       invalidation: e.invalidation || null,
       crowding: null,
-      price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: null });
+      price: e.live_price, pct52wh: e.pct_from_52w_high, rsi: e.rsi14, rev: null,
+      entryLow: b3?.entry_band_low ?? null, entryHigh: b3?.entry_band_high ?? null,
+      upsideTarget: b3?.upside_reference ?? null });
   }
 
   for (const cv of arr(conviction?.top10)) {
@@ -485,6 +494,7 @@ function buildUnifiedList(conviction, dynamicUniverse) {
     const livePct = cv.pct_from_52w_high ?? e.pctFrom52wHigh;
     const boost = attentionBoost(livePct, null, cv.window_score, false);
     const isActive = cv.window_score === 3;
+    const b4 = (bandMap || {})[cv.ticker];
     tier3.push({ ticker: cv.ticker, name: cv.name || '', attention: cv.conviction_score + boost,
       source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring',
       why: snip(cv.why_core || cv.decline_explanation || cv.moat_summary || '', 160),
@@ -497,7 +507,9 @@ function buildUnifiedList(conviction, dynamicUniverse) {
       rsi: cv.rsi14 ?? e.rsi14,
       rev: null,
       timing: isActive ? (cv.timing_status || '') : '',
-      entryLow: e.low ?? null, entryHigh: e.high ?? null,
+      entryLow: e.low ?? b4?.entry_band_low ?? null,
+      entryHigh: e.high ?? b4?.entry_band_high ?? null,
+      upsideTarget: e.target ?? b4?.upside_reference ?? null,
       window_score: cv.window_score });
   }
 
@@ -508,6 +520,60 @@ function buildUnifiedList(conviction, dynamicUniverse) {
   return all.slice(0, MAX);
 }
 
+function renderEntryZoneBlock(item) {
+  const fmtP = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const low = item.entryLow, high = item.entryHigh, tgt = item.upsideTarget, cur = item.price;
+
+  if (!low || !high || !tgt) {
+    const pctTx = item.pct52wh != null ? `${item.pct52wh > 0 ? '+' : ''}${item.pct52wh}% from 52wH` : null;
+    const rsiTx = item.rsi != null ? `RSI ${item.rsi}` : null;
+    const contextChips = [pctTx, rsiTx].filter(Boolean).map(t => `<span class="ub-chip">${esc(t)}</span>`).join('');
+    return `<div class="ub-ez ub-ez-noband">
+      <div class="ub-ez-head"><span class="ub-ez-label">Entry &amp; projection</span><b class="ub-ez-noband-note">Zone not yet established</b></div>
+      ${contextChips ? `<div class="ub-chips ub-ez-chips">${contextChips}</div>` : ''}
+    </div>`;
+  }
+
+  const inZone    = cur != null && cur >= low && cur <= high;
+  const belowZone = cur != null && cur < low;
+  const statusLabel = inZone ? 'In entry zone' : belowZone ? 'Below entry — deep value' : 'Above entry — wait for pullback';
+  const statusCls   = inZone ? 'ez-in' : belowZone ? 'ez-below' : 'ez-above';
+
+  const upsidePct = cur && tgt ? Math.round((tgt / cur - 1) * 100) : null;
+  const upsideFromEntry = low && tgt ? Math.round((tgt / low - 1) * 100) : null;
+
+  const rangeMin = Math.min(low * 0.88, cur ? cur * 0.86 : low * 0.88);
+  const rangeMax = Math.max(tgt * 1.06, cur ? cur * 1.05 : tgt * 1.06);
+  const span = rangeMax - rangeMin;
+  const pctOf = v => Math.max(2, Math.min(97, Math.round((v - rangeMin) / span * 100)));
+  const lowPct = pctOf(low), highPct = pctOf(high), tgtPct = pctOf(tgt);
+  const curPct = cur != null ? pctOf(cur) : null;
+
+  const rsiTx = item.rsi != null ? `RSI ${item.rsi}` : null;
+  const pct52Tx = item.pct52wh != null ? `${item.pct52wh > 0 ? '+' : ''}${item.pct52wh}% from 52wH` : null;
+
+  return `<div class="ub-ez ${statusCls}">
+    <div class="ub-ez-head">
+      <span class="ub-ez-label">Entry &amp; projection</span>
+      <b class="ub-ez-status">${esc(statusLabel)}</b>
+      ${upsidePct != null ? `<span class="ub-ez-upside">+${upsidePct}% to target</span>` : ''}
+    </div>
+    <div class="ub-ez-bar-wrap">
+      <div class="ub-ez-bar">
+        <div class="ub-ez-fill" style="left:${lowPct}%;width:${highPct - lowPct}%"></div>
+        ${curPct != null ? `<div class="ub-ez-cur-marker" style="left:${curPct}%"><span class="ub-ez-cur-label">${esc(fmtP(cur))}</span></div>` : ''}
+        <div class="ub-ez-tgt-marker" style="left:${tgtPct}%"><span class="ub-ez-tgt-label">${esc(fmtP(tgt))}</span></div>
+      </div>
+      <div class="ub-ez-price-row">
+        <span class="ub-ez-range">Entry <b>${esc(fmtP(low))}–${esc(fmtP(high))}</b></span>
+        ${cur != null ? `<span class="ub-ez-now">Now <b>${esc(fmtP(cur))}</b></span>` : ''}
+        <span class="ub-ez-target">Target <b>${esc(fmtP(tgt))}</b>${upsideFromEntry != null ? ` <i>(+${upsideFromEntry}% from entry)</i>` : ''}</span>
+      </div>
+    </div>
+    ${(rsiTx || pct52Tx) ? `<div class="ub-ez-sigs">${[pct52Tx,rsiTx].filter(Boolean).map(t=>`<span>${esc(t)}</span>`).join('')}</div>` : ''}
+  </div>`;
+}
+
 function renderBriefCard(item, rank) {
   const isEvent  = item.source === 'event_driven';
   const isSignal = item.source === 'dynamic_conviction' || item.source === 'dynamic_watchlist';
@@ -515,53 +581,27 @@ function renderBriefCard(item, rank) {
   const cardCls  = isSignal ? 'ub-signal' : isEvent ? 'ub-event' : isActive ? 'ub-active' : 'ub-research';
   const tagCls   = isSignal ? 'ub-tag-signal' : isEvent ? 'ub-tag-event' : isActive ? 'ub-tag-active' : 'ub-tag-research';
 
-  // Action word — tells the user what to do with this card right now
-  let action, actionCls, signalLabel;
-  if (isSignal && item.tag === 'Insider buy') {
-    action = 'Strong signal'; actionCls = 'ub-action-signal';
-    signalLabel = 'Signal';
-  } else if (isSignal) {
-    action = 'Signal confirmed'; actionCls = 'ub-action-signal';
-    signalLabel = 'Signal';
-  } else if (isEvent) {
-    action = 'Catalyst watch'; actionCls = 'ub-action-event';
-    signalLabel = 'Catalyst';
-  } else if (isActive) {
-    action = 'Entry zone open'; actionCls = 'ub-action-active';
-    signalLabel = 'Timing';
-  } else {
-    action = 'Monitoring'; actionCls = 'ub-action-research';
-    signalLabel = 'Next catalyst';
-  }
+  let action, actionCls;
+  if (isSignal && item.tag === 'Insider buy') { action = 'Strong signal'; actionCls = 'ub-action-signal'; }
+  else if (isSignal)  { action = 'Signal confirmed'; actionCls = 'ub-action-signal'; }
+  else if (isEvent)   { action = 'Catalyst watch';   actionCls = 'ub-action-event'; }
+  else if (isActive)  { action = 'Entry zone open';  actionCls = 'ub-action-active'; }
+  else                { action = 'Monitoring';        actionCls = 'ub-action-research'; }
 
-  const fmtP  = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
-  const deepPct = item.pct52wh != null && item.pct52wh <= -40;
-  const pctTx = item.pct52wh != null
-    ? `${item.pct52wh > 0 ? '+' : ''}${item.pct52wh}% from peak`
-    : null;
-  const rsiTx = item.rsi != null ? `RSI ${item.rsi}` : null;
+  const fmtP = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const priceDisplay = fmtP(item.price);
+
   const revTx = item.rev
     ? (item.rev.startsWith('+') ? item.rev : item.rev.charAt(0).toUpperCase() + item.rev.slice(1).toLowerCase())
-    : null;
-
-  const priceDisplay = fmtP(item.price);
-  const fmtShort = v => v == null ? null : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
-  const entryTx = (item.entryLow && item.entryHigh)
-    ? `Entry ${fmtShort(item.entryLow)}–${fmtShort(item.entryHigh)}`
     : null;
   const isUrgent = item.timing && (/this month|high urgency/i.test(item.timing));
   const timingTx = item.timing || null;
   const chips = [
-    pctTx ? `<span class="ub-chip ${deepPct ? 'ub-deep' : ''}">${esc(pctTx)}</span>` : '',
-    entryTx ? `<span class="ub-chip ub-entry">${esc(entryTx)}</span>` : '',
-    rsiTx ? `<span class="ub-chip">${esc(rsiTx)}</span>` : '',
     revTx ? `<span class="ub-chip ub-rev">${esc(revTx)}</span>` : '',
     timingTx ? `<span class="ub-chip ${isUrgent ? 'ub-urgent' : 'ub-timing'}">${esc(timingTx)}</span>` : '',
   ].filter(Boolean).join('');
 
-  // Thesis: earlyEntrySignal (framework/scanner thesis) > moat+demand (why) > boilerplate explain
   const thesisText = item.earlyEntrySignal || item.why || item.explain || '';
-  const moatLine   = item.earlyEntrySignal ? null : null; // suppress redundant moat when thesis is shown
 
   const crowdingLabel = item.crowding === 'low' ? 'Low — pre-consensus'
     : item.crowding === 'medium' ? 'Medium — some institutional interest'
@@ -588,6 +628,7 @@ function renderBriefCard(item, rank) {
       <span class="ub-action ${actionCls}">${esc(action)}</span>
     </div>
     ${thesisText ? `<p class="ub-thesis">${esc(thesisText)}</p>` : ''}
+    ${renderEntryZoneBlock(item)}
     ${frameworkGrid}
     ${chips ? `<div class="ub-chips">${chips}</div>` : ''}
   </article>`;
@@ -665,7 +706,7 @@ function renderDynamicSection(dynamicUniverse) {
   </div>`;
 }
 
-function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse) {
+function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap) {
   const allRows = flattenOpportunityRows(state || {});
   const { opportunities } = selectDisplayRows(allRows);
 
@@ -696,7 +737,7 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
     `<div class="ub-legend-row"><span class="ub-tag ${cls}">${label.split(' — ')[0]}</span><span class="ub-legend-text"><b>${label.split(' — ')[1]}</b> — ${desc}</span></div>`
   ).join('');
 
-  const unified = buildUnifiedList(conviction, dynamicUniverse);
+  const unified = buildUnifiedList(conviction, dynamicUniverse, bandMap);
   const cards   = unified.map((item, i) => renderBriefCard(item, i + 1)).join('');
 
   return `<section id="opportunities-section" class="cr-section">
@@ -766,6 +807,7 @@ function renderOpportunitiesStyle() {
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 .ub-entry{color:var(--warn)!important;border-color:rgba(138,106,44,.28)!important;background:rgba(138,106,44,.05)!important}
+.ub-upside{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important;font-weight:600!important}
 .ub-timing{color:rgba(36,35,31,.52)!important;border-color:rgba(201,191,173,.5)!important;background:rgba(251,250,246,.18)!important}
 .ub-urgent{color:var(--warn)!important;border-color:rgba(138,106,44,.38)!important;background:rgba(138,106,44,.08)!important;font-weight:700!important}
 /* Legend — explains the 4 card tiers */
@@ -777,6 +819,36 @@ function renderOpportunitiesStyle() {
 .ub-footer{font-size:12px;color:var(--muted);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule)}
 .ub-footer a{color:var(--blue);text-decoration:none}
 .ub-footer a:hover{text-decoration:underline}
+/* Entry & projection zone block */
+.ub-ez{margin:10px 0 8px;padding:10px 12px;border-radius:4px;border:1px solid rgba(201,191,173,.3);background:rgba(251,250,246,.22);padding-left:28px}
+.ub-ez-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.ub-ez-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+.ub-ez-status{font-size:12px;font-weight:600;color:rgba(36,35,31,.82);flex:1}
+.ez-in .ub-ez-status{color:var(--green)!important}
+.ez-below .ub-ez-status{color:var(--warn)!important}
+.ez-above .ub-ez-status{color:rgba(36,35,31,.6)!important}
+.ub-ez-upside{font-size:13px;font-weight:700;color:var(--green);letter-spacing:-.02em;white-space:nowrap}
+/* price bar */
+.ub-ez-bar-wrap{margin-bottom:6px}
+.ub-ez-bar{position:relative;height:6px;background:rgba(201,191,173,.25);border-radius:3px;margin-bottom:18px}
+.ub-ez-fill{position:absolute;top:0;bottom:0;background:rgba(47,111,78,.28);border-radius:3px;border:1px solid rgba(47,111,78,.4)}
+.ez-in .ub-ez-fill{background:rgba(47,111,78,.38)!important;border-color:rgba(47,111,78,.6)!important}
+.ub-ez-cur-marker{position:absolute;top:-3px;width:2px;height:12px;background:rgba(36,35,31,.75);border-radius:1px;transform:translateX(-50%)}
+.ub-ez-cur-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:rgba(36,35,31,.75);white-space:nowrap}
+.ub-ez-tgt-marker{position:absolute;top:-4px;width:10px;height:10px;background:#fff;border:2px solid var(--green);border-radius:50%;transform:translateX(-50%)}
+.ub-ez-tgt-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:600;color:var(--green);white-space:nowrap}
+/* price row below bar */
+.ub-ez-price-row{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:rgba(36,35,31,.55)}
+.ub-ez-price-row b{color:rgba(36,35,31,.85);font-weight:600}
+.ub-ez-price-row i{font-style:normal;color:var(--green);font-size:10px}
+.ub-ez-target b{color:var(--green)!important}
+/* live signals row */
+.ub-ez-sigs{display:flex;gap:8px;margin-top:6px}
+.ub-ez-sigs span{font-size:10px;color:rgba(36,35,31,.5);background:rgba(201,191,173,.15);border:1px solid rgba(201,191,173,.3);border-radius:999px;padding:1px 7px}
+/* no-band variant */
+.ub-ez-noband{background:rgba(251,250,246,.1);border-style:dashed}
+.ub-ez-noband-note{font-size:12px;color:rgba(36,35,31,.42);font-weight:400}
+.ub-ez-chips{margin-top:4px}
 </style>`;
 }
 

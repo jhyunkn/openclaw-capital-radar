@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-12T13:12:58.995Z",
+  "generatedAt": "2026-06-12T14:16:43.387Z",
   "layer": "authoritative-action-state",
   "policy": "All modules must obey this action state. Buy/trim/exit terms may remain visible as signal language, but execution permission is separate. Price zones are review zones only; verification, stale data, thesis gaps, risk budget, trim, and exit states override add proximity. Exit strategy must minimize loss intelligently rather than act as a dumb forced sell.",
   "summary": {
@@ -7,8 +7,7 @@
     "immediate": [],
     "lossControl": [
       "TSLT",
-      "CONL",
-      "TSNF"
+      "CONL"
     ],
     "blocked": [
       "MSFT",
@@ -1060,7 +1059,7 @@
           "label": "Trim review",
           "price": 19.92,
           "role": "trim",
-          "pctOfRange": 83
+          "pctOfRange": 82
         },
         {
           "key": "current",
@@ -1129,12 +1128,12 @@
         "label": "Between major action levels"
       },
       "authority": {
-        "decision": "TRIM REVIEW",
-        "tone": "danger",
-        "urgency": "THIS WEEK",
-        "allowed": "Review staged trim / rebalance / rebound-exit paths only.",
-        "forbidden": "Do not add until trim watch clears.",
-        "reason": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling."
+        "decision": "VERIFY FIRST",
+        "tone": "caution",
+        "urgency": "SOON",
+        "allowed": "Research / verification only.",
+        "forbidden": "No capital action until verification clears.",
+        "reason": "Investigate or verification state blocks trading action."
       },
       "levels": {
         "addZone": {
@@ -1228,15 +1227,15 @@
       },
       "permissionModel": {
         "signalLanguage": "HOLD_ZONE",
-        "executionPermission": "TRIM REVIEW",
+        "executionPermission": "VERIFY FIRST",
         "capitalAllowed": false,
-        "lossMinimizationRequired": true,
-        "blocker": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling."
+        "lossMinimizationRequired": false,
+        "blocker": "Investigate or verification state blocks trading action."
       },
       "moduleDirective": {
         "buyZoneLabel": "Buy review zone",
-        "chartBadge": "TRIM REVIEW · THIS WEEK",
-        "actionBandOverride": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling.",
+        "chartBadge": "VERIFY FIRST · SOON",
+        "actionBandOverride": "Investigate or verification state blocks trading action.",
         "proximityEligible": false
       }
     },

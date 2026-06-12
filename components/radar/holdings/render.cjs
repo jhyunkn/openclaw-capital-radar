@@ -227,6 +227,26 @@ function renderPermissionRow(route = {}) {
   </div>`;
 }
 
+function renderDataTruthRow(h = {}, route = {}, translation = {}) {
+  const truth = translation.data_truth || {};
+  const evidence = translation.evidence_quality || {};
+  const dataFreshness = truth.data_freshness || evidence.data_freshness || 'chart levels refreshed with current zone artifact';
+  const sourceConfidence = truth.source_confidence || evidence.source_confidence || route.zone_source_label || route.source_quality || 'technical zone source';
+  const sourceTier = route.zone_source_tier || route.source_authority || route.source_quality || (h.has_buy_zone ? 'TECHNICAL' : 'TACTICAL');
+  const zoneConfidence = num(route.zone_confidence);
+  const confidenceLabel = zoneConfidence !== null
+    ? `${Math.round(zoneConfidence * 100)}% zone confidence`
+    : (evidence.status || 'model-derived confidence');
+  const riskFlags = arr(truth.rule_breaches).concat(arr(truth.conflicts)).filter(Boolean);
+  const riskText = riskFlags.length ? riskFlags.slice(0, 2).join('; ') : 'No rule breach surfaced by data truth checks.';
+  return `<div class="mu-data-truth-row">
+    <div><span>Data confidence</span><b>${esc(confidenceLabel)}</b></div>
+    <div><span>Freshness</span><b>${esc(dataFreshness)}</b></div>
+    <div><span>Source tier</span><b>${esc(sourceTier)}</b><small>${esc(sourceConfidence)}</small></div>
+    <div><span>Risk check</span><b>${esc(riskText)}</b></div>
+  </div>`;
+}
+
 // Zone position bar — SVG showing price context between stop → buy → trim
 function buildZoneBar(h) {
   if (h.exit_only) return '';
@@ -348,7 +368,7 @@ function buildLwcPayload(h) {
   };
 }
 
-function renderHoldingCard(h, route = {}) {
+function renderHoldingCard(h, route = {}, translation = {}) {
   const ticker     = String(h.ticker || '').toUpperCase();
   const signal     = String(h.signal || 'HOLD').toUpperCase();
   const sigCls     = signalCls(signal);
@@ -440,6 +460,7 @@ function renderHoldingCard(h, route = {}) {
   ${substanceHtml}
   <div class="mu-posture-row ${esc(verdict.cls)}"><b>${esc(verdict.text)}</b></div>
   ${renderPermissionRow(route)}
+  ${renderDataTruthRow(h, route, translation)}
   ${thesisHtml}${watchHtml}
   <div class="mu-tech-row">${ma50chk}${ma200chk}${rationale}</div>
 </article>`;
@@ -608,7 +629,11 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
 </script>`;
 
   const routeByTicker = buildLookup(zoneState.zones || []);
-  const cards = holdings.map(h => renderHoldingCard(h, routeByTicker[String(h.ticker || '').toUpperCase()] || {})).join('');
+  const translationByTicker = buildLookup(translation.holdings || []);
+  const cards = holdings.map(h => {
+    const ticker = String(h.ticker || '').toUpperCase();
+    return renderHoldingCard(h, routeByTicker[ticker] || {}, translationByTicker[ticker] || {});
+  }).join('');
 
   return `<section id="holdings-section" class="panel mu-holdings-section">
   <div class="section-head">
@@ -721,6 +746,13 @@ function renderHoldingsStyle() {
 .mu-permission-row.warn b{color:var(--warn)}
 .mu-permission-row.bad{border-color:rgba(164,80,47,.32);background:rgba(164,80,47,.06)}
 .mu-permission-row.bad b{color:var(--red)}
+/* Data truth */
+.mu-data-truth-row{display:grid;grid-template-columns:1fr 1fr 1.35fr 1.25fr;gap:0;border:1px solid rgba(77,111,145,.26);border-radius:12px;overflow:hidden;margin:8px 0;background:rgba(77,111,145,.045)}
+.mu-data-truth-row>div{padding:9px 11px;border-right:1px solid rgba(77,111,145,.18);min-width:0}
+.mu-data-truth-row>div:last-child{border-right:none}
+.mu-data-truth-row span{display:block;font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.mu-data-truth-row b{display:block;font-size:12px;line-height:1.25;overflow-wrap:anywhere}
+.mu-data-truth-row small{display:block;color:var(--muted);font-size:10px;line-height:1.3;margin-top:3px}
 /* Thesis */
 .mu-thesis-row{margin:6px 0;display:flex;gap:10px;align-items:baseline}
 .mu-thesis-row>span{flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:62px}
@@ -744,9 +776,9 @@ function renderHoldingsStyle() {
 .mu-zone-rationale{font-size:10px;color:var(--muted);letter-spacing:.02em}
 @media(max-width:640px){
   .mu-levels-strip{grid-template-columns:repeat(2,1fr)}
-  .mu-permission-row{grid-template-columns:1fr}
-  .mu-permission-row>div{border-right:none;border-bottom:1px solid var(--rule)}
-  .mu-permission-row>div:last-child{border-bottom:none}
+  .mu-permission-row,.mu-data-truth-row{grid-template-columns:1fr}
+  .mu-permission-row>div,.mu-data-truth-row>div{border-right:none;border-bottom:1px solid var(--rule)}
+  .mu-permission-row>div:last-child,.mu-data-truth-row>div:last-child{border-bottom:none}
   .mu-level-cell:nth-child(2n){border-right:none}
   .mu-level-cell:nth-child(n+3){border-top:1px solid var(--rule)}
   .mu-ticker{font-size:22px}

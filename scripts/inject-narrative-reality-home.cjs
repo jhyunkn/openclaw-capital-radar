@@ -20,7 +20,7 @@ if (!brief || !Array.isArray(brief.themes) || !brief.themes.length) {
   process.exit(0);
 }
 
-const section = renderNarrativeRealitySection(brief);
+const section = renderNarrativeRealitySection(brief, { module: true });
 const style   = renderNarrativeRealityStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');
@@ -38,7 +38,8 @@ if (html.includes(`id="${STYLE_ID}"`)) {
 
 // Inject or replace section — place it after the macro section and before holdings
 const SECTION_ID = 'narrative-reality-section';
-const MACRO_ID   = 'macro-unified-section';
+const MODULE_ID  = 'narrative-reality-module';
+const MACRO_ID   = 'decision-brief-section';
 
 function findMatchingSection(h, openIdx) {
   // Walk forward from the <section at openIdx, tracking depth to find the matching </section>
@@ -71,7 +72,35 @@ function removeSection(h, id) {
   return h.slice(0, start) + h.slice(end + '</section>'.length);
 }
 
-function insertAfterSection(h, anchorId, newSection) {
+function removeElementById(h, id) {
+  const token = `id="${id}"`;
+  const idx = h.indexOf(token);
+  if (idx < 0) return h;
+  const start = h.lastIndexOf('<', idx);
+  if (start < 0) return h;
+  const match = h.slice(start).match(/^<([a-z0-9-]+)/i);
+  if (!match) return h;
+  const tag = match[1];
+  const closeToken = `</${tag}>`;
+  let depth = 0;
+  let pos = start;
+  while (pos < h.length) {
+    const nextOpen = h.indexOf(`<${tag}`, pos);
+    const nextClose = h.indexOf(closeToken, pos);
+    if (nextClose < 0) return h;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth++;
+      pos = nextOpen + tag.length + 1;
+    } else {
+      depth--;
+      if (depth === 0) return h.slice(0, start) + h.slice(nextClose + closeToken.length);
+      pos = nextClose + closeToken.length;
+    }
+  }
+  return h;
+}
+
+function insertInsideSectionEnd(h, anchorId, newSection) {
   const token = `id="${anchorId}"`;
   const idx   = h.indexOf(token);
   if (idx < 0) return h;
@@ -79,12 +108,12 @@ function insertAfterSection(h, anchorId, newSection) {
   if (start < 0) return h;
   const end = findMatchingSection(h, start);
   if (end < 0) return h;
-  const pos = end + '</section>'.length;
-  return h.slice(0, pos) + '\n' + newSection + h.slice(pos);
+  return h.slice(0, end) + '\n' + newSection + '\n' + h.slice(end);
 }
 
 html = removeSection(html, SECTION_ID);
-html = insertAfterSection(html, MACRO_ID, section);
+html = removeElementById(html, MODULE_ID);
+html = insertInsideSectionEnd(html, MACRO_ID, section);
 
 fs.writeFileSync(indexPath, html);
-console.log(`injected narrative-reality section: ${brief.themes.length} themes, generated ${brief.generatedAt?.slice(0, 10) || '?'}`);
+console.log(`injected narrative-reality macro module: ${brief.themes.length} themes, generated ${brief.generatedAt?.slice(0, 10) || '?'}`);

@@ -1798,6 +1798,25 @@ const style = `<style id="macro-unified-style">
 .mu-warn {color:#8a6a2c}
 .mu-bad  {color:#A4502F}
 
+/* Decision command center */
+.mu-command-center{display:grid;grid-template-columns:minmax(0,.84fr) minmax(420px,1.16fr);gap:12px;padding:22px 0 18px;border-bottom:1px solid rgba(201,191,173,.45)}
+.mu-command-copy{border:1px solid rgba(164,80,47,.30);background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(164,80,47,.06));padding:20px 22px}
+.mu-command-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:rgba(164,80,47,.72);margin:0 0 10px;font-family:var(--mono,monospace)}
+.mu-command-copy h2{font-size:clamp(36px,5.4vw,72px);line-height:.92;letter-spacing:-.078em;font-weight:500;margin:0 0 14px;color:#1A1714}
+.mu-command-copy p:last-child{font-size:14px;line-height:1.45;color:rgba(26,23,20,.68);max-width:680px;margin:0}
+.mu-command-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mu-command-card{border:1px solid rgba(201,191,173,.55);background:rgba(255,255,255,.24);padding:14px 13px;min-width:0}
+.mu-command-card span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.42);margin-bottom:10px;font-family:var(--mono,monospace)}
+.mu-command-card b{display:block;font-size:clamp(18px,2.1vw,30px);line-height:1;letter-spacing:-.05em;font-weight:500;color:#1A1714;overflow-wrap:anywhere}
+.mu-command-card small{display:block;font-size:10.5px;line-height:1.32;color:rgba(26,23,20,.50);margin-top:10px}
+.mu-command-primary{border-color:rgba(164,80,47,.42);background:rgba(164,80,47,.075)}
+.mu-command-add{border-color:rgba(42,107,74,.38);background:rgba(42,107,74,.055)}
+.mu-command-add b{color:#2a6b4a}
+.mu-command-trim,.mu-command-defense{border-color:rgba(164,80,47,.34);background:rgba(164,80,47,.045)}
+.mu-command-trim b,.mu-command-defense b{color:#A4502F}
+@media(max-width:980px){.mu-command-center{grid-template-columns:1fr}.mu-command-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.mu-command-grid{grid-template-columns:1fr}.mu-command-copy{padding:18px 16px}.mu-command-copy h2{font-size:40px}}
+
 /* ── Regime header ── */
 .mu-regime{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,.28fr);gap:18px;align-items:stretch;padding:22px 0 20px;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-regime>div:first-child{border:1px solid rgba(164,80,47,.26);background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(164,80,47,.055));padding:18px 20px 20px;min-width:0}
@@ -2167,14 +2186,45 @@ const historicalPhaseCHtml = `<div class="mu-phase-history">
 
 // ── Assemble section ──────────────────────────────────────────────────────────
 
-const section = `<section id="macro-unified-section" class="macro-unified">
+const section = `<section id="decision-brief-section" class="macro-unified">
 <div class="mu-wrap">
+
+  <!-- 0. Decision command: answer first, framework second -->
+  <div class="mu-command-center">
+    <div class="mu-command-copy">
+      <p class="mu-command-eyebrow">Today&apos;s action state - decision first</p>
+      <h2>Wait for confirmation</h2>
+      <p>${changeRule}</p>
+    </div>
+    <div class="mu-command-grid">
+      <article class="mu-command-card mu-command-primary">
+        <span>Posture</span>
+        <b>${action}</b>
+        <small>${stressType}</small>
+      </article>
+      <article class="mu-command-card mu-command-add">
+        <span>Add review</span>
+        <b>${addZoneStr}</b>
+        <small>S&amp;P 500 pullback zone</small>
+      </article>
+      <article class="mu-command-card mu-command-trim">
+        <span>No-chase / trim</span>
+        <b>${trimZoneStr}</b>
+        <small>Rebalance risk here</small>
+      </article>
+      <article class="mu-command-card mu-command-defense">
+        <span>Defend below</span>
+        <b>${defStr}</b>
+        <small>${esc(riskRule.split('.')[0])}</small>
+      </article>
+    </div>
+  </div>
 
   <!-- 1. Regime header: diagnosis anchor -->
   <div class="mu-regime">
     <div>
-      <p class="mu-phase-eyebrow">Macro intelligence · Phase ${phaseCode} · ${diagLabel}</p>
-      <h2 class="mu-phase-title">${phaseName}</h2>
+      <p class="mu-phase-eyebrow">Market permission - Phase ${phaseCode} - ${diagLabel}</p>
+      <h2 class="mu-phase-title">Why this is not a broad add signal</h2>
       ${signalBarHtml}
       <div class="mu-action">
         <span>Capital action</span>
@@ -2257,7 +2307,7 @@ const section = `<section id="macro-unified-section" class="macro-unified">
 
 // ── Injection ─────────────────────────────────────────────────────────────────
 
-const REMOVE_IDS = ['macro-cycle-panel','decision-brief-section','current-market-state','macro-intelligence-panel','macro-unified-section'];
+const REMOVE_IDS = ['macro-cycle-panel','decision-brief-section','current-market-state','macro-intelligence-panel','macro-unified-section','kostolany-history-section','narrative-reality-section'];
 
 ['macro-unified-style','macro-cycle-panel-style','macro-intelligence-panel-style','current-market-state-style'].forEach(id => {
   html = html.replace(new RegExp(`<style id="${id}">[\\s\\S]*?<\\/style>`, 'g'), '');
@@ -2306,5 +2356,5 @@ html = insertPos >= 0
   : html.slice(0, html.lastIndexOf('</main>')) + section + html.slice(html.lastIndexOf('</main>'));
 
 fs.writeFileSync(indexPath, html);
-if (!html.includes('id="macro-unified-section"')) throw new Error('injection failed');
-console.log(`injected macro section (charts + scorecard + cycle + sectors) into ${path.relative(root, indexPath)}`);
+if (!html.includes('id="decision-brief-section"')) throw new Error('injection failed');
+console.log(`injected canonical macro section (decision command + charts + scorecard + cycle) into ${path.relative(root, indexPath)}`);

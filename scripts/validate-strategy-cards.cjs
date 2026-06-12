@@ -23,7 +23,7 @@ assert(fs.existsSync(statePath), 'report state missing');
 const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 const html = fs.readFileSync(indexPath, 'utf8');
-const holdingsHtml = section(html, 'holdings');
+const holdingsHtml = section(html, 'holdings-section');
 
 assert(holdingsHtml, 'homepage missing Holdings section');
 assert(!html.includes('[object Object]'), 'homepage rendered an object directly; normalize confidence/trust values to text');

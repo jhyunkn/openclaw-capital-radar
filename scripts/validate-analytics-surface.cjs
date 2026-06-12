@@ -12,7 +12,7 @@ const state = readJson(statePath); const holdings = Array.isArray(state.holdings
 assert(holdings.length > 0, 'state.holdings is empty');
 assert(fs.existsSync(indexPath), 'index.html missing');
 const index = fs.readFileSync(indexPath, 'utf8');
-assert(index.includes('id="holdings"'), 'homepage missing compressed Holdings section');
+assert(index.includes('id="holdings-section"'), 'homepage missing canonical Holdings section');
 assert(!index.includes('id="portfolio-scoreboard"'), 'legacy portfolio scoreboard must not remain as top-level homepage section');
 const scoreboard = readJson(scoreboardPath);
 assert(Array.isArray(scoreboard.scorecards), 'portfolio-scoreboard.json missing scorecards array');

@@ -27,6 +27,6 @@ for (const h of holdings) {
 const indexPath = path.join(root, 'index.html');
 assert(fs.existsSync(indexPath), 'index.html missing');
 const index = fs.readFileSync(indexPath, 'utf8');
-assert(index.includes('id="holdings"'), 'homepage missing compressed Holdings section for technical state');
+assert(index.includes('id="holdings-section"'), 'homepage missing canonical Holdings section for technical state');
 assert(!index.includes('id="action-proximity"'), 'legacy action proximity section should not remain visible after compression');
 console.log(`chart cognition validated: ${holdings.length} ticker workspaces; homepage technical state compressed into Holdings`);

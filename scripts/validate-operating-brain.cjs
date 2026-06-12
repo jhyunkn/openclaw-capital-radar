@@ -71,7 +71,7 @@ if (!fs.existsSync(indexPath)) {
   if (/guaranteed|certain conviction|fake conviction/i.test(html)) errors.push('homepage exposes fake conviction language');
   if (!/REAL|EST|PROJ|Data freshness|Source confidence|VIX|10Y/i.test(html)) errors.push('homepage does not expose data/trust/indicator layer');
   if (!/Operational Decision Chart/i.test(html)) errors.push('operational decision chart title missing');
-  if (!/Market Decision Brief/i.test(html)) errors.push('market decision brief title missing');
+  if (!/Market permission|Today's action state|Capital action/i.test(html)) errors.push('decision-first market permission title missing');
 }
 
 if (errors.length) {

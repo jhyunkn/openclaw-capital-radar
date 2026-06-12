@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T02:34:03.331Z",
+  "generatedAt": "2026-06-12T14:16:23.033Z",
   "mode": "fast",
   "policy": "Fast build renders UI from existing artifacts only. It does not refresh live market data, regenerate research artifacts, or replace the full production pipeline by itself.",
   "steps": [
@@ -7,16 +7,52 @@
       "name": "render-homepage",
       "purpose": "Render the canonical homepage from existing committed/generated artifacts.",
       "command": "node scripts/render-capital-radar-home.cjs",
-      "status": "FAIL",
-      "exitCode": 1,
-      "durationMs": 21276,
-      "startedAt": "2026-06-04T02:34:03.332Z",
-      "finishedAt": "2026-06-04T02:34:24.608Z",
-      "stdoutTail": "research universe: total=27 holdings=11 opp=16 priced=27\n\n$ node scripts/run-research-collectors-safe.cjs\nok: SEC company evidence\nok: Manager filing index\nok: Market structure snapshot\nresearch collectors complete: ok=3 degraded=0\n\n$ node scripts/generate-institutional-source-states.cjs\nsource states: company=0 institutional=0 structure=11\n\n$ node scripts/generate-authoritative-action-state.cjs\ngenerated authoritative action state: 0 immediate / 0 add-review / 11 blocked\n\n$ node scripts/generate-holding-zone-state.cjs\nholding-zone-state: buy=0 hold=11 trim=0 risk=0 institutional_ready=0\n\n$ node scripts/annotate-holding-zone-source.cjs\nholding zone source annotation complete\n\n$ node scripts/apply-strategy-route-to-holdings.cjs\nstrategy route applied to holdings\n\n$ node scripts/validate-holding-zone-state.cjs",
-      "stderrTail": "Holding zone validation failed:\n- zone[MSFT] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[AMZN] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[CEG] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[META] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[TSLT] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[CONL] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[SPY] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[MA] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[BMNR] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[TSNF] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- zone[NFLX] must render authoritative_action_state_ticker_specific levels, not generic proxy bands\n- shared generic holding-zone distance signature forbidden: -8.50|10.00|-12.00|-20.00 used by MSFT,CEG,META,MA,NFLX\n- holding-zone-state render_permission=true while validation fails\nCAPITAL RADAR HOME BUILD FAILED: Holdings: node scripts/validate-holding-zone-state.cjs failed"
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 21744,
+      "startedAt": "2026-06-12T14:16:23.033Z",
+      "finishedAt": "2026-06-12T14:16:44.777Z",
+      "stdoutTail": "strategy route applied to opportunities: risk-on but extended\n\n$ node scripts/enrich-opportunity-near-miss-diagnostics.cjs\nnear-miss diagnostics: closest=2 near=19 research=0\nnear-miss diagnostics: closest=2 near=19 research=0\n\n$ node scripts/inject-opportunities-home-modular.cjs\ninjected unified opportunity section: conviction_top3=AVGO(81), BWXT(77), KNSL(77)  scanner_full=2  scanner_partial=10  dynamic_conv=1  dynamic_watch=0  event_driven=10  pipeline_qualified=18  pipeline_shown=8\n\n=== home stage: cleanup-legacy-home-sections ===\n\n$ node scripts/strip-legacy-brief-strategy-home.cjs\nstripped legacy homepage sections: 0 bytes removed; 0 operations recorded\nwrote outputs\\homepage-legacy-strip-report.json\n\n$ node scripts/normalize-homepage-sections.cjs\ninjected Duration evidence banner into Macro top\nhomepage section normalization complete: Macro / Decision chart / Holdings / Opportunity\nLegacy strip report: NOOP; 0 bytes removed; 0 operations; retirement_signal=candidate_after_repeated_stable_noop_builds\n\nCapital Radar homepage build passed in 21.7s\nWrote outputs\\capital-radar-home-build-report.json\nWrote outputs\\operational-chart-validation-report.json\nReferenced outputs\\homepage-legacy-strip-report.json",
+      "stderrTail": ""
+    },
+    {
+      "name": "validate-operational-sections",
+      "purpose": "Verify required operational homepage sections are present before packaging.",
+      "command": "node scripts/validate-operational-sections.cjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 72,
+      "startedAt": "2026-06-12T14:16:44.777Z",
+      "finishedAt": "2026-06-12T14:16:44.849Z",
+      "stdoutTail": "{\n  \"status\": \"PASS\",\n  \"summary\": \"Capital Radar homepage validates against the four-section contract; backend intelligence remains preserved in JSON outputs.\",\n  \"checks\": [\n    \"PASS: Canonical four-section homepage\",\n    \"PASS: No redundant visible homepage sections\",\n    \"PASS: Macro\",\n    \"PASS: Decision chart\",\n    \"PASS: Holdings\",\n    \"PASS: Opportunity\",\n    \"PASS: Backend telemetry preserved\",\n    \"PASS: Operational score available\",\n    \"PASS: Public static sync\",\n    \"PASS: No object leaks\"\n  ]\n}",
+      "stderrTail": ""
+    },
+    {
+      "name": "build-vercel-static-output",
+      "purpose": "Copy existing static assets, data, outputs, pages, and index.html into public/.",
+      "command": "node scripts/build-vercel.cjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 675,
+      "startedAt": "2026-06-12T14:16:44.849Z",
+      "finishedAt": "2026-06-12T14:16:45.524Z",
+      "stdoutTail": "injected canonical macro section (decision command + charts + scorecard + cycle) into index.html\ninjected narrative-reality macro module: 7 themes, generated 2026-06-09\ninjected Macro design language into index.html\ninjected Macro design language into public\\index.html\nPrepared Vercel static output at C:\\Users\\moosi\\.openclaw\\workspace\\github-work\\capital-radar-refine\\public",
+      "stderrTail": ""
     }
   ],
-  "requiredOutputs": [],
-  "status": "FAIL",
-  "error": "fast build failed at render-homepage"
+  "requiredOutputs": [
+    {
+      "file": "index.html",
+      "bytes": 1777633
+    },
+    {
+      "file": "public/index.html",
+      "bytes": 1777633
+    },
+    {
+      "file": "public/health.json",
+      "bytes": 57
+    }
+  ],
+  "status": "PASS"
 }

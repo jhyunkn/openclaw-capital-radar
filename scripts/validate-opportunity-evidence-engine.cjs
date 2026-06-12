@@ -9,6 +9,10 @@ const ledger = read('outputs/source-reliability-ledger.json');
 const list = v => Array.isArray(v) ? v : [];
 const failures = [];
 function check(ok, msg){ if(!ok) failures.push(msg); }
+function hasCanonicalHomepage(source) {
+  return ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section']
+    .every(id => source.includes(`id="${id}"`));
+}
 check(packets.status === 'ACTIVE', 'opportunity packets not active');
 check(list(packets.packets).length >= 8, 'too few opportunity packets');
 check(list(packets.priorityQueue).length >= 1 || (list(packets.priorityQueue).length === 0 && list(packets.packets).length >= 8 && list(packets.packets).every(p => p.actionPermission === 'RESEARCH_ONLY_NO_BUY_PERMISSION')), 'priority queue too small');
@@ -18,7 +22,7 @@ check(ledger.status === 'ACTIVE', 'source reliability ledger not active');
 check(ledger.aggregate?.sourceCount >= 6, 'source ledger source count too low');
 check(ledger.aggregate?.candidatesBlockedFromPromotion >= 1, 'promotion blockers not enforced');
 check(!html.includes('id="opportunity-evidence-engine"'), 'opportunity engine telemetry should not be a top-level homepage section after compression');
-check(html.includes('id="opportunity"'), 'homepage missing compressed Opportunity section');
+check(html.includes('id="opportunities-section"'), 'homepage missing canonical Opportunities section');
 check(!publicHtml.includes('id="opportunity-evidence-engine"'), 'public homepage still exposes opportunity evidence telemetry panel');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'opportunity-evidence-packets.json')), 'public opportunity packets missing');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'source-reliability-ledger.json')), 'public source reliability ledger missing');
@@ -31,8 +35,8 @@ const output = {
     priorityQueue: list(packets.priorityQueue).length,
     sourceCount: ledger.aggregate?.sourceCount || 0,
     candidatesBlockedFromPromotion: ledger.aggregate?.candidatesBlockedFromPromotion || 0,
-    dashboardPanel: html.includes('id="opportunity"'),
-    publicSync: publicHtml.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"')
+    dashboardPanel: html.includes('id="opportunities-section"'),
+    publicSync: hasCanonicalHomepage(publicHtml)
   },
   failures
 };

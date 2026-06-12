@@ -27,7 +27,7 @@ const tightAvg = ['SPY','MSFT','MA'].reduce((s,t)=>s+Math.abs(row(t).riskReviewP
 ok(wideAvg > tightAvg * 2, `wide bands not wider enough: ${wideAvg}/${tightAvg}`);
 ok(Array.isArray(interp.interpretations), 'interpretations missing');
 for (const item of interp.interpretations) ok(item.thresholdPolicy && /volatility_adjusted|signalThresholds/i.test(item.thresholdPolicy), `${item.ticker} not using threshold policy`);
-ok(html.includes('id="holdings"'), 'homepage missing compressed Holdings section');
+ok(html.includes('id="holdings-section"'), 'homepage missing canonical Holdings section');
 ok(!html.includes('Closest holdings to volatility-adjusted strategy bands'), 'legacy threshold panel should not remain visible');
 ok(!html.includes('sample'), 'sample text visible'); ok(!html.includes('TBD-1') && !html.includes('TBD-2') && !html.includes('TBD-3'), 'TBD placeholder visible');
 console.log(`threshold consistency validated as backend data for compressed holdings: ${rows.length} rows; wide ${wideAvg.toFixed(2)} / tight ${tightAvg.toFixed(2)}`);

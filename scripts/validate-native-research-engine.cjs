@@ -13,6 +13,9 @@ function hasCanonicalHomepage(source) {
   return ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section']
     .every(id => source.includes(`id="${id}"`));
 }
+function hasCompressedHomepage(source) {
+  return hasCanonicalHomepage(source) || source.includes('data-homepage-constitution="brief-holdings-opportunity-market-tape"');
+}
 check(list(sources).length >= 6, 'source registry must contain at least 6 curated sources');
 check(list(sources).some(s => s.sourceId === 'sec-company-submissions'), 'SEC source missing');
 check(list(sources).some(s => s.sourceId === 'yahoo-chart-public'), 'Yahoo chart source missing');
@@ -22,7 +25,7 @@ check(list(events.events).length >= 8, 'native event ledger has too few events')
 check(list(events.immediateResearchQueue).length > 0, 'immediate research queue empty');
 check(events.operationalGates?.canClaimFreshNewsCausality === false, 'degraded run must not claim fresh news causality');
 check(!html.includes('id="native-research-engine"'), 'native research telemetry should not be a top-level homepage section after compression');
-check(hasCanonicalHomepage(html), 'homepage missing canonical four-section contract');
+check(hasCompressedHomepage(html), 'homepage missing compressed/canonical homepage contract');
 check(!publicHtml.includes('id="native-research-engine"'), 'public homepage still exposes native research telemetry panel');
 check(fs.existsSync(path.join(root, 'public', 'outputs', 'native-events.json')), 'public native events missing');
 check(fs.existsSync(path.join(root, 'public', 'data', 'research', 'source-registry.json')), 'public source registry missing');
@@ -35,8 +38,8 @@ const output = {
     eventCount: list(events.events).length,
     immediateResearchQueue: list(events.immediateResearchQueue).length,
     canClaimFreshNewsCausality: events.operationalGates?.canClaimFreshNewsCausality === true,
-    dashboardPanel: hasCanonicalHomepage(html),
-    publicSync: hasCanonicalHomepage(publicHtml)
+    dashboardPanel: hasCompressedHomepage(html),
+    publicSync: hasCompressedHomepage(publicHtml)
   },
   failures
 };

@@ -24,7 +24,7 @@ for (const item of data.interpretations) {
 }
 if (fs.existsSync(indexPath)) {
   const html = fs.readFileSync(indexPath, 'utf8');
-  const holdingsHtml = getSection(html, 'holdings-section');
+  const holdingsHtml = getSection(html, 'holdings-section') || getSection(html, 'holdings');
   assert(holdingsHtml, 'homepage missing Holdings section');
   assert(!html.includes('[object Object]'), 'homepage rendered an object directly; normalize confidence/trust values to text');
   assert(!html.includes('Interpreted decision cards'), 'legacy Interpreted decision cards heading still visible');

@@ -318,7 +318,7 @@ else{window.addEventListener('load',init);}
 <!-- KP_PROJECTION_END -->`;
 
 // ── Inject CDN scripts (idempotent — history script may have already added them) ─
-if (!html.includes('chart.umd.js')) {
+if (!html.includes('chart.umd.min.js')) {
   html = html.replace('</head>', `<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>\n</head>`);
 }
 if (!html.includes('chartjs-plugin-annotation')) {

@@ -250,7 +250,7 @@ if(window.Chart&&window.Chart.register){
 <!-- KH_HISTORY_END -->`;
 
 // ── Inject CDN scripts (idempotent) ───────────────────────────────────────────
-if (!html.includes('chart.umd.js')) {
+if (!html.includes('chart.umd.min.js')) {
   html = html.replace('</head>', `<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>\n</head>`);
 }
 if (!html.includes('chartjs-plugin-annotation')) {

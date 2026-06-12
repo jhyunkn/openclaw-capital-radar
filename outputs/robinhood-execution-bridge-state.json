@@ -1,377 +1,146 @@
 {
-  "generatedAt": "2026-06-12T20:20:45.197Z",
+  "generatedAt": "2026-06-12T21:46:24.749Z",
   "artifact": "robinhood-execution-bridge-state",
-  "mode": "proposal_only",
-  "sync": {
-    "provider": "Robinhood Agentic Trading MCP",
-    "mcp_url": "https://agent.robinhood.com/mcp/trading",
-    "connected": false,
-    "status": "not_connected",
-    "detail": "No Robinhood MCP session is authenticated in this build; use proposal mode until broker account data is explicitly synced.",
-    "allowed_reads_when_connected": [
-      "agentic account cash",
-      "buying power",
-      "positions",
-      "balances",
-      "order history"
-    ],
-    "allowed_writes_when_connected": [
-      "approved long-equity limit orders only"
-    ]
+  "syncedAt": "2026-06-12T00:00:00.000Z",
+  "portfolio": {
+    "totalValue": 64922.81,
+    "equityValue": 62782.99,
+    "cash": 590.68,
+    "buyingPower": 590.68,
+    "positionCount": 12
   },
-  "capital_radar": {
-    "status": "active",
-    "detail": "Tickets are generated from live Capital Radar macro, holding zone, action permission, and exposure outputs.",
-    "macro_permission": "Hold core; selective adds allowed only at ruled zones.",
-    "risk_rule": "Break below 200D 6,882 with VIX expansion shifts posture defensive.",
-    "source_artifacts": [
-      "outputs/market-decision-brief-state.json",
-      "outputs/authoritative-action-state.json",
-      "outputs/holding-zone-state.json",
-      "outputs/portfolio-exposure-map.json"
-    ]
-  },
-  "policy": {
-    "execution_mode": "proposal_only",
-    "execution_mode_label": "Proposal only",
-    "execution_policy": "No order placement without an exact trade ticket approved by Jun. The bridge may read broker data after connection, but Capital Radar remains the decision system.",
-    "forbidden": [
-      "autonomous trading",
-      "options by default",
-      "margin",
-      "market orders by default",
-      "averaging down without approval",
-      "orders during FOMC/CPI/earnings without special gate"
-    ]
-  },
-  "readiness": {
-    "status": "blocked",
-    "summary": "0 proposal-ready ticket(s), 9 blocked ticket(s). Broker sync is not connected, so execution remains disabled."
-  },
-  "gates": [
+  "positions": [
     {
-      "label": "Capital Radar live state",
-      "status": "ready",
-      "detail": "Macro, holdings, zones, and exposure artifacts are present."
+      "symbol": "SPY",
+      "shares": 43.230711,
+      "avgCostPrice": 560.9,
+      "totalCostBasis": 24237.3,
+      "livePrice": 741.85,
+      "currentValue": 32070.7,
+      "unrealizedGain": 7833.4,
+      "unrealizedPct": 32.32,
+      "signal": "HOLD"
     },
     {
-      "label": "Robinhood MCP sync",
-      "status": "not connected",
-      "detail": "Connect and authenticate the Agentic account before account-level reconciliation."
+      "symbol": "BMNR",
+      "shares": 490,
+      "avgCostPrice": 21.53,
+      "totalCostBasis": 10549.7,
+      "livePrice": 16.19,
+      "currentValue": 7933.1,
+      "unrealizedGain": -2616.6,
+      "unrealizedPct": -24.8,
+      "signal": "INVESTIGATE"
     },
     {
-      "label": "Human approval",
-      "status": "required",
-      "detail": "Every order needs exact approval from Jun before placement."
+      "symbol": "AMZN",
+      "shares": 33.307916,
+      "avgCostPrice": 170.38,
+      "totalCostBasis": 5677.73,
+      "livePrice": 237.81,
+      "currentValue": 7920.96,
+      "unrealizedGain": 2243.23,
+      "unrealizedPct": 39.51,
+      "signal": "HOLD"
     },
     {
-      "label": "Post-trade journal",
-      "status": "required",
-      "detail": "Approved, rejected, and filled tickets must be logged with source snapshot."
-    }
-  ],
-  "hard_rules": [
-    {
-      "label": "No autonomous orders",
-      "status": "blocked",
-      "detail": "The system can propose tickets, not trade freely."
+      "symbol": "META",
+      "shares": 8.327028,
+      "avgCostPrice": 484.71,
+      "totalCostBasis": 4036.04,
+      "livePrice": 567.07,
+      "currentValue": 4722.01,
+      "unrealizedGain": 685.97,
+      "unrealizedPct": 17,
+      "signal": "HOLD"
     },
     {
-      "label": "No options by default",
-      "status": "blocked",
-      "detail": "Options require a separate explicit approval policy."
+      "symbol": "MA",
+      "shares": 4.013458,
+      "avgCostPrice": 579.39,
+      "totalCostBasis": 2325.66,
+      "livePrice": 488.95,
+      "currentValue": 1962.38,
+      "unrealizedGain": -363.28,
+      "unrealizedPct": -15.62,
+      "signal": "HOLD"
     },
     {
-      "label": "No market orders by default",
-      "status": "blocked",
-      "detail": "Limit order ticket must specify ticker, side, price, size, expiry, and invalidation."
+      "symbol": "NFLX",
+      "shares": 25,
+      "avgCostPrice": 88.21,
+      "totalCostBasis": 2205.25,
+      "livePrice": 80.52,
+      "currentValue": 2013,
+      "unrealizedGain": -192.25,
+      "unrealizedPct": -8.72,
+      "signal": "HOLD / WATCH"
     },
     {
-      "label": "No margin",
-      "status": "blocked",
-      "detail": "Agentic account should only use prefunded cash budget."
+      "symbol": "CEG",
+      "shares": 8,
+      "avgCostPrice": 273.46,
+      "totalCostBasis": 2187.68,
+      "livePrice": 254.1,
+      "currentValue": 2032.8,
+      "unrealizedGain": -154.88,
+      "unrealizedPct": -7.08,
+      "signal": "HOLD / WATCH"
     },
     {
-      "label": "Macro/event gate",
-      "status": "required",
-      "detail": "FOMC, CPI, earnings, and large gap moves require a separate confirmation check."
-    }
-  ],
-  "tickets": [
-    {
-      "ticker": "CONL",
-      "status": "loss-control review",
-      "recommendation": "Generate loss-control ticket; minimize damage with human approval.",
-      "current_price": 5.31,
-      "entry_zone": {
-        "low": 4.66,
-        "high": 4.92,
-        "mid": 4.79
-      },
-      "trim_zone": {
-        "low": 6.76,
-        "high": 7.48,
-        "mid": 7.12
-      },
-      "stop_review": 3.5,
-      "hard_exit_review": 3.4,
-      "distance_to_entry_mid_pct": -9.79,
-      "execution_permission": "EXIT REVIEW",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 0.37,
-      "exposure_bucket": "Levered / tactical products",
-      "blocker": null,
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
+      "symbol": "MSFT",
+      "shares": 3,
+      "avgCostPrice": 388.34,
+      "totalCostBasis": 1165.02,
+      "livePrice": 389.57,
+      "currentValue": 1168.71,
+      "unrealizedGain": 3.69,
+      "unrealizedPct": 0.32,
+      "signal": "HOLD"
     },
     {
-      "ticker": "TSLT",
-      "status": "loss-control review",
-      "recommendation": "Generate trim-review ticket only after live broker exposure is reconciled.",
-      "current_price": 18.64,
-      "entry_zone": {
-        "low": 16.34,
-        "high": 17.26,
-        "mid": 16.8
-      },
-      "trim_zone": {
-        "low": 23.71,
-        "high": 26.25,
-        "mid": 24.98
-      },
-      "stop_review": 12.3,
-      "hard_exit_review": 11.93,
-      "distance_to_entry_mid_pct": -9.87,
-      "execution_permission": "TRIM REVIEW",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 0.48,
-      "exposure_bucket": "Levered / tactical products",
-      "blocker": null,
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
+      "symbol": "VST",
+      "shares": 8,
+      "avgCostPrice": 141.6,
+      "totalCostBasis": 1132.8,
+      "livePrice": 148.87,
+      "currentValue": 1190.96,
+      "unrealizedGain": 58.16,
+      "unrealizedPct": 5.13,
+      "signal": null
     },
     {
-      "ticker": "SPY",
-      "status": "blocked",
-      "recommendation": "Do not add; exposure bucket is already above review cap.",
-      "current_price": 741.85,
-      "entry_zone": {
-        "low": 726.3,
-        "high": 732.54,
-        "mid": 729.42
-      },
-      "trim_zone": {
-        "low": 795.27,
-        "high": 821.97,
-        "mid": 808.62
-      },
-      "stop_review": 692.7,
-      "hard_exit_review": 671.92,
-      "distance_to_entry_mid_pct": -1.68,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 0,
-      "current_weight_pct": 55.38,
-      "exposure_bucket": "Index / market beta",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
+      "symbol": "TSNF",
+      "shares": 40,
+      "avgCostPrice": 27.16,
+      "totalCostBasis": 1086.4,
+      "livePrice": 32.32,
+      "currentValue": 1292.8,
+      "unrealizedGain": 206.4,
+      "unrealizedPct": 19,
+      "signal": "INVESTIGATE"
     },
     {
-      "ticker": "MA",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 488.95,
-      "entry_zone": {
-        "low": 478.71,
-        "high": 482.81,
-        "mid": 480.76
-      },
-      "trim_zone": {
-        "low": 524.16,
-        "high": 541.76,
-        "mid": 532.96
-      },
-      "stop_review": 456.56,
-      "hard_exit_review": 442.86,
-      "distance_to_entry_mid_pct": -1.68,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 3.39,
-      "exposure_bucket": "Payments / financial infrastructure",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
+      "symbol": "TSLT",
+      "shares": 15,
+      "avgCostPrice": 46,
+      "totalCostBasis": 690,
+      "livePrice": 18.64,
+      "currentValue": 279.6,
+      "unrealizedGain": -410.4,
+      "unrealizedPct": -59.48,
+      "signal": "TRIM WATCH"
     },
     {
-      "ticker": "MSFT",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 389.57,
-      "entry_zone": {
-        "low": 380.06,
-        "high": 383.86,
-        "mid": 381.96
-      },
-      "trim_zone": {
-        "low": 421.48,
-        "high": 437.44,
-        "mid": 429.46
-      },
-      "stop_review": 359.53,
-      "hard_exit_review": 348.74,
-      "distance_to_entry_mid_pct": -1.95,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 2.02,
-      "exposure_bucket": "Cloud / software / AI platform",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
-    },
-    {
-      "ticker": "NFLX",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 80.52,
-      "entry_zone": {
-        "low": 78.32,
-        "high": 79.2,
-        "mid": 78.76
-      },
-      "trim_zone": {
-        "low": 89.06,
-        "high": 93.32,
-        "mid": 91.19
-      },
-      "stop_review": 72.07,
-      "hard_exit_review": 69.91,
-      "distance_to_entry_mid_pct": -2.19,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 3.48,
-      "exposure_bucket": "Streaming / media",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
-    },
-    {
-      "ticker": "AMZN",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 237.81,
-      "entry_zone": {
-        "low": 231.1,
-        "high": 233.78,
-        "mid": 232.44
-      },
-      "trim_zone": {
-        "low": 263.76,
-        "high": 276.74,
-        "mid": 270.25
-      },
-      "stop_review": 212.04,
-      "hard_exit_review": 205.68,
-      "distance_to_entry_mid_pct": -2.26,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 13.68,
-      "exposure_bucket": "E-commerce / cloud infrastructure",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
-    },
-    {
-      "ticker": "META",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 567.07,
-      "entry_zone": {
-        "low": 549.08,
-        "high": 556.28,
-        "mid": 552.68
-      },
-      "trim_zone": {
-        "low": 636.06,
-        "high": 670.56,
-        "mid": 653.31
-      },
-      "stop_review": 498.01,
-      "hard_exit_review": 483.07,
-      "distance_to_entry_mid_pct": -2.54,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 8.16,
-      "exposure_bucket": "Digital ads / AI platform",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
-    },
-    {
-      "ticker": "TSNF",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 32.32,
-      "entry_zone": {
-        "low": 31.16,
-        "high": 31.62,
-        "mid": 31.39
-      },
-      "trim_zone": {
-        "low": 36.75,
-        "high": 38.97,
-        "mid": 37.86
-      },
-      "stop_review": 27.85,
-      "hard_exit_review": 27.01,
-      "distance_to_entry_mid_pct": -2.88,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 2.23,
-      "exposure_bucket": "Speculative single-name equity",
-      "blocker": "Investigate or verification state blocks trading action.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
-    },
-    {
-      "ticker": "CEG",
-      "status": "blocked",
-      "recommendation": "Do not send order; Capital Radar requires verification before exposure changes.",
-      "current_price": 254.1,
-      "entry_zone": {
-        "low": 243.96,
-        "high": 248.02,
-        "mid": 245.99
-      },
-      "trim_zone": {
-        "low": 292.48,
-        "high": 311.66,
-        "mid": 302.07
-      },
-      "stop_review": 215.16,
-      "hard_exit_review": 208.71,
-      "distance_to_entry_mid_pct": -3.19,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 4,
-      "current_weight_pct": 1.32,
-      "exposure_bucket": "Power / energy infrastructure",
-      "blocker": "Portfolio decision state requires verification before exposure changes.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
-    },
-    {
-      "ticker": "BMNR",
-      "status": "blocked",
-      "recommendation": "Do not add; exposure bucket is already above review cap.",
-      "current_price": 16.19,
-      "entry_zone": {
-        "low": 14.68,
-        "high": 15.28,
-        "mid": 14.98
-      },
-      "trim_zone": {
-        "low": 19.78,
-        "high": 21.58,
-        "mid": 20.68
-      },
-      "stop_review": 11.66,
-      "hard_exit_review": 11.31,
-      "distance_to_entry_mid_pct": -7.47,
-      "execution_permission": "VERIFY FIRST",
-      "max_position_size_pct": 0,
-      "current_weight_pct": 9.51,
-      "exposure_bucket": "Speculative crypto infrastructure",
-      "blocker": "Investigate or verification state blocks trading action.",
-      "next_step": "Wait for broker sync, macro permission, and exact approval gate."
+      "symbol": "CONL",
+      "shares": 40,
+      "avgCostPrice": 6.05,
+      "totalCostBasis": 242,
+      "livePrice": 5.31,
+      "currentValue": 212.4,
+      "unrealizedGain": -29.6,
+      "unrealizedPct": -12.23,
+      "signal": "EXIT REVIEW"
     }
   ]
 }

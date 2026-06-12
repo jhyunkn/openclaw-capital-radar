@@ -214,8 +214,8 @@ function verifyFinalOutput() {
   if (JSON.stringify(sectionIds) !== JSON.stringify(expected)) {
     throw new Error(`public/index.html section contract drift: expected ${expected.join(' > ')} got ${sectionIds.join(' > ')}`);
   }
-  if (!/Proposal-only execution rail|Robinhood bridge|Capital Radar remains the decision brain/i.test(html)) {
-    throw new Error('public/index.html missing Robinhood proposal-only execution bridge');
+  if (!/rh-live-holdings|Live holdings|Robinhood.*Live/i.test(html)) {
+    throw new Error('public/index.html missing Robinhood live holdings module');
   }
   for (const id of ['macro-unified-section', 'narrative-reality-section', 'kostolany-egg-section', 'kostolany-egg-module']) {
     if (html.includes(`id="${id}"`)) throw new Error(`public/index.html contains retired standalone section: ${id}`);
@@ -229,6 +229,7 @@ runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro m
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
 runFinalInjector('generate-robinhood-execution-bridge-state.cjs', 'Robinhood execution bridge state generation failed before Vercel copy');
+runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 rm(out);

@@ -1,87 +1,137 @@
 function esc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  }[c]));
+  return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 function arr(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function money(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return 'n/a';
-  return `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+function fmt(v, decimals = 0) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—';
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-function pct(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return 'n/a';
-  return `${n > 0 ? '+' : ''}${n.toFixed(2)}%`;
+function fmtShares(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '—';
+  return n % 1 === 0 ? String(n) : n.toLocaleString('en-US', { maximumFractionDigits: 4 });
 }
 
-function toneClass(status) {
-  const s = String(status || '').toLowerCase();
-  if (/allowed|ready|proposal/.test(s)) return 'good';
-  if (/blocked|not connected|no autonomous|reject/.test(s)) return 'bad';
-  return 'warn';
+function fmtGain(gain, pct) {
+  const gn = Number(gain);
+  const pn = Number(pct);
+  if (!Number.isFinite(gn)) return '—';
+  const sign = gn >= 0 ? '+' : '';
+  const pctStr = Number.isFinite(pn) ? ` (${sign}${pn.toFixed(1)}%)` : '';
+  return `${sign}${fmt(gn, 0)}${pctStr}`;
 }
 
-function renderTickets(tickets) {
-  const rows = arr(tickets).slice(0, 6).map(ticket => {
-    const tone = toneClass(ticket.status);
-    const entry = ticket.entry_zone ? `${money(ticket.entry_zone.low)}-${money(ticket.entry_zone.high)}` : 'n/a';
-    return `<article class="reb-ticket ${tone}"><div><span>${esc(ticket.ticker)}</span><b>${esc(ticket.status)}</b></div><p>${esc(ticket.recommendation)}</p><dl><div><dt>Entry</dt><dd>${entry}</dd></div><div><dt>Current</dt><dd>${money(ticket.current_price)}</dd></div><div><dt>Distance</dt><dd>${pct(ticket.distance_to_entry_mid_pct)}</dd></div><div><dt>Max size</dt><dd>${esc(ticket.max_position_size_pct)}%</dd></div></dl><small>${esc(ticket.blocker || ticket.next_step || 'Requires exact human approval before any order.')}</small></article>`;
-  }).join('');
-  return rows || '<p class="reb-empty">No eligible proposal tickets generated from current Capital Radar state.</p>';
-}
-
-function renderChecks(checks) {
-  return arr(checks).map(check => `<li class="${toneClass(check.status)}"><span>${esc(check.label)}</span><b>${esc(check.status)}</b><small>${esc(check.detail)}</small></li>`).join('');
+function signalTone(signal) {
+  const s = String(signal || '').toLowerCase();
+  if (/exit|loss/.test(s)) return 'exit';
+  if (/trim|sell/.test(s)) return 'trim';
+  if (/investigate|review/.test(s)) return 'warn';
+  if (/hold/.test(s)) return 'hold';
+  return 'neutral';
 }
 
 function renderRobinhoodExecutionBridgeModule(state = {}) {
-  const sync = state.sync || {};
-  const policy = state.policy || {};
-  const readiness = state.readiness || {};
-  const connectionTone = sync.connected ? 'good' : 'bad';
-  const modeTone = policy.execution_mode === 'proposal_only' ? 'warn' : 'bad';
+  const portfolio = state.portfolio || {};
+  const positions = arr(state.positions);
+  const syncedAt = state.syncedAt ? new Date(state.syncedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
-  return `<div id="robinhood-execution-bridge-module" class="robinhood-execution-bridge" aria-labelledby="robinhood-execution-bridge-title"><div class="reb-head"><div><p class="eyebrow">Robinhood bridge</p><h3 id="robinhood-execution-bridge-title">Proposal-only execution rail</h3><p>Capital Radar remains the decision brain. Robinhood MCP is treated as account sync and approved-order plumbing, not autonomous judgment.</p></div><div class="reb-status ${connectionTone}"><span>Broker sync</span><b>${esc(sync.status || 'not_connected')}</b><small>${esc(sync.detail || 'Connect Robinhood Agentic Trading MCP before live portfolio sync.')}</small></div></div><div class="reb-grid"><article class="reb-card"><span>Execution mode</span><b class="${modeTone}">${esc(policy.execution_mode_label || 'Proposal only')}</b><p>${esc(policy.execution_policy || 'No order can be sent without an exact approved ticket from Jun.')}</p></article><article class="reb-card"><span>Readiness</span><b class="${toneClass(readiness.status)}">${esc(readiness.status || 'blocked')}</b><p>${esc(readiness.summary || 'Broker data is not connected; Capital Radar can generate proposals but cannot reconcile live buying power.')}</p></article><article class="reb-card"><span>Live data source</span><b>${esc(state.capital_radar?.status || 'active')}</b><p>${esc(state.capital_radar?.detail || 'Uses Capital Radar live macro, holdings, zones, and action-permission outputs.')}</p></article></div><div class="reb-body"><div class="reb-policy"><h4>Pre-trade gates</h4><ul>${renderChecks(state.gates)}</ul></div><div class="reb-policy"><h4>Hard rules</h4><ul>${renderChecks(state.hard_rules)}</ul></div></div><div class="reb-ticket-board"><div class="reb-board-title"><div><span>Generated from live Capital Radar state</span><h4>Trade tickets</h4></div><b>${esc(arr(state.tickets).length)} proposals</b></div>${renderTickets(state.tickets)}</div><p class="reb-footnote">Robinhood Agentic account integration target: ${esc(sync.mcp_url || 'https://agent.robinhood.com/mcp/trading')}. This module intentionally ships with execution disabled until broker authentication and approval logging are implemented.</p></div>`;
+  const totalCostBasis = positions.reduce((s, p) => s + (p.totalCostBasis ?? 0), 0);
+  const totalCurrentValue = positions.reduce((s, p) => s + (p.currentValue ?? 0), 0);
+  const totalGain = totalCurrentValue - totalCostBasis;
+  const totalGainPct = totalCostBasis > 0 ? (totalGain / totalCostBasis) * 100 : 0;
+  const totalGainSign = totalGain >= 0 ? '+' : '';
+
+  const portfolioStats = [
+    { label: 'Portfolio', value: fmt(portfolio.totalValue) },
+    { label: 'Equity', value: fmt(portfolio.equityValue) },
+    { label: 'Cash', value: fmt(portfolio.cash) },
+    { label: 'Positions', value: String(portfolio.positionCount ?? positions.length) },
+  ].map(s => `<span class="rh-lh-stat"><b>${esc(s.value)}</b><small>${esc(s.label)}</small></span>`).join('');
+
+  const rows = positions.map(pos => {
+    const tone = signalTone(pos.signal);
+    const gainClass = (pos.unrealizedGain ?? 0) >= 0 ? 'gain' : 'loss';
+    return `<tr>
+      <td class="rh-lh-ticker">${esc(pos.symbol)}</td>
+      <td class="num">${esc(fmtShares(pos.shares))}</td>
+      <td class="num">${esc(fmt(pos.avgCostPrice, 2))}</td>
+      <td class="num">${esc(fmt(pos.totalCostBasis))}</td>
+      <td class="num">${esc(fmt(pos.livePrice, 2))}</td>
+      <td class="num">${esc(fmt(pos.currentValue))}</td>
+      <td class="num ${gainClass}">${esc(fmtGain(pos.unrealizedGain, pos.unrealizedPct))}</td>
+      <td><span class="rh-lh-signal ${tone}">${esc(pos.signal || '—')}</span></td>
+    </tr>`;
+  }).join('');
+
+  const totalGainClass = totalGain >= 0 ? 'gain' : 'loss';
+  const footer = `<tr class="rh-lh-total">
+    <td colspan="3">Total</td>
+    <td class="num">${fmt(totalCostBasis)}</td>
+    <td>—</td>
+    <td class="num">${fmt(totalCurrentValue)}</td>
+    <td class="num ${totalGainClass}">${totalGainSign}${fmt(totalGain)} (${totalGainSign}${totalGainPct.toFixed(1)}%)</td>
+    <td>—</td>
+  </tr>`;
+
+  const footnote = syncedAt ? `Synced from Robinhood on ${esc(syncedAt)} · Prices from Capital Radar live state` : 'Prices from Capital Radar live state';
+
+  return `<div id="robinhood-execution-bridge-module" class="rh-live-holdings" aria-labelledby="rh-lh-title">
+  <div class="rh-lh-head">
+    <div>
+      <p class="eyebrow">Robinhood · Live</p>
+      <h3 id="rh-lh-title">Live holdings</h3>
+    </div>
+    <div class="rh-lh-portfolio">${portfolioStats}</div>
+  </div>
+  <div class="rh-lh-table-wrap">
+    <table class="rh-lh-table">
+      <thead>
+        <tr>
+          <th>Ticker</th><th class="num">Shares</th><th class="num">Avg Cost</th><th class="num">Cost Basis</th><th class="num">Price</th><th class="num">Value</th><th class="num">P&amp;L</th><th>Signal</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>${footer}</tfoot>
+    </table>
+  </div>
+  <p class="rh-lh-footnote">${footnote}</p>
+</div>`;
 }
 
 function renderRobinhoodExecutionBridgeStyle() {
   return `<style id="robinhood-execution-bridge-style">
-#robinhood-execution-bridge-module{margin-top:18px;border:1px solid rgba(27,31,36,.14);background:#f8faf7;color:#171b17;padding:18px;border-radius:8px}
-#robinhood-execution-bridge-module .reb-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.34fr);gap:14px;align-items:start;margin-bottom:14px}
-#robinhood-execution-bridge-module h3,#robinhood-execution-bridge-module h4{margin:0;letter-spacing:0;color:#171b17}
-#robinhood-execution-bridge-module h3{font-size:22px;line-height:1.14}
-#robinhood-execution-bridge-module h4{font-size:14px;line-height:1.2}
-#robinhood-execution-bridge-module p{margin:7px 0 0;color:#596157;line-height:1.45}
-#robinhood-execution-bridge-module .reb-status,#robinhood-execution-bridge-module .reb-card,#robinhood-execution-bridge-module .reb-policy,#robinhood-execution-bridge-module .reb-ticket{border:1px solid rgba(27,31,36,.12);background:#fff;border-radius:8px;padding:12px}
-#robinhood-execution-bridge-module span,#robinhood-execution-bridge-module dt{display:block;color:#6b7268;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
-#robinhood-execution-bridge-module b{display:block;margin-top:4px;color:#171b17}
-#robinhood-execution-bridge-module small{display:block;margin-top:6px;color:#697168;line-height:1.35}
-#robinhood-execution-bridge-module .good b,#robinhood-execution-bridge-module b.good{color:#157447}
-#robinhood-execution-bridge-module .warn b,#robinhood-execution-bridge-module b.warn{color:#9a6515}
-#robinhood-execution-bridge-module .bad b,#robinhood-execution-bridge-module b.bad{color:#b13b31}
-#robinhood-execution-bridge-module .reb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-#robinhood-execution-bridge-module .reb-body{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-#robinhood-execution-bridge-module ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px}
-#robinhood-execution-bridge-module li{border-top:1px solid rgba(27,31,36,.1);padding-top:7px}
-#robinhood-execution-bridge-module .reb-ticket-board{margin-top:12px}
-#robinhood-execution-bridge-module .reb-board-title{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:8px}
-#robinhood-execution-bridge-module .reb-ticket{display:grid;gap:8px;margin-top:8px}
-#robinhood-execution-bridge-module .reb-ticket>div:first-child{display:flex;justify-content:space-between;gap:12px}
-#robinhood-execution-bridge-module dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
-#robinhood-execution-bridge-module dd{margin:2px 0 0;font-size:12px;color:#222821}
-#robinhood-execution-bridge-module .reb-empty{border:1px dashed rgba(27,31,36,.2);border-radius:8px;padding:12px;background:#fff}
-#robinhood-execution-bridge-module .reb-footnote{font-size:12px;color:#6b7268}
-@media(max-width:900px){#robinhood-execution-bridge-module .reb-head,#robinhood-execution-bridge-module .reb-grid,#robinhood-execution-bridge-module .reb-body,#robinhood-execution-bridge-module dl{grid-template-columns:1fr}}
+.rh-live-holdings{margin-top:18px;border:1px solid var(--rule,rgba(27,31,36,.14));background:#f8faf7;color:#171b17;padding:20px;border-radius:8px}
+.rh-lh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.rh-live-holdings h3{margin:0;font-size:22px;line-height:1.14;letter-spacing:0;color:#171b17}
+.rh-live-holdings .eyebrow{margin:0 0 6px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(36,35,31,.5)}
+.rh-lh-portfolio{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+.rh-lh-stat{display:flex;flex-direction:column;min-width:52px}
+.rh-lh-stat b{font-size:18px;font-weight:500;letter-spacing:-.03em;color:rgba(36,35,31,.9)}
+.rh-lh-stat small{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:rgba(36,35,31,.45);margin-top:1px}
+.rh-lh-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.rh-lh-table{width:100%;border-collapse:collapse;font-size:13px}
+.rh-lh-table th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:rgba(36,35,31,.5);padding:0 8px 8px 0;border-bottom:1px solid rgba(27,31,36,.14);white-space:nowrap;font-weight:500}
+.rh-lh-table th.num,.rh-lh-table td.num{text-align:right}
+.rh-lh-table td{padding:8px 8px 8px 0;border-bottom:1px solid rgba(27,31,36,.07);color:#2a2e29;vertical-align:middle;white-space:nowrap}
+.rh-lh-table tbody tr:last-child td{border-bottom:none}
+.rh-lh-ticker{font-weight:600;font-size:13px;letter-spacing:.01em;color:#171b17}
+.rh-lh-table td.gain{color:#157447;font-weight:500}
+.rh-lh-table td.loss{color:#b13b31;font-weight:500}
+.rh-lh-total td{font-weight:600;border-top:1px solid rgba(27,31,36,.18);border-bottom:none;padding-top:10px;color:#171b17}
+.rh-lh-signal{display:inline-block;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.rh-lh-signal.hold{background:rgba(27,31,36,.07);color:#4a4e47}
+.rh-lh-signal.warn{background:rgba(245,158,11,.12);color:#92600a}
+.rh-lh-signal.trim{background:rgba(245,120,11,.12);color:#924000}
+.rh-lh-signal.exit{background:rgba(177,59,49,.1);color:#b13b31}
+.rh-lh-signal.neutral{background:rgba(27,31,36,.05);color:rgba(27,31,36,.5)}
+.rh-lh-footnote{margin:14px 0 0;font-size:11px;color:rgba(36,35,31,.45)}
+@media(max-width:700px){.rh-lh-head{flex-direction:column}.rh-lh-portfolio{gap:12px}}
 </style>`;
 }
 

@@ -1164,8 +1164,8 @@ const _dffRate   = _dffEntry?.value != null ? Number(_dffEntry.value).toFixed(2)
 
 const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-topbar">
-    <span class="mu-arc-label">Cycle 5 · Fed Funds Rate</span>
-    <span class="mu-arc-meta">Oct '22 start &middot; ~44 mo &middot; Next: Expansion</span>
+    <span class="mu-arc-label">Fed Funds Rate — tightening cycle (Oct 2022–present)</span>
+    <span class="mu-arc-meta">One of five inputs &middot; ~44 mo &middot; Next phase: Expansion</span>
   </div>
   <div class="mu-arc-canvas-box">
     <canvas id="mucCycleCanvas"></canvas>
@@ -1180,7 +1180,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {id:"A2",label:"Accumulation", date:"Jan '23",color:"#c47a50"},
     {id:"B", label:"Recovery",     date:"Jun '23",color:"#c4a050"},
     {id:"C", label:"Verification", date:"Oct '23",color:"#b85c38"},
-    {id:"D", label:"Expansion",    date:"next",   color:"#7a9e82"},
+    {id:"D", label:"Expansion",    date:"~Dec '25",color:"#7a9e82"},
     {id:"E", label:"Euphoria",     date:"—", color:"#6a8eb0"},
     {id:"F", label:"Distribution", date:"—", color:"#8a7aa0"},
   ];
@@ -1219,6 +1219,11 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {id:"D",di:17},  // D transition at Jun '26
     {id:"E",di:18},{id:"F",di:20},
   ];
+  // Time-proportional X: parse "Oct '22" → months from Oct 2022
+  var MO_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function parseMo(s){if(!s||s.indexOf("'")<0)return null;var p=s.split(" ");return(parseInt("20"+p[1].replace("'",""),10)-2022)*12+(MO_NAMES.indexOf(p[0])-9);}
+  RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
+  var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
   var canvas=document.getElementById("mucCycleCanvas");
   if(!canvas)return;
@@ -1234,12 +1239,11 @@ const cycleHtml = `<div class="mu-arc-wrap">
 
   function draw(W,H){
     c.clearRect(0,0,W,H);
-    // pB=62 reserves room for the label strip below x-axis
-    var pL=44,pR=26,pT=32,pB=62;
+    // pB=80: 3-row label strip (phase ID · name · date)
+    var pL=44,pR=26,pT=32,pB=80;
     var cW=W-pL-pR, cH=H-pT-pB;
-    var n=RATE_DATA.length;
     var curIdx=RATE_DATA.findIndex(function(d){return d.current;});
-    function xOf(i){return pL+(i/(n-1))*cW;}
+    function xOf(i){return pL+(RATE_DATA[i].mo/TOTAL_MO)*cW;}
     function yOf(r){return pT+(1-(r-RATE_MIN)/(RATE_MAX-RATE_MIN))*cH;}
 
     // Y grid + labels
@@ -1257,6 +1261,19 @@ const cycleHtml = `<div class="mu-arc-wrap">
     // Y axis line
     c.beginPath();c.moveTo(pL,pT);c.lineTo(pL,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
+
+    // "High for longer" shaded band: Aug '23 (di=4) → Sep '24 (di=9), rate held 5.33%
+    var hlX0=xOf(4),hlX1=xOf(9);
+    c.save();
+    c.fillStyle="rgba(184,92,56,0.05)";
+    c.fillRect(hlX0,pT,hlX1-hlX0,cH);
+    c.restore();
+    c.save();
+    c.font="7px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(184,92,56,0.32)";
+    c.textAlign="center";c.textBaseline="bottom";
+    c.fillText("5.33% held · 13 months",(hlX0+hlX1)/2,yOf(5.33)-3);
+    c.restore();
 
     // Under-curve fill (historical)
     var histData=RATE_DATA.filter(function(_,i){return i<=curIdx;});
@@ -1375,10 +1392,10 @@ const cycleHtml = `<div class="mu-arc-wrap">
       }
     });
 
-    // ── LABEL STRIP — below x-axis, no overlap possible ──────────────────────
-    // All phase IDs + names sit in a dedicated row, 62px below x-axis top
-    var stripY0=pT+cH+8;   // row 1: phase ID code
+    // ── LABEL STRIP — 3 rows: phase ID · name · calendar date ────────────────
+    var stripY0=pT+cH+8;   // row 1: phase ID
     var stripY1=pT+cH+20;  // row 2: phase name
+    var stripY2=pT+cH+34;  // row 3: calendar date
     NODES.forEach(function(nd,idx){
       var ph=PHASES.find(function(p){return p.id===nd.id;});
       var x=xOf(nd.di);
@@ -1396,14 +1413,21 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.textAlign="center";c.textBaseline="top";
       c.fillText(nd.id,x,stripY0);
 
-      // Phase name — skip if next node is closer than 68px to prevent collision
+      // Phase name + date — skip if nodes too close
       var nextX=NODES[idx+1]?xOf(NODES[idx+1].di):x+9999;
       var prevX=NODES[idx-1]?xOf(NODES[idx-1].di):x-9999;
       var gap=Math.min(x-prevX, nextX-x);
-      if(gap>68){
+      if(gap>52){
         c.font="7.5px IBM Plex Mono,monospace";
         c.fillStyle=isPast?"rgba(42,37,32,0.32)":"rgba(42,37,32,0.14)";
         c.fillText(ph.label,x,stripY1);
+      }
+      // Calendar date row — always show if date exists and space allows
+      if(ph.date&&ph.date!=="—"&&gap>40){
+        c.font="7px IBM Plex Mono,monospace";
+        c.fillStyle=isPast?"rgba(42,37,32,0.24)":"rgba(42,37,32,0.10)";
+        c.textBaseline="top";
+        c.fillText(ph.date,x,stripY2);
       }
     });
   }
@@ -1916,7 +1940,7 @@ const style = `<style id="macro-unified-style">
 .mu-arc-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 9px;border-bottom:0.5px solid rgba(201,191,173,.28);margin-bottom:10px}
 .mu-arc-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(44,42,37,.36);font-family:var(--mono,monospace)}
 .mu-arc-meta{font-size:9px;color:rgba(44,42,37,.32);font-family:var(--mono,monospace)}
-.mu-arc-canvas-box{position:relative;width:100%;height:300px}
+.mu-arc-canvas-box{position:relative;width:100%;height:330px}
 .mu-arc-canvas-box canvas{width:100%;height:100%;display:block}
 .mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 /* Regime column */
@@ -2245,7 +2269,7 @@ const section = `<section id="decision-brief-section" class="macro-unified">
   <!-- 2. Regime framework -->
   <div class="mu-regime-row">${regimeCol}</div>
   <!-- 2b. Rate cycle (open by default) -->
-  <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Rate cycle · Cycle 5 · Phase C</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
+  <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Cycle position · Phase C · Verification</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
 
   <!-- 3. Why Phase C: axis evidence -->
   ${axisEvidenceHtml}

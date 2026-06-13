@@ -73,7 +73,7 @@ const section = `<!-- KP_PROJECTION_START -->
 <div class="kp-inner">
   <div class="kp-head">
     <div>
-      <span class="kp-eyebrow">Cycle 5 Projection · Three Models · 2026–2030</span>
+      <span class="kp-eyebrow">Phase C Projection · Three Models · 2026–2030</span>
       <h2 class="kp-title">S&amp;P 500 Projection</h2>
       <p class="kp-subtitle">Three independent models — EPS × P/E, CAPE reversion, and institutional — across base, bull, and bear scenarios.</p>
     </div>

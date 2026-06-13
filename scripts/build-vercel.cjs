@@ -220,7 +220,10 @@ function verifyFinalOutput() {
 
 archiveLiveReport();
 normalizeLiveState();
+runFinalInjector('inject-portfolio-bar-home.cjs', 'Portfolio bar injection failed before Vercel copy');
 runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection failed before Vercel copy');
+runFinalInjector('generate-macro-prices-state.cjs', 'Macro prices state generation failed before Vercel copy');
+runFinalInjector('inject-operational-chart-home.cjs', 'Operational chart injection failed before Vercel copy');
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');

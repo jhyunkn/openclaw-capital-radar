@@ -7,6 +7,147 @@ const requestedPath = process.argv[2] || 'index.html';
 const indexPath     = path.isAbsolute(requestedPath) ? requestedPath : path.join(root, requestedPath);
 if (!fs.existsSync(indexPath)) process.exit(0);
 
+// Load Kostolany egg state for cycle intelligence panel
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function readJson(p, fb = {}) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fb; } }
+const egg = readJson(path.join(root, 'outputs', 'kostolany-egg-state.json'));
+
+const phaseCode  = egg.phase_code   || 'C';
+const phaseLabel = egg.phase_label  || egg.macro_phase || 'Verification';
+const conf       = Number(egg.phase_confidence) || 83;
+const action     = egg.capital_action || 'Wait for confirmation';
+const invalidation = egg.invalidation || '—';
+
+const axes = egg.axis || {};
+const mon  = axes.monetary_axis        || { score: 30, read: 'restrictive' };
+const liq  = axes.liquidity_axis       || { score: 28, read: 'weak' };
+const psy  = axes.psychology_axis      || { score: 60, read: 'balanced' };
+const str  = axes.market_structure_axis|| { score: 75, read: 'above MAs' };
+const val  = axes.valuation_axis       || { score: 55, read: 'pressure building' };
+
+const probs = egg.next_phase_probability || {};
+const pStayC = probs.transition_verification || 50;
+const pD     = probs.expansion_risk_on       || 30;
+const pB     = probs.recovery_early_easing   || 10;
+const pOther = Math.max(0, 100 - pStayC - pD - pB);
+
+// Rate-side implied phase based on monetary + liquidity average
+const rateScore  = Math.round((mon.score + liq.score) / 2);
+const mktScore   = Math.round((str.score + psy.score + val.score) / 3);
+const gapPts     = mktScore - rateScore;
+const ratePhaseLbl = rateScore < 35 ? 'Phase A–B' : rateScore < 55 ? 'Phase B–C' : 'Phase C';
+const mktPhaseLbl  = mktScore  < 45 ? 'Phase B–C' : mktScore  < 65 ? 'Phase C'   : 'Phase C–D';
+
+function meter(score, green) {
+  const w = Math.max(2, Math.min(98, score));
+  const col = green ? 'var(--green,#2f6f4e)' : score < 40 ? 'var(--red,#9f3f35)' : 'var(--warn,#8a6a2c)';
+  return `<div class="kci-bar-wrap"><div class="kci-bar-fill" style="width:${w}%;background:${col}"></div></div>`;
+}
+
+const phaseIntelPanel = `<div class="kci-panel">
+  <div class="kci-top-row">
+    <div class="kci-phase-id">
+      <span class="kci-eyebrow">Cycle position · Kostolany framework</span>
+      <div class="kci-phase-head">
+        <span class="kci-phase-code">${esc(phaseCode)}</span>
+        <span class="kci-phase-name">${esc(phaseLabel)}</span>
+        <span class="kci-conf">${esc(conf)}/100 confidence</span>
+      </div>
+      <p class="kci-action-line"><b>Capital action:</b> ${esc(action)}</p>
+    </div>
+    <div class="kci-prob-stack">
+      <div class="kci-prob-label">Next phase probability</div>
+      <div class="kci-prob-bar-wrap">
+        <div class="kci-pb kci-pb-c" style="width:${pStayC}%" title="Stay C: ${pStayC}%">C · ${pStayC}%</div>
+        <div class="kci-pb kci-pb-d" style="width:${pD}%" title="→ D: ${pD}%">D · ${pD}%</div>
+        <div class="kci-pb kci-pb-b" style="width:${pB}%" title="→ B: ${pB}%">B · ${pB}%</div>
+        ${pOther > 0 ? `<div class="kci-pb kci-pb-other" style="width:${pOther}%" title="Other: ${pOther}%">${pOther}%</div>` : ''}
+      </div>
+    </div>
+  </div>
+
+  <div class="kci-split-grid">
+    <div class="kci-split-col kci-col-rate">
+      <div class="kci-col-head">
+        <span class="kci-col-label">Rate cycle says</span>
+        <span class="kci-col-phase kci-phase-warn">${esc(ratePhaseLbl)}</span>
+      </div>
+      <div class="kci-axis-row">
+        <span class="kci-axis-name">Monetary</span>
+        ${meter(mon.score, false)}
+        <span class="kci-axis-score kci-score-red">${mon.score}</span>
+        <span class="kci-axis-read">${esc(mon.read)}</span>
+      </div>
+      <div class="kci-axis-row">
+        <span class="kci-axis-name">Liquidity</span>
+        ${meter(liq.score, false)}
+        <span class="kci-axis-score kci-score-red">${liq.score}</span>
+        <span class="kci-axis-read">${esc(liq.read)}</span>
+      </div>
+    </div>
+
+    <div class="kci-split-divider">
+      <div class="kci-gap-badge">${gapPts > 0 ? '+' : ''}${gapPts}pt gap</div>
+      <div class="kci-gap-sub">divergence</div>
+    </div>
+
+    <div class="kci-split-col kci-col-mkt">
+      <div class="kci-col-head">
+        <span class="kci-col-label">Market says</span>
+        <span class="kci-col-phase kci-phase-green">${esc(mktPhaseLbl)}</span>
+      </div>
+      <div class="kci-axis-row">
+        <span class="kci-axis-name">Mkt structure</span>
+        ${meter(str.score, true)}
+        <span class="kci-axis-score kci-score-green">${str.score}</span>
+        <span class="kci-axis-read">${esc(str.read.split(';')[0])}</span>
+      </div>
+      <div class="kci-axis-row">
+        <span class="kci-axis-name">Psychology</span>
+        ${meter(psy.score, true)}
+        <span class="kci-axis-score kci-score-green">${psy.score}</span>
+        <span class="kci-axis-read">${esc(psy.read)}</span>
+      </div>
+      <div class="kci-axis-row">
+        <span class="kci-axis-name">Valuation</span>
+        ${meter(val.score, false)}
+        <span class="kci-axis-score">${val.score}</span>
+        <span class="kci-axis-read">${esc(val.read.split(' ')[0])} ${esc(val.read.split(' ')[1] || '')}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kci-fork-grid">
+    <div class="kci-fork-col kci-fork-d">
+      <div class="kci-fork-prob">${pD}% probability</div>
+      <div class="kci-fork-title">→ Phase D confirms</div>
+      <p class="kci-fork-trigger"><b>Watch for:</b> Fed eases OR earnings hold above expectations + SPX breadth expands</p>
+      <p class="kci-fork-act"><b>Posture shifts to:</b> Add SPX, quality growth, AI leaders. Reduce cash.</p>
+    </div>
+    <div class="kci-fork-col kci-fork-c">
+      <div class="kci-fork-prob">${pStayC}% probability</div>
+      <div class="kci-fork-title">↔ Stays Phase C</div>
+      <p class="kci-fork-trigger"><b>Watch for:</b> Neither rates ease nor earnings disappoint. Range-bound confirmation.</p>
+      <p class="kci-fork-act"><b>Posture stays:</b> ${esc(action)}. No new positions until one scenario breaks out.</p>
+    </div>
+    <div class="kci-fork-col kci-fork-b">
+      <div class="kci-fork-prob">${pB}% probability</div>
+      <div class="kci-fork-title">← Rates reassert</div>
+      <p class="kci-fork-trigger"><b>Watch for:</b> ${esc(invalidation)}</p>
+      <p class="kci-fork-act"><b>Posture shifts to:</b> Raise cash. TLT, gold, healthcare. Defense wins.</p>
+    </div>
+  </div>
+
+  <div class="kci-framework-connect">
+    <span class="kci-fc-label">Connects to</span>
+    <span class="kci-fc-item">Holdings: SPX HOLD until D confirms</span>
+    <span class="kci-fc-sep">·</span>
+    <span class="kci-fc-item">Opportunities: asymmetric picks structured to work in D or B</span>
+    <span class="kci-fc-sep">·</span>
+    <span class="kci-fc-item">Chart below: 56yr history shows how these divergences resolve</span>
+  </div>
+</div>`;
+
 let html = fs.readFileSync(indexPath, 'utf8');
 
 // Idempotent removal — comment-marker block + old section/div variants + style
@@ -53,18 +194,82 @@ const style = `<style id="kostolany-history-style">
 .kh-info-box{margin-top:8px;padding:10px 14px;border:1px solid var(--rule,#dedbd2);background:rgba(251,250,246,.38);font-size:12px;color:var(--muted,#747168);line-height:1.6;min-height:44px;border-radius:0}
 .kh-sources{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule,#dedbd2);font-size:10px;color:var(--soft,#aaa69b);line-height:1.7;background:transparent}
 .kh-sources strong{color:var(--muted,#747168);font-weight:500}
+.kh-head-history{margin-top:32px;padding-top:24px;border-top:1px solid rgba(201,191,173,.35)}
 @media(max-width:700px){.kh-stat-row{grid-template-columns:repeat(3,1fr)}.kh-wrap{padding:36px clamp(14px,3vw,28px)}}
+/* ── Cycle Intelligence Panel ── */
+.kci-panel{margin-bottom:0}
+.kci-top-row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;margin-bottom:20px}
+.kci-phase-id{flex:1;min-width:240px}
+.kci-eyebrow{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted,#747168);margin-bottom:8px;font-family:var(--mono,monospace)}
+.kci-phase-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.kci-phase-code{font-size:42px;font-weight:700;letter-spacing:-.06em;line-height:1;color:rgba(36,35,31,.9)}
+.kci-phase-name{font-size:20px;font-weight:500;letter-spacing:-.03em;color:rgba(36,35,31,.8)}
+.kci-conf{font-size:11px;color:var(--muted,#747168);font-family:var(--mono,monospace)}
+.kci-action-line{margin:0;font-size:13px;color:rgba(36,35,31,.7)}
+.kci-action-line b{color:rgba(36,35,31,.9)}
+.kci-prob-stack{min-width:200px;flex-shrink:0}
+.kci-prob-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted,#747168);margin-bottom:8px}
+.kci-prob-bar-wrap{display:flex;height:28px;border:1px solid rgba(201,191,173,.4);overflow:hidden;border-radius:0}
+.kci-pb{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono,monospace);white-space:nowrap;overflow:hidden;padding:0 4px}
+.kci-pb-c{background:rgba(138,106,44,.15);color:rgba(138,106,44,.9)}
+.kci-pb-d{background:rgba(47,111,78,.15);color:rgba(47,111,78,.9)}
+.kci-pb-b{background:rgba(159,63,53,.12);color:rgba(159,63,53,.85)}
+.kci-pb-other{background:rgba(201,191,173,.15);color:var(--muted,#747168)}
+/* Signal split */
+.kci-split-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0;border:1px solid rgba(201,191,173,.4);margin-bottom:14px}
+.kci-split-col{padding:16px 18px}
+.kci-col-rate{background:rgba(159,63,53,.03);border-right:1px solid rgba(201,191,173,.4)}
+.kci-col-mkt{background:rgba(47,111,78,.03)}
+.kci-col-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.kci-col-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted,#747168);font-weight:700}
+.kci-col-phase{font-size:13px;font-weight:700;letter-spacing:-.01em;padding:2px 9px;border-radius:999px;border:1px solid}
+.kci-phase-warn{color:rgba(159,63,53,.9);border-color:rgba(159,63,53,.3);background:rgba(159,63,53,.07)}
+.kci-phase-green{color:rgba(47,111,78,.9);border-color:rgba(47,111,78,.3);background:rgba(47,111,78,.07)}
+.kci-axis-row{display:grid;grid-template-columns:90px 1fr 28px 1fr;align-items:center;gap:8px;margin-bottom:8px}
+.kci-axis-name{font-size:11px;color:rgba(36,35,31,.7);white-space:nowrap}
+.kci-bar-wrap{height:5px;background:rgba(201,191,173,.25);position:relative;border-radius:0}
+.kci-bar-fill{position:absolute;top:0;bottom:0;left:0;transition:width .3s}
+.kci-axis-score{font-size:12px;font-weight:700;text-align:right;letter-spacing:-.01em}
+.kci-score-red{color:rgba(159,63,53,.85)}
+.kci-score-green{color:rgba(47,111,78,.85)}
+.kci-axis-read{font-size:10px;color:var(--muted,#747168);line-height:1.3}
+.kci-split-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 12px;background:rgba(201,191,173,.06);border-right:1px solid rgba(201,191,173,.4)}
+.kci-gap-badge{font-size:16px;font-weight:700;color:rgba(138,106,44,.9);letter-spacing:-.03em;white-space:nowrap}
+.kci-gap-sub{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted,#747168);margin-top:3px}
+/* Scenario fork */
+.kci-fork-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.kci-fork-col{border:1px solid rgba(201,191,173,.4);border-top:2px solid transparent;padding:14px;background:rgba(251,250,246,.12)}
+.kci-fork-d{border-top-color:rgba(47,111,78,.5);background:rgba(47,111,78,.03)}
+.kci-fork-c{border-top-color:rgba(138,106,44,.45);background:rgba(138,106,44,.02)}
+.kci-fork-b{border-top-color:rgba(159,63,53,.4);background:rgba(159,63,53,.02)}
+.kci-fork-prob{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted,#747168);font-family:var(--mono,monospace);margin-bottom:5px}
+.kci-fork-title{font-size:14px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.kci-fork-d .kci-fork-title{color:rgba(47,111,78,.9)}
+.kci-fork-c .kci-fork-title{color:rgba(138,106,44,.9)}
+.kci-fork-b .kci-fork-title{color:rgba(159,63,53,.85)}
+.kci-fork-trigger,.kci-fork-act{margin:0 0 6px;font-size:12px;line-height:1.5;color:rgba(36,35,31,.72)}
+.kci-fork-trigger b,.kci-fork-act b{color:rgba(36,35,31,.88);font-weight:600}
+/* Framework connection */
+.kci-framework-connect{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border:1px solid rgba(201,191,173,.35);background:rgba(201,191,173,.06);margin-bottom:0;font-size:11px;color:rgba(36,35,31,.6)}
+.kci-fc-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--muted,#747168);white-space:nowrap}
+.kci-fc-item{color:rgba(36,35,31,.72)}
+.kci-fc-sep{color:rgba(201,191,173,.7)}
+@media(max-width:860px){.kci-split-grid{grid-template-columns:1fr}.kci-split-divider{flex-direction:row;gap:10px;padding:10px 16px;border-right:none;border-bottom:1px solid rgba(201,191,173,.4);border-top:1px solid rgba(201,191,173,.4)}.kci-fork-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.kci-top-row{flex-direction:column}.kci-axis-row{grid-template-columns:80px 1fr 24px}.kci-axis-read{display:none}}
 </style>`;
 
 // ── Chart section HTML ────────────────────────────────────────────────────────
 const section = `<!-- KH_HISTORY_START -->
 <div id="kostolany-history-section" class="kh-wrap">
 <div class="kh-inner">
-  <div class="kh-head">
+
+  ${phaseIntelPanel}
+
+  <div class="kh-head kh-head-history">
     <div>
       <span class="kh-eyebrow">Historical Rate Cycles · 1970 – Present</span>
-      <h2 class="kh-title">Rate Cycle History</h2>
-      <p class="kh-subtitle">Fed Funds Rate, S&amp;P 500, CAPE, M2 growth, and HY credit spreads across 56 years of market cycles.</p>
+      <h2 class="kh-title">56 Years of Cycle History</h2>
+      <p class="kh-subtitle">Fed Funds Rate, S&amp;P 500, CAPE, M2 growth, and HY credit spreads. Click a phase strip to see Kostolany's capital flow read for that period.</p>
     </div>
   </div>
   <div class="kh-warn">⚠ <strong>Transparency:</strong> M2 data starts 1959 (reliable from 1970). HY credit spread (ICE BofA OAS) starts 1997 — pre-1997 approximated from Moody's Baa spread. CAPE starts 1881 (full from 1970). Annual values smooth intra-year volatility.</div>

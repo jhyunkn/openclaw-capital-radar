@@ -497,11 +497,14 @@ function buildUnifiedList(conviction, dynamicUniverse, bandMap) {
     const b4 = (bandMap || {})[cv.ticker];
     tier3.push({ ticker: cv.ticker, name: cv.name || '', attention: cv.conviction_score + boost,
       source: 'conviction', tag: isActive ? 'Entry window' : 'Monitoring',
-      why: snip(cv.why_core || cv.decline_explanation || cv.moat_summary || '', 160),
+      why: snip(cv.why_core || cv.moat_summary || cv.decline_explanation || '', 220),
       earlyEntrySignal: cv.early_entry_signal || null,
       catalyst: cv.next_catalyst || null,
       invalidation: cv.invalidation || null,
       crowding: cv.institutional_crowding || null,
+      declineLabel: cv.decline_label || null,
+      timingNote: cv.timing_note || null,
+      fundamentalSignals: arr(cv.fundamental_signals).slice(0, 3),
       price: cv.live_price ?? e.currentPrice ?? e.currentEst,
       pct52wh: livePct,
       rsi: cv.rsi14 ?? e.rsi14,
@@ -603,18 +606,27 @@ function renderBriefCard(item, rank) {
 
   const thesisText = item.earlyEntrySignal || item.why || item.explain || '';
 
-  const crowdingLabel = item.crowding === 'low' ? 'Low — pre-consensus'
-    : item.crowding === 'medium' ? 'Medium — some institutional interest'
-    : item.crowding === 'high'   ? 'High — consensus trade'
+  const crowdingLabel = item.crowding === 'low' ? 'Pre-consensus'
+    : item.crowding === 'medium' ? 'Some institutional interest'
+    : item.crowding === 'high'   ? 'Consensus trade'
     : null;
 
-  const frameworkGrid = (item.catalyst || item.invalidation || item.crowding)
-    ? `<div class="ub-framework">
-        ${item.catalyst    ? `<div class="ub-fw-row"><span class="ub-fw-label">Catalyst</span><span class="ub-fw-val">${esc(snip(item.catalyst, 120))}</span></div>` : ''}
-        ${item.invalidation ? `<div class="ub-fw-row"><span class="ub-fw-label">Exit if</span><span class="ub-fw-val">${esc(snip(item.invalidation, 100))}</span></div>` : ''}
-        ${crowdingLabel     ? `<div class="ub-fw-row"><span class="ub-fw-label">Crowd</span><span class="ub-fw-val ub-fw-crowd-${esc(item.crowding)}">${esc(crowdingLabel)}</span></div>` : ''}
-      </div>`
-    : '';
+  const declineChip = item.declineLabel
+    ? `<span class="ub-chip ub-decline">${esc(item.declineLabel)}</span>` : '';
+
+  const crowdChip = crowdingLabel && item.crowding === 'low'
+    ? `<span class="ub-chip ub-crowd-low">${esc(crowdingLabel)}</span>` : '';
+
+  const sigChips = arr(item.fundamentalSignals).slice(0, 2)
+    .map(s => `<span class="ub-chip ub-sig">${esc(snip(s, 45))}</span>`).join('');
+
+  const metaChips = [declineChip, crowdChip, sigChips].filter(Boolean).join('');
+
+  const frameworkRows = [
+    item.catalyst    && `<div class="ub-fw-row"><span class="ub-fw-label">Catalyst</span><span class="ub-fw-val">${esc(snip(item.catalyst, 120))}</span></div>`,
+    item.invalidation && `<div class="ub-fw-row"><span class="ub-fw-label">Exit if</span><span class="ub-fw-val">${esc(snip(item.invalidation, 100))}</span></div>`,
+  ].filter(Boolean).join('');
+  const frameworkGrid = frameworkRows ? `<div class="ub-framework">${frameworkRows}</div>` : '';
 
   return `<article class="ub-card ${cardCls}">
     <div class="ub-row-top">
@@ -628,6 +640,7 @@ function renderBriefCard(item, rank) {
       <span class="ub-action ${actionCls}">${esc(action)}</span>
     </div>
     ${thesisText ? `<p class="ub-thesis">${esc(thesisText)}</p>` : ''}
+    ${metaChips ? `<div class="ub-chips">${metaChips}</div>` : ''}
     ${renderEntryZoneBlock(item)}
     ${frameworkGrid}
     ${chips ? `<div class="ub-chips">${chips}</div>` : ''}
@@ -706,7 +719,133 @@ function renderDynamicSection(dynamicUniverse) {
   </div>`;
 }
 
-function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap) {
+// ── TWO-GROUP SECTION (asymmetric + price-window) ─────────────────────────────
+
+function renderAsymmetricCard(ticker, td, isAlsoPw) {
+  const fmtP = v => v == null ? '—' : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const cardCls = isAlsoPw ? 'opp-card opp-card-both' : 'opp-card opp-card-asym';
+  const thesis = snip(td.early_entry_signal || td.moat_summary || '', 300);
+  const fw = [
+    td.next_catalyst ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Catalyst</span><span class="opp-fw-val">${esc(snip(td.next_catalyst, 120))}</span></div>` : '',
+    td.invalidation  ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Exit if</span><span class="opp-fw-val">${esc(snip(td.invalidation, 110))}</span></div>` : '',
+  ].filter(Boolean).join('');
+  return `<article class="${cardCls}">
+    <div class="opp-card-id">
+      <b class="opp-ticker">${esc(ticker)}</b>
+      <span class="opp-price">${esc(fmtP(td.price))}</span>
+      <span class="opp-name">${esc(td.name || '')}</span>
+    </div>
+    <div class="opp-badges">
+      <span class="opp-badge opp-badge-asym">Pre-consensus</span>
+      ${isAlsoPw ? '<span class="opp-badge opp-badge-pw">At entry zone</span>' : ''}
+    </div>
+    ${thesis ? `<p class="opp-thesis">${esc(thesis)}</p>` : ''}
+    ${fw ? `<div class="opp-fw">${fw}</div>` : ''}
+  </article>`;
+}
+
+function renderPriceWindowCard(ticker, td, isAlsoAsym) {
+  const fmtP = v => v == null ? '—' : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const pctCls = pct => pct == null ? '' : (pct < 0 ? 'below' : 'above');
+  const pctTx = pct => pct == null ? '—' : `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`;
+  const cardCls = isAlsoAsym ? 'opp-card opp-card-both' : 'opp-card opp-card-pw';
+  const moat = snip(td.moat_summary || '', 90);
+  const fw = [
+    td.next_catalyst ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Catalyst</span><span class="opp-fw-val">${esc(snip(td.next_catalyst, 100))}</span></div>` : '',
+  ].filter(Boolean).join('');
+  return `<article class="${cardCls}">
+    <div class="opp-card-id">
+      <b class="opp-ticker">${esc(ticker)}</b>
+      <span class="opp-price">${esc(fmtP(td.price))}</span>
+      <span class="opp-name">${esc(td.name || '')}</span>
+    </div>
+    ${isAlsoAsym ? '<div class="opp-badges"><span class="opp-badge opp-badge-asym">Pre-consensus</span></div>' : ''}
+    <div class="opp-ma-grid">
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">vs MA50</span>
+        <b class="opp-ma-val">${esc(fmtP(td.ma50))}</b>
+        <span class="opp-ma-pct ${pctCls(td.vsMa50Pct)}">${esc(pctTx(td.vsMa50Pct))}</span>
+      </div>
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">vs MA200</span>
+        <b class="opp-ma-val">${esc(fmtP(td.ma200))}</b>
+        <span class="opp-ma-pct ${pctCls(td.vsMa200Pct)}">${esc(pctTx(td.vsMa200Pct))}</span>
+      </div>
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">RSI 14</span>
+        <b class="opp-ma-val">${esc(td.rsi14 ?? '—')}</b>
+        <span class="opp-ma-pct">${td.rsi14 != null && td.rsi14 < 40 ? 'oversold' : td.rsi14 != null && td.rsi14 < 50 ? 'cooling' : ''}</span>
+      </div>
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">52w high</span>
+        <b class="opp-ma-val">${esc(td.pct_from_52w_high != null ? `${td.pct_from_52w_high}%` : '—')}</b>
+        <span class="opp-ma-pct">from peak</span>
+      </div>
+    </div>
+    ${moat ? `<p class="opp-moat">${esc(moat)}</p>` : ''}
+    ${fw ? `<div class="opp-fw">${fw}</div>` : ''}
+  </article>`;
+}
+
+function renderTwoGroupSection(techState) {
+  const tickers = techState.tickers || {};
+
+  const asymTickers = Object.entries(tickers).filter(([, td]) => td.isAsymmetric).map(([t]) => t);
+  const pwTickers   = Object.entries(tickers).filter(([, td]) => td.isPriceWindow).map(([t]) => t);
+  const pwSet       = new Set(pwTickers);
+  const asymSet     = new Set(asymTickers);
+
+  const asymCards = asymTickers
+    .map(t => renderAsymmetricCard(t, tickers[t], pwSet.has(t)))
+    .join('');
+  const pwCards = pwTickers
+    .map(t => renderPriceWindowCard(t, tickers[t], asymSet.has(t)))
+    .join('');
+
+  const asOf = techState.generatedAt
+    ? new Date(techState.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : '';
+
+  return `<section id="opportunities-section" class="cr-section">
+    <div class="cr-wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Opportunity radar · research only${asOf ? ` · ${asOf}` : ''}</p>
+          <h2>Radar</h2>
+        </div>
+        <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
+      </div>
+
+      <div class="opp-group">
+        <div class="opp-group-head">
+          <span class="opp-group-label">Group A</span>
+          <p class="opp-group-title">Phase-defining asymmetric picks</p>
+          <p class="opp-group-desc">Pre-consensus names where the narrative hasn't caught up to the data. Early entry, low institutional crowding, defined exit.</p>
+        </div>
+        <div class="opp-asym-grid">${asymCards}</div>
+      </div>
+
+      <div class="opp-group">
+        <div class="opp-group-head">
+          <span class="opp-group-label">Group B</span>
+          <p class="opp-group-title">Ideal entry position — price in range</p>
+          <p class="opp-group-desc">High-conviction names currently below MA50 with RSI cooling and MA200 acting as support. The setup, not a guess.</p>
+        </div>
+        <div class="opp-pw-grid">${pwCards}</div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap, techState) {
+  if (techState && techState.tickers && Object.keys(techState.tickers).length) {
+    return renderTwoGroupSection(techState);
+  }
+  // fallback to unified list render
+  return renderOpportunitiesSectionLegacy(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap);
+}
+
+function renderOpportunitiesSectionLegacy(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap) {
   const allRows = flattenOpportunityRows(state || {});
   const { opportunities } = selectDisplayRows(allRows);
 
@@ -756,6 +895,7 @@ function renderOpportunitiesSection(state, candidateRanking, conviction, scanner
     </div>
   </section>`;
 }
+// end renderOpportunitiesSectionLegacy
 
 function renderOpportunitiesStyle() {
   return `<style>
@@ -810,6 +950,9 @@ function renderOpportunitiesStyle() {
 .ub-upside{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important;font-weight:600!important}
 .ub-timing{color:rgba(36,35,31,.52)!important;border-color:rgba(201,191,173,.5)!important;background:rgba(251,250,246,.18)!important}
 .ub-urgent{color:var(--warn)!important;border-color:rgba(138,106,44,.38)!important;background:rgba(138,106,44,.08)!important;font-weight:700!important}
+.ub-decline{color:var(--muted)!important;border-color:rgba(201,191,173,.45)!important;background:rgba(201,191,173,.1)!important}
+.ub-crowd-low{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
+.ub-sig{color:rgba(36,35,31,.58)!important;border-color:rgba(201,191,173,.4)!important;background:transparent!important;font-size:10px!important}
 /* Legend — explains the 4 card tiers */
 .ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(201,191,173,.45);border-radius:2px;background:rgba(251,250,246,.18)}
 .ub-legend-row{display:flex;align-items:baseline;gap:10px}
@@ -849,6 +992,41 @@ function renderOpportunitiesStyle() {
 .ub-ez-noband{background:rgba(251,250,246,.1);border-style:dashed}
 .ub-ez-noband-note{font-size:12px;color:rgba(36,35,31,.42);font-weight:400}
 .ub-ez-chips{margin-top:4px}
+/* ── Two-group layout ── */
+.opp-group{margin:0 0 28px}
+.opp-group-head{margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid rgba(201,191,173,.35)}
+.opp-group-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.opp-group-title{font-size:15px;font-weight:700;letter-spacing:-.02em;margin:4px 0 0;color:rgba(36,35,31,.9)}
+.opp-group-desc{font-size:12px;color:var(--muted);margin:3px 0 0;line-height:1.45}
+.opp-asym-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opp-pw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.opp-card{border:1px solid rgba(201,191,173,.45);border-top:2px solid transparent;border-radius:0;padding:16px;background:rgba(251,250,246,.18)}
+.opp-card-asym{border-top-color:rgba(47,111,78,.5);background:rgba(47,111,78,.03)}
+.opp-card-pw{border-top-color:rgba(138,106,44,.45);background:rgba(138,106,44,.02)}
+.opp-card-both{border-top-color:rgba(64,95,159,.55);background:rgba(64,95,159,.03)}
+.opp-card-id{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.opp-ticker{font-size:22px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.opp-price{font-size:14px;font-weight:600;letter-spacing:-.02em;color:rgba(36,35,31,.88)}
+.opp-name{font-size:11px;color:var(--muted)}
+.opp-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.opp-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
+.opp-badge-asym{color:var(--green);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.07)}
+.opp-badge-pw{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.07)}
+.opp-thesis{font-size:12.5px;line-height:1.55;color:rgba(36,35,31,.82);margin:0 0 10px}
+.opp-moat{font-size:11.5px;color:var(--muted);line-height:1.4;margin:0 0 8px}
+.opp-ma-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:10px}
+.opp-ma-cell{border:1px solid rgba(201,191,173,.3);padding:8px 10px;border-radius:0}
+.opp-ma-label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.opp-ma-val{display:block;font-size:14px;font-weight:600;letter-spacing:-.02em;margin-top:3px}
+.opp-ma-pct{display:block;font-size:11px;margin-top:2px;color:var(--muted)}
+.opp-ma-pct.below{color:var(--warn,#8a6a2c)}
+.opp-ma-pct.above{color:var(--green,#2f6f4e)}
+.opp-fw{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.opp-fw-row{display:flex;gap:8px;align-items:baseline;font-size:12px}
+.opp-fw-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap;width:52px;flex-shrink:0}
+.opp-fw-val{color:rgba(36,35,31,.75);line-height:1.4}
+@media(max-width:900px){.opp-asym-grid,.opp-pw-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.opp-asym-grid,.opp-pw-grid{grid-template-columns:1fr}}
 </style>`;
 }
 

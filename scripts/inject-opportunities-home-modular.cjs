@@ -13,6 +13,8 @@ const scannerPath    = path.join(root, 'outputs', 'universe-scanner.json');
 const dynamicPath    = path.join(root, 'outputs', 'dynamic-universe.json');
 const scoreboardPath = path.join(root, 'outputs', 'portfolio-scoreboard.json');
 const annotationPath = path.join(root, 'outputs', 'decision-chart-annotation-state.json');
+const bandPath       = path.join(root, 'outputs', 'opportunity-band-state.json');
+const techStatePath  = path.join(root, 'outputs', 'opportunity-technical-state.json');
 
 function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
 
@@ -81,6 +83,9 @@ const ranking    = fs.existsSync(rankingPath)    ? readJson(rankingPath)    : nu
 const conviction = fs.existsSync(convictionPath) ? readJson(convictionPath) : null;
 const scanner    = fs.existsSync(scannerPath)    ? readJson(scannerPath)    : null;
 const dynamic    = fs.existsSync(dynamicPath)    ? readJson(dynamicPath)    : null;
+const bandRaw    = fs.existsSync(bandPath)       ? (() => { try { return readJson(bandPath); } catch { return null; } })() : null;
+const bandMap    = bandRaw ? Object.fromEntries((bandRaw.bands || []).map(b => [b.ticker, b])) : {};
+const techState  = fs.existsSync(techStatePath)  ? (() => { try { return readJson(techStatePath); } catch { return null; } })() : null;
 
 if (!state.render_permission) throw new Error('opportunity-asymmetry-state render_permission=false');
 
@@ -96,7 +101,7 @@ const dynamicForRender = dynamic ? {
 // The hardcoded opportunity-asymmetry-state pipeline is retired — dynamic universe drives everything.
 const stateForRender = { ...state, opportunity_clusters: [] };
 
-const section = renderOpportunitiesSection(stateForRender, null, conviction, scanner, dynamicForRender);
+const section = renderOpportunitiesSection(stateForRender, null, conviction, scanner, dynamicForRender, bandMap, techState);
 const style   = renderOpportunitiesStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');

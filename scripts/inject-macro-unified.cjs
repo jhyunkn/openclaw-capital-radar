@@ -1346,31 +1346,31 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.beginPath();c.moveTo(pL,pT+cH);c.lineTo(pL+cW,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
-    // "YOU ARE HERE" callout — pinned to top of chart above current Kostolany phase node
-    var curX=xOf((NODES.find(function(n){return n.id===CURRENT;})||NODES[3]).di);
+    // "YOU ARE HERE" — pinned to today's date (curIdx = Jun '26), not the phase identification date
+    var todayX=xOf(curIdx);
     var curCol="#b85c38";
     c.save();
-    var bw=82,bh=14;
-    rr(c,curX-bw/2,pT+2,bw,bh,2);
+    var bw=118,bh=14;
+    rr(c,todayX-bw/2,pT+2,bw,bh,2);
     c.fillStyle="rgba(184,92,56,0.08)";c.fill();
     c.strokeStyle="rgba(184,92,56,0.35)";c.lineWidth=0.5;c.stroke();
     c.font="500 7.5px IBM Plex Mono,monospace";
     c.fillStyle=curCol;c.textAlign="center";c.textBaseline="middle";
-    c.fillText("YOU ARE HERE",curX,pT+9);
+    c.fillText("YOU ARE HERE \xb7 Jun '26",todayX,pT+9);
     // Live data one row below badge
     c.font="7px IBM Plex Mono,monospace";
     c.fillStyle="rgba(138,106,44,0.60)";
     c.textBaseline="top";
-    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,curX,pT+18);
+    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,todayX,pT+18);
     c.restore();
 
-    // Phase nodes — circles only, no in-chart text labels
+    // Phase nodes — circles only; "isCur" = current Kostolany phase (not today's date)
     NODES.forEach(function(nd){
       var ph=PHASES.find(function(p){return p.id===nd.id;});
       var rd=RATE_DATA[nd.di];
       var x=xOf(nd.di), y=yOf(rd.r);
       var col=ph.color;
-      var isCur=(nd.id===CURRENT);  // driven by live Kostolany phase
+      var isCur=(nd.id===CURRENT);
       var isPast=nd.di<=curIdx;
 
       // Animated glow on current node

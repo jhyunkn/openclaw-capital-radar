@@ -1188,52 +1188,56 @@ const cycleHtml = `<div class="mu-arc-wrap">
   var CURRENT = "${currentCode}";
   var RSI="${_rsiVal}", HY="${_creditVal}", VIX="${_vixVal}", DGS10="${_dgs10Val}";
   var PHASES=[
-    {id:"A1",label:"Capitulation", date:"Oct '22",color:"#c46050"},
-    {id:"A2",label:"Accumulation", date:"Dec '22",color:"#c47a50"},
+    {id:"A1",label:"Capitulation", date:"Jan '22",color:"#c46050"},
+    {id:"A2",label:"Accumulation", date:"Sep '22",color:"#c47a50"},
     {id:"B", label:"Recovery",     date:"Mar '23",color:"#c4a050"},
     {id:"C", label:"Verification", date:"Oct '23",color:"#b85c38"},
     {id:"D", label:"Expansion",    date:"~Dec '25",color:"#7a9e82"},
     {id:"E", label:"Euphoria",     date:"—", color:"#6a8eb0"},
     {id:"F", label:"Distribution", date:"—", color:"#8a7aa0"},
   ];
-  // Historical data: actual FEDFUNDS from hike cycle start (Oct '22) through Jun '26 (DFF=${_dffRate}%).
-  // Sep '25–Mar '26 are estimated. current:true = solid/dashed boundary = today.
+  // Historical data: actual FEDFUNDS (DFF) from Jan '22 through Jun '26 (DFF=${_dffRate}%).
+  // Source: Federal Reserve H.15 / FRED DFF series. Phases per Kostolany egg framework.
+  // Sep '25 onward are estimated/projected. current:true = today's position.
   var RATE_DATA=[
-    {d:"Oct '22",r:3.08,phase:"A1"},          // 0  ← hike cycle chart start, A1 node
-    {d:"Dec '22",r:4.33,phase:"A2"},          // 1  ← A2 node
-    {d:"Mar '23",r:4.65,phase:"B"},           // 2  ← B node, hike pace slowing
-    {d:"Jun '23",r:5.08,phase:"B"},           // 3
-    {d:"Aug '23",r:5.33,phase:"B"},           // 4  ← plateau begins
-    {d:"Oct '23",r:5.33,phase:"C"},           // 5  ← rate peak confirmed, Phase C begins
-    {d:"Dec '23",r:5.33,phase:"C"},           // 6
-    {d:"Mar '24",r:5.33,phase:"C"},           // 7
-    {d:"Jun '24",r:5.33,phase:"C"},           // 8
-    {d:"Sep '24",r:4.83,phase:"C"},           // 9  ← first cut (-50bp)
-    {d:"Nov '24",r:4.58,phase:"C"},           // 10 ← cut (-25bp)
-    {d:"Dec '24",r:4.33,phase:"C"},           // 11 ← cut (-25bp)
-    {d:"Mar '25",r:4.33,phase:"C"},           // 12 ← held (tariff pause)
-    {d:"Jun '25",r:4.25,phase:"C"},           // 13
-    {d:"Sep '25",r:4.00,phase:"C"},           // 14 ← estimated
-    {d:"Dec '25",r:3.75,phase:"C"},           // 15 ← estimated
-    {d:"Mar '26",r:3.62,phase:"C"},           // 16 ← estimated
-    {d:"Jun '26",r:${_dffRate},phase:"C",current:true}, // 17 ← LIVE DFF
-    {d:"Dec '26",r:3.25,phase:"D",projected:true},      // 18 ← Phase D projected start
-    {d:"Jun '27",r:3.10,phase:"D",projected:true},      // 19
-    {d:"Dec '27",r:3.00,phase:"E",projected:true},      // 20
-    {d:"2028+",  r:3.00,phase:"E",projected:true},      // 21
+    {d:"Jan '22",r:0.08,phase:"A1"},          // 0  ← DFF 0.08% — near-zero floor, A1 (fact)
+    {d:"Mar '22",r:0.33,phase:"A1"},          // 1  ← DFF 0.33% — first hike +25bp (fact)
+    {d:"Jun '22",r:1.58,phase:"A1"},          // 2  ← DFF 1.58% — rapid hiking (fact)
+    {d:"Sep '22",r:3.08,phase:"A2"},          // 3  ← DFF 3.08% — SPX bottomed Oct '22 (fact)
+    {d:"Dec '22",r:4.33,phase:"A2"},          // 4  ← DFF 4.33% (fact)
+    {d:"Mar '23",r:4.65,phase:"B"},           // 5  ← DFF 4.65% — hike pace slowing (fact)
+    {d:"Jun '23",r:5.08,phase:"B"},           // 6  ← DFF 5.08% (fact)
+    {d:"Aug '23",r:5.33,phase:"B"},           // 7  ← DFF 5.33% — plateau begins (fact)
+    {d:"Oct '23",r:5.33,phase:"C"},           // 8  ← DFF 5.33% — peak confirmed, C begins (fact)
+    {d:"Dec '23",r:5.33,phase:"C"},           // 9  ← DFF 5.33% (fact)
+    {d:"Mar '24",r:5.33,phase:"C"},           // 10 ← DFF 5.33% (fact)
+    {d:"Jun '24",r:5.33,phase:"C"},           // 11 ← DFF 5.33% (fact)
+    {d:"Sep '24",r:4.83,phase:"C"},           // 12 ← DFF 4.83% — first cut -50bp (fact)
+    {d:"Nov '24",r:4.58,phase:"C"},           // 13 ← DFF 4.58% — cut -25bp (fact)
+    {d:"Dec '24",r:4.33,phase:"C"},           // 14 ← DFF 4.33% — cut -25bp (fact)
+    {d:"Mar '25",r:4.33,phase:"C"},           // 15 ← DFF 4.33% — held (fact)
+    {d:"Jun '25",r:4.25,phase:"C"},           // 16 ← DFF 4.25% (fact)
+    {d:"Sep '25",r:4.00,phase:"C"},           // 17 ← estimated
+    {d:"Dec '25",r:3.75,phase:"C"},           // 18 ← estimated
+    {d:"Mar '26",r:3.62,phase:"C"},           // 19 ← estimated
+    {d:"Jun '26",r:${_dffRate},phase:"C",current:true}, // 20 ← LIVE DFF
+    {d:"Dec '26",r:3.25,phase:"D",projected:true},      // 21 ← projected
+    {d:"Jun '27",r:3.10,phase:"D",projected:true},      // 22 ← projected
+    {d:"Dec '27",r:3.00,phase:"E",projected:true},      // 23 ← projected
+    {d:"2028+",  r:3.00,phase:"E",projected:true},      // 24 ← projected
   ];
   // Node di values reference the RATE_DATA index where each phase was identified.
   var NODES=[
-    {id:"A1",di:0},  // Oct '22: hike cycle chart start
-    {id:"A2",di:1},  // Dec '22: mid-hike
-    {id:"B", di:2},  // Mar '23: hike pace slowing, peak in sight
-    {id:"C", di:5},  // Oct '23: rate peak confirmed, Phase C (Verification)
-    {id:"D", di:18}, // ~Dec '26: Phase D projected (monetary conditions ease enough)
-    {id:"E", di:20}, // ~Dec '27: Phase E projected
+    {id:"A1",di:0},  // Jan '22: DFF 0.08% — near-zero floor (fact)
+    {id:"A2",di:3},  // Sep '22: DFF 3.08% — mid-hike, SPX bottomed Oct '22 (fact)
+    {id:"B", di:5},  // Mar '23: DFF 4.65% — hike pace slowing (fact)
+    {id:"C", di:8},  // Oct '23: DFF 5.33% — rate peak confirmed (fact)
+    {id:"D", di:21}, // ~Dec '26: projected Phase D
+    {id:"E", di:23}, // ~Dec '27: projected Phase E
   ];
-  // Time-proportional X: parse "Oct '22" → months from Oct 2022 (month 0)
+  // Time-proportional X: parse "Jan '22" → months from Jan 2022 (month 0)
   var MO_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  function parseMo(s){if(!s||s.indexOf("'")<0)return null;var p=s.split(" ");return(parseInt("20"+p[1].replace("'",""),10)-2022)*12+MO_NAMES.indexOf(p[0])-9;}
+  function parseMo(s){if(!s||s.indexOf("'")<0)return null;var p=s.split(" ");return(parseInt("20"+p[1].replace("'",""),10)-2022)*12+MO_NAMES.indexOf(p[0]);}
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
@@ -1275,8 +1279,8 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.beginPath();c.moveTo(pL,pT);c.lineTo(pL,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
-    // "High for longer" shaded band: Aug '23 (di=4) → Sep '24 (di=9), rate held 5.33%
-    var hlX0=xOf(4),hlX1=xOf(9);
+    // "High for longer" shaded band: Aug '23 (di=7) → Sep '24 (di=12), rate held 5.33%
+    var hlX0=xOf(7),hlX1=xOf(12);
     c.save();
     c.fillStyle="rgba(184,92,56,0.10)";
     c.fillRect(hlX0,pT,hlX1-hlX0,cH);
@@ -1348,9 +1352,21 @@ const cycleHtml = `<div class="mu-arc-wrap">
     // Helper: clamp badge left edge within chart bounds
     function badgeLeft(cx,bw){return Math.max(pL,Math.min(cx-bw/2,pL+cW-bw));}
 
-    // "First cut · Sep '24 · −50bp" badge below rate line at di=9
+    // "Near-zero floor · Jan '22" — A1 anchor badge at chart left
     c.save();
-    var fcX=xOf(9), fcY=yOf(RATE_DATA[9].r), fcW=166,fcH=17;
+    var hcY=yOf(RATE_DATA[0].r), hcW=164,hcH=17;
+    var hcBY=Math.min(hcY-hcH-4, pT+cH-hcH-8);
+    rr(c,pL+2,hcBY,hcW,hcH,3);
+    c.fillStyle="rgba(251,250,246,0.96)";c.fill();
+    c.strokeStyle="rgba(42,37,32,0.18)";c.lineWidth=0.5;c.stroke();
+    c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(42,37,32,0.75)";
+    c.textAlign="left";c.textBaseline="middle";
+    c.fillText("Near-zero floor \xb7 Jan '22",pL+8,hcBY+hcH/2);
+    c.restore();
+
+    // "First cut · Sep '24 · −50bp" badge below rate line at di=12
+    c.save();
+    var fcX=xOf(12), fcY=yOf(RATE_DATA[12].r), fcW=166,fcH=17;
     var fcBL=badgeLeft(fcX,fcW);
     rr(c,fcBL,fcY+10,fcW,fcH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
@@ -1362,7 +1378,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
 
     // "Phase D projected · ~Dec '26" badge above rate line in projected zone
     c.save();
-    var pdX=xOf(18), pdY=yOf(RATE_DATA[18].r), pdW=166,pdH=17;
+    var pdX=xOf(21), pdY=yOf(RATE_DATA[21].r), pdW=166,pdH=17;
     var pdBL=badgeLeft(pdX,pdW);
     rr(c,pdBL,pdY-pdH-8,pdW,pdH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
@@ -1387,7 +1403,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
 
     // "Rate peaked · 5.33% · Phase C begins" — anchored at chart top, clear of "held 13 mo"
     c.save();
-    var csX=xOf(5), csW=220,csH=17;
+    var csX=xOf(8), csW=220,csH=17;
     var csBL=badgeLeft(csX,csW);
     rr(c,csBL,pT+4,csW,csH,3);
     c.fillStyle="rgba(251,250,246,0.97)";c.fill();
@@ -1465,11 +1481,11 @@ const cycleHtml = `<div class="mu-arc-wrap">
     // ── DATE AXIS — calendar milestones ──────────────────────────────────────
     var dateY=pT+cH+28;
     [
-      {mo:0,  label:"Oct '22"},
-      {mo:12, label:"Oct '23"},
-      {mo:23, label:"Sep '24"},
-      {mo:32, label:"Jun '25"},
-      {mo:44, label:"Jun '26 ▸"},
+      {mo:0,  label:"Jan '22"},
+      {mo:2,  label:"Mar '22 ↑"},
+      {mo:21, label:"Oct '23"},
+      {mo:32, label:"Sep '24"},
+      {mo:53, label:"Jun '26 ▸"},
     ].forEach(function(tick){
       var tx=xOfMo(tick.mo);
       c.beginPath();c.moveTo(tx,pT+cH+1);c.lineTo(tx,pT+cH+6);
@@ -1481,12 +1497,12 @@ const cycleHtml = `<div class="mu-arc-wrap">
     });
 
     // ── PHASE C DURATION SPAN — shows how long this phase has lasted ──────────
-    var annX=(xOf(5)+xOf(curIdx))/2;
+    var annX=(xOf(8)+xOf(curIdx))/2;
     c.save();
-    c.beginPath();c.moveTo(xOf(5),yOf(2.8));c.lineTo(xOf(curIdx),yOf(2.8));
+    c.beginPath();c.moveTo(xOf(8),yOf(2.8));c.lineTo(xOf(curIdx),yOf(2.8));
     c.strokeStyle="rgba(184,92,56,0.30)";c.lineWidth=0.75;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);
     // End caps
-    [xOf(5),xOf(curIdx)].forEach(function(cx){
+    [xOf(8),xOf(curIdx)].forEach(function(cx){
       c.beginPath();c.moveTo(cx,yOf(2.8)-4);c.lineTo(cx,yOf(2.8)+4);
       c.strokeStyle="rgba(184,92,56,0.40)";c.lineWidth=0.75;c.stroke();
     });

@@ -400,7 +400,7 @@ function buildUnifiedList(conviction, dynamicUniverse, bandMap) {
   // Tier 2: Event-driven — up to 2 by score, compete for slots (no guaranteed placement)
   // Tier 3: Static conviction — framework picks, sorted by attention score
   // All tiers compete in a single sorted list; top MAX shown. Conviction over coverage.
-  const MAX = 5;
+  const MAX = 10;
   const seen = new Set();
   const tier1 = [], tier2 = [], tier3 = [];
 

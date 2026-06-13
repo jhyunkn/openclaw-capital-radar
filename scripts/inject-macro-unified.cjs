@@ -1239,11 +1239,12 @@ const cycleHtml = `<div class="mu-arc-wrap">
 
   function draw(W,H){
     c.clearRect(0,0,W,H);
-    // pB=80: 3-row label strip (phase ID · name · date)
-    var pL=44,pR=26,pT=32,pB=80;
+    // pB=72: date axis row + phase ID row
+    var pL=44,pR=26,pT=32,pB=72;
     var cW=W-pL-pR, cH=H-pT-pB;
     var curIdx=RATE_DATA.findIndex(function(d){return d.current;});
     function xOf(i){return pL+(RATE_DATA[i].mo/TOTAL_MO)*cW;}
+    function xOfMo(mo){return pL+(mo/TOTAL_MO)*cW;}
     function yOf(r){return pT+(1-(r-RATE_MIN)/(RATE_MAX-RATE_MIN))*cH;}
 
     // Y grid + labels
@@ -1398,44 +1399,48 @@ const cycleHtml = `<div class="mu-arc-wrap">
       }
     });
 
-    // ── LABEL STRIP — 3 rows: phase ID · name · calendar date ────────────────
-    var stripY0=pT+cH+8;   // row 1: phase ID
-    var stripY1=pT+cH+20;  // row 2: phase name
-    var stripY2=pT+cH+34;  // row 3: calendar date
-    NODES.forEach(function(nd,idx){
+    // ── PHASE ID ROW — colored labels at node positions ──────────────────────
+    var phaseY=pT+cH+8;
+    NODES.forEach(function(nd){
       var ph=PHASES.find(function(p){return p.id===nd.id;});
       var x=xOf(nd.di);
       var isPast=nd.di<=curIdx;
-      var col=ph.color;
-
-      // Tick mark from x-axis to strip
-      c.beginPath();c.moveTo(x,pT+cH);c.lineTo(x,pT+cH+5);
-      c.strokeStyle=isPast?col+"70":"rgba(42,37,32,0.12)";
+      c.beginPath();c.moveTo(x,pT+cH);c.lineTo(x,pT+cH+4);
+      c.strokeStyle=isPast?ph.color+"70":"rgba(42,37,32,0.10)";
       c.lineWidth=1;c.stroke();
-
-      // Phase ID — always shown
-      c.font="500 8.5px IBM Plex Mono,monospace";
-      c.fillStyle=isPast?col:"rgba(42,37,32,0.22)";
+      c.font="500 8px IBM Plex Mono,monospace";
+      c.fillStyle=isPast?ph.color:"rgba(42,37,32,0.20)";
       c.textAlign="center";c.textBaseline="top";
-      c.fillText(nd.id,x,stripY0);
-
-      // Phase name + date — skip if nodes too close
-      var nextX=NODES[idx+1]?xOf(NODES[idx+1].di):x+9999;
-      var prevX=NODES[idx-1]?xOf(NODES[idx-1].di):x-9999;
-      var gap=Math.min(x-prevX, nextX-x);
-      if(gap>52){
-        c.font="7.5px IBM Plex Mono,monospace";
-        c.fillStyle=isPast?"rgba(42,37,32,0.32)":"rgba(42,37,32,0.14)";
-        c.fillText(ph.label,x,stripY1);
-      }
-      // Calendar date row — always show if date exists and space allows
-      if(ph.date&&ph.date!=="—"&&gap>40){
-        c.font="7px IBM Plex Mono,monospace";
-        c.fillStyle=isPast?"rgba(42,37,32,0.40)":"rgba(42,37,32,0.16)";
-        c.textBaseline="top";
-        c.fillText(ph.date,x,stripY2);
-      }
+      c.fillText(nd.id,x,phaseY);
     });
+
+    // ── DATE AXIS — real calendar positions on the time axis ─────────────────
+    // Key events: cycle start, rate peak, first cut, Jun '25, today
+    var dateY=pT+cH+24;
+    [
+      {mo:0,  label:"Oct '22"},
+      {mo:12, label:"Oct '23"},
+      {mo:23, label:"Sep '24"},
+      {mo:32, label:"Jun '25"},
+      {mo:44, label:"Jun '26 ▸"},
+    ].forEach(function(tick){
+      var tx=xOfMo(tick.mo);
+      c.beginPath();c.moveTo(tx,pT+cH+1);c.lineTo(tx,pT+cH+5);
+      c.strokeStyle="rgba(42,37,32,0.12)";c.lineWidth=0.5;c.stroke();
+      c.font="7px IBM Plex Mono,monospace";
+      c.fillStyle="rgba(42,37,32,0.52)";
+      c.textAlign="center";c.textBaseline="top";
+      c.fillText(tick.label,tx,dateY);
+    });
+
+    // ── PHASE C DURATION — shows how long current phase has lasted ────────────
+    var annX=(xOf(5)+xOf(curIdx))/2;
+    c.save();
+    c.font="7px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(184,92,56,0.40)";
+    c.textAlign="center";c.textBaseline="middle";
+    c.fillText("Phase C \xb7 Oct '23 → Jun '26 \xb7 32 months",annX,yOf(3.6));
+    c.restore();
   }
 
   function resize(){

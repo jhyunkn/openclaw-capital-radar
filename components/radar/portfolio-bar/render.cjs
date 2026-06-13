@@ -68,7 +68,6 @@ function renderPortfolioBar(state) {
         <b class="pb-val">${esc(p.positionCount)}</b>
       </div>
     </div>
-    ${aq.length ? `<div class="pb-actions"><span class="pb-actions-label">Action queue</span>${actionBadges}</div>` : ''}
     ${asOf ? `<span class="pb-timestamp">${esc(asOf)}</span>` : ''}
   </div>
 </div>`;

@@ -1162,22 +1162,21 @@ const _dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFix
 const _dffEntry  = (liveState.liveRatesCredit || []).find(r => r.id === 'DFF');
 const _dffRate   = _dffEntry?.value != null ? Number(_dffEntry.value).toFixed(2) : '3.62';
 
+// Unique canvas ID per build — prevents stale copies of this script
+// (embedded in holding-card detail views) from finding and overwriting this canvas.
+const _cycleCanvasId = 'mcc_' + Date.now().toString(36);
+
 const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-topbar">
     <span class="mu-arc-label">Fed Funds Rate — tightening cycle (Oct 2022–present)</span>
     <span class="mu-arc-meta">One of five inputs &middot; ~44 mo &middot; Next phase: Expansion</span>
   </div>
   <div class="mu-arc-canvas-box">
-    <canvas id="mucCycleCanvas"></canvas>
+    <canvas id="${_cycleCanvasId}"></canvas>
   </div>
 </div>
 <script>
 (function(){
-  // Guard: only the first (freshest) instance of this script should run.
-  // Duplicate copies are embedded in holding-card detail views and would
-  // overwrite the canvas with stale code if allowed to run.
-  if(window.__mucCycleRunning){return;}
-  window.__mucCycleRunning=true;
   var CURRENT = "${currentCode}";
   var RSI="${_rsiVal}", HY="${_creditVal}", VIX="${_vixVal}", DGS10="${_dgs10Val}";
   var PHASES=[
@@ -1230,7 +1229,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
-  var canvas=document.getElementById("mucCycleCanvas");
+  var canvas=document.getElementById("${_cycleCanvasId}");
   if(!canvas)return;
   var c=canvas.getContext("2d");
   var anim=0, raf;

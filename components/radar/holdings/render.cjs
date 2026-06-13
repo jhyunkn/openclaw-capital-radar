@@ -368,7 +368,43 @@ function buildLwcPayload(h) {
   };
 }
 
-function renderHoldingCard(h, route = {}, translation = {}) {
+function renderRhPositionStrip(pos) {
+  if (!pos) return '';
+  const fmtM = v => {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return '—';
+    return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  };
+  const fmtShares = v => {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return '—';
+    return n % 1 === 0 ? String(n) : n.toLocaleString('en-US', { maximumFractionDigits: 4 });
+  };
+  const gain = Number(pos.unrealizedGain);
+  const pct  = Number(pos.unrealizedPct);
+  const hasGain = Number.isFinite(gain);
+  const hasPct  = Number.isFinite(pct);
+  const gainCls  = hasGain ? (gain >= 0 ? 'rh-pos-gain' : 'rh-pos-loss') : '';
+  const gainLabel = hasGain ? (() => {
+    const sign = gain >= 0 ? '+' : '-';
+    const absStr = '$' + Math.abs(gain).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    const pctStr = hasPct ? ` (${sign}${Math.abs(pct).toFixed(1)}%)` : '';
+    return `${sign}${absStr}${pctStr}`;
+  })() : '—';
+
+  return `<div class="mu-rh-pos-strip">
+  <span class="mu-rh-pos-label">RH</span>
+  <div class="mu-rh-pos-cells">
+    <span class="mu-rh-cell"><b>${esc(fmtShares(pos.shares))}</b><small>shares</small></span>
+    <span class="mu-rh-cell"><b>${esc('$' + Number(pos.avgCostPrice).toLocaleString('en-US', { maximumFractionDigits: 2 }))}</b><small>avg cost</small></span>
+    <span class="mu-rh-cell"><b>${esc(fmtM(pos.totalCostBasis))}</b><small>basis</small></span>
+    <span class="mu-rh-cell"><b>${esc(fmtM(pos.currentValue))}</b><small>value</small></span>
+    <span class="mu-rh-cell ${gainCls}"><b>${esc(gainLabel)}</b><small>unrealized</small></span>
+  </div>
+</div>`;
+}
+
+function renderHoldingCard(h, route = {}, translation = {}, rhPos = null) {
   const ticker     = String(h.ticker || '').toUpperCase();
   const signal     = String(h.signal || 'HOLD').toUpperCase();
   const sigCls     = signalCls(signal);
@@ -454,6 +490,7 @@ function renderHoldingCard(h, route = {}, translation = {}) {
       <div class="mu-day-chg" style="color:${dayColor}">${daySign}${fmt(dayV,2)}%</div>
     </div>
   </div>
+  ${renderRhPositionStrip(rhPos)}
   <details class="mu-charts-det" open><summary class="mu-charts-sum">Charts</summary><div class="mu-chart-wrap"><div class="mu-chart-legend" id="lgnd-lwc-${esc(ticker)}"></div><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div><div id="rsi-${esc(ticker)}" class="mu-rsi-lwc"></div><div id="macd-${esc(ticker)}" class="mu-macd-lwc"></div></div></details>
   <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
   ${levelsHtml}
@@ -466,7 +503,7 @@ function renderHoldingCard(h, route = {}, translation = {}) {
 </article>`;
 }
 
-function renderHoldingsSection({ zoneState, translation, decision, decisionZones }) {
+function renderHoldingsSection({ zoneState, translation, decision, decisionZones, rhPositionMap = {} }) {
   if (!decisionZones?.holdings?.length) {
     // Legacy fallback
     return `<section id="holdings-section" class="panel"><div class="section-head"><div><p class="eyebrow">Holdings</p><h2>Price-zone radar</h2></div></div><p style="padding:18px;color:var(--muted)">Zone data unavailable.</p></section>`;
@@ -632,7 +669,7 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
   const translationByTicker = buildLookup(translation.holdings || []);
   const cards = holdings.map(h => {
     const ticker = String(h.ticker || '').toUpperCase();
-    return renderHoldingCard(h, routeByTicker[ticker] || {}, translationByTicker[ticker] || {});
+    return renderHoldingCard(h, routeByTicker[ticker] || {}, translationByTicker[ticker] || {}, rhPositionMap[ticker] || null);
   }).join('');
 
   return `<section id="holdings-section" class="panel mu-holdings-section">
@@ -758,6 +795,15 @@ function renderHoldingsStyle() {
 .mu-thesis-row>span{flex-shrink:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:62px}
 .mu-thesis-row>p{margin:0;font-size:12px;line-height:1.45;color:var(--muted)}
 .mu-invalidation>span{color:rgba(164,80,47,.7)}
+/* Robinhood live position strip */
+.mu-rh-pos-strip{display:flex;align-items:center;gap:10px;padding:8px 12px;margin:0 0 10px;border:1px solid rgba(27,31,36,.1);border-radius:10px;background:rgba(27,31,36,.03);flex-wrap:wrap}
+.mu-rh-pos-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(36,35,31,.4);flex-shrink:0;border:1px solid rgba(27,31,36,.18);border-radius:3px;padding:1px 5px}
+.mu-rh-pos-cells{display:flex;gap:16px;flex-wrap:wrap;flex:1}
+.mu-rh-cell{display:flex;flex-direction:column;min-width:44px}
+.mu-rh-cell b{font-size:13px;font-weight:500;letter-spacing:-.02em;color:rgba(36,35,31,.88)}
+.mu-rh-cell small{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(36,35,31,.42);margin-top:1px}
+.mu-rh-cell.rh-pos-gain b{color:var(--green)}
+.mu-rh-cell.rh-pos-loss b{color:var(--red)}
 /* Substanzwert strip */
 .mu-substance-strip{margin:6px 0;border:1px solid rgba(100,80,180,.22);border-radius:10px;padding:8px 12px;background:rgba(100,80,180,.04)}
 .mu-substance-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:6px}

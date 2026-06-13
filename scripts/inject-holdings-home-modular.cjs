@@ -8,6 +8,7 @@ const zonePath = path.join(root, 'outputs', 'holding-zone-state.json');
 const translationPath = path.join(root, 'outputs', 'portfolio-translation-state.json');
 const decisionPath = path.join(root, 'outputs', 'portfolio-decision-state.json');
 const decisionZonesPath = path.join(root, 'outputs', 'holding-decision-zones.json');
+const rhBridgePath = path.join(root, 'outputs', 'robinhood-execution-bridge-state.json');
 
 function readJson(filePath, fallback = null) {
   try { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
@@ -68,6 +69,13 @@ if (decisionZones) {
   console.warn('holding-decision-zones.json not found — falling back to legacy zone rendering');
 }
 
+// Build Robinhood position map: ticker → { shares, avgCostPrice, totalCostBasis, livePrice, currentValue, unrealizedGain, unrealizedPct }
+const rhState = readJson(rhBridgePath, null);
+const rhPositionMap = {};
+for (const pos of (rhState?.positions || [])) {
+  if (pos.symbol) rhPositionMap[String(pos.symbol).toUpperCase()] = pos;
+}
+
 // Attach high-materiality news to translation holdings for badge display
 const newsState = readJson(path.join(root, 'outputs', 'news-catalyst-state.json'), { items: [] });
 const highNewsByTicker = {};
@@ -83,7 +91,7 @@ if (translation.holdings) {
   }));
 }
 
-const section = renderHoldingsSection({ zoneState, translation, decision, decisionZones });
+const section = renderHoldingsSection({ zoneState, translation, decision, decisionZones, rhPositionMap });
 const style = renderHoldingsStyle();
 let html = fs.readFileSync(indexPath, 'utf8');
 

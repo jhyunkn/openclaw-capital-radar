@@ -229,6 +229,7 @@ runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro m
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
 runFinalInjector('generate-robinhood-execution-bridge-state.cjs', 'Robinhood execution bridge state generation failed before Vercel copy');
+runFinalInjector('inject-holdings-home-modular.cjs', 'Holdings decision chart injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');

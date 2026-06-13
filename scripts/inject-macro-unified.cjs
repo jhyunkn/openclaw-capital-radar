@@ -1210,18 +1210,18 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {d:"Dec '25",r:3.75,phase:"C"},           // 15 ← estimated
     {d:"Mar '26",r:3.62,phase:"C"},           // 16 ← estimated
     {d:"Jun '26",r:${_dffRate},phase:"C",current:true}, // 17 ← LIVE DFF (still Phase C — monetary axis 30/100 not yet at expansion)
-    {d:"Dec '26",r:3.25,phase:"E",projected:true},      // 18
-    {d:"Jun '27",r:3.10,phase:"E",projected:true},      // 19
-    {d:"Dec '27",r:3.00,phase:"F",projected:true},      // 20
-    {d:"2028+",  r:3.00,phase:"F",projected:true},      // 21
+    {d:"Dec '26",r:3.25,phase:"D",projected:true},      // 18 ← Phase D projected start
+    {d:"Jun '27",r:3.10,phase:"D",projected:true},      // 19
+    {d:"Dec '27",r:3.00,phase:"E",projected:true},      // 20
+    {d:"2028+",  r:3.00,phase:"E",projected:true},      // 21
   ];
   // Node di values reference the RATE_DATA index where each phase was identified.
   // Glow / "YOU ARE HERE" is driven by nd.id === CURRENT (live Kostolany phase).
   var NODES=[
     {id:"A1",di:0},{id:"A2",di:1},{id:"B",di:3},
-    {id:"C",di:5},   // phase C identified at Oct '23 peak
-    {id:"D",di:18},  // D transition projected ~Dec '26 (first projected entry)
-    {id:"E",di:18},{id:"F",di:20},
+    {id:"C",di:5},   // Phase C: Oct '23 rate peak — where cycle entered verification
+    {id:"D",di:18},  // Phase D projected: ~Dec '26 (monetary conditions ease enough)
+    {id:"E",di:20},  // Phase E projected: ~Dec '27
   ];
   // Time-proportional X: parse "Oct '22" → months from Oct 2022
   var MO_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1322,91 +1322,130 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.fillText("neutral ~3%",pL+cW-3,neutralY-7);c.restore();
 
     // Divider at current + "← projected" label
+    // Divider at today (solid/dashed boundary)
     c.save();
     c.beginPath();c.moveTo(xOf(curIdx),pT);c.lineTo(xOf(curIdx),pT+cH);
-    c.strokeStyle="rgba(184,92,56,0.14)";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);
-    c.font="7.5px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(42,37,32,0.16)";
+    c.strokeStyle="rgba(184,92,56,0.18)";c.lineWidth=0.75;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);
+    c.font="7px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(42,37,32,0.18)";
     c.textAlign="left";c.textBaseline="top";
-    c.fillText("← projected",xOf(curIdx+1)+4,pT+4);
+    c.fillText("projected →",xOf(curIdx)+5,pT+4);
     c.restore();
 
-    // "Rate pressure" annotation — top-right corner, fixed position, away from rate line
-    var rpX=pL+cW-88, rpY=pT+8;
-    c.save();
-    rr(c,rpX,rpY,84,15,2);
-    c.fillStyle="rgba(251,250,246,0.85)";c.fill();
-    c.strokeStyle="rgba(184,92,56,0.22)";c.lineWidth=0.5;c.stroke();
-    c.font="7.5px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.58)";
-    c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Rate pressure",rpX+42,rpY+7.5);c.restore();
-
-    // X axis line (no date labels — the phase strip below handles dates)
+    // X axis line
     c.beginPath();c.moveTo(pL,pT+cH);c.lineTo(pL+cW,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
-    // "YOU ARE HERE" — pinned to today's date (curIdx = Jun '26), not the phase identification date
-    var todayX=xOf(curIdx);
-    var curCol="#b85c38";
+    // ── KEY EVENT CALLOUTS ───────────────────────────────────────────────────
+    // "Hike cycle begins · Oct '22" at di=0
     c.save();
-    var bw=118,bh=14;
-    rr(c,todayX-bw/2,pT+2,bw,bh,2);
-    c.fillStyle="rgba(184,92,56,0.08)";c.fill();
-    c.strokeStyle="rgba(184,92,56,0.35)";c.lineWidth=0.5;c.stroke();
-    c.font="500 7.5px IBM Plex Mono,monospace";
-    c.fillStyle=curCol;c.textAlign="center";c.textBaseline="middle";
-    c.fillText("YOU ARE HERE \xb7 Jun '26",todayX,pT+9);
-    // Live data one row below badge
-    c.font="7px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(138,106,44,0.60)";
-    c.textBaseline="top";
-    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,todayX,pT+18);
+    c.font="6.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(42,37,32,0.35)";
+    c.textAlign="left";c.textBaseline="bottom";
+    c.fillText("Hike cycle begins",xOf(0)+6,yOf(RATE_DATA[0].r)-5);
     c.restore();
 
-    // Phase nodes — circles only; "isCur" = current Kostolany phase (not today's date)
+    // "First cut · Sep '24 · −50bp" badge below rate line at di=9
+    c.save();
+    var fcX=xOf(9), fcY=yOf(RATE_DATA[9].r);
+    var fcW=104,fcH=13;
+    rr(c,fcX-fcW/2,fcY+9,fcW,fcH,2);
+    c.fillStyle="rgba(122,158,130,0.10)";c.fill();
+    c.strokeStyle="rgba(122,158,130,0.30)";c.lineWidth=0.5;c.stroke();
+    c.font="6.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(122,158,130,0.75)";
+    c.textAlign="center";c.textBaseline="middle";
+    c.fillText("First cut \xb7 Sep '24 \xb7 −50bp",fcX,fcY+15.5);
+    c.restore();
+
+    // "Phase D projected \xb7 ~Dec '26" in the dashed section
+    c.save();
+    var pdX=xOf(18), pdY=yOf(RATE_DATA[18].r);
+    c.font="6.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(122,158,130,0.45)";
+    c.textAlign="center";c.textBaseline="bottom";
+    c.fillText("Phase D projected \xb7 ~Dec '26",pdX,pdY-7);
+    c.restore();
+
+    // ── PHASE IDENTIFICATION NODES (static markers — where each phase started) ─
     NODES.forEach(function(nd){
       var ph=PHASES.find(function(p){return p.id===nd.id;});
-      var rd=RATE_DATA[nd.di];
-      var x=xOf(nd.di), y=yOf(rd.r);
-      var col=ph.color;
-      var isCur=(nd.id===CURRENT);
-      var isPast=nd.di<=curIdx;
-
-      // Animated glow on current node
-      if(isCur){
-        var gr=15+3*Math.sin(anim*0.04);
-        var g=c.createRadialGradient(x,y,0,x,y,gr);
-        g.addColorStop(0,col+"28");g.addColorStop(1,col+"00");
-        c.beginPath();c.arc(x,y,gr,0,2*Math.PI);c.fillStyle=g;c.fill();
-        c.beginPath();c.arc(x,y,10,0,2*Math.PI);
-        c.strokeStyle=col+"30";c.lineWidth=0.75;c.stroke();
-      }
-
-      // Circle
-      var r=isCur?6.5:4;
+      if(!ph||!RATE_DATA[nd.di])return;
+      var x=xOf(nd.di), y=yOf(RATE_DATA[nd.di].r);
+      var col=ph.color, isPast=nd.di<=curIdx, r=3.5;
       c.beginPath();c.arc(x,y,r,0,2*Math.PI);
-      c.fillStyle=isPast?col:"rgba(244,239,230,0.92)";
-      if(isCur){c.shadowColor=col;c.shadowBlur=6;}
-      c.fill();c.shadowBlur=0;
+      c.fillStyle=isPast?col:"rgba(244,239,230,0.85)";c.fill();
       if(!isPast){c.strokeStyle=col;c.lineWidth=0.75;c.stroke();}
-
-      // Inner dot
-      c.beginPath();c.arc(x,y,isCur?2:1.5,0,2*Math.PI);
-      c.fillStyle=isPast?"rgba(244,239,230,0.85)":col;c.fill();
-
-      // Drop line from current node to x-axis
-      if(isCur){
-        c.save();c.beginPath();c.moveTo(x,y+r);c.lineTo(x,pT+cH);
-        c.strokeStyle=col+"18";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();
-        c.setLineDash([]);c.restore();
-      }
+      c.beginPath();c.arc(x,y,1.2,0,2*Math.PI);
+      c.fillStyle=isPast?"rgba(244,239,230,0.80)":col;c.fill();
     });
+
+    // "Phase C started here · Oct '23 · 5.33%" callout above the C node
+    c.save();
+    var csX=xOf(5), csY=yOf(5.33);
+    var csW=142,csH=13;
+    rr(c,csX-csW/2,csY-20,csW,csH,2);
+    c.fillStyle="rgba(251,250,246,0.88)";c.fill();
+    c.strokeStyle="rgba(184,92,56,0.20)";c.lineWidth=0.5;c.stroke();
+    c.font="6.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(184,92,56,0.55)";
+    c.textAlign="center";c.textBaseline="middle";
+    c.fillText("Rate peaked \xb7 5.33% \xb7 Phase C begins",csX,csY-13.5);
+    c.restore();
+
+    // ── TODAY — animated pulse ON the rate line at actual Jun '26 rate ────────
+    var todayX=xOf(curIdx), todayY=yOf(RATE_DATA[curIdx].r);
+    var todayCol="#b85c38";
+    // Animated glow
+    var gr=14+3*Math.sin(anim*0.04);
+    var grd=c.createRadialGradient(todayX,todayY,0,todayX,todayY,gr);
+    grd.addColorStop(0,todayCol+"28");grd.addColorStop(1,todayCol+"00");
+    c.beginPath();c.arc(todayX,todayY,gr,0,2*Math.PI);c.fillStyle=grd;c.fill();
+    c.beginPath();c.arc(todayX,todayY,10,0,2*Math.PI);
+    c.strokeStyle=todayCol+"28";c.lineWidth=0.75;c.stroke();
+    // Main dot
+    c.beginPath();c.arc(todayX,todayY,6.5,0,2*Math.PI);
+    c.fillStyle=todayCol;c.shadowColor=todayCol;c.shadowBlur=8;c.fill();c.shadowBlur=0;
+    // Inner white
+    c.beginPath();c.arc(todayX,todayY,2,0,2*Math.PI);
+    c.fillStyle="rgba(244,239,230,0.90)";c.fill();
+    // Drop line to x-axis
+    c.save();c.beginPath();c.moveTo(todayX,todayY+7);c.lineTo(todayX,pT+cH);
+    c.strokeStyle=todayCol+"18";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);c.restore();
+
+    // "YOU ARE HERE" badge anchored above the TODAY dot
+    c.save();
+    var bw=152,bh=26;
+    var badgeY=Math.max(pT+2,todayY-42);
+    rr(c,todayX-bw/2,badgeY,bw,bh,3);
+    c.fillStyle="rgba(251,250,246,0.93)";c.fill();
+    c.strokeStyle=todayCol+"55";c.lineWidth=0.75;c.stroke();
+    c.font="500 7.5px IBM Plex Mono,monospace";
+    c.fillStyle=todayCol;c.textAlign="center";c.textBaseline="middle";
+    c.fillText("YOU ARE HERE \xb7 Jun '26",todayX,badgeY+9);
+    c.font="7px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(42,37,32,0.48)";
+    c.fillText("Phase C \xb7 ${_dffRate}% \xb7 32 mo into cycle",todayX,badgeY+20);
+    // Connector from badge to dot
+    if(badgeY+bh<todayY-8){
+      c.beginPath();c.moveTo(todayX,badgeY+bh);c.lineTo(todayX,todayY-8);
+      c.strokeStyle=todayCol+"28";c.lineWidth=0.5;c.stroke();
+    }
+    c.restore();
+
+    // Live metrics just below the TODAY dot
+    c.save();
+    c.font="6.5px IBM Plex Mono,monospace";
+    c.fillStyle="rgba(138,106,44,0.55)";
+    c.textAlign="center";c.textBaseline="top";
+    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,todayX,todayY+10);
+    c.restore();
 
     // ── PHASE ID ROW — colored labels at node positions ──────────────────────
     var phaseY=pT+cH+8;
     NODES.forEach(function(nd){
       var ph=PHASES.find(function(p){return p.id===nd.id;});
+      if(!ph)return;
       var x=xOf(nd.di);
       var isPast=nd.di<=curIdx;
       c.beginPath();c.moveTo(x,pT+cH);c.lineTo(x,pT+cH+4);
@@ -1418,8 +1457,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.fillText(nd.id,x,phaseY);
     });
 
-    // ── DATE AXIS — real calendar positions on the time axis ─────────────────
-    // Key events: cycle start, rate peak, first cut, Jun '25, today
+    // ── DATE AXIS — calendar milestones ──────────────────────────────────────
     var dateY=pT+cH+24;
     [
       {mo:0,  label:"Oct '22"},
@@ -1437,13 +1475,16 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.fillText(tick.label,tx,dateY);
     });
 
-    // ── PHASE C DURATION — shows how long current phase has lasted ────────────
+    // ── PHASE C DURATION SPAN — shows how long this phase has lasted ──────────
     var annX=(xOf(5)+xOf(curIdx))/2;
     c.save();
+    // Horizontal bracket line between Phase C node and today
+    c.beginPath();c.moveTo(xOf(5),yOf(3.0));c.lineTo(xOf(curIdx),yOf(3.0));
+    c.strokeStyle="rgba(184,92,56,0.18)";c.lineWidth=0.5;c.setLineDash([2,3]);c.stroke();c.setLineDash([]);
     c.font="7px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.40)";
-    c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Phase C \xb7 Oct '23 → Jun '26 \xb7 32 months",annX,yOf(3.6));
+    c.fillStyle="rgba(184,92,56,0.38)";
+    c.textAlign="center";c.textBaseline="bottom";
+    c.fillText("Phase C \xb7 Oct '23 → Jun '26 \xb7 32 months",annX,yOf(3.0)-3);
     c.restore();
   }
 

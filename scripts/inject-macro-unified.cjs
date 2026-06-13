@@ -1174,6 +1174,14 @@ const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-canvas-box">
     <canvas id="${_cycleCanvasId}"></canvas>
   </div>
+  <div class="mu-arc-legend">
+    <span><span class="mu-leg mu-leg-actual"></span>Actual rate</span>
+    <span><span class="mu-leg mu-leg-proj"></span>Projected path</span>
+    <span><span class="mu-leg mu-leg-plateau"></span>Rate plateau · 13 mo held</span>
+    <span><span class="mu-leg mu-leg-neutral"></span>Neutral rate ~3%</span>
+    <span><span class="mu-leg mu-leg-node"></span>Phase start</span>
+    <span><span class="mu-leg mu-leg-today"></span>You are here</span>
+  </div>
 </div>
 <script>
 (function(){
@@ -2031,6 +2039,15 @@ const style = `<style id="macro-unified-style">
 .mu-arc-meta{font-size:9px;color:rgba(44,42,37,.32);font-family:var(--mono,monospace)}
 .mu-arc-canvas-box{position:relative;width:100%;height:380px}
 .mu-arc-canvas-box canvas{width:100%;height:100%;display:block}
+.mu-arc-legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 2px 2px;border-top:0.5px solid rgba(201,191,173,.28);margin-top:8px}
+.mu-arc-legend>span{display:flex;align-items:center;gap:6px;font:8.5px/1 IBM Plex Mono,monospace;color:rgba(42,37,32,.62)}
+.mu-leg{display:inline-block;flex-shrink:0}
+.mu-leg-actual{width:22px;height:0;border-top:2px solid #b85c38}
+.mu-leg-proj{width:22px;height:0;border-top:2px dashed rgba(42,37,32,.32)}
+.mu-leg-plateau{width:16px;height:12px;background:rgba(184,92,56,.18);border:0.75px solid rgba(184,92,56,.38);border-radius:2px}
+.mu-leg-neutral{width:22px;height:0;border-top:1.5px dashed rgba(122,158,130,.70)}
+.mu-leg-node{width:10px;height:10px;border-radius:50%;background:#b85c38;border:1.5px solid rgba(244,239,230,.80)}
+.mu-leg-today{width:10px;height:10px;border-radius:50%;background:#b85c38;box-shadow:0 0 0 2px rgba(184,92,56,.25),0 0 6px 2px rgba(184,92,56,.30);border:1.5px solid rgba(244,239,230,.90)}
 .mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 /* Regime column */
 .mu-regime-col{border:1px solid rgba(201,191,173,.45);border-radius:18px;padding:16px 15px;background:rgba(251,250,246,.28);display:flex;flex-direction:column;gap:0}

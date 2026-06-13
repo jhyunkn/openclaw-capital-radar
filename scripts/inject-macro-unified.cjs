@@ -1173,6 +1173,11 @@ const cycleHtml = `<div class="mu-arc-wrap">
 </div>
 <script>
 (function(){
+  // Guard: only the first (freshest) instance of this script should run.
+  // Duplicate copies are embedded in holding-card detail views and would
+  // overwrite the canvas with stale code if allowed to run.
+  if(window.__mucCycleRunning){return;}
+  window.__mucCycleRunning=true;
   var CURRENT = "${currentCode}";
   var RSI="${_rsiVal}", HY="${_creditVal}", VIX="${_vixVal}", DGS10="${_dgs10Val}";
   var PHASES=[

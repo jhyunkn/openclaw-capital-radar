@@ -1284,17 +1284,17 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.fillStyle="rgba(184,92,56,0.10)";
     c.fillRect(hlX0,pT,hlX1-hlX0,cH);
     c.restore();
-    // Bordered annotation label above the plateau
-    var hlMid=(hlX0+hlX1)/2, hlLabelY=yOf(5.33)-24;
-    var hlText="held 13 mo at 5.33%", hlBW=140, hlBH=18;
+    // "held 13 mo at 5.33%" — badge INSIDE the plateau, below the rate line
+    var hlMid=(hlX0+hlX1)/2, hlInsideY=yOf(5.33)+12;
+    var hlBW=140,hlBH=17;
+    var hlBL=Math.max(hlX0+2,Math.min(hlMid-hlBW/2,hlX1-hlBW-2));
     c.save();
-    rr(c,hlMid-hlBW/2,hlLabelY,hlBW,hlBH,3);
+    rr(c,hlBL,hlInsideY,hlBW,hlBH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(184,92,56,0.35)";c.lineWidth=0.75;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.85)";
+    c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(184,92,56,0.85)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText(hlText,hlMid,hlLabelY+9);
+    c.fillText("held 13 mo at 5.33%",hlBL+hlBW/2,hlInsideY+hlBH/2);
     c.restore();
 
     // Under-curve fill (historical)
@@ -1348,56 +1348,43 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
     // ── KEY EVENT CALLOUTS ───────────────────────────────────────────────────
-    // "Near-zero baseline · Jan '22" at di=0 (bottom of the cycle)
-    c.save();
-    var hcX=xOf(0)+5, hcY=yOf(RATE_DATA[0].r);
-    var hcW=162,hcH=17;
-    rr(c,hcX,hcY-hcH-4,hcW,hcH,3);
-    c.fillStyle="rgba(251,250,246,0.96)";c.fill();
-    c.strokeStyle="rgba(42,37,32,0.18)";c.lineWidth=0.5;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(42,37,32,0.75)";
-    c.textAlign="left";c.textBaseline="middle";
-    c.fillText("Near-zero baseline \xb7 Jan '22",hcX+6,hcY-hcH/2-4);
-    c.restore();
+    // Helper: clamp badge left edge within chart bounds
+    function badgeLeft(cx,bw){return Math.max(pL,Math.min(cx-bw/2,pL+cW-bw));}
 
-    // "First hike · Mar '22" at di=1
+    // "Near-zero floor · Jan '22" — anchored near left, lifted off chart bottom
     c.save();
-    var fhX=xOf(1), fhY=yOf(RATE_DATA[1].r);
-    var fhW=138,fhH=17;
-    rr(c,fhX-fhW/2,fhY+6,fhW,fhH,3);
+    var hcY=yOf(RATE_DATA[0].r), hcW=164,hcH=17;
+    var hcBY=Math.min(hcY-hcH-4, pT+cH-hcH-8);
+    rr(c,pL+2,hcBY,hcW,hcH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(42,37,32,0.18)";c.lineWidth=0.5;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(42,37,32,0.75)";
-    c.textAlign="center";c.textBaseline="middle";
-    c.fillText("First hike \xb7 Mar '22 \xb7 +25bp",fhX,fhY+14.5);
+    c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(42,37,32,0.75)";
+    c.textAlign="left";c.textBaseline="middle";
+    c.fillText("Near-zero floor \xb7 Jan '22",pL+8,hcBY+hcH/2);
     c.restore();
 
     // "First cut · Sep '24 · −50bp" badge below rate line at di=12
     c.save();
-    var fcX=xOf(12), fcY=yOf(RATE_DATA[12].r);
-    var fcW=152,fcH=18;
-    rr(c,fcX-fcW/2,fcY+10,fcW,fcH,3);
+    var fcX=xOf(12), fcY=yOf(RATE_DATA[12].r), fcW=166,fcH=17;
+    var fcBL=badgeLeft(fcX,fcW);
+    rr(c,fcBL,fcY+10,fcW,fcH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(90,140,110,0.40)";c.lineWidth=0.75;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(60,120,90,0.88)";
+    c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.88)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("First cut \xb7 Sep '24 \xb7 −50bp",fcX,fcY+19);
+    c.fillText("First cut \xb7 Sep '24 \xb7 −50bp",fcBL+fcW/2,fcY+18.5);
     c.restore();
 
-    // "Phase D projected · ~Dec '26" badge in the dashed section
+    // "Phase D projected · ~Dec '26" badge above rate line in projected zone
     c.save();
-    var pdX=xOf(21), pdY=yOf(RATE_DATA[21].r);
-    var pdW=164,pdH=17;
-    rr(c,pdX-pdW/2,pdY-pdH-8,pdW,pdH,3);
+    var pdX=xOf(21), pdY=yOf(RATE_DATA[21].r), pdW=166,pdH=17;
+    var pdBL=badgeLeft(pdX,pdW);
+    rr(c,pdBL,pdY-pdH-8,pdW,pdH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(90,140,110,0.35)";c.lineWidth=0.5;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(60,120,90,0.82)";
+    c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.82)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Phase D projected \xb7 ~Dec '26",pdX,pdY-pdH/2-8);
+    c.fillText("Phase D projected \xb7 ~Dec '26",pdBL+pdW/2,pdY-pdH/2-8);
     c.restore();
 
     // ── PHASE IDENTIFICATION NODES (static markers — where each phase started) ─
@@ -1413,17 +1400,16 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.fillStyle=isPast?"rgba(244,239,230,0.80)":col;c.fill();
     });
 
-    // "Rate peaked · 5.33% · Phase C begins" callout above the C node (di=8)
+    // "Rate peaked · 5.33% · Phase C begins" — anchored at chart top, clear of "held 13 mo"
     c.save();
-    var csX=xOf(8), csY=yOf(5.33);
-    var csW=214,csH=18;
-    rr(c,csX-csW/2,csY-csH-6,csW,csH,3);
+    var csX=xOf(8), csW=220,csH=17;
+    var csBL=badgeLeft(csX,csW);
+    rr(c,csBL,pT+4,csW,csH,3);
     c.fillStyle="rgba(251,250,246,0.97)";c.fill();
     c.strokeStyle="rgba(184,92,56,0.40)";c.lineWidth=0.75;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.90)";
+    c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(184,92,56,0.90)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Rate peaked \xb7 5.33% \xb7 Phase C begins",csX,csY-csH/2-6);
+    c.fillText("Rate peaked \xb7 5.33% \xb7 Phase C begins",csBL+csW/2,pT+4+csH/2);
     c.restore();
 
     // ── TODAY — animated pulse ON the rate line at actual Jun '26 rate ────────
@@ -1446,19 +1432,20 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.save();c.beginPath();c.moveTo(todayX,todayY+7);c.lineTo(todayX,pT+cH);
     c.strokeStyle=todayCol+"25";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);c.restore();
 
-    // "YOU ARE HERE" badge anchored above the TODAY dot
+    // "YOU ARE HERE" badge anchored above the TODAY dot, clamped within chart
     c.save();
-    var bw=188,bh=34;
-    var badgeY=Math.max(pT+2,todayY-50);
-    rr(c,todayX-bw/2,badgeY,bw,bh,4);
+    var bw=210,bh=34;
+    var bBL=badgeLeft(todayX,bw);
+    var badgeY=Math.max(pT+26,todayY-50);
+    rr(c,bBL,badgeY,bw,bh,4);
     c.fillStyle="rgba(251,250,246,0.97)";c.fill();
     c.strokeStyle=todayCol+"70";c.lineWidth=1;c.stroke();
     c.font="600 10px IBM Plex Mono,monospace";
     c.fillStyle=todayCol;c.textAlign="center";c.textBaseline="middle";
-    c.fillText("YOU ARE HERE \xb7 Jun '26",todayX,badgeY+11);
+    c.fillText("YOU ARE HERE \xb7 Jun '26",bBL+bw/2,badgeY+11);
     c.font="8.5px IBM Plex Mono,monospace";
     c.fillStyle="rgba(42,37,32,0.72)";
-    c.fillText("Phase C \xb7 ${_dffRate}% \xb7 32 mo into cycle",todayX,badgeY+25);
+    c.fillText("Phase C \xb7 ${_dffRate}% \xb7 32 mo into cycle",bBL+bw/2,badgeY+25);
     // Connector from badge to dot
     if(badgeY+bh<todayY-8){
       c.beginPath();c.moveTo(todayX,badgeY+bh);c.lineTo(todayX,todayY-8);
@@ -1518,14 +1505,15 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.beginPath();c.moveTo(cx,yOf(2.8)-4);c.lineTo(cx,yOf(2.8)+4);
       c.strokeStyle="rgba(184,92,56,0.40)";c.lineWidth=0.75;c.stroke();
     });
-    var durW=196,durH=18;
-    rr(c,annX-durW/2,yOf(2.8)-durH-4,durW,durH,3);
+    var durW=226,durH=17;
+    var durBL=badgeLeft(annX,durW);
+    rr(c,durBL,yOf(2.8)-durH-4,durW,durH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(184,92,56,0.28)";c.lineWidth=0.5;c.stroke();
     c.font="9px IBM Plex Mono,monospace";
     c.fillStyle="rgba(184,92,56,0.85)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Phase C \xb7 Oct '23 → Jun '26 \xb7 32 months",annX,yOf(2.8)-durH/2-4);
+    c.fillText("Phase C \xb7 Oct '23 → Jun '26 \xb7 32 mo",durBL+durW/2,yOf(2.8)-durH/2-4);
     c.restore();
   }
 

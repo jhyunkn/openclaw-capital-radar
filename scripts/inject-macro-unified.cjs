@@ -1265,14 +1265,20 @@ const cycleHtml = `<div class="mu-arc-wrap">
     // "High for longer" shaded band: Aug '23 (di=4) → Sep '24 (di=9), rate held 5.33%
     var hlX0=xOf(4),hlX1=xOf(9);
     c.save();
-    c.fillStyle="rgba(184,92,56,0.05)";
+    c.fillStyle="rgba(184,92,56,0.10)";
     c.fillRect(hlX0,pT,hlX1-hlX0,cH);
     c.restore();
+    // Bordered annotation label above the plateau (matches "Rate pressure" badge style)
+    var hlMid=(hlX0+hlX1)/2, hlLabelY=yOf(5.33)-22;
+    var hlText="held 13 mo at 5.33%", hlBW=112, hlBH=14;
     c.save();
+    rr(c,hlMid-hlBW/2,hlLabelY,hlBW,hlBH,2);
+    c.fillStyle="rgba(251,250,246,0.88)";c.fill();
+    c.strokeStyle="rgba(184,92,56,0.28)";c.lineWidth=0.5;c.stroke();
     c.font="7px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.32)";
-    c.textAlign="center";c.textBaseline="bottom";
-    c.fillText("5.33% held · 13 months",(hlX0+hlX1)/2,yOf(5.33)-3);
+    c.fillStyle="rgba(184,92,56,0.60)";
+    c.textAlign="center";c.textBaseline="middle";
+    c.fillText(hlText,hlMid,hlLabelY+7);
     c.restore();
 
     // Under-curve fill (historical)
@@ -1425,7 +1431,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
       // Calendar date row — always show if date exists and space allows
       if(ph.date&&ph.date!=="—"&&gap>40){
         c.font="7px IBM Plex Mono,monospace";
-        c.fillStyle=isPast?"rgba(42,37,32,0.24)":"rgba(42,37,32,0.10)";
+        c.fillStyle=isPast?"rgba(42,37,32,0.40)":"rgba(42,37,32,0.16)";
         c.textBaseline="top";
         c.fillText(ph.date,x,stripY2);
       }

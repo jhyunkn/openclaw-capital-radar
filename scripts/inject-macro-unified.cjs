@@ -1270,23 +1270,35 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.beginPath();c.moveTo(pL,pT);c.lineTo(pL,pT+cH);
     c.strokeStyle="rgba(42,37,32,0.10)";c.lineWidth=0.5;c.stroke();
 
-    // "High for longer" shaded band: Aug '23 (di=7) → Sep '24 (di=12), rate held 5.33%
+    // "High for longer" plateau zone: Aug '23 (di=7) → Sep '24 (di=12), held 5.33% for 13 months
     var hlX0=xOf(7),hlX1=xOf(12);
+    var hlW=hlX1-hlX0;
     c.save();
-    c.fillStyle="rgba(184,92,56,0.10)";
-    c.fillRect(hlX0,pT,hlX1-hlX0,cH);
+    // Solid tinted fill
+    c.fillStyle="rgba(184,92,56,0.07)";
+    c.fillRect(hlX0,pT,hlW,cH);
+    // Diagonal stripe pattern (signals "held/frozen" zone, not just gradient)
+    c.strokeStyle="rgba(184,92,56,0.10)";c.lineWidth=1;
+    for(var sx=hlX0-cH;sx<hlX1+cH;sx+=10){
+      c.beginPath();c.moveTo(sx,pT+cH);c.lineTo(sx+cH,pT);c.stroke();
+    }
+    // Left and right border lines
+    c.beginPath();c.moveTo(hlX0,pT);c.lineTo(hlX0,pT+cH);
+    c.strokeStyle="rgba(184,92,56,0.28)";c.lineWidth=0.75;c.setLineDash([3,3]);c.stroke();
+    c.beginPath();c.moveTo(hlX1,pT);c.lineTo(hlX1,pT+cH);c.stroke();
+    c.setLineDash([]);
     c.restore();
-    // Bordered annotation label above the plateau (matches "Rate pressure" badge style)
-    var hlMid=(hlX0+hlX1)/2, hlLabelY=yOf(5.33)-24;
-    var hlText="held 13 mo at 5.33%", hlBW=140, hlBH=18;
+    // "High for longer · 13 months · 5.33%" label inside the zone, near the top
+    var hlMid=hlX0+hlW/2, hlLabelY=yOf(5.33)+10;
     c.save();
+    var hlBW=164,hlBH=18;
     rr(c,hlMid-hlBW/2,hlLabelY,hlBW,hlBH,3);
-    c.fillStyle="rgba(251,250,246,0.96)";c.fill();
-    c.strokeStyle="rgba(184,92,56,0.35)";c.lineWidth=0.75;c.stroke();
+    c.fillStyle="rgba(251,250,246,0.97)";c.fill();
+    c.strokeStyle="rgba(184,92,56,0.40)";c.lineWidth=0.75;c.stroke();
     c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.85)";
+    c.fillStyle="rgba(184,92,56,0.88)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText(hlText,hlMid,hlLabelY+9);
+    c.fillText("High for longer \xb7 13 mo \xb7 5.33%",hlMid,hlLabelY+9);
     c.restore();
 
     // Under-curve fill (historical)

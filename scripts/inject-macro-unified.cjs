@@ -1207,9 +1207,9 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {d:"Mar '25",r:4.33,phase:"C"},           // 12 ← held (tariff pause)
     {d:"Jun '25",r:4.25,phase:"C"},           // 13
     {d:"Sep '25",r:4.00,phase:"C"},           // 14 ← estimated
-    {d:"Dec '25",r:3.75,phase:"D"},           // 15 ← estimated
-    {d:"Mar '26",r:3.62,phase:"D"},           // 16 ← estimated
-    {d:"Jun '26",r:${_dffRate},phase:"D",current:true}, // 17 ← LIVE DFF
+    {d:"Dec '25",r:3.75,phase:"C"},           // 15 ← estimated
+    {d:"Mar '26",r:3.62,phase:"C"},           // 16 ← estimated
+    {d:"Jun '26",r:${_dffRate},phase:"C",current:true}, // 17 ← LIVE DFF (still Phase C — monetary axis 30/100 not yet at expansion)
     {d:"Dec '26",r:3.25,phase:"E",projected:true},      // 18
     {d:"Jun '27",r:3.10,phase:"E",projected:true},      // 19
     {d:"Dec '27",r:3.00,phase:"F",projected:true},      // 20
@@ -1220,7 +1220,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
   var NODES=[
     {id:"A1",di:0},{id:"A2",di:1},{id:"B",di:3},
     {id:"C",di:5},   // phase C identified at Oct '23 peak
-    {id:"D",di:17},  // D transition at Jun '26
+    {id:"D",di:18},  // D transition projected ~Dec '26 (first projected entry)
     {id:"E",di:18},{id:"F",di:20},
   ];
   // Time-proportional X: parse "Oct '22" → months from Oct 2022

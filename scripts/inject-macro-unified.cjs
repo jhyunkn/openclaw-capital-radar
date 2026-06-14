@@ -2151,17 +2151,6 @@ b.mu-db-metric-val{display:block;font-size:20px;font-weight:500;letter-spacing:-
 .mu-pb-sig{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em}
 .mu-pb-perf{font-size:11px;font-weight:500;font-family:var(--mono,monospace);white-space:nowrap}
 @media(max-width:680px){.mu-pb-grid{grid-template-columns:1fr}}
-/* ── Action block ── */
-.mu-action-row{padding:20px 0 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.mu-action-card{border:1px solid rgba(201,191,173,.55);background:rgba(255,255,255,.28);padding:14px 16px}
-.mu-action-card span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.4);margin-bottom:7px;font-family:var(--mono,monospace)}
-.mu-action-card b{display:block;font-size:14px;font-weight:500;color:#1A1714;line-height:1.3}
-.mu-action-card.mu-action-green{border-color:rgba(42,107,74,.35);background:rgba(42,107,74,.06)}
-.mu-action-card.mu-action-green span{color:rgba(42,107,74,.7)}
-.mu-action-card.mu-action-green b{color:#2a6b4a}
-.mu-action-card.mu-action-red{border-color:rgba(164,80,47,.35);background:rgba(164,80,47,.06)}
-.mu-action-card.mu-action-red span{color:rgba(164,80,47,.7)}
-.mu-action-card.mu-action-red b{color:#A4502F}
 
 /* ── Tier 2 collapse ── */
 .mu-details summary{display:flex;align-items:center;gap:8px;cursor:pointer;padding:14px 0;font-size:11px;color:rgba(26,23,20,.42);letter-spacing:.04em;list-style:none;border-top:1px solid rgba(201,191,173,.35)}
@@ -2180,7 +2169,7 @@ details[open].mu-details summary:before{content:'↑'}
 
 /* ── Responsive ── */
 @media(max-width:1100px){.mu-regime{grid-template-columns:1fr}.mu-regime-meta{flex-direction:row;align-items:center;flex-wrap:wrap}.mu-conf{text-align:left}}
-@media(max-width:960px){.mu-charts-row{grid-template-columns:1fr}.mu-chart-block{padding-right:0;border-right:none;border-bottom:1px solid rgba(201,191,173,.38);padding-bottom:20px}.mu-vix-block{padding-left:0;padding-top:20px}.mu-sc-strip{grid-template-columns:repeat(5,1fr)}.mu-cycle-row{grid-template-columns:1fr}.mu-action-row{grid-template-columns:1fr}}
+@media(max-width:960px){.mu-charts-row{grid-template-columns:1fr}.mu-chart-block{padding-right:0;border-right:none;border-bottom:1px solid rgba(201,191,173,.38);padding-bottom:20px}.mu-vix-block{padding-left:0;padding-top:20px}.mu-sc-strip{grid-template-columns:repeat(5,1fr)}.mu-cycle-row{grid-template-columns:1fr}}
 @media(max-width:640px){.mu-sc-strip{grid-template-columns:repeat(3,1fr)}.mu-sector-grid{grid-template-columns:repeat(2,1fr)}}
 /* ── Axis evidence (Why Phase C) ── */
 .mu-axis-block{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
@@ -2389,22 +2378,6 @@ const section = `<section id="decision-brief-section" class="macro-unified">
 
   <!-- 8. Today's session read -->
   ${dailyBriefingHtml}
-
-  <!-- 9. Capital action zones -->
-  <div class="mu-action-row">
-    <div class="mu-action-card mu-action-green">
-      <span>Add zone (S&amp;P 500)</span>
-      <b>${addZoneStr}</b>
-    </div>
-    <div class="mu-action-card mu-action-red">
-      <span>Trim zone</span>
-      <b>${trimZoneStr}</b>
-    </div>
-    <div class="mu-action-card">
-      <span>Defense — exit below</span>
-      <b>${defStr} · ${esc(riskRule.split('.')[0])}</b>
-    </div>
-  </div>
 
   <!-- 10. Deep research: collapsed -->
   <details class="mu-details">

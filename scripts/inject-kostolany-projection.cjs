@@ -171,7 +171,7 @@ const SC={
     // Model 3: Institutional return range (Vanguard/RA/GMO)
     m3:returnPath(0.038),m3h:returnPath(0.050),m3l:returnPath(-0.027),
     // FOMC SEP rate path (annual targets → interpolated monthly)
-    rateMo:rateMo([4.25,3.50,3.25,3.10,3.00]),
+    rateMo:rateMo([3.62,3.50,3.25,3.10,3.00]),
     cards:[
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'EPS0 \xd7 PE0 validates start',src:'FactSet/Goldman'},
       {val:'+14% / +8% / +7% / +6%',lbl:'EPS growth (yr 1–4)',sub:'FactSet deceleration consensus',src:'FactSet Jun 2026'},
@@ -188,7 +188,7 @@ const SC={
     // Model 2: Structural new mean 32x over 10yr, 10% EPS
     m2:capePath(32.0,10,0.10),
     m3:returnPath(0.050),m3h:returnPath(0.080),m3l:returnPath(0.030),
-    rateMo:rateMo([4.25,3.25,2.75,2.50,2.50]),
+    rateMo:rateMo([3.62,3.25,2.75,2.50,2.50]),
     cards:[
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, higher path required',src:'FactSet'},
       {val:'+21% / +12% / +10% / +8%',lbl:'EPS growth (yr 1–4)',sub:'AI monetises — Goldman bull case',src:'Goldman bull'},
@@ -205,7 +205,7 @@ const SC={
     // Model 2: Full CAPE reversion to 145yr mean 17.3x over 7yr, 4% EPS
     m2:capePath(17.3,7,0.04),
     m3:returnPath(-0.027),m3h:returnPath(0.016),m3l:returnPath(-0.054),
-    rateMo:rateMo([4.25,4.25,4.75,5.00,4.25]),
+    rateMo:rateMo([3.62,4.25,4.75,5.00,4.25]),
     cards:[
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, CAPE headwind compresses path',src:'FactSet'},
       {val:'+8% / +4% / +3% / +3%',lbl:'EPS growth (yr 1–4)',sub:'AI not monetising (MIT <5% tasks)',src:'Bear/MIT'},

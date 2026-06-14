@@ -26,8 +26,18 @@ html = html.includes('id="portfolio-bar-style"')
   ? html.replace(/<style[^>]*id="portfolio-bar-style"[^>]*>[\s\S]*?<\/style>/, style)
   : html.replace('</' + 'head>', style + '</' + 'head>');
 
-// Remove any existing portfolio bar
-html = html.replace(/<div id="portfolio-bar"[\s\S]*?<\/div>\s*<\/div>\s*/, '');
+// Remove ALL existing portfolio bars (handles accumulated duplicates)
+while (html.includes('<div id="portfolio-bar"')) {
+  const start = html.indexOf('<div id="portfolio-bar"');
+  let i = start, depth = 0;
+  while (i < html.length) {
+    if (html.startsWith('<div', i) && (html[i + 4] === ' ' || html[i + 4] === '>')) { depth++; i += 4; }
+    else if (html.startsWith('</div>', i)) { depth--; i += 6; if (depth === 0) break; }
+    else i++;
+  }
+  while (i < html.length && '\n\r '.includes(html[i])) i++;
+  html = html.slice(0, start) + html.slice(i);
+}
 
 // Insert right after </header>
 html = html.replace(/(<\/header>)/, (_, h) => h + '\n' + bar);

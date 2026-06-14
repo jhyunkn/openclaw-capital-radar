@@ -120,12 +120,12 @@ const section = `<!-- KP_PROJECTION_START -->
 (function(){
 if(typeof Chart==='undefined'||window.__kpInited)return;
 window.__kpInited=true;
-const NOW_SP=7430,NOW_CAPE=41.6;
+const NOW_SP=7420,NOW_CAPE=41.6;
 const EPS0=338;                        // FactSet 2026 fwd EPS consensus
 const PE0=+(NOW_SP/EPS0).toFixed(1);   // ~22.0x — anchors to current price
 const HIST_YEARS=[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
-const HIST_RATES=[0.13,0.40,1.00,1.83,2.16,0.36,0.08,1.68,5.02,5.33,4.50,4.25];
-const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4797,5882,7000,7430];
+const HIST_RATES=[0.13,0.40,1.00,1.83,2.16,0.36,0.08,1.68,5.02,5.33,4.16,3.62];
+const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4797,5882,6820,7420];
 // ── monthly path generators (49 pts: m=0→2026.0 … m=48→2030.0) ───────────
 // Model 1: EPS₀×(1+g)^t × PE(t).  g decelerates by year; PE drifts linearly.
 function epsPath(epsRates,peTgts){
@@ -301,9 +301,9 @@ function buildPhaseStrip(sc){
     {x1:2015,x2:2019,t:'hike',l:'A–B: trim'},
     {x1:2019,x2:2022,t:'cut', l:'F–D: COVID'},
     {x1:2022,x2:2024,t:'hike',l:'B: cash king'},
-    {x1:2024,x2:2026,t:'cut', l:'D: buy dips'},
-    {x1:2026,x2:2028,t:'cut', l:'E ← now'},
-    sc==='bear'?{x1:2028,x2:2030,t:'hike',l:'new A (re-hike)'}:{x1:2028,x2:2030,t:'plateau',l:'F: cycle end'},
+    {x1:2024,x2:2026,t:'plateau',l:'C: Verification ← NOW'},
+    {x1:2026,x2:2028,t:'cut', l:'D: Expansion (proj.)'},
+    sc==='bear'?{x1:2028,x2:2030,t:'hike',l:'A: re-hike (proj.)'}:{x1:2028,x2:2030,t:'plateau',l:'E: Euphoria (proj.)'},
   ];
   const MIN=2015,MAX=2030,TOT=MAX-MIN;
   phases.forEach(p=>{

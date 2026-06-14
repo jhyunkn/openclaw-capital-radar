@@ -1188,7 +1188,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
   var CURRENT = "${currentCode}";
   var RSI="${_rsiVal}", HY="${_creditVal}", VIX="${_vixVal}", DGS10="${_dgs10Val}";
   var PHASES=[
-    {id:"A1",label:"Capitulation", date:"Jan '22",color:"#c46050"},
+    {id:"A1",label:"Capitulation", date:"Mar '22",color:"#c46050"},
     {id:"A2",label:"Accumulation", date:"Sep '22",color:"#c47a50"},
     {id:"B", label:"Recovery",     date:"Mar '23",color:"#c4a050"},
     {id:"C", label:"Verification", date:"Oct '23",color:"#b85c38"},
@@ -1228,7 +1228,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
   ];
   // Node di values reference the RATE_DATA index where each phase was identified.
   var NODES=[
-    {id:"A1",di:0},  // Jan '22: DFF 0.08% — near-zero floor (fact)
+    {id:"A1",di:1},  // Mar '22: DFF 0.33% — first Fed hike, tightening begins (fact)
     {id:"A2",di:3},  // Sep '22: DFF 3.08% — mid-hike, SPX bottomed Oct '22 (fact)
     {id:"B", di:5},  // Mar '23: DFF 4.65% — hike pace slowing (fact)
     {id:"C", di:8},  // Oct '23: DFF 5.33% — rate peak confirmed (fact)

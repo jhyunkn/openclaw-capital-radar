@@ -36,7 +36,7 @@ const ageMs = Date.now() - refreshedDate.getTime();
 const label = `Data refreshed ${ageLabel(ageMs)}`;
 const tone = freshnessTone(ageMs);
 const indicator = `<div class="freshness-indicator ${tone}" title="${esc(label)}"><span class="freshness-dot"></span><span>${esc(label)}</span></div>`;
-const style = `<style>.freshness-indicator{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule);padding:8px 10px;font-size:12px;line-height:1;border-radius:999px;background:rgba(251,250,246,.22);white-space:nowrap}.freshness-dot{width:9px;height:9px;border-radius:50%;display:inline-block}.freshness-indicator.fresh .freshness-dot{background:#2f6f4e}.freshness-indicator.aging .freshness-dot{background:#8a6a2c}.freshness-indicator.stale .freshness-dot{background:#9f3f35}@media(max-width:760px){.freshness-indicator{width:100%;justify-content:center}}</style>`;
+const style = `<style>.freshness-indicator{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule);padding:8px 10px;font-size:12px;line-height:1;border-radius:999px;background:#ffffff;white-space:nowrap}.freshness-dot{width:9px;height:9px;border-radius:50%;display:inline-block}.freshness-indicator.fresh .freshness-dot{background:#2f6f4e}.freshness-indicator.aging .freshness-dot{background:#8a6a2c}.freshness-indicator.stale .freshness-dot{background:#9f3f35}@media(max-width:760px){.freshness-indicator{width:100%;justify-content:center}}</style>`;
 let html = fs.readFileSync(indexPath, 'utf8');
 html = html.replace(/<style>\.freshness-indicator[\s\S]*?<\/style>/, '');
 html = html.replace('</head>', `${style}</head>`);

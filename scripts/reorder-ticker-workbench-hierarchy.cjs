@@ -50,7 +50,7 @@ function memoIntro(ticker) {
 }
 function ensureMemoStyles(html) {
   if (html.includes('.memo-section')) return html;
-  const css = `<style>.memo-section{background:rgba(251,250,246,.18);padding-top:34px!important;padding-bottom:34px!important}.memo-section .bodyline{font-size:16px;max-width:1040px}</style>`;
+  const css = `<style>.memo-section{background:#ffffff;padding-top:34px!important;padding-bottom:34px!important}.memo-section .bodyline{font-size:16px;max-width:1040px}</style>`;
   return html.replace('</head>', `${css}</head>`);
 }
 function reorderPage(html, ticker) {

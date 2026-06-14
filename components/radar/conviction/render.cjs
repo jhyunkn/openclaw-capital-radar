@@ -102,7 +102,7 @@ function renderConvictionSection(state) {
 function renderConvictionStyle() {
   return `<style>
 .cv-stance{color:var(--muted);font-size:13px;margin:6px 0 0}
-.cv-macro-bar{display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:10px;border:1px solid var(--rule);border-radius:16px;padding:14px;margin:14px 0;background:rgba(251,250,246,.10)}
+.cv-macro-bar{display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:10px;border:1px solid var(--rule);border-radius:16px;padding:14px;margin:14px 0;background:#ffffff}
 .cv-macro-posture b{display:block;font-size:20px;letter-spacing:-.03em;margin:3px 0 2px}
 .cv-macro-posture small{color:var(--muted);font-size:11px}
 .cv-macro-bar span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
@@ -115,7 +115,7 @@ function renderConvictionStyle() {
 .cv-gap-chip i{font-style:normal;color:var(--muted);margin-left:4px}
 .cv-gaps small{color:var(--muted);font-size:11px}
 .cv-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-.cv-row{display:grid;grid-template-columns:80px 1fr;gap:12px;border:1px solid var(--rule);border-radius:18px;padding:14px;background:rgba(251,250,246,.10)}
+.cv-row{display:grid;grid-template-columns:80px 1fr;gap:12px;border:1px solid var(--rule);border-radius:18px;padding:14px;background:#ffffff}
 .cv-rank-col{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:4px}
 .cv-rank-num{font-size:32px;font-weight:600;letter-spacing:-.05em;line-height:1;color:var(--muted)}
 .cv-score-ring{text-align:center;border:2px solid var(--rule);border-radius:12px;padding:6px 10px;min-width:56px}
@@ -143,7 +143,7 @@ function renderConvictionStyle() {
 .cv-active-signal span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .cv-active-signal p{font-size:12px;line-height:1.4;color:rgba(36,35,31,.82);margin:0;font-weight:500}
 .cv-modifiers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.cv-modifiers div{border:1px solid var(--rule);border-radius:10px;padding:8px 10px;background:rgba(251,250,246,.08)}
+.cv-modifiers div{border:1px solid var(--rule);border-radius:10px;padding:8px 10px;background:#ffffff}
 .cv-modifiers span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .cv-modifiers ul{margin:0;padding:0 0 0 12px;font-size:11px;line-height:1.55;color:rgba(36,35,31,.75)}
 .cv-modifiers p{font-size:11px;line-height:1.45;color:rgba(36,35,31,.72);margin:0;overflow-wrap:anywhere}

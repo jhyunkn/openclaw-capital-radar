@@ -60,12 +60,12 @@ const css = `<style id="candidate-ranking-style">
 .crank-tier-summary{display:flex;gap:8px;flex-wrap:wrap}.crank-tier-chip{font-size:11px;border:1px solid var(--rule);border-radius:999px;padding:5px 9px;display:flex;gap:5px;align-items:center}
 .crank-tier-chip b{font-weight:700}.crank-tier-A b{color:var(--green)}.crank-tier-B b{color:var(--warn)}.crank-tier-D b{color:var(--red)}
 .crank-top-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:20px}
-.crank-top-card{border:1px solid var(--rule);border-radius:16px;background:rgba(251,250,246,.16);padding:14px}
+.crank-top-card{border:1px solid var(--rule);border-radius:16px;background:#ffffff;padding:14px}
 .crank-top-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}.crank-top-head h3{font-size:26px;margin:0;flex:1;letter-spacing:-.04em}
 .crank-score-wrap{text-align:right}.crank-score-wrap span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
 .crank-score-wrap b{display:block;font-size:24px;letter-spacing:-.04em;font-weight:500}
 .crank-name{font-size:11px;color:var(--muted);margin:0 0 8px}.crank-signals{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-.crank-signals span{font-size:10px;border:1px solid var(--rule);border-radius:999px;padding:3px 7px;color:var(--muted);background:rgba(251,250,246,.10)}
+.crank-signals span{font-size:10px;border:1px solid var(--rule);border-radius:999px;padding:3px 7px;color:var(--muted);background:#ffffff}
 .crank-gate{display:flex;gap:6px;align-items:center;margin-bottom:6px}.crank-gate span{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
 .crank-gate b{font-size:12px}.crank-why{font-size:11px;color:var(--muted);line-height:1.4;margin:0}
 .crank-news-alert{font-size:10px;border:1px solid rgba(159,63,53,.38);border-radius:8px;background:rgba(159,63,53,.06);padding:5px 8px;margin-bottom:8px;color:rgba(36,35,31,.80)}
@@ -77,7 +77,7 @@ const css = `<style id="candidate-ranking-style">
 .crank-tier-D{border-color:rgba(159,63,53,.4);background:rgba(159,63,53,.06);color:var(--red)}
 .crank-table-wrap{border:1px solid var(--rule);border-radius:12px;overflow:auto;margin-top:14px}
 .crank-table{width:100%;border-collapse:collapse;font-size:12px}
-.crank-table th{padding:9px 12px;border-bottom:1px solid var(--rule);text-align:left;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;background:rgba(251,250,246,.18)}
+.crank-table th{padding:9px 12px;border-bottom:1px solid var(--rule);text-align:left;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;background:#ffffff}
 .crank-table td{padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:middle}
 .crank-table tr:last-child td{border-bottom:0}.crank-rank{color:var(--muted)}.crank-ticker b{font-size:14px}
 .crank-adj b{font-size:15px;font-weight:500}.crank-base,.crank-gate{color:var(--muted)!important}

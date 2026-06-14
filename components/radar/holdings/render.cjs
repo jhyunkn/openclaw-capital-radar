@@ -728,7 +728,7 @@ function renderHoldingsStyle() {
 /* Chart toggle */
 .mu-charts-det{margin:10px 0 0}.mu-charts-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.4);cursor:pointer;padding:6px 0;display:block;list-style:none;border-top:0.5px solid rgba(201,191,173,.3)}.mu-charts-sum::-webkit-details-marker{display:none}.mu-charts-sum::before{content:"▸ ";font-size:9px}.mu-charts-det[open] .mu-charts-sum::before{content:"▾ "}.mu-charts-det[open] .mu-charts-sum{padding-bottom:6px}
 /* LWC chart */
-.mu-chart-wrap{position:relative;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:rgba(251,250,246,.04)}
+.mu-chart-wrap{position:relative;border:1px solid var(--rule);border-radius:10px 10px 0 0;overflow:hidden;background:#ffffff}
 .mu-holding-lwc{width:100%;height:240px;display:block}
 .mu-rsi-lwc{width:100%;height:70px;display:block;border-top:1px solid rgba(201,191,173,.18)}
 .mu-macd-lwc{width:100%;height:88px;display:block;border-top:1px solid rgba(201,191,173,.18)}
@@ -743,7 +743,7 @@ function renderHoldingsStyle() {
 .lc-ema21{background:rgba(200,90,50,.12);color:rgba(200,90,50,.85)}
 .lc-atr{background:rgba(100,100,100,.1);color:rgba(60,60,60,.7)}
 /* Zone position bar */
-.mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:rgba(251,250,246,.06)}
+.mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:#ffffff}
 .mu-zone-bar-svg{display:block;width:100%;height:auto}
 /* Levels strip */
 .mu-levels-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:8px 0}
@@ -761,7 +761,7 @@ function renderHoldingsStyle() {
 .mu-level-stop>b{color:var(--red)}
 .mu-level-exit>b{color:var(--red)}
 /* Posture */
-.mu-posture-row{border-radius:10px;padding:9px 12px;background:rgba(251,250,246,.10);border:1px solid var(--rule);margin:8px 0}
+.mu-posture-row{border-radius:10px;padding:9px 12px;background:#ffffff;border:1px solid var(--rule);margin:8px 0}
 .mu-posture-row b{font-size:13px;line-height:1.4;font-weight:500}
 .mu-posture-row.good{border-color:rgba(47,111,78,.3);background:rgba(47,111,78,.07)}
 .mu-posture-row.good b{color:var(--green)}
@@ -771,7 +771,7 @@ function renderHoldingsStyle() {
 .mu-posture-row.warn b{color:var(--warn)}
 /* Signal vs permission */
 .mu-permission-explainer{max-width:760px;color:var(--muted);font-size:12px;line-height:1.4;margin:6px 0 0}
-.mu-permission-row{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:8px 0;background:rgba(251,250,246,.08)}
+.mu-permission-row{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:8px 0;background:#ffffff}
 .mu-permission-row>div{padding:9px 11px;border-right:1px solid var(--rule);min-width:0}
 .mu-permission-row>div:last-child{border-right:none}
 .mu-permission-row span{display:block;font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}

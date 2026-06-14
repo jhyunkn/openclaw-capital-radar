@@ -146,7 +146,7 @@ function renderKostolanyEggModuleStyle() {
 #kostolany-egg-module .ke-score .row{display:flex;justify-content:space-between;gap:10px;color:#3b352e;font-size:12px}
 #kostolany-egg-module .ke-score .value{font-weight:800}
 #kostolany-egg-module .ke-score .value.red{color:#b64336}
-#kostolany-egg-module .ke-score .bar{height:7px;border-radius:999px;background:#eee7dc;overflow:hidden;margin-top:5px}
+#kostolany-egg-module .ke-score .bar{height:7px;border-radius:999px;background:#ffffff;overflow:hidden;margin-top:5px}
 #kostolany-egg-module .ke-score .fill{height:100%;background:#208857}
 #kostolany-egg-module .ke-score .fill.red{background:#b64336}
 #kostolany-egg-module .ke-score-note{margin-top:4px;color:#756d63;font-size:11px;line-height:1.35}

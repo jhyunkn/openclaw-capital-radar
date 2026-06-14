@@ -1897,7 +1897,7 @@ const remainingAnalogs = (analogs.analogs || []).slice(1, 4).map(a => `
 // ── CSS ───────────────────────────────────────────────────────────────────────
 
 const style = `<style id="macro-unified-style">
-.macro-unified{border-bottom:1px solid var(--macro-rule,rgba(201,191,173,.55));background:#F7F3EB}
+.macro-unified{border-bottom:1px solid var(--macro-rule,rgba(201,191,173,.55));background:#ffffff}
 .mu-wrap{width:min(1280px,calc(100% - 48px));margin:0 auto}
 
 /* Color semantics */

@@ -1933,7 +1933,7 @@ const style = `<style id="macro-unified-style">
 .mu-phase-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:rgba(26,23,20,.38);margin:0 0 8px;font-family:var(--mono,monospace)}
 .mu-phase-title{font-size:clamp(40px,4.8vw,68px);line-height:.88;letter-spacing:-.075em;font-weight:560;margin:0 0 14px;color:#1A1714}
 .mu-narrative{font-size:clamp(13px,1.2vw,15px);line-height:1.55;color:rgba(26,23,20,.68);max-width:820px;margin:0 0 18px}
-.mu-action{border-left:3px solid #A4502F;padding:10px 0 10px 14px;background:rgba(251,250,246,.32)}
+.mu-action{border-left:3px solid #A4502F;padding:10px 0 10px 14px;background:#ffffff}
 .mu-action span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.4);margin-bottom:4px;font-family:var(--mono,monospace)}
 .mu-action b{display:block;font-size:clamp(18px,2vw,26px);font-weight:650;color:#1A1714;line-height:1.12;letter-spacing:-.035em}
 .mu-action small{display:block;font-size:12.5px;color:rgba(26,23,20,.58);margin-top:8px;line-height:1.42;max-width:740px}
@@ -2039,7 +2039,7 @@ const style = `<style id="macro-unified-style">
 .mu-leg-today{width:10px;height:10px;border-radius:50%;background:#b85c38;box-shadow:0 0 0 2px rgba(184,92,56,.25),0 0 6px 2px rgba(184,92,56,.30);border:1.5px solid rgba(244,239,230,.90)}
 .mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 /* Regime column */
-.mu-regime-col{border:1px solid rgba(201,191,173,.45);border-radius:18px;padding:16px 15px;background:rgba(251,250,246,.28);display:flex;flex-direction:column;gap:0}
+.mu-regime-col{border:1px solid rgba(201,191,173,.45);border-radius:18px;padding:16px 15px;background:#ffffff;display:flex;flex-direction:column;gap:0}
 .mu-rg-eyebrow{font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block}
 .mu-rg-name{display:block;font-size:20px;font-weight:500;letter-spacing:-.04em;margin:3px 0 1px;color:rgba(26,23,20,.88)}
 .mu-rg-sub{font-size:10.5px;color:var(--muted);margin:0 0 13px;line-height:1.4}

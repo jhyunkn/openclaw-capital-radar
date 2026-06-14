@@ -902,12 +902,12 @@ function renderOpportunitiesStyle() {
 .op-stance{color:var(--muted);font-size:13px;margin:6px 0 0}
 /* Trust strip — 4 stat chips above the card list */
 .trust-strip{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 14px}
-.trust-strip article{border:1px solid rgba(201,191,173,.45);border-radius:2px;padding:6px 14px;background:rgba(251,250,246,.28);display:flex;align-items:center;gap:8px}
+.trust-strip article{border:1px solid rgba(201,191,173,.45);border-radius:2px;padding:6px 14px;background:#ffffff;display:flex;align-items:center;gap:8px}
 .trust-strip span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 .trust-strip b{font-size:13px;font-weight:600;letter-spacing:-.01em;color:rgba(36,35,31,.88)}
 /* Ranked card list */
 .ub-list{display:flex;flex-direction:column;gap:8px;margin-top:0}
-.ub-card{border:1px solid rgba(201,191,173,.45);border-left:3px solid transparent;border-radius:2px;padding:14px 16px;background:rgba(251,250,246,.14);min-width:0}
+.ub-card{border:1px solid rgba(201,191,173,.45);border-left:3px solid transparent;border-radius:2px;padding:14px 16px;background:#ffffff;min-width:0}
 /* Signal colors — aligned to app palette: --green #2f6f4e, --blue #405f9f, --warn #8a6a2c */
 .ub-signal{border-left-color:rgba(47,111,78,.65);background:rgba(47,111,78,.04)}
 .ub-event{border-left-color:rgba(64,95,159,.65);background:rgba(64,95,159,.04)}
@@ -924,7 +924,7 @@ function renderOpportunitiesStyle() {
 .ub-tag-signal{background:rgba(47,111,78,.08);border-color:rgba(47,111,78,.32);color:var(--green)}
 .ub-tag-event{background:rgba(64,95,159,.08);border-color:rgba(64,95,159,.32);color:var(--blue)}
 .ub-tag-active{background:rgba(138,106,44,.08);border-color:rgba(138,106,44,.32);color:var(--warn)}
-.ub-tag-research{background:rgba(251,250,246,.12);border-color:var(--rule);color:var(--muted)}
+.ub-tag-research{background:#ffffff;border-color:var(--rule);color:var(--muted)}
 /* Action badge — tells user what to do */
 .ub-action{font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;padding:3px 8px;border-radius:2px;border:1px solid;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono,monospace)}
 .ub-action-signal{color:var(--green);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.07)}
@@ -943,18 +943,18 @@ function renderOpportunitiesStyle() {
 .ub-fw-crowd-high{color:var(--red,#9f3f35)!important;font-weight:600}
 /* Metric chips */
 .ub-chips{display:flex;flex-wrap:wrap;gap:5px;padding-left:28px}
-.ub-chip{font-size:11px;color:rgba(36,35,31,.62);background:rgba(251,250,246,.20);border:1px solid var(--rule);border-radius:999px;padding:2px 8px}
+.ub-chip{font-size:11px;color:rgba(36,35,31,.62);background:#ffffff;border:1px solid var(--rule);border-radius:999px;padding:2px 8px}
 .ub-deep{color:var(--red)!important;border-color:rgba(159,63,53,.28)!important;background:rgba(159,63,53,.05)!important}
 .ub-rev{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 .ub-entry{color:var(--warn)!important;border-color:rgba(138,106,44,.28)!important;background:rgba(138,106,44,.05)!important}
 .ub-upside{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important;font-weight:600!important}
-.ub-timing{color:rgba(36,35,31,.52)!important;border-color:rgba(201,191,173,.5)!important;background:rgba(251,250,246,.18)!important}
+.ub-timing{color:rgba(36,35,31,.52)!important;border-color:rgba(201,191,173,.5)!important;background:#ffffff!important}
 .ub-urgent{color:var(--warn)!important;border-color:rgba(138,106,44,.38)!important;background:rgba(138,106,44,.08)!important;font-weight:700!important}
 .ub-decline{color:var(--muted)!important;border-color:rgba(201,191,173,.45)!important;background:rgba(201,191,173,.1)!important}
 .ub-crowd-low{color:var(--green)!important;border-color:rgba(47,111,78,.28)!important;background:rgba(47,111,78,.06)!important}
 .ub-sig{color:rgba(36,35,31,.58)!important;border-color:rgba(201,191,173,.4)!important;background:transparent!important;font-size:10px!important}
 /* Legend — explains the 4 card tiers */
-.ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(201,191,173,.45);border-radius:2px;background:rgba(251,250,246,.18)}
+.ub-legend{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;padding:14px 16px;border:1px solid rgba(201,191,173,.45);border-radius:2px;background:#ffffff}
 .ub-legend-row{display:flex;align-items:baseline;gap:10px}
 .ub-legend-row .ub-tag{flex-shrink:0;pointer-events:none}
 .ub-legend-text{font-size:12px;color:rgba(36,35,31,.72);line-height:1.4}
@@ -963,7 +963,7 @@ function renderOpportunitiesStyle() {
 .ub-footer a{color:var(--blue);text-decoration:none}
 .ub-footer a:hover{text-decoration:underline}
 /* Entry & projection zone block */
-.ub-ez{margin:10px 0 8px;padding:10px 12px;border-radius:4px;border:1px solid rgba(201,191,173,.3);background:rgba(251,250,246,.22);padding-left:28px}
+.ub-ez{margin:10px 0 8px;padding:10px 12px;border-radius:4px;border:1px solid rgba(201,191,173,.3);background:#ffffff;padding-left:28px}
 .ub-ez-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .ub-ez-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);flex-shrink:0}
 .ub-ez-status{font-size:12px;font-weight:600;color:rgba(36,35,31,.82);flex:1}
@@ -989,7 +989,7 @@ function renderOpportunitiesStyle() {
 .ub-ez-sigs{display:flex;gap:8px;margin-top:6px}
 .ub-ez-sigs span{font-size:10px;color:rgba(36,35,31,.5);background:rgba(201,191,173,.15);border:1px solid rgba(201,191,173,.3);border-radius:999px;padding:1px 7px}
 /* no-band variant */
-.ub-ez-noband{background:rgba(251,250,246,.1);border-style:dashed}
+.ub-ez-noband{background:#ffffff;border-style:dashed}
 .ub-ez-noband-note{font-size:12px;color:rgba(36,35,31,.42);font-weight:400}
 .ub-ez-chips{margin-top:4px}
 /* ── Two-group layout ── */
@@ -1000,7 +1000,7 @@ function renderOpportunitiesStyle() {
 .opp-group-desc{font-size:12px;color:var(--muted);margin:3px 0 0;line-height:1.45}
 .opp-asym-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .opp-pw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
-.opp-card{border:1px solid rgba(201,191,173,.45);border-top:2px solid transparent;border-radius:0;padding:16px;background:rgba(251,250,246,.18)}
+.opp-card{border:1px solid rgba(201,191,173,.45);border-top:2px solid transparent;border-radius:0;padding:16px;background:#ffffff}
 .opp-card-asym{border-top-color:rgba(47,111,78,.5);background:rgba(47,111,78,.03)}
 .opp-card-pw{border-top-color:rgba(138,106,44,.45);background:rgba(138,106,44,.02)}
 .opp-card-both{border-top-color:rgba(64,95,159,.55);background:rgba(64,95,159,.03)}

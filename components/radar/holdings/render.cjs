@@ -530,7 +530,7 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     var rsiEl =document.getElementById('rsi-'+ticker);
     var macdEl=document.getElementById('macd-'+ticker);
     var LWC=window.LightweightCharts;
-    var bLayout={background:{type:'solid',color:'rgba(251,250,246,.04)'},textColor:'rgba(26,23,20,.5)',fontSize:10};
+    var bLayout={background:{type:'solid',color:'#ffffff'},textColor:'rgba(26,23,20,.5)',fontSize:10};
     var bGrid={vertLines:{color:'rgba(201,191,173,.07)'},horzLines:{color:'rgba(201,191,173,.07)'}};
     // ── MAIN ──
     var chart=LWC.createChart(el,{
@@ -602,7 +602,7 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     if(rsiEl&&data.rsi&&data.rsi.length){
       rsiChart=LWC.createChart(rsiEl,{
         width:el.clientWidth||800,height:70,
-        layout:{background:{type:'solid',color:'rgba(251,250,246,.03)'},textColor:'rgba(26,23,20,.45)',fontSize:9},
+        layout:{background:{type:'solid',color:'#ffffff'},textColor:'rgba(26,23,20,.45)',fontSize:9},
         grid:{vertLines:{color:'rgba(201,191,173,.05)'},horzLines:{color:'rgba(201,191,173,.05)'}},
         crosshair:{mode:1,vertLine:{width:1,color:'rgba(26,23,20,.15)',style:0},horzLine:{visible:false}},
         rightPriceScale:{borderColor:'rgba(201,191,173,.25)',scaleMargins:{top:0.05,bottom:0.05}},
@@ -623,7 +623,7 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     if(macdEl&&data.macd&&data.macd.histogram&&data.macd.histogram.length){
       macdChart=LWC.createChart(macdEl,{
         width:el.clientWidth||800,height:88,
-        layout:{background:{type:'solid',color:'rgba(251,250,246,.03)'},textColor:'rgba(26,23,20,.45)',fontSize:9},
+        layout:{background:{type:'solid',color:'#ffffff'},textColor:'rgba(26,23,20,.45)',fontSize:9},
         grid:{vertLines:{color:'rgba(201,191,173,.05)'},horzLines:{color:'rgba(201,191,173,.05)'}},
         crosshair:{mode:1,vertLine:{width:1,color:'rgba(26,23,20,.15)',style:0},horzLine:{visible:false}},
         rightPriceScale:{borderColor:'rgba(201,191,173,.25)',scaleMargins:{top:0.1,bottom:0.1}},
@@ -693,7 +693,7 @@ function renderHoldingsStyle() {
 .mu-section-desc{max-width:760px;color:var(--muted);font-size:13px;line-height:1.45;margin:5px 0 0}
 .mu-holdings-stack{display:flex;flex-direction:column;gap:24px;max-width:960px;margin:18px auto 0}
 /* Base card */
-.mu-holding-card{border:1px solid var(--rule);border-radius:16px;background:rgba(251,250,246,.14);padding:18px 18px 14px;overflow:hidden;transition:border-color .15s,background .15s}
+.mu-holding-card{border:1px solid var(--rule);border-radius:16px;background:#ffffff;padding:18px 18px 14px;overflow:hidden;transition:border-color .15s,background .15s}
 /* Zone-aware tinting */
 .mu-holding-card[data-zone-status="in_buy_zone"]{border-color:rgba(42,107,74,.45);background:rgba(42,107,74,.07)}
 .mu-holding-card[data-zone-status="in_trim_zone"]{border-color:rgba(138,106,44,.45);background:rgba(138,106,44,.06)}
@@ -705,7 +705,7 @@ function renderHoldingsStyle() {
 .mu-header-right{text-align:right;flex-shrink:0}
 .mu-ticker-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .mu-ticker{font-size:26px;font-weight:700;margin:0;line-height:1}
-.mu-signal-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:999px;border:1px solid var(--rule);background:rgba(251,250,246,.12);color:var(--muted)}
+.mu-signal-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:999px;border:1px solid var(--rule);background:#ffffff;color:var(--muted)}
 .mu-signal-badge.good{border-color:rgba(47,111,78,.4);color:var(--green);background:rgba(47,111,78,.08)}
 .mu-signal-badge.bad{border-color:rgba(164,80,47,.4);color:var(--red);background:rgba(164,80,47,.07)}
 .mu-signal-badge.warn{border-color:rgba(138,106,44,.4);color:var(--warn);background:rgba(138,106,44,.07)}

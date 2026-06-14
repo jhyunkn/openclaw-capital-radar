@@ -106,7 +106,7 @@ function renderSection() {
 
 function renderStyle() {
   return `<style id="market-calendar-style">
-.mc-section{background:var(--cream,#f6f4ee);border-top:1px solid var(--rule,#dedbd2);padding:56px 0}
+.mc-section{background:#ffffff;border-top:1px solid var(--rule,#dedbd2);padding:56px 0}
 .mc-inner{width:min(1240px,calc(100% - 48px));margin:0 auto}
 .mc-head{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--rule,#dedbd2)}
 .mc-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted,#747168);margin:0 0 8px;font-family:var(--mono,monospace);display:block}

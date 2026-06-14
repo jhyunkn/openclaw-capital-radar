@@ -209,7 +209,7 @@ function verifyFinalOutput() {
   const missing = requiredIds.filter(id => !html.includes(`id="${id}"`));
   if (missing.length) throw new Error(`Macro integration chain missing from final public/index.html: ${missing.join(', ')}`);
   const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
-  const expected = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
+  const expected = ['decision-brief-section', 'market-calendar-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
   if (JSON.stringify(sectionIds) !== JSON.stringify(expected)) {
     throw new Error(`public/index.html section contract drift: expected ${expected.join(' > ')} got ${sectionIds.join(' > ')}`);
   }
@@ -227,6 +227,7 @@ runFinalInjector('inject-operational-chart-home.cjs', 'Operational chart injecti
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
+runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed before Vercel copy');
 runFinalInjector('generate-robinhood-execution-bridge-state.cjs', 'Robinhood position state generation failed before Vercel copy');
 runFinalInjector('inject-holdings-home-modular.cjs', 'Holdings decision chart injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
@@ -240,6 +241,7 @@ for (const entry of copyEntries) {
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

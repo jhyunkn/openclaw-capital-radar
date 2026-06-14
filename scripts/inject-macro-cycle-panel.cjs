@@ -58,8 +58,7 @@ const axisRows = axes.map(a => {
 }).join('');
 
 const style = `<style id="macro-cycle-panel-style">
-.macro-cycle-panel{border-top:1px solid var(--rule);padding:48px 0;background:linear-gradient(180deg,rgba(247,243,235,.82),rgba(239,234,224,.48))}
-.mcp-wrap{width:min(1280px,calc(100% - 48px));margin:0 auto;display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.1fr);gap:32px;align-items:start}
+.macro-cycle-panel{border-top:1px solid var(--rule);padding:48px 0;background:#ffffff;margin:0 auto;display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.1fr);gap:32px;align-items:start}
 .mcp-kicker{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:0 0 14px}
 .mcp-phase-label{font-size:clamp(38px,5.5vw,82px);line-height:.88;letter-spacing:-.075em;font-weight:500;margin:0 0 6px}
 .mcp-sub{font-size:14px;color:rgba(36,35,31,.66);line-height:1.45;margin:10px 0 22px;max-width:420px}

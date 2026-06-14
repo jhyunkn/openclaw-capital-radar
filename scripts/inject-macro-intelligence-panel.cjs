@@ -66,8 +66,7 @@ const ruleRows = riskRules.slice(0, 4).map(r => `<div class="mip-rule">
 </div>`).join('');
 
 const style = `<style id="macro-intelligence-panel-style">
-.macro-intelligence-panel{border-top:1px solid var(--rule);padding:48px 0;background:linear-gradient(180deg,rgba(243,240,232,.68),rgba(235,230,218,.38))}
-.mip-wrap{width:min(1280px,calc(100% - 48px));margin:0 auto}
+.macro-intelligence-panel{border-top:1px solid var(--rule);padding:48px 0;background:#ffffff;margin:0 auto}
 .mip-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:24px;gap:20px;border-bottom:1px solid var(--rule);padding-bottom:18px}
 .mip-head h2{font-size:clamp(28px,3.8vw,58px);letter-spacing:-.065em;font-weight:500;line-height:.92;margin:0}
 .mip-kicker{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);display:block;margin-bottom:8px}

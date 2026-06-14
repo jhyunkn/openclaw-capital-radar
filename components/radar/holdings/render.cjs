@@ -733,7 +733,7 @@ function renderHoldingsStyle() {
 .mu-rsi-lwc{width:100%;height:70px;display:block;border-top:1px solid rgba(201,191,173,.18)}
 .mu-macd-lwc{width:100%;height:88px;display:block;border-top:1px solid rgba(201,191,173,.18)}
 /* Legend chip — crosshair-aware, floats top-left inside chart */
-.mu-chart-legend{position:absolute;top:8px;left:8px;z-index:10;display:flex;gap:10px;flex-wrap:wrap;padding:4px 9px;background:rgba(248,246,241,.88);backdrop-filter:blur(6px);border:1px solid rgba(201,191,173,.4);border-radius:6px;font-size:10.5px;line-height:1.25;pointer-events:none}
+.mu-chart-legend{position:absolute;top:8px;left:8px;z-index:10;display:flex;gap:10px;flex-wrap:wrap;padding:4px 9px;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);border:1px solid rgba(201,191,173,.4);border-radius:6px;font-size:10.5px;line-height:1.25;pointer-events:none}
 .mu-chart-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;color:rgba(26,23,20,.75);font-weight:600}
 .mu-chart-legend em{font-style:normal;font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
 .lc-ma50{background:rgba(138,106,44,.15);color:rgba(138,106,44,.9)}

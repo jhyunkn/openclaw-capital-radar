@@ -1,7 +1,6 @@
 'use strict';
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const arr = v => Array.isArray(v) ? v : [];
 
 function fmtDollar(v, decimals = 0) {
   if (v == null || !Number.isFinite(Number(v))) return '—';
@@ -26,15 +25,6 @@ function renderPortfolioBar(state) {
 
   const p   = state.portfolio;
   const sum = state.summary || {};
-  const aq  = arr(sum.actionQueue);
-
-  const actionBadges = aq.map(item => {
-    const cls = item.signalClass === 'exit'        ? 'pb-exit'
-              : item.signalClass === 'trim'         ? 'pb-trim'
-              : item.signalClass === 'investigate'  ? 'pb-inv'
-              : 'pb-watch';
-    return `<span class="pb-action-badge ${cls}"><b>${esc(item.symbol)}</b>&thinsp;${esc(item.signal)}</span>`;
-  }).join('');
 
   const asOf = state.fetchedAt
     ? new Date(state.fetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' · ' +
@@ -84,14 +74,6 @@ function renderPortfolioBarStyle() {
 .pb-pct{font-size:11px;font-weight:500;letter-spacing:-.01em}
 .pb-up{color:var(--green,#2f6f4e)!important}
 .pb-dn{color:var(--red,#9f3f35)!important}
-.pb-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-.pb-actions-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(36,35,31,.35);font-family:var(--mono,monospace);margin-right:2px}
-.pb-action-badge{font-size:10px;padding:2px 9px;border-radius:2px;border:1px solid;white-space:nowrap;font-family:var(--mono,monospace)}
-.pb-action-badge b{font-weight:700;margin-right:3px}
-.pb-exit{color:#c62828;background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.2)}
-.pb-trim{color:var(--warn,#8a6a2c);background:rgba(138,106,44,.07);border-color:rgba(138,106,44,.2)}
-.pb-inv{color:rgba(64,95,159,.9);background:rgba(64,95,159,.07);border-color:rgba(64,95,159,.2)}
-.pb-watch{color:var(--muted);background:transparent;border-color:var(--rule)}
 .pb-timestamp{font-size:9px;color:rgba(36,35,31,.3);font-family:var(--mono,monospace);white-space:nowrap;margin-left:auto}
 @media(max-width:760px){.pb-tiles{gap:14px}.pb-timestamp{display:none}}
 </style>`;

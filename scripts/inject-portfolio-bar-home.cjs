@@ -34,5 +34,4 @@ html = html.replace(/(<\/header>)/, (_, h) => h + '\n' + bar);
 
 fs.writeFileSync(indexPath, html);
 
-const aq = (state.summary?.actionQueue || []).length;
-console.log(`injected portfolio bar: $${Math.round(state.portfolio?.totalValue).toLocaleString()} total · ${aq} action item${aq !== 1 ? 's' : ''}`);
+console.log(`injected portfolio bar: $${Math.round(state.portfolio?.totalValue).toLocaleString()} total`);

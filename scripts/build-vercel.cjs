@@ -244,4 +244,11 @@ runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart 
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
+
+// Sync public/ → .vercel/output/static/ so --prebuilt deploy uses the same content
+const vercelStatic = path.join(root, '.vercel', 'output', 'static');
+rm(vercelStatic);
+fs.mkdirSync(vercelStatic, { recursive: true });
+for (const entry of fs.readdirSync(out)) copy(path.join(out, entry), path.join(vercelStatic, entry));
 console.log(`Prepared Vercel static output at ${out}`);
+console.log(`Synced to .vercel/output/static/`);

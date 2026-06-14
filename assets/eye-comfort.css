@@ -1,92 +1,67 @@
-/* ── Typography + visual refinement pass.
-   Koyfin card definition, Stripe weight contrast, editorial hierarchy.
-   Layout, backgrounds, chart canvas/SVG, semantic colors: untouched. ── */
+/* ── Capital Radar visual system — Geist font, color clarity, card definition.
+   Core principle: restore baked-in SIZE hierarchy, add WEIGHT + COLOR consistency.
+   Never override font-size on p/li/b — those intentional size variations ARE the hierarchy.
+   Layout, backgrounds, chart canvas/SVG: untouched. ── */
 
 /* ─────────────────────────────────────────────
-   DESIGN SYSTEM OVERRIDES
-   --rule was #ffffff (invisible borders). Now a
-   subtle warm grey so all cards have Koyfin-like
-   definition without adding explicit shadows.
+   DESIGN SYSTEM
+   --rule was #ffffff (invisible borders everywhere).
+   Now a subtle warm grey → card definition without shadow.
 ───────────────────────────────────────────── */
 :root {
-  --rule:  rgba(36, 35, 31, 0.10);
-  --ink:   #0d0d0d;
+  --rule: rgba(36, 35, 31, 0.10);
+  --ink:  #0d0d0d;
 }
 
-/* ─── FONT: Geist — geometric sans, closest to OpenAI Sans ─── */
+/* ─────────────────────────────────────────────
+   FONT
+   Geist everywhere as the base. Higher-specificity
+   monospace rules in baked-in styles will still win
+   for labels that are intentionally mono (fine).
+───────────────────────────────────────────── */
 * { font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif !important; }
 
-/* ─────────────────────────────────────────────
-   HEADING HIERARCHY
-   Weight contrast is the primary hierarchy signal,
-   same approach as Stripe and Koyfin section heads.
-───────────────────────────────────────────── */
-h1 {
-  font-weight: 800 !important;
-  color: #0d0d0d !important;
-}
-
-h2 {
-  font-weight: 700 !important;
-  color: #0d0d0d !important;
-}
-
-h3 {
-  font-weight: 600 !important;
-  letter-spacing: -0.02em !important;
-  color: #0d0d0d !important;
-}
-
-h4 {
-  font-weight: 600 !important;
-  color: #0d0d0d !important;
-}
+body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
 
 /* ─────────────────────────────────────────────
-   BODY TEXT
-   Weight 400, generous line-height for reading comfort.
+   HEADING WEIGHTS — the only size-independent
+   change that creates hierarchy without collapsing
+   the baked-in size scale.
 ───────────────────────────────────────────── */
-p, li {
-  font-size: 15px !important;
-  font-weight: 400 !important;
-  line-height: 1.65 !important;
-  color: #0d0d0d !important;
-}
+h1 { font-weight: 800 !important; color: #0d0d0d !important; }
+h2 { font-weight: 700 !important; color: #0d0d0d !important; }
+h3 { font-weight: 600 !important; color: #0d0d0d !important; }
+h4 { font-weight: 600 !important; color: #0d0d0d !important; }
 
-/* ─────────────────────────────────────────────
-   BOLD / DATA VALUES
-   Weight 600 baseline for inline emphasis.
-   Key financial stat blocks bumped to 700 below.
-───────────────────────────────────────────── */
-b, strong {
-  font-weight: 600 !important;
-  color: #0d0d0d !important;
-}
-
-/* Stripe-style stat blocks: large metric numbers deserve 700 */
-.status strong,
-.metric strong,
-.money-cash-chart-topline b,
-.money-cash-current-strip b,
-.money-cash-sidecar b,
-.duration-chart-topline b,
-.duration-current-strip b,
-.duration-sidecar b,
-.duration-curve-card b,
-.credit-chart-topline b,
-.credit-current-strip b,
-.credit-sidecar b,
-.credit-bank-card b {
-  font-weight: 700 !important;
-}
-
-/* Beat baked-in macro !important rules (specificity 11) by prefixing .shell (→ 21) */
+/* Beat baked-in macro !important weight rules (specificity 11 → 21) */
 .shell .macro-root-head h2,
 .shell .macro-block-title h3,
-.shell .macro-compression h3 {
-  font-weight: 700 !important;
+.shell .macro-compression h3 { font-weight: 700 !important; }
+
+/* ─────────────────────────────────────────────
+   BODY TEXT COLOR — weight and color only.
+   NO font-size override: baked-in size variation
+   (9px eyebrows → 12px card text → 15px body)
+   is the hierarchy. Preserving it is critical.
+───────────────────────────────────────────── */
+p, li {
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  color: #0d0d0d !important;
 }
 
+/* ─────────────────────────────────────────────
+   DATA VALUES — color only, weight only.
+   NO font-size override: metric numbers range
+   from 15px to 82px intentionally.
+───────────────────────────────────────────── */
+b, strong {
+  color: #0d0d0d !important;
+}
+
+td { color: #0d0d0d !important; }
+
+/* Key financial stat blocks: 700 weight for clear Koyfin-style punch */
 .shell .macro-executive-read aside b,
 .shell .macro-value-grid b,
 .shell .macro-signal-tile b,
@@ -94,29 +69,26 @@ b, strong {
 .shell .mdb-card b,
 .shell .mdb-diagnosis b,
 .shell .ri-current b,
-.shell .ri-read b,
-.shell .ri-cell b {
+.shell .ri-cell b,
+.status strong,
+.metric strong,
+.money-cash-chart-topline b,
+.money-cash-current-strip b,
+.duration-chart-topline b,
+.duration-current-strip b,
+.credit-chart-topline b,
+.credit-current-strip b {
   font-weight: 700 !important;
 }
 
-/* ─── TABLE CELLS ─── */
-td {
-  color: #0d0d0d !important;
-}
-
 /* ─── NAV / UI ─── */
-.nav a, .row, .signal, .button {
-  color: #0d0d0d !important;
-}
+.nav a, .signal, .button { color: #0d0d0d !important; }
 
-/* ─── EDITORIAL TEXT — thesis + lede stay full black ─── */
-.decision-brief-text {
-  color: #0d0d0d !important;
-  font-weight: 500 !important;
-}
+/* ─── Editorial thesis text ─── */
+.decision-brief-text { color: #0d0d0d !important; font-weight: 500 !important; }
 
 /* ─────────────────────────────────────────────
-   SEMANTIC COLOR RESTORES
+   SEMANTIC COLORS — must survive the color reset
 ───────────────────────────────────────────── */
 .good,  .good  b, .good  strong, .good  p, .good  li, .good  span { color: var(--green) !important }
 .bad,   .bad   b, .bad   strong, .bad   p, .bad   li, .bad   span { color: var(--red)   !important }
@@ -134,9 +106,10 @@ td {
 .kv.red   b, .stance-red               { color: var(--ke-red,   #c9463b) !important }
 
 /* ─────────────────────────────────────────────
-   LABELS — Koyfin-style secondary tier
-   Muted color + small size + wider tracking =
-   clearly below values, clearly above nothing.
+   LABELS — Koyfin two-tone system.
+   Muted color makes them clearly secondary.
+   Size stays at 11px only for confirmed label
+   elements — NOT applied to all p/li.
 ───────────────────────────────────────────── */
 .eyebrow, .command-kicker,
 .metric span, .board-card span, .status span,
@@ -149,8 +122,6 @@ small, th,
 .ticker small, .thesis-head span, .thesis-head small,
 .ke-chip span, .ke-card h4,
 .macro-executive-read aside small,
-.macro-signal-tile small,
-.macro-engine-card p,
 .macro-value-grid small {
   font-size: 11px !important;
   font-weight: 500 !important;

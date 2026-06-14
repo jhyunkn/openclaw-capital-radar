@@ -225,8 +225,6 @@ runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection fa
 runFinalInjector('generate-macro-prices-state.cjs', 'Macro prices state generation failed before Vercel copy');
 runFinalInjector('inject-operational-chart-home.cjs', 'Operational chart injection failed before Vercel copy');
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
-runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
-runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
 runFinalInjector('generate-robinhood-execution-bridge-state.cjs', 'Robinhood position state generation failed before Vercel copy');
 runFinalInjector('inject-holdings-home-modular.cjs', 'Holdings decision chart injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
@@ -238,8 +236,6 @@ for (const entry of copyEntries) {
   if (fs.existsSync(src)) copy(src, path.join(out, entry));
 }
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed after Vercel copy', ['public/index.html']);
-runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed after Vercel copy', ['public/index.html']);
-runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 console.log(`Prepared Vercel static output at ${out}`);

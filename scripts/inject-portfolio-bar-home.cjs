@@ -39,6 +39,9 @@ while (html.includes('<div id="portfolio-bar"')) {
   html = html.slice(0, start) + html.slice(i);
 }
 
+// Also scrub orphaned pb-timestamp fragments that leak outside the div on repeated runs
+html = html.replace(/\n<span class="pb-timestamp">[^<]*<\/span>\n[ ]*<\/div>\n<\/div>/g, '');
+
 // Insert right after </header>
 html = html.replace(/(<\/header>)/, (_, h) => h + '\n' + bar);
 

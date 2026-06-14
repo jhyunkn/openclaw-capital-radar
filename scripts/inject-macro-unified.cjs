@@ -1168,8 +1168,8 @@ const _cycleCanvasId = 'mcc_' + Date.now().toString(36);
 
 const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-topbar">
-    <span class="mu-arc-label">Fed Funds Rate — tightening cycle (Oct 2022–present)</span>
-    <span class="mu-arc-meta">One of five inputs &middot; ~44 mo &middot; Next phase: Expansion</span>
+    <span class="mu-arc-label">Fed Funds Rate — tightening cycle (Jan 2022–present)</span>
+    <span class="mu-arc-meta">One of five inputs &middot; ~53 mo &middot; Next phase: Expansion</span>
   </div>
   <div class="mu-arc-canvas-box">
     <canvas id="${_cycleCanvasId}"></canvas>

@@ -125,7 +125,7 @@ const EPS0=338;                        // FactSet 2026 fwd EPS consensus
 const PE0=+(NOW_SP/EPS0).toFixed(1);   // ~22.0x — anchors to current price
 const HIST_YEARS=[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
 const HIST_RATES=[0.13,0.40,1.00,1.83,2.16,0.36,0.08,1.68,5.02,5.14,4.22,3.62];
-const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4769,5882,6820,7420];
+const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4769,5882,6350,7420];
 // ── monthly path generators (49 pts: m=0→2026.0 … m=48→2030.0) ───────────
 // Model 1: EPS₀×(1+g)^t × PE(t).  g decelerates by year; PE drifts linearly.
 function epsPath(epsRates,peTgts){

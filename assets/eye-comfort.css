@@ -1,12 +1,12 @@
-/* ── Capital Radar visual system — Geist font, color clarity, card definition.
-   Core principle: restore baked-in SIZE hierarchy, add WEIGHT + COLOR consistency.
-   Never override font-size on p/li/b — those intentional size variations ARE the hierarchy.
-   Layout, backgrounds, chart canvas/SVG: untouched. ── */
+/* ── Capital Radar visual system — Geist, weight contrast, label clarity.
+   Guided by Stripe/Koyfin audit findings:
+   - Their body text is weight 400 at 15-18px; Capital Radar had almost no weight 400.
+   - Their labels are 11-12px; Capital Radar had 62 CSS rules at 9px.
+   - Their values are weight 600-700; Capital Radar had weight 500 dominating (59 rules).
+   Strategy: don't override baked-in sizes globally — target specific tiers precisely. ── */
 
 /* ─────────────────────────────────────────────
    DESIGN SYSTEM
-   --rule was #ffffff (invisible borders everywhere).
-   Now a subtle warm grey → card definition without shadow.
 ───────────────────────────────────────────── */
 :root {
   --rule: rgba(36, 35, 31, 0.10);
@@ -14,54 +14,60 @@
 }
 
 /* ─────────────────────────────────────────────
-   FONT
-   Geist everywhere as the base. Higher-specificity
-   monospace rules in baked-in styles will still win
-   for labels that are intentionally mono (fine).
+   FONT + RENDERING
 ───────────────────────────────────────────── */
 * { font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif !important; }
 
-body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
 
 /* ─────────────────────────────────────────────
-   HEADING WEIGHTS — the only size-independent
-   change that creates hierarchy without collapsing
-   the baked-in size scale.
+   HEADING HIERARCHY — weight contrast is the
+   primary hierarchy signal (Stripe principle).
+   Sizes stay as designed; weights sharpen them.
 ───────────────────────────────────────────── */
-h1 { font-weight: 800 !important; color: #0d0d0d !important; }
+h1 { font-weight: 800 !important; letter-spacing: -0.04em !important; color: #0d0d0d !important; }
 h2 { font-weight: 700 !important; color: #0d0d0d !important; }
 h3 { font-weight: 600 !important; color: #0d0d0d !important; }
 h4 { font-weight: 600 !important; color: #0d0d0d !important; }
 
-/* Beat baked-in macro !important weight rules (specificity 11 → 21) */
+/* Macro section — beat baked-in !important at specificity 11 by using .shell (→ 21) */
 .shell .macro-root-head h2,
 .shell .macro-block-title h3,
 .shell .macro-compression h3 { font-weight: 700 !important; }
 
 /* ─────────────────────────────────────────────
-   BODY TEXT COLOR — weight and color only.
-   NO font-size override: baked-in size variation
-   (9px eyebrows → 12px card text → 15px body)
-   is the hierarchy. Preserving it is critical.
+   READING TEXT — weight 400 explicitly set.
+   Koyfin/Stripe both use 400 for body so values
+   at 600-700 read as clearly more important.
+   Targeting card/panel context only — not all p
+   (which would crush tiny eyebrow p elements).
 ───────────────────────────────────────────── */
-p, li {
+.panel p, .card p, .board-card p,
+.macro-evidence-board li,
+.macro-engine-card p,
+.macro-compression p,
+.duration-annotation-card li,
+.money-cash-annotation-table td,
+.holding-thesis textarea,
+.source p, .brief-item p {
+  font-size: 14px !important;
   font-weight: 400 !important;
-  line-height: 1.6 !important;
+  line-height: 1.65 !important;
   color: #0d0d0d !important;
 }
 
 /* ─────────────────────────────────────────────
-   DATA VALUES — color only, weight only.
-   NO font-size override: metric numbers range
-   from 15px to 82px intentionally.
+   DATA VALUES — color + weight; NO font-size
+   override (sizes range 15px → 82px by design).
 ───────────────────────────────────────────── */
-b, strong {
-  color: #0d0d0d !important;
-}
+b, strong { color: #0d0d0d !important; }
 
 td { color: #0d0d0d !important; }
 
-/* Key financial stat blocks: 700 weight for clear Koyfin-style punch */
+/* Koyfin-style stat punch: 700 on key metric values */
 .shell .macro-executive-read aside b,
 .shell .macro-value-grid b,
 .shell .macro-signal-tile b,
@@ -88,7 +94,7 @@ td { color: #0d0d0d !important; }
 .decision-brief-text { color: #0d0d0d !important; font-weight: 500 !important; }
 
 /* ─────────────────────────────────────────────
-   SEMANTIC COLORS — must survive the color reset
+   SEMANTIC COLORS
 ───────────────────────────────────────────── */
 .good,  .good  b, .good  strong, .good  p, .good  li, .good  span { color: var(--green) !important }
 .bad,   .bad   b, .bad   strong, .bad   p, .bad   li, .bad   span { color: var(--red)   !important }
@@ -106,10 +112,11 @@ td { color: #0d0d0d !important; }
 .kv.red   b, .stance-red               { color: var(--ke-red,   #c9463b) !important }
 
 /* ─────────────────────────────────────────────
-   LABELS — Koyfin two-tone system.
-   Muted color makes them clearly secondary.
-   Size stays at 11px only for confirmed label
-   elements — NOT applied to all p/li.
+   LABELS — 11px muted, comprehensive.
+   Koyfin uses this exact two-tone pattern:
+   label (small muted) / value (large dark bold).
+   Expanded to catch macro section spans that
+   were sitting at 9-10px with no !important.
 ───────────────────────────────────────────── */
 .eyebrow, .command-kicker,
 .metric span, .board-card span, .status span,
@@ -121,8 +128,17 @@ small, th,
 .mu-section-desc, .op-stance,
 .ticker small, .thesis-head span, .thesis-head small,
 .ke-chip span, .ke-card h4,
+/* Macro section spans missing from previous versions */
+.macro-executive-read aside span,
+.macro-signal-tile span,
+.macro-engine-card span,
+.macro-invalidation-strip span,
+.macro-value-grid span,
+.macro-compression span,
+.macro-source-ledger summary,
 .macro-executive-read aside small,
-.macro-value-grid small {
+.macro-value-grid small,
+.macro-compression-grid small {
   font-size: 11px !important;
   font-weight: 500 !important;
   letter-spacing: 0.06em !important;

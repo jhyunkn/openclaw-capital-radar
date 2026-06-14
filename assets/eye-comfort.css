@@ -1,20 +1,9 @@
-/* ── Capital Radar visual system — Geist, weight contrast, label clarity.
-   Guided by Stripe/Koyfin audit findings:
-   - Their body text is weight 400 at 15-18px; Capital Radar had almost no weight 400.
-   - Their labels are 11-12px; Capital Radar had 62 CSS rules at 9px.
-   - Their values are weight 600-700; Capital Radar had weight 500 dominating (59 rules).
-   Strategy: don't override baked-in sizes globally — target specific tiers precisely. ── */
-
-/* ─────────────────────────────────────────────
-   DESIGN SYSTEM
-───────────────────────────────────────────── */
-:root {
-  --rule: rgba(36, 35, 31, 0.10);
-  --ink:  #0d0d0d;
-}
+/* ── Capital Radar visual system — Geist, weight contrast, label clarity. ── */
 
 /* ─────────────────────────────────────────────
    FONT + RENDERING
+   * !important forces Geist on components that
+   hard-code Inter in their own style blocks.
 ───────────────────────────────────────────── */
 * { font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif !important; }
 
@@ -24,74 +13,73 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   HEADING HIERARCHY — weight contrast is the
-   primary hierarchy signal (Stripe principle).
-   Sizes stay as designed; weights sharpen them.
+   HEADING HIERARCHY
+   capital-radar.css sets h1:700 h2:700 h3:600
+   as base. These rules beat the baked-in
+   component !important rules at specificity 11
+   by using .shell prefix (→ specificity 21).
 ───────────────────────────────────────────── */
-h1 { font-weight: 800 !important; letter-spacing: -0.04em !important; color: #0d0d0d !important; }
-h2 { font-weight: 700 !important; color: #0d0d0d !important; }
-h3 { font-weight: 600 !important; color: #0d0d0d !important; }
-h4 { font-weight: 600 !important; color: #0d0d0d !important; }
+h1 { font-weight: 800 !important; letter-spacing: -0.04em !important; }
+h2 { font-weight: 700 !important; }
+h3 { font-weight: 600 !important; }
+h4 { font-weight: 600 !important; }
 
-/* Macro section — beat baked-in !important at specificity 11 by using .shell (→ 21) */
+/* Macro section — baked-in !important at specificity 11; .shell prefix → 21 */
 .shell .macro-root-head h2,
 .shell .macro-block-title h3,
 .shell .macro-compression h3 { font-weight: 700 !important; }
 
 /* ─────────────────────────────────────────────
-   READING TEXT — weight 400 explicitly set.
-   Koyfin/Stripe both use 400 for body so values
-   at 600-700 read as clearly more important.
-   Targeting card/panel context only — not all p
-   (which would crush tiny eyebrow p elements).
+   READING BODY TEXT — weight 400 for clear
+   contrast against 600-700 data values.
 ───────────────────────────────────────────── */
+.lede { font-weight: 400 !important; line-height: 1.4 !important; }
+.judgment { font-weight: 400 !important; }
+
 .panel p, .card p, .board-card p,
+.checklist li, .compact-list li,
 .macro-evidence-board li,
 .macro-engine-card p,
 .macro-compression p,
 .duration-annotation-card li,
 .money-cash-annotation-table td,
 .holding-thesis textarea,
-.source p, .brief-item p {
+.evidence-box li, .research-card details p,
+.source p, .brief-item p,
+.review-box {
   font-size: 14px !important;
   font-weight: 400 !important;
   line-height: 1.65 !important;
-  color: #0d0d0d !important;
 }
 
 /* ─────────────────────────────────────────────
-   DATA VALUES — color + weight; NO font-size
-   override (sizes range 15px → 82px by design).
+   DATA VALUES — 700 weight for key metrics.
+   No font-size override; sizes range by design.
 ───────────────────────────────────────────── */
-b, strong { color: #0d0d0d !important; }
+.status strong,
+.metric strong,
+.board-card strong,
+.ticker b, .brief-item b, .force-top b,
+.market-pill b, .rate-card b {
+  font-weight: 700 !important;
+}
 
-td { color: #0d0d0d !important; }
-
-/* Koyfin-style stat punch: 700 on key metric values */
 .shell .macro-executive-read aside b,
 .shell .macro-value-grid b,
 .shell .macro-signal-tile b,
 .shell .macro-engine-card b,
-.shell .mdb-card b,
-.shell .mdb-diagnosis b,
-.shell .ri-current b,
-.shell .ri-cell b,
-.status strong,
-.metric strong,
+.shell .mdb-card b, .shell .mdb-diagnosis b,
+.shell .ri-current b, .shell .ri-cell b,
 .money-cash-chart-topline b,
 .money-cash-current-strip b,
 .duration-chart-topline b,
 .duration-current-strip b,
 .credit-chart-topline b,
-.credit-current-strip b {
-  font-weight: 700 !important;
-}
+.credit-current-strip b { font-weight: 700 !important; }
 
-/* ─── NAV / UI ─── */
-.nav a, .signal, .button { color: #0d0d0d !important; }
-
-/* ─── Editorial thesis text ─── */
-.decision-brief-text { color: #0d0d0d !important; font-weight: 500 !important; }
+/* ─── Color unity ─── */
+.nav a, .signal, .button { color: rgba(36,35,31,.82) !important; }
+.decision-brief-text { font-weight: 500 !important; }
 
 /* ─────────────────────────────────────────────
    SEMANTIC COLORS
@@ -112,11 +100,10 @@ td { color: #0d0d0d !important; }
 .kv.red   b, .stance-red               { color: var(--ke-red,   #c9463b) !important }
 
 /* ─────────────────────────────────────────────
-   LABELS — 11px muted, comprehensive.
-   Koyfin uses this exact two-tone pattern:
-   label (small muted) / value (large dark bold).
-   Expanded to catch macro section spans that
-   were sitting at 9-10px with no !important.
+   LABELS — 11px muted, unified across sections.
+   This beats capital-radar.css's own 11px block
+   at equal specificity because eye-comfort.css
+   loads after it.
 ───────────────────────────────────────────── */
 .eyebrow, .command-kicker,
 .metric span, .board-card span, .status span,
@@ -128,7 +115,6 @@ small, th,
 .mu-section-desc, .op-stance,
 .ticker small, .thesis-head span, .thesis-head small,
 .ke-chip span, .ke-card h4,
-/* Macro section spans missing from previous versions */
 .macro-executive-read aside span,
 .macro-signal-tile span,
 .macro-engine-card span,

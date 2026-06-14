@@ -1,0 +1,145 @@
+/* ── Typography + visual refinement pass.
+   Koyfin card definition, Stripe weight contrast, editorial hierarchy.
+   Layout, backgrounds, chart canvas/SVG, semantic colors: untouched. ── */
+
+/* ─────────────────────────────────────────────
+   DESIGN SYSTEM OVERRIDES
+   --rule was #ffffff (invisible borders). Now a
+   subtle warm grey so all cards have Koyfin-like
+   definition without adding explicit shadows.
+───────────────────────────────────────────── */
+:root {
+  --rule:  rgba(36, 35, 31, 0.10);
+  --ink:   #0d0d0d;
+}
+
+/* ─── FONT: Geist — geometric sans, closest to OpenAI Sans ─── */
+* { font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif !important; }
+
+/* ─────────────────────────────────────────────
+   HEADING HIERARCHY
+   Weight contrast is the primary hierarchy signal,
+   same approach as Stripe and Koyfin section heads.
+───────────────────────────────────────────── */
+h1 {
+  font-weight: 800 !important;
+  color: #0d0d0d !important;
+}
+
+h2 {
+  font-weight: 700 !important;
+  color: #0d0d0d !important;
+}
+
+h3 {
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  color: #0d0d0d !important;
+}
+
+h4 {
+  font-weight: 600 !important;
+  color: #0d0d0d !important;
+}
+
+/* ─────────────────────────────────────────────
+   BODY TEXT
+   Weight 400, generous line-height for reading comfort.
+───────────────────────────────────────────── */
+p, li {
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.65 !important;
+  color: #0d0d0d !important;
+}
+
+/* ─────────────────────────────────────────────
+   BOLD / DATA VALUES
+   Weight 600 baseline for inline emphasis.
+   Key financial stat blocks bumped to 700 below.
+───────────────────────────────────────────── */
+b, strong {
+  font-weight: 600 !important;
+  color: #0d0d0d !important;
+}
+
+/* Stripe-style stat blocks: large metric numbers deserve 700 */
+.status strong,
+.metric strong,
+.macro-executive-read aside b,
+.macro-value-grid b,
+.macro-signal-tile b,
+.macro-engine-card b,
+.macro-compression h3,
+.money-cash-chart-topline b,
+.money-cash-current-strip b,
+.money-cash-sidecar b,
+.duration-chart-topline b,
+.duration-current-strip b,
+.duration-sidecar b,
+.duration-curve-card b,
+.credit-chart-topline b,
+.credit-current-strip b,
+.credit-sidecar b,
+.credit-bank-card b {
+  font-weight: 700 !important;
+}
+
+/* ─── TABLE CELLS ─── */
+td {
+  color: #0d0d0d !important;
+}
+
+/* ─── NAV / UI ─── */
+.nav a, .row, .signal, .button {
+  color: #0d0d0d !important;
+}
+
+/* ─── EDITORIAL TEXT — thesis + lede stay full black ─── */
+.decision-brief-text {
+  color: #0d0d0d !important;
+  font-weight: 500 !important;
+}
+
+/* ─────────────────────────────────────────────
+   SEMANTIC COLOR RESTORES
+───────────────────────────────────────────── */
+.good,  .good  b, .good  strong, .good  p, .good  li, .good  span { color: var(--green) !important }
+.bad,   .bad   b, .bad   strong, .bad   p, .bad   li, .bad   span { color: var(--red)   !important }
+.warn,  .warn  b, .warn  strong, .warn  p, .warn  li, .warn  span { color: var(--warn)  !important }
+.blue,  .blue  b, .blue  strong                                    { color: var(--blue)  !important }
+.pb-up, .pb-up * { color: var(--green) !important }
+.pb-dn, .pb-dn * { color: var(--red)   !important }
+.mu-good { color: var(--green) !important }
+.mu-bad  { color: var(--red)   !important }
+.ts-bad  { color: var(--red)   !important }
+.ts-warn { color: var(--warn)  !important }
+.rh-pos-gain b { color: var(--green) !important }
+.rh-pos-loss b { color: var(--red)   !important }
+.kv.green b, .stance-green, .ke-chip .ok { color: var(--ke-green, #1f8f4d) !important }
+.kv.red   b, .stance-red               { color: var(--ke-red,   #c9463b) !important }
+
+/* ─────────────────────────────────────────────
+   LABELS — Koyfin-style secondary tier
+   Muted color + small size + wider tracking =
+   clearly below values, clearly above nothing.
+───────────────────────────────────────────── */
+.eyebrow, .command-kicker,
+.metric span, .board-card span, .status span,
+.source span, .force-top span, .brief-item span,
+.evidence-box span, .rate-card span, .market-pill span,
+.lens-strip span, .bar label,
+small, th,
+.brief-badge, #generated, .footer,
+.mu-section-desc, .op-stance,
+.ticker small, .thesis-head span, .thesis-head small,
+.ke-chip span, .ke-card h4,
+.macro-executive-read aside small,
+.macro-signal-tile small,
+.macro-engine-card p,
+.macro-value-grid small {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.06em !important;
+  color: var(--muted) !important;
+}

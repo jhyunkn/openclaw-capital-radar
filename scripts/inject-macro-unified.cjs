@@ -1216,9 +1216,9 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {d:"Nov '24",r:4.58,phase:"C"},           // 13 ← DFF 4.58% — cut -25bp (fact)
     {d:"Dec '24",r:4.33,phase:"C"},           // 14 ← DFF 4.33% — cut -25bp (fact)
     {d:"Mar '25",r:4.33,phase:"C"},           // 15 ← DFF 4.33% — held (fact)
-    {d:"Jun '25",r:4.25,phase:"C"},           // 16 ← DFF 4.25% (fact)
-    {d:"Sep '25",r:4.00,phase:"C"},           // 17 ← estimated
-    {d:"Dec '25",r:3.75,phase:"C"},           // 18 ← estimated
+    {d:"Jun '25",r:4.33,phase:"C"},           // 16 ← FRED Q2-2025 avg 4.35% → ~4.33 point-in-time
+    {d:"Sep '25",r:4.08,phase:"C"},           // 17 ← FRED Q3-2025 avg 4.10% → ~4.08 point-in-time
+    {d:"Dec '25",r:3.83,phase:"C"},           // 18 ← FRED Q4-2025 avg 3.95% → ~3.83 point-in-time
     {d:"Mar '26",r:3.62,phase:"C"},           // 19 ← estimated
     {d:"Jun '26",r:${_dffRate},phase:"C",current:true}, // 20 ← LIVE DFF
     {d:"Dec '26",r:3.25,phase:"D",projected:true},      // 21 ← projected

@@ -96,14 +96,44 @@ function renderMacroPriceStrip(assets) {
   return `<div class="macro-price-strip">${tiles}</div>`;
 }
 
+function fmtLevel(value) {
+  if (value == null) return 'n/a';
+  if (Array.isArray(value)) return value.map(fmtLevel).join('-');
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : String(value);
+}
+
+function renderDecisionRail(state) {
+  const bands = state.action_bands || {};
+  const items = [
+    ['ADD', bands.add_zone, 'Pullback review zone'],
+    ['TRIM', bands.trim_zone, 'No-chase / rebalance zone'],
+    ['DEFENSE', bands.defense_below, 'Defense trigger'],
+    ['HARD RISK', bands.hard_risk, 'Stop adding / reassess'],
+    ['TARGET', bands.target, 'Upside reference']
+  ];
+  return `<div class="decision-chart-rail">${items.map(([label, value, note]) => `<article><span>${esc(label)}</span><b>${esc(fmtLevel(value))}</b><small>${esc(note)}</small></article>`).join('')}</div>`;
+}
+
+function renderConfirmationStrip(state) {
+  const brief = state.brief || {};
+  const items = [
+    ['Route', brief.portfolio_posture],
+    ['Add rule', brief.change_trigger],
+    ['Risk rule', brief.risk_trigger],
+    ['Confidence', brief.confidence]
+  ].filter(([, value]) => value != null && value !== '');
+  return `<div class="decision-chart-confirmation-strip">${items.map(([label, value]) => `<span><b>${esc(label)}</b>${esc(value)}</span>`).join('')}</div>`;
+}
+
 function renderOperationalChartSection(state, macroPrices) {
   const payload = buildChartPayload(state);
   const priceStrip = renderMacroPriceStrip(macroPrices);
-  return `<section id="operational-chart-section" class="cr-section op-chart-section"><div class="cr-wrap"><div class="section-head"><div><p class="eyebrow">Market</p><h2>S&amp;P 500</h2></div></div><div id="${CHART_ID}" class="op-lwc-chart"></div>${renderChartRuntime(payload)}${priceStrip}</div></section>`;
+  return `<section id="operational-chart-section" class="cr-section op-chart-section decision-chart-v2-shell" data-autoscale-policy="actionable_spx_levels_only"><div class="cr-wrap"><div class="section-head"><div><p class="eyebrow">Market</p><h2>Operational Decision Chart</h2><p class="op-chart-subtitle">S&amp;P 500 decision map</p></div></div>${renderConfirmationStrip(state)}<div id="${CHART_ID}" class="op-lwc-chart"></div>${renderChartRuntime(payload)}${renderDecisionRail(state)}${priceStrip}</div></section>`;
 }
 
 function renderOperationalChartStyle() {
-  return `<style id="operational-chart-style">.op-lwc-chart{height:520px;border:1px solid var(--rule);border-radius:0;background:#ffffff;overflow:hidden;margin:0 0 20px}.op-chart-section .section-head{margin-bottom:18px}.macro-price-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.mp-tile{border:1px solid var(--rule);border-radius:0;background:#ffffff;padding:13px}.mp-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.mp-price{display:block;font-size:17px;line-height:1.05;letter-spacing:-.025em;font-weight:500;margin-top:10px}.mp-chg{display:block;font-size:11px;margin-top:6px;color:var(--muted)}.mp-chg.up{color:var(--green,#2f6f4e)}.mp-chg.dn{color:var(--red,#9f3f35)}@media(max-width:900px){.macro-price-strip{grid-template-columns:repeat(3,1fr)}.op-lwc-chart{height:380px}}@media(max-width:560px){.macro-price-strip{grid-template-columns:repeat(2,1fr)}.op-lwc-chart{height:300px}}</style>`;
+  return `<style id="operational-chart-style">.op-chart-subtitle{margin:8px 0 0;color:var(--muted);font-size:14px}.op-lwc-chart{height:520px;border:1px solid var(--rule);border-radius:0;background:#ffffff;overflow:hidden;margin:0 0 14px}.op-chart-section .section-head{margin-bottom:18px}.decision-chart-confirmation-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}.decision-chart-confirmation-strip span,.decision-chart-rail article{border:1px solid var(--rule);background:#ffffff;padding:11px}.decision-chart-confirmation-strip b,.decision-chart-rail span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}.decision-chart-confirmation-strip span{font-size:12px;line-height:1.35;color:var(--ink)}.decision-chart-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 16px}.decision-chart-rail b{display:block;font-size:18px;line-height:1.05;letter-spacing:-.03em;font-weight:500}.decision-chart-rail small{display:block;color:var(--muted);font-size:11px;line-height:1.3;margin-top:6px}.macro-price-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.mp-tile{border:1px solid var(--rule);border-radius:0;background:#ffffff;padding:13px}.mp-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.mp-price{display:block;font-size:17px;line-height:1.05;letter-spacing:-.025em;font-weight:500;margin-top:10px}.mp-chg{display:block;font-size:11px;margin-top:6px;color:var(--muted)}.mp-chg.up{color:var(--green,#2f6f4e)}.mp-chg.dn{color:var(--red,#9f3f35)}@media(max-width:900px){.macro-price-strip{grid-template-columns:repeat(3,1fr)}.decision-chart-confirmation-strip,.decision-chart-rail{grid-template-columns:repeat(2,1fr)}.op-lwc-chart{height:380px}}@media(max-width:560px){.macro-price-strip,.decision-chart-confirmation-strip,.decision-chart-rail{grid-template-columns:1fr}.op-lwc-chart{height:300px}}</style>`;
 }
 
 module.exports = { renderOperationalChartSection, renderOperationalChartStyle, buildChartPayload, buildAutoscalePolicy };

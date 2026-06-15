@@ -11,6 +11,9 @@ permissions:
 jobs:
   refresh-money-cash-cache:
     runs-on: ubuntu-latest
+    env:
+      FRED_FETCH_TIMEOUT_MS: 8000
+      FRED_FETCH_RETRIES: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4

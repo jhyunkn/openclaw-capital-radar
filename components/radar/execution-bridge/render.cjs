@@ -85,7 +85,8 @@ function renderRobinhoodExecutionBridgeModule(state = {}) {
   <div class="rh-lh-head">
     <div>
       <p class="eyebrow">Robinhood · Live</p>
-      <h3 id="rh-lh-title">Live holdings</h3>
+      <h3 id="rh-lh-title">Proposal-only execution rail</h3>
+      <p class="rh-lh-safety">Human approval required. Capital Radar remains the decision brain; this bridge does not place autonomous orders.</p>
     </div>
     <div class="rh-lh-portfolio">${portfolioStats}</div>
   </div>
@@ -110,6 +111,7 @@ function renderRobinhoodExecutionBridgeStyle() {
 .rh-lh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap}
 .rh-live-holdings h3{margin:0;font-size:22px;line-height:1.14;letter-spacing:0;color:#171b17}
 .rh-live-holdings .eyebrow{margin:0 0 6px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(36,35,31,.5)}
+.rh-lh-safety{margin:8px 0 0;max-width:560px;font-size:12px;line-height:1.42;color:rgba(36,35,31,.58)}
 .rh-lh-portfolio{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
 .rh-lh-stat{display:flex;flex-direction:column;min-width:52px}
 .rh-lh-stat b{font-size:18px;font-weight:500;letter-spacing:-.03em;color:rgba(36,35,31,.9)}

@@ -19,6 +19,38 @@ const SERIES = {
 
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
+function validCache(cache) {
+  const s = cache?.series || {};
+  const count = id => Array.isArray(s[id]) ? s[id].filter(row => row && row.date && Number.isFinite(Number(row.value))).length : 0;
+  return cache?.artifact === 'money-cash-series-cache' && count('DTB3') >= 24 && count('CPIAUCSL') >= 24 && count('DFF') >= 24;
+}
+
+function readExistingCache() {
+  try {
+    return JSON.parse(fs.readFileSync(out, 'utf8'));
+  } catch (_) {
+    return null;
+  }
+}
+
+function writeFallbackCache(existing, errors) {
+  const fallback = {
+    ...existing,
+    cache_status: existing.cache_status === 'SEED_COMPACT' ? 'SEED_COMPACT' : 'FRED_REFRESH_FAILED_USING_EXISTING_CACHE',
+    last_refresh_attempt_at: new Date().toISOString(),
+    last_refresh_status: 'FAILED_FALLBACK_USED',
+    last_refresh_errors: errors,
+    source_policy: `${existing.source_policy || 'Money / Cash cache.'} Latest live FRED refresh failed; scheduled job kept the existing cache so downstream dashboard artifacts can still render with stale/degraded evidence warnings.`,
+    limitations: [
+      ...(Array.isArray(existing.limitations) ? existing.limitations : []),
+      'Most recent live FRED refresh failed; values may be stale until the next successful refresh.'
+    ]
+  };
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, JSON.stringify(fallback, null, 2) + '\n');
+  console.warn(`FRED refresh failed; kept existing valid cache (${existing.cache_status || 'UNKNOWN'}).`);
+}
+
 function curlGet(url) {
   const args = [
     '-fsSL',
@@ -167,6 +199,12 @@ async function main() {
     }
   }
   if (errors.length) {
+    const existing = readExistingCache();
+    if (validCache(existing)) {
+      writeFallbackCache(existing, errors);
+      console.warn(JSON.stringify({ status: 'DEGRADED_FALLBACK_USED', errors }, null, 2));
+      return;
+    }
     console.error(JSON.stringify({ status: 'FAILED', errors }, null, 2));
     process.exit(1);
   }

@@ -230,6 +230,7 @@ runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart 
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed before Vercel copy');
 runFinalInjector('generate-robinhood-execution-bridge-state.cjs', 'Robinhood position state generation failed before Vercel copy');
 runFinalInjector('inject-holdings-home-modular.cjs', 'Holdings decision chart injection failed before Vercel copy');
+runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 rm(out);
@@ -242,6 +243,7 @@ runFinalInjector('inject-macro-design-language.cjs', 'Macro design language inje
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 

@@ -1,4 +1,4 @@
-# RKLB Opportunity Dossier
+# RDDT Opportunity Dossier
 
 Generated: 2026-06-15T19:22:17.762Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
@@ -6,21 +6,21 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
-- Name: Rocket Lab
-- Lane: structural_candidate
+- Name: Reddit
+- Lane: tactical_dislocation
 - Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 74
-- Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 108.79
+- Opportunity score: 71
+- Portfolio role: AI infrastructure benchmark / center-stack exposure
+- Current price: 179.3
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
-A creative industrial-space candidate: asymmetric if launch cadence, defense/customer demand, and satellite systems compound into infrastructure status.
+Experimental attention/data asset: interesting if human conversation data becomes a scarce AI-training/licensing input and ad monetization keeps improving.
 
 ## Why Now
 
-- RKLB positive 6.26% while broad tape is weak.
+- RDDT positive 10.61% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -32,15 +32,15 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 
 ## Confirm Before Promotion
 
-- Launch cadence/backlog improves
-- Gross margin path is credible
-- Risk budget treats it as speculative growth
+- Revenue growth and margin path are improving
+- Data licensing is durable not one-off
+- User/community risk is priced in
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Execution risk
-- Risk to invalidate/check: Funding/dilution
-- Risk to invalidate/check: High beta market sensitivity
+- Risk to invalidate/check: Post-IPO volatility
+- Risk to invalidate/check: Platform governance/user backlash
+- Risk to invalidate/check: Ad-cycle sensitivity
 
 ## Missing For Promotion
 
@@ -53,15 +53,13 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 ## Finance Goggles To Apply
 
 - stock_research_default
-- small_cap_squeeze_optional
-- dilution_risk
 - ai_infrastructure
 - macro_liquidity
 
 ## Action Framework
 
 Observation:
-RKLB positive 6.26% while broad tape is weak.
+RDDT positive 10.61% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

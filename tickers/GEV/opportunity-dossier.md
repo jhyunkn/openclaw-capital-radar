@@ -1,4 +1,4 @@
-# HIMS Opportunity Dossier
+# GEV Opportunity Dossier
 
 Generated: 2026-06-16T18:17:43.773Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
@@ -6,21 +6,22 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
-- Name: Hims & Hers
+- Name: GE Vernova
 - Lane: structural_candidate
-- Stage: PRIORITY_RESEARCH
-- Opportunity score: 78
-- Portfolio role: non-correlated health/medical infrastructure lane
-- Current price: 31.82
-- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
+- Stage: BUILD_EVIDENCE_PACKET
+- Opportunity score: 73
+- Portfolio role: power/grid infrastructure opportunity lane
+- Current price: 1004.7
+- Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
 
-Experimental consumer-health platform candidate: potentially interesting if direct-to-consumer healthcare keeps taking share and category expansion is disciplined.
+A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.
 
 ## Why Now
 
-- HIMS positive 5.45% while broad tape is weak.
+- GEV positive 2.67% while broad tape is weak.
+- GEV: A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.
 
 ## Evidence Refs
 
@@ -32,15 +33,15 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 
 ## Confirm Before Promotion
 
-- Retention and margin quality support growth
-- Regulatory/product concentration risk is controlled
-- Entry is based on valuation reset not social momentum
+- Orders/backlog support multi-year grid demand
+- Margin execution is improving rather than just narrative-driven
+- Entry price is not stretched versus industrial peers
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Regulatory scrutiny
-- Risk to invalidate/check: Category concentration
-- Risk to invalidate/check: High-growth multiple compression
+- Risk to invalidate/check: Industrial cyclicality
+- Risk to invalidate/check: Execution/margin volatility
+- Risk to invalidate/check: Crowding after power-theme enthusiasm
 
 ## Missing For Promotion
 
@@ -53,14 +54,13 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 ## Finance Goggles To Apply
 
 - stock_research_default
-- small_cap_squeeze_optional
-- dilution_risk
+- ai_infrastructure
 - macro_liquidity
 
 ## Action Framework
 
 Observation:
-HIMS positive 5.45% while broad tape is weak.
+GEV positive 2.67% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

@@ -241,7 +241,7 @@ function loadRateHistory() {
 
 function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLesson) {
   // Single chart: full 5-year SPY journey + tactical zones + rate cycle sub-panel
-  const W = 900, H_PRICE = 240, H_RATE = 80, GAP = 24, H_TOTAL = H_PRICE + GAP + H_RATE + 26;
+  const W = 900, H_PRICE = 240, H_RATE = 110, GAP = 24, H_TOTAL = H_PRICE + GAP + H_RATE + 26;
   const pL = 52, pR = 16, pT = 14, cW = W - pL - pR;
 
   if (spyCandles.length < 100) return `<div class="mu-chart-empty">No data</div>`;
@@ -347,6 +347,30 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   const p1yStr = p1y != null ? `${p1y>=0?'+':''}${p1y.toFixed(1)}%` : '';
   const p1yColor = p1y != null && p1y >= 0 ? '#2a6b4a' : '#A4502F';
 
+  // Phase % change per region
+  function idxFor(ds) {
+    if (dateIdx[ds] !== undefined) return dateIdx[ds];
+    const t = new Date(ds).getTime();
+    let best = 0, minD = Infinity;
+    dates.forEach((d, i) => { const df = Math.abs(new Date(d).getTime()-t); if(df<minD){minD=df;best=i;} });
+    return best;
+  }
+  function phChg(a, b) {
+    if (!a || a <= 0) return '';
+    const p = (b - a) / a * 100;
+    return (p >= 0 ? '+' : '') + p.toFixed(1) + '%';
+  }
+  const ib22s = idxFor('2022-01-03'), ib22e = Math.min(idxFor('2022-10-13'), n - 1);
+  const pBear    = phChg(closes[ib22s], closes[ib22e]);
+  const pRecov   = phChg(closes[ib22e], closes[idx90]);
+  const p90d     = phChg(closes[idx90], closes[n - 1]);
+  const midBear  = ((b22x1 + b22x2) / 2).toFixed(1);
+  const midRecov = ((b22x2 + x90) / 2).toFixed(1);
+  const mid90d   = ((x90 + pL + cW) / 2).toFixed(1);
+  const bearPctColor  = '#a4502f';
+  const recovPctColor = '#2a6b4a';
+  const p90dColor     = closes[n - 1] >= closes[idx90] ? '#2a6b4a' : '#a4502f';
+
   // ── Rate panel ───────────────────────────────────────────────────────────────
   const rY0 = pT + H_PRICE + GAP, rH = H_RATE;
   const dffObs = (rateSeries?.DFF || []).filter(o => o.date >= dates[0] && o.date <= dates[n-1]);
@@ -369,6 +393,47 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   const dffNow = dffObs.length ? dffObs[dffObs.length-1].value : null;
   const dffNowX = dffNow != null ? dToX(dffObs[dffObs.length-1].date) : null;
 
+  // Fed rate cycle phases (actual FOMC decision dates)
+  const rCycleDefs = [
+    { name: 'ZIRP',    s: dates[0],     e: '2022-03-15', fill: 'rgba(64,95,159,.06)',  bdr: 'rgba(64,95,159,.4)'  },
+    { name: 'HIKING',  s: '2022-03-16', e: '2023-07-26', fill: 'rgba(164,80,47,.07)',  bdr: 'rgba(164,80,47,.45)' },
+    { name: 'PEAK',    s: '2023-07-27', e: '2024-09-17', fill: 'rgba(138,106,44,.07)', bdr: 'rgba(138,106,44,.45)'},
+    { name: 'CUTTING', s: '2024-09-18', e: dates[n-1],   fill: 'rgba(42,107,74,.07)',  bdr: 'rgba(42,107,74,.4)'  },
+  ];
+  const rCycles = rCycleDefs.map(ph => {
+    const rx1 = Math.max(dToX(ph.s), pL), rx2 = Math.min(dToX(ph.e), pL + cW);
+    if (rx2 <= rx1 + 2) return null;
+    const ia = idxFor(ph.s), ib = Math.min(idxFor(ph.e), n - 1);
+    const spxChg = phChg(closes[ia], closes[ib]);
+    const spxClr = closes[ib] >= closes[ia] ? '#2a6b4a' : '#a4502f';
+    const mid = ((rx1 + rx2) / 2).toFixed(1);
+    const w = rx2 - rx1;
+    return { ...ph, rx1, rx2, w, mid, spxChg, spxClr };
+  }).filter(Boolean);
+
+  // Phase background bands (rate panel only)
+  const ratePhaseBands = rCycles.map(c =>
+    `<rect x="${c.rx1.toFixed(1)}" y="${rY0}" width="${c.w.toFixed(1)}" height="${rH}" fill="${c.fill}"/>`
+  ).join('');
+
+  // Vertical dividers spanning both panels (skip first phase — left edge is already the chart border)
+  const rPhaseDividers = rCycles.slice(1).map(c =>
+    `<line x1="${c.rx1.toFixed(1)}" y1="${pT}" x2="${c.rx1.toFixed(1)}" y2="${rY0 + rH}" stroke="${c.bdr}" stroke-width="0.7" stroke-dasharray="3 3"/>`
+  ).join('');
+
+  // Phase labels + SPX annotation drawn last (on top of DFF fill)
+  const rPhaseLabels = rCycles.map(c => {
+    if (c.w < 28) return '';
+    const lx = c.mid, ly1 = rY0 + 13, ly2 = rY0 + 26;
+    const tw = Math.min(c.w - 4, 54);
+    return [
+      // white backing for readability over DFF fill
+      `<rect x="${(c.rx1 + 2).toFixed(1)}" y="${(rY0 + 2)}" width="${(c.w - 4).toFixed(1)}" height="29" fill="rgba(255,255,255,.62)"/>`,
+      `<text x="${lx}" y="${ly1}" text-anchor="middle" font-size="8" fill="${c.bdr}" font-weight="700" font-family="inherit" letter-spacing=".09em">${c.name}</text>`,
+      c.spxChg ? `<text x="${lx}" y="${ly2}" text-anchor="middle" font-size="9.5" fill="${c.spxClr}" font-weight="700" font-family="inherit">SPX ${c.spxChg}</text>` : '',
+    ].join('');
+  }).join('');
+
   // ── Assemble SVG ─────────────────────────────────────────────────────────────
   return `<svg viewBox="0 0 ${W} ${H_TOTAL}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
   <defs>
@@ -382,6 +447,14 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
 
   <!-- 2022 analog band + last-90-days highlight -->
   ${bear22}${last90}
+
+  <!-- Phase % change labels -->
+  ${pBear ? `<text x="${midBear}" y="${pT+26}" text-anchor="middle" font-size="9" fill="${bearPctColor}" font-weight="600" font-family="inherit">${pBear}</text>` : ''}
+  ${pRecov ? `<text x="${midRecov}" y="${pT+13}" text-anchor="middle" font-size="9" fill="${recovPctColor}" font-weight="600" font-family="inherit" opacity="0.82">${pRecov}</text>` : ''}
+  ${p90d ? `<text x="${mid90d}" y="${pT+26}" text-anchor="middle" font-size="9" fill="${p90dColor}" font-weight="600" font-family="inherit">${p90d}</text>` : ''}
+
+  <!-- Rate cycle dividers spanning both panels -->
+  ${rPhaseDividers}
 
   <!-- Grid + zones -->
   ${grid}${zones}
@@ -404,16 +477,19 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
 
   <!-- Rate panel separator -->
   <line x1="${pL}" y1="${(rY0-7)}" x2="${(pL+cW)}" y2="${(rY0-7)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
-  <!-- FED FUNDS RATE label moved inside rate panel to avoid year-label collision -->
-  <text x="${pL}" y="${(rY0+12)}" font-size="8" fill="rgba(26,23,20,.28)" letter-spacing=".12em" font-family="inherit">FED FUNDS RATE (DFF)</text>
-  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0+12)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
 
-  <!-- Rate panel -->
+  <!-- Rate panel — phase bands first (behind DFF) -->
+  ${ratePhaseBands}
   ${rateGrid}
   <line x1="${pL}" y1="${(rY0+rH)}" x2="${(pL+cW)}" y2="${(rY0+rH)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
   ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad)"/>` : ''}
   ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
   ${dffNow != null && dffNowX != null ? `<circle cx="${dffNowX.toFixed(1)}" cy="${pyR(dffNow).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
+  <!-- Phase labels + SPX annotations on top of DFF fill -->
+  ${rPhaseLabels}
+  <!-- FED FUNDS RATE caption at bottom -->
+  <text x="${pL}" y="${(rY0+rH-4)}" font-size="8" fill="rgba(26,23,20,.28)" letter-spacing=".12em" font-family="inherit">FED FUNDS RATE (DFF)</text>
+  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0+rH-4)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
 </svg>
 <div class="mu-chart-legend">
   <span class="mu-cl-ma50"><svg width="18" height="8" viewBox="0 0 18 8" style="vertical-align:middle;margin-right:4px"><line x1="0" y1="4" x2="18" y2="4" stroke="rgba(138,106,44,.65)" stroke-width="1.2" stroke-dasharray="2 2"/></svg>MA50</span>

@@ -1,17 +1,17 @@
 # AVGO Opportunity Dossier
 
-Generated: 2026-06-03T17:47:01.288Z
+Generated: 2026-06-17T16:46:42.410Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
 - Name: Broadcom
-- Lane: tactical_dislocation
-- Stage: PRIORITY_RESEARCH
-- Opportunity score: 76
+- Lane: structural_candidate
+- Stage: BUILD_EVIDENCE_PACKET
+- Opportunity score: 74
 - Portfolio role: AI infrastructure benchmark / center-stack exposure
-- Current price: 495
+- Current price: 396.98
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Picks-and-shovels exposure to AI networking and custom ASIC demand with a more d
 
 ## Why Now
 
-- AVGO positive 7.62% while broad tape is weak.
+- AVGO positive 5.38% while broad tape is weak.
 - AVGO: Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Picks-and-shovels exposure to AI networking and custom ASIC demand with a more d
 ## Action Framework
 
 Observation:
-AVGO positive 7.62% while broad tape is weak.
+AVGO positive 5.38% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

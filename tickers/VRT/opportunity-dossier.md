@@ -1,6 +1,6 @@
 # VRT Opportunity Dossier
 
-Generated: 2026-06-12T16:01:19.403Z
+Generated: 2026-06-17T16:46:42.410Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,10 +8,10 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Vertiv
 - Lane: structural_candidate
-- Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 72
+- Stage: PRIORITY_RESEARCH
+- Opportunity score: 75
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 299.94
+- Current price: 321.4
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 
 ## Why Now
 
-- VRT positive 6.75% while broad tape is weak.
+- VRT positive 7.28% while broad tape is weak.
 - VRT: Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 ## Action Framework
 
 Observation:
-VRT positive 6.75% while broad tape is weak.
+VRT positive 7.28% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

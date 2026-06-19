@@ -1,6 +1,6 @@
 # GEV Opportunity Dossier
 
-Generated: 2026-06-19T19:12:56.728Z
+Generated: 2026-06-19T21:36:59.489Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 

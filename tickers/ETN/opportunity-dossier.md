@@ -1,6 +1,6 @@
 # ETN Opportunity Dossier
 
-Generated: 2026-06-22T18:04:41.577Z
+Generated: 2026-06-22T20:18:29.899Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: PRIORITY_RESEARCH
 - Opportunity score: 75
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 434.17
+- Current price: 435
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A less flashy but potentially higher-quality way to express the grid/data-center
 
 ## Why Now
 
-- ETN positive 2.94% while broad tape is weak.
+- ETN positive 3.14% while broad tape is weak.
 - ETN: A less flashy but potentially higher-quality way to express the grid/data-center power constraint without owning only the hottest AI names.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ A less flashy but potentially higher-quality way to express the grid/data-center
 ## Action Framework
 
 Observation:
-ETN positive 2.94% while broad tape is weak.
+ETN positive 3.14% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

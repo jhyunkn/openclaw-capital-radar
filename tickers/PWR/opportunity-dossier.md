@@ -1,6 +1,6 @@
 # PWR Opportunity Dossier
 
-Generated: 2026-06-22T18:04:41.577Z
+Generated: 2026-06-22T20:18:29.899Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,11 +8,11 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Quanta Services
 - Lane: structural_candidate
-- Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 72
+- Stage: PRIORITY_RESEARCH
+- Opportunity score: 77
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 732.75
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Current price: 740.15
+- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 
 ## Why Now
 
-- PWR positive 4.34% while broad tape is weak.
+- PWR positive 5.40% while broad tape is weak.
 - PWR: A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 ## Action Framework
 
 Observation:
-PWR positive 4.34% while broad tape is weak.
+PWR positive 5.40% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

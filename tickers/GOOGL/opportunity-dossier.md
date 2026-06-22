@@ -1,4 +1,4 @@
-# PWR Opportunity Dossier
+# GOOGL Opportunity Dossier
 
 Generated: 2026-06-22T18:04:41.577Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
@@ -6,22 +6,22 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
-- Name: Quanta Services
+- Name: Alphabet
 - Lane: structural_candidate
 - Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 72
+- Opportunity score: 71
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 732.75
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Current price: 347.5
+- Price read: meaningful pullback; possible research entry setup only after evidence and support confirmation
 
 ## Why Interesting
 
-A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.
+Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.
 
 ## Why Now
 
-- PWR positive 4.34% while broad tape is weak.
-- PWR: A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.
+- GOOGL down -5.58% in watched basket.
+- GOOGL: Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.
 
 ## Evidence Refs
 
@@ -33,15 +33,15 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 
 ## Confirm Before Promotion
 
-- Backlog and utility capex visibility remain strong
-- Labor/input cost risk is controlled
-- Price enters prepared add zone
+- Cloud and AI monetization progress is visible
+- Regulatory/search risks are priced in
+- Relative valuation is attractive versus existing platform holdings
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Project execution
-- Risk to invalidate/check: Utility capex timing
-- Risk to invalidate/check: Rate-sensitive valuation
+- Risk to invalidate/check: Antitrust/regulatory pressure
+- Risk to invalidate/check: Search disruption narrative
+- Risk to invalidate/check: AI capex margin drag
 
 ## Missing For Promotion
 
@@ -60,7 +60,7 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 ## Action Framework
 
 Observation:
-PWR positive 4.34% while broad tape is weak.
+GOOGL down -5.58% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

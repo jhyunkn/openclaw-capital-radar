@@ -1,4 +1,4 @@
-# PWR Opportunity Dossier
+# ETN Opportunity Dossier
 
 Generated: 2026-06-22T18:04:41.577Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
@@ -6,22 +6,22 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
-- Name: Quanta Services
+- Name: Eaton
 - Lane: structural_candidate
-- Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 72
+- Stage: PRIORITY_RESEARCH
+- Opportunity score: 75
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 732.75
+- Current price: 434.17
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
 
-A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.
+A less flashy but potentially higher-quality way to express the grid/data-center power constraint without owning only the hottest AI names.
 
 ## Why Now
 
-- PWR positive 4.34% while broad tape is weak.
-- PWR: A picks-and-shovels candidate for the physical grid buildout needed by electrification, data centers, and energy transition.
+- ETN positive 2.94% while broad tape is weak.
+- ETN: A less flashy but potentially higher-quality way to express the grid/data-center power constraint without owning only the hottest AI names.
 
 ## Evidence Refs
 
@@ -33,15 +33,15 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 
 ## Confirm Before Promotion
 
-- Backlog and utility capex visibility remain strong
-- Labor/input cost risk is controlled
-- Price enters prepared add zone
+- Data-center/electrical segment growth remains durable
+- Valuation reset offers margin of safety
+- Balance sheet and cash conversion remain strong
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Project execution
-- Risk to invalidate/check: Utility capex timing
-- Risk to invalidate/check: Rate-sensitive valuation
+- Risk to invalidate/check: Valuation premium
+- Risk to invalidate/check: Industrial slowdown
+- Risk to invalidate/check: Theme overcrowding
 
 ## Missing For Promotion
 
@@ -60,7 +60,7 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 ## Action Framework
 
 Observation:
-PWR positive 4.34% while broad tape is weak.
+ETN positive 2.94% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

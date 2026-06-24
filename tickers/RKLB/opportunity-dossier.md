@@ -1,6 +1,6 @@
 # RKLB Opportunity Dossier
 
-Generated: 2026-06-24T01:58:59.089Z
+Generated: 2026-06-24T19:07:50.685Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 70
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 103.94
+- Current price: 85.61
 - Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 
 ## Why Now
 
-- RKLB down -9.44% in watched basket.
+- RKLB down -10.00% in watched basket.
 
 ## Evidence Refs
 
@@ -61,7 +61,7 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 ## Action Framework
 
 Observation:
-RKLB down -9.44% in watched basket.
+RKLB down -10.00% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

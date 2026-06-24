@@ -283,6 +283,16 @@ function scoreValuation(xbrl, mkt, ticker) {
     gaps.push('P/FCF not computable');
   }
 
+  // FCF margin quality bonus — high cash conversion offsets expensive P/S
+  // A 45% FCF margin at 22× P/S is fundamentally different from a pre-FCF name at the same multiple
+  if (fcf !== null && rev !== null && rev > 0 && fcf > 0) {
+    const fcfMargin = (fcf / rev) * 100;
+    if      (fcfMargin >= 50) { score += 12; signals.push(`FCF margin ${round(fcfMargin,1)}% — exceptional cash conversion, offsets premium multiple`); }
+    else if (fcfMargin >= 40) { score +=  9; signals.push(`FCF margin ${round(fcfMargin,1)}% — strong cash conversion quality`); }
+    else if (fcfMargin >= 30) { score +=  6; signals.push(`FCF margin ${round(fcfMargin,1)}% — solid cash conversion`); }
+    else if (fcfMargin >= 20) { score +=  3; signals.push(`FCF margin ${round(fcfMargin,1)}% — decent cash conversion`); }
+  }
+
   const passed = score >= 5;
   return { score: clamp(score, 0, 30), passed, signals, gaps, ps, pFcf };
 }

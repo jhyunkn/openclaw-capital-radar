@@ -1,6 +1,6 @@
 # GEV Opportunity Dossier
 
-Generated: 2026-06-24T15:42:54.859Z
+Generated: 2026-06-24T21:48:28.054Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 73
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 1062.98
+- Current price: 1076
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A creative infrastructure candidate for the electricity scarcity layer: grid har
 
 ## Why Now
 
-- GEV positive 2.71% while broad tape is weak.
+- GEV positive 3.96% while broad tape is weak.
 - GEV: A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ A creative infrastructure candidate for the electricity scarcity layer: grid har
 ## Action Framework
 
 Observation:
-GEV positive 2.71% while broad tape is weak.
+GEV positive 3.96% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

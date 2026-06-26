@@ -1,4 +1,4 @@
-# HIMS Opportunity Dossier
+# PLTR Opportunity Dossier
 
 Generated: 2026-06-26T15:40:47.115Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
@@ -6,21 +6,21 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
-- Name: Hims & Hers
+- Name: Palantir
 - Lane: structural_candidate
 - Stage: PRIORITY_RESEARCH
-- Opportunity score: 78
-- Portfolio role: non-correlated health/medical infrastructure lane
-- Current price: 34.39
+- Opportunity score: 75
+- Portfolio role: power/grid infrastructure opportunity lane
+- Current price: 113.86
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
-Experimental consumer-health platform candidate: potentially interesting if direct-to-consumer healthcare keeps taking share and category expansion is disciplined.
+A controversial but interesting candidate: if AI shifts from model infrastructure to operational deployment, PLTR may be a pure workflow/ontology beneficiary.
 
 ## Why Now
 
-- HIMS positive 5.12% while broad tape is weak.
+- PLTR positive 6.14% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -32,15 +32,15 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 
 ## Confirm Before Promotion
 
-- Retention and margin quality support growth
-- Regulatory/product concentration risk is controlled
-- Entry is based on valuation reset not social momentum
+- Revenue growth and margin quality justify valuation
+- Commercial adoption is not hype-only
+- Entry follows valuation reset or major evidence upgrade
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Regulatory scrutiny
-- Risk to invalidate/check: Category concentration
-- Risk to invalidate/check: High-growth multiple compression
+- Risk to invalidate/check: Extreme valuation
+- Risk to invalidate/check: Narrative crowding
+- Risk to invalidate/check: Government/commercial concentration debates
 
 ## Missing For Promotion
 
@@ -53,14 +53,13 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 ## Finance Goggles To Apply
 
 - stock_research_default
-- small_cap_squeeze_optional
-- dilution_risk
+- ai_infrastructure
 - macro_liquidity
 
 ## Action Framework
 
 Observation:
-HIMS positive 5.12% while broad tape is weak.
+PLTR positive 6.14% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

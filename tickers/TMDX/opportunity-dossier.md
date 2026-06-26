@@ -1,6 +1,6 @@
 # TMDX Opportunity Dossier
 
-Generated: 2026-06-26T15:40:47.115Z
+Generated: 2026-06-26T19:14:30.343Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 71
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 70.9
+- Current price: 67.91
 - Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A genuinely different growth infrastructure idea: organ transplant logistics and
 
 ## Why Now
 
-- TMDX down -8.81% in watched basket.
+- TMDX down -12.66% in watched basket.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A genuinely different growth infrastructure idea: organ transplant logistics and
 ## Action Framework
 
 Observation:
-TMDX down -8.81% in watched basket.
+TMDX down -12.66% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

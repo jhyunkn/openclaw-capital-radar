@@ -1,6 +1,6 @@
 # HIMS Opportunity Dossier
 
-Generated: 2026-06-26T15:40:47.115Z
+Generated: 2026-06-26T19:14:30.343Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,11 +8,11 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Hims & Hers
 - Lane: structural_candidate
-- Stage: PRIORITY_RESEARCH
-- Opportunity score: 78
+- Stage: BUILD_EVIDENCE_PACKET
+- Opportunity score: 73
 - Portfolio role: non-correlated health/medical infrastructure lane
-- Current price: 34.39
-- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
+- Current price: 33.91
+- Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 
 ## Why Now
 
-- HIMS positive 5.12% while broad tape is weak.
+- HIMS positive 3.67% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -60,7 +60,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 ## Action Framework
 
 Observation:
-HIMS positive 5.12% while broad tape is weak.
+HIMS positive 3.67% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

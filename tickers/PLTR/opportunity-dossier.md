@@ -1,6 +1,6 @@
 # PLTR Opportunity Dossier
 
-Generated: 2026-06-26T15:40:47.115Z
+Generated: 2026-06-26T19:14:30.343Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: PRIORITY_RESEARCH
 - Opportunity score: 75
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 113.86
+- Current price: 113.19
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A controversial but interesting candidate: if AI shifts from model infrastructur
 
 ## Why Now
 
-- PLTR positive 6.14% while broad tape is weak.
+- PLTR positive 5.52% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A controversial but interesting candidate: if AI shifts from model infrastructur
 ## Action Framework
 
 Observation:
-PLTR positive 6.14% while broad tape is weak.
+PLTR positive 5.52% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

@@ -324,17 +324,18 @@ function buildLwcPayload(h) {
   const display = allCdls.slice(-252);
   if (!display.length) return null;
 
-  // MAs computed from full history, filtered to display range
-  const allMa50  = computeMAValues(allCdls, Math.min(50,  allCdls.length));
-  const allMa200 = computeMAValues(allCdls, Math.min(200, allCdls.length));
+  // EMAs computed from full history, filtered to display range
+  const closes    = allCdls.map(c => c.close);
   const startTime = display[0].time;
-  const ma50Data  = allMa50 .filter(d => d.time >= startTime);
-  const ma200Data = allMa200.filter(d => d.time >= startTime);
+  function emaLine(period) {
+    const vs     = computeEMA(closes, Math.min(period, closes.length));
+    const offset = Math.min(period, closes.length) - 1;
+    return vs.map((v, i) => ({ time: allCdls[offset + i].time, value: v }))
+             .filter(d => d.time >= startTime);
+  }
 
   const rsiAll   = computeRSI(allCdls);
   const macdAll  = computeMACD(allCdls);
-  const ema21Vs  = computeEMA(allCdls.map(c => c.close), 21);
-  const allEma21 = ema21Vs.map((v, i) => ({ time: allCdls[20 + i].time, value: v }));
   const allBB    = computeBollingerBands(allCdls);
   const atr      = computeATR(allCdls);
   const fib      = computeFibLevels(display);
@@ -342,9 +343,10 @@ function buildLwcPayload(h) {
   return {
     id:       `lwc-${ticker}`,
     candles:  display.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 })),
-    ma50:     ma50Data,
-    ma200:    ma200Data,
-    ema21:    allEma21.filter(d => d.time >= startTime),
+    ema20:    emaLine(20),
+    ema50:    emaLine(50),
+    ema100:   emaLine(100),
+    ema200:   emaLine(200),
     bb: {
       upper:  allBB.filter(d => d.time >= startTime).map(d => ({ time: d.time, value: d.upper })),
       middle: allBB.filter(d => d.time >= startTime).map(d => ({ time: d.time, value: d.middle })),
@@ -542,13 +544,14 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
     });
     var cs=chart.addCandlestickSeries({upColor:'#2a6b4a',downColor:'#A4502F',borderUpColor:'#2a6b4a',borderDownColor:'#A4502F',wickUpColor:'rgba(42,107,74,.5)',wickDownColor:'rgba(164,80,47,.45)',priceLineVisible:false,lastValueVisible:true});
     cs.setData(data.candles);
-    var ma50s=chart.addLineSeries({color:'rgba(138,106,44,.65)',lineWidth:1.5,lineStyle:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
-    ma50s.setData(toLine(data.ma50));
-    var ma200s=chart.addLineSeries({color:'rgba(77,111,145,.88)',lineWidth:2,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
-    ma200s.setData(toLine(data.ma200));
-    // EMA21 — fast tactical MA (coral)
-    var ema21s=chart.addLineSeries({color:'rgba(200,90,50,.75)',lineWidth:1.5,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
-    ema21s.setData(toLine(data.ema21));
+    var ema20s=chart.addLineSeries({color:'rgba(220,160,40,.80)',lineWidth:1.5,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    ema20s.setData(toLine(data.ema20));
+    var ema50s=chart.addLineSeries({color:'rgba(77,130,195,.85)',lineWidth:1.5,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    ema50s.setData(toLine(data.ema50));
+    var ema100s=chart.addLineSeries({color:'rgba(140,90,200,.75)',lineWidth:1.5,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    ema100s.setData(toLine(data.ema100));
+    var ema200s=chart.addLineSeries({color:'rgba(190,60,50,.85)',lineWidth:2,lineStyle:0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    ema200s.setData(toLine(data.ema200));
     // Bollinger Bands 20,2 — upper/lower dashed, middle solid (muted violet)
     if(data.bb){
       var bbU=chart.addLineSeries({color:'rgba(120,100,200,.32)',lineWidth:1,lineStyle:2,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
@@ -576,25 +579,28 @@ function renderHoldingsSection({ zoneState, translation, decision, decisionZones
       cs.createPriceLine({price:fv.f786,color:'rgba(180,150,40,.38)',lineWidth:1,lineStyle:1,axisLabelVisible:false,title:'78.6%'});
     }
     var lgnd=document.getElementById('lgnd-'+data.id);
-    var ma50L =data.ma50 &&data.ma50.length ?data.ma50[data.ma50.length-1].value  :null;
-    var ma200L=data.ma200&&data.ma200.length?data.ma200[data.ma200.length-1].value:null;
-    var ema21L=data.ema21&&data.ema21.length?data.ema21[data.ema21.length-1].value:null;
-    function renderLgnd(m50,m200,m21){
+    var ema20L =data.ema20 &&data.ema20.length ?data.ema20[data.ema20.length-1].value  :null;
+    var ema50L =data.ema50 &&data.ema50.length ?data.ema50[data.ema50.length-1].value  :null;
+    var ema100L=data.ema100&&data.ema100.length?data.ema100[data.ema100.length-1].value:null;
+    var ema200L=data.ema200&&data.ema200.length?data.ema200[data.ema200.length-1].value:null;
+    function renderLgnd(e20,e50,e100,e200){
       if(!lgnd)return;
       var h='';
-      if(m50!=null)  h+='<span><em class="lc-ma50">MA50</em>'+fmtP(m50)+'</span>';
-      if(m200!=null) h+='<span><em class="lc-ma200">MA200</em>'+fmtP(m200)+'</span>';
-      if(m21!=null)  h+='<span><em class="lc-ema21">EMA21</em>'+fmtP(m21)+'</span>';
+      if(e20!=null)  h+='<span><em class="lc-ema20">EMA20</em>'+fmtP(e20)+'</span>';
+      if(e50!=null)  h+='<span><em class="lc-ema50">EMA50</em>'+fmtP(e50)+'</span>';
+      if(e100!=null) h+='<span><em class="lc-ema100">EMA100</em>'+fmtP(e100)+'</span>';
+      if(e200!=null) h+='<span><em class="lc-ema200">EMA200</em>'+fmtP(e200)+'</span>';
       if(z.stop!=null)      h+='<span><em class="lc-stop">Stop</em>'+fmtP(z.stop)+'</span>';
       if(z.floorPrice!=null)h+='<span><em class="lc-floor">Floor</em>'+fmtP(z.floorPrice)+'</span>';
       if(data.atr!=null)    h+='<span><em class="lc-atr">ATR</em>$'+Number(data.atr).toFixed(2)+'</span>';
       lgnd.innerHTML=h;
     }
-    renderLgnd(ma50L,ma200L,ema21L);
+    renderLgnd(ema20L,ema50L,ema100L,ema200L);
     chart.subscribeCrosshairMove(function(param){
-      if(!param||!param.time){renderLgnd(ma50L,ma200L,ema21L);return;}
-      var m5=param.seriesData.get(ma50s);var m2=param.seriesData.get(ma200s);var m21=param.seriesData.get(ema21s);
-      renderLgnd(m5?m5.value:null,m2?m2.value:null,m21?m21.value:null);
+      if(!param||!param.time){renderLgnd(ema20L,ema50L,ema100L,ema200L);return;}
+      var e20=param.seriesData.get(ema20s);var e50=param.seriesData.get(ema50s);
+      var e100=param.seriesData.get(ema100s);var e200=param.seriesData.get(ema200s);
+      renderLgnd(e20?e20.value:null,e50?e50.value:null,e100?e100.value:null,e200?e200.value:null);
     });
     chart.timeScale().fitContent();
     // ── RSI ──
@@ -736,11 +742,12 @@ function renderHoldingsStyle() {
 .mu-chart-legend{position:absolute;top:8px;left:8px;z-index:10;display:flex;gap:10px;flex-wrap:wrap;padding:4px 9px;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);border:1px solid rgba(201,191,173,.4);border-radius:6px;font-size:10.5px;line-height:1.25;pointer-events:none}
 .mu-chart-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;color:rgba(26,23,20,.75);font-weight:600}
 .mu-chart-legend em{font-style:normal;font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
-.lc-ma50{background:rgba(138,106,44,.15);color:rgba(138,106,44,.9)}
-.lc-ma200{background:rgba(77,111,145,.15);color:rgba(77,111,145,.95)}
+.lc-ema20{background:rgba(220,160,40,.15);color:rgba(180,120,20,.9)}
+.lc-ema50{background:rgba(77,130,195,.15);color:rgba(50,100,170,.95)}
+.lc-ema100{background:rgba(140,90,200,.15);color:rgba(110,60,180,.9)}
+.lc-ema200{background:rgba(190,60,50,.15);color:rgba(160,40,30,.9)}
 .lc-stop{background:rgba(164,80,47,.12);color:rgba(164,80,47,.85)}
 .lc-floor{background:rgba(100,80,180,.12);color:rgba(100,80,180,.82)}
-.lc-ema21{background:rgba(200,90,50,.12);color:rgba(200,90,50,.85)}
 .lc-atr{background:rgba(100,100,100,.1);color:rgba(60,60,60,.7)}
 /* Zone position bar */
 .mu-zone-bar-wrap{margin:0 0 8px;border:1px solid var(--rule);border-top:none;border-radius:0 0 10px 10px;padding:6px 14px 10px;background:#ffffff}

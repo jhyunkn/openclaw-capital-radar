@@ -1,6 +1,6 @@
 # NXT Opportunity Dossier
 
-Generated: 2026-06-30T16:07:54.968Z
+Generated: 2026-06-30T19:14:49.628Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,11 +8,11 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Nextracker
 - Lane: structural_candidate
-- Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 70
+- Stage: PRIORITY_RESEARCH
+- Opportunity score: 75
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 115.76
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Current price: 119.31
+- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ More experimental energy-infrastructure idea: not just AI power demand, but grid
 
 ## Why Now
 
-- NXT positive 4.61% while broad tape is weak.
+- NXT positive 7.82% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ More experimental energy-infrastructure idea: not just AI power demand, but grid
 ## Action Framework
 
 Observation:
-NXT positive 4.61% while broad tape is weak.
+NXT positive 7.82% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

@@ -1,6 +1,6 @@
 # RDDT Opportunity Dossier
 
-Generated: 2026-07-01T21:50:36.857Z
+Generated: 2026-07-02T03:42:51.539Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 71
 - Portfolio role: AI infrastructure benchmark / center-stack exposure
-- Current price: 196.6
+- Current price: 196.27
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Experimental attention/data asset: interesting if human conversation data become
 
 ## Why Now
 
-- RDDT positive 13.26% while broad tape is weak.
+- RDDT positive 13.07% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ Experimental attention/data asset: interesting if human conversation data become
 ## Action Framework
 
 Observation:
-RDDT positive 13.26% while broad tape is weak.
+RDDT positive 13.07% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

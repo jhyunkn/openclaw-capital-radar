@@ -1,0 +1,314 @@
+{
+  "as_of": "2026-07-07T02:20:25.271Z",
+  "artifact": "chart-regime-decision-state",
+  "regime": "constructive_but_selective",
+  "regime_label": "Constructive, Selective",
+  "capital_posture": "Selective Adds Only",
+  "chart_board_stance": "Risk is supported, but adds need chart confirmation and ticker-specific valuation discipline.",
+  "regime_score": 2,
+  "regime_evidence": [
+    "SPX vs 200D 8.49%",
+    "NDX vs 200D 13.7%",
+    "VIX 15.57",
+    "BTC vs 200D -14.56%",
+    "10Y trend 100",
+    "TLT trend 0",
+    "Dollar trend 100"
+  ],
+  "relationships": [
+    {
+      "pair": "SPX / NDX ↔ VIX",
+      "relationship": "Index trend should be confirmed by falling or contained volatility.",
+      "status": "confirmed",
+      "read": "Risk trend confirmed by contained fear."
+    },
+    {
+      "pair": "10Y Yield ↔ Growth / AI",
+      "relationship": "Rising rates pressure long-duration growth multiples.",
+      "status": "pressure",
+      "read": "High-duration AI/growth needs stricter valuation and entry discipline."
+    },
+    {
+      "pair": "10Y Yield ↔ TLT",
+      "relationship": "TLT should move opposite yield pressure; bond bid can signal rate relief or defensiveness.",
+      "status": "pressure",
+      "read": "Bond weakness keeps discount-rate pressure alive."
+    },
+    {
+      "pair": "Dollar ↔ Global Liquidity",
+      "relationship": "Strong dollar often tightens global liquidity and weighs on risk assets.",
+      "status": "pressure",
+      "read": "Dollar pressure reduces risk permission, especially crypto/global cyclicals."
+    },
+    {
+      "pair": "BTC ↔ Speculative Liquidity",
+      "relationship": "BTC above long trend can confirm speculative liquidity.",
+      "status": "weak",
+      "read": "High-beta liquidity confirmation is weak."
+    },
+    {
+      "pair": "Oil ↔ Inflation / Rates",
+      "relationship": "Oil strength can revive inflation and rates pressure.",
+      "status": "neutral",
+      "read": "Oil is not adding major inflation pressure."
+    }
+  ],
+  "source_artifacts": [
+    "market-chart-panels.json",
+    "market-landscape-state.json",
+    "strategy-state.json",
+    "portfolio-translation-state.json"
+  ],
+  "strategy_context": {
+    "posture": null,
+    "capital_action": "protect_capital_review_vulnerable_exposures",
+    "landscape_headline": [
+      {
+        "theme": "Index Ballast / Liquidity Beta",
+        "summary": "Index Ballast / Liquidity Beta is currently mixed inside the market-orientation model; this defines macro direction before ticker selection.",
+        "pressure_state": "mixed",
+        "evidence_ids": [
+          "ev_008",
+          "ev_007",
+          "ev_001",
+          "ev_002"
+        ],
+        "confidence": 0.68
+      },
+      {
+        "theme": "Payments / Financial Infrastructure",
+        "summary": "Payments / Financial Infrastructure is currently mixed inside the market-orientation model; this defines macro direction before ticker selection.",
+        "pressure_state": "mixed",
+        "evidence_ids": [
+          "ev_009",
+          "ev_007",
+          "ev_001",
+          "ev_002"
+        ],
+        "confidence": 0.68
+      },
+      {
+        "theme": "AI Compute Expansion",
+        "summary": "AI Compute Expansion is currently stressed inside the market-orientation model; this defines macro direction before ticker selection.",
+        "pressure_state": "stressed",
+        "evidence_ids": [
+          "ev_010",
+          "ev_007",
+          "ev_001",
+          "ev_002"
+        ],
+        "confidence": 0.68
+      },
+      {
+        "theme": "Bitcoin Financialization",
+        "summary": "Bitcoin Financialization is currently stressed inside the market-orientation model; this defines macro direction before ticker selection.",
+        "pressure_state": "stressed",
+        "evidence_ids": [
+          "ev_011",
+          "ev_007",
+          "ev_001",
+          "ev_002"
+        ],
+        "confidence": 0.68
+      }
+    ],
+    "portfolio_action": null
+  },
+  "panels": [
+    {
+      "symbol": "^GSPC",
+      "label": "S&P 500",
+      "kind": "index",
+      "role": "Market Direction",
+      "current_read": "Constructive Above 200D",
+      "decision": "Constructive Above 200D",
+      "why_it_matters": "Index is above long-term trend but not extremely extended.",
+      "forward_implication": "Selective risk is allowed if VIX/rates do not contradict.",
+      "regimeInputs": {
+        "current": 7537.43,
+        "trendScore": 100,
+        "distanceTo200dPct": 8.49,
+        "drawdownPct": -0.95
+      },
+      "annotations": [
+        "Index is above long-term trend but not extremely extended.",
+        "Selective risk is allowed if VIX/rates do not contradict."
+      ],
+      "invalidates": "Failed reclaim or close below 200D weakens risk permission."
+    },
+    {
+      "symbol": "^NDX",
+      "label": "Nasdaq 100",
+      "kind": "index",
+      "role": "Market Direction",
+      "current_read": "Extended Above Long-Term Trend",
+      "decision": "Extended Above Long-Term Trend",
+      "why_it_matters": "Price is far above the 200D average, so upside may continue but entry risk is elevated.",
+      "forward_implication": "Hold winners; avoid chasing broad index exposure until pullback/retest.",
+      "regimeInputs": {
+        "current": 29697.87,
+        "trendScore": 100,
+        "distanceTo200dPct": 13.7,
+        "drawdownPct": -3.14
+      },
+      "annotations": [
+        "Price is far above the 200D average, so upside may continue but entry risk is elevated.",
+        "Hold winners; avoid chasing broad index exposure until pullback/retest."
+      ],
+      "invalidates": "A controlled pullback that holds 20D/50D keeps trend intact; loss of 200D shifts to risk review."
+    },
+    {
+      "symbol": "QQQ",
+      "label": "QQQ",
+      "kind": "etf",
+      "role": "Context",
+      "current_read": "Observe",
+      "decision": "Observe",
+      "why_it_matters": "Requires cross-chart confirmation.",
+      "forward_implication": "No portfolio change from this chart alone.",
+      "regimeInputs": {
+        "current": 722.82,
+        "trendScore": 100,
+        "distanceTo200dPct": 13.72,
+        "drawdownPct": -3.13
+      },
+      "annotations": [
+        "Requires cross-chart confirmation.",
+        "No portfolio change from this chart alone."
+      ],
+      "invalidates": "Opposite confirmation across trend, volatility, and liquidity charts."
+    },
+    {
+      "symbol": "^VIX",
+      "label": "VIX",
+      "kind": "volatility",
+      "role": "Fear / Volatility",
+      "current_read": "Complacency Zone",
+      "decision": "Complacency Zone",
+      "why_it_matters": "Low VIX means fear is low; this can support trends but also reduces margin of safety.",
+      "forward_implication": "Do not chase; look for pullbacks, hedge review, or rotation confirmation.",
+      "regimeInputs": {
+        "current": 15.57,
+        "trendScore": 0,
+        "distanceTo200dPct": -16.6,
+        "drawdownPct": -49.86
+      },
+      "annotations": [
+        "Low VIX means fear is low; this can support trends but also reduces margin of safety.",
+        "Do not chase; look for pullbacks, hedge review, or rotation confirmation."
+      ],
+      "invalidates": "VIX rising above 20 while indexes fall confirms risk-off pressure."
+    },
+    {
+      "symbol": "^TNX",
+      "label": "10Y yield",
+      "kind": "rates",
+      "role": "Discount Rate",
+      "current_read": "Rates Pressure Rising",
+      "decision": "Rates Pressure Rising",
+      "why_it_matters": "Rising yields compress long-duration valuation multiples.",
+      "forward_implication": "Be stricter on AI/growth valuation; favor cash-flow durability.",
+      "regimeInputs": {
+        "current": 4.48,
+        "trendScore": 100,
+        "distanceTo200dPct": 5.89,
+        "drawdownPct": -4.03
+      },
+      "annotations": [
+        "Rising yields compress long-duration valuation multiples.",
+        "Be stricter on AI/growth valuation; favor cash-flow durability."
+      ],
+      "invalidates": "Yield trend rolls over and TLT confirms bid."
+    },
+    {
+      "symbol": "BTC-USD",
+      "label": "Bitcoin",
+      "kind": "crypto",
+      "role": "Speculative Liquidity",
+      "current_read": "Speculative Liquidity Weak",
+      "decision": "Speculative Liquidity Weak",
+      "why_it_matters": "BTC below long-term trend weakens high-beta liquidity signal.",
+      "forward_implication": "Lower crypto-beta permission until reclaim.",
+      "regimeInputs": {
+        "current": 63741.16,
+        "trendScore": 25,
+        "distanceTo200dPct": -14.56,
+        "drawdownPct": -48.91
+      },
+      "annotations": [
+        "BTC below long-term trend weakens high-beta liquidity signal.",
+        "Lower crypto-beta permission until reclaim."
+      ],
+      "invalidates": "Reclaim of 200D with improving breadth."
+    },
+    {
+      "symbol": "CL=F",
+      "label": "Oil WTI",
+      "kind": "energy",
+      "role": "Inflation / Energy Shock",
+      "current_read": "Energy Pressure Cooling",
+      "decision": "Energy Pressure Cooling",
+      "why_it_matters": "Oil modifies inflation, rates, and sector rotation pressure.",
+      "forward_implication": "Rising oil favors energy/inflation hedges but can pressure margins and rates.",
+      "regimeInputs": {
+        "current": 69.21,
+        "trendScore": 0,
+        "distanceTo200dPct": -6.54,
+        "drawdownPct": -38.73
+      },
+      "annotations": [
+        "Oil modifies inflation, rates, and sector rotation pressure.",
+        "Rising oil favors energy/inflation hedges but can pressure margins and rates."
+      ],
+      "invalidates": "Oil trend reversal through moving-average band."
+    },
+    {
+      "symbol": "DX-Y.NYB",
+      "label": "Dollar index",
+      "kind": "fx",
+      "role": "Dollar / Global Liquidity",
+      "current_read": "Dollar Pressure",
+      "decision": "Dollar Pressure",
+      "why_it_matters": "Strong dollar often tightens global liquidity and pressures risk assets.",
+      "forward_implication": "Be cautious on crypto, commodities, and high-beta risk.",
+      "regimeInputs": {
+        "current": 100.84,
+        "trendScore": 100,
+        "distanceTo200dPct": 1.98,
+        "drawdownPct": -0.76
+      },
+      "annotations": [
+        "Strong dollar often tightens global liquidity and pressures risk assets.",
+        "Be cautious on crypto, commodities, and high-beta risk."
+      ],
+      "invalidates": "Dollar rolls over below moving averages."
+    },
+    {
+      "symbol": "TLT",
+      "label": "Long bonds",
+      "kind": "bonds",
+      "role": "Duration / Safety Bid",
+      "current_read": "Bond Weakness",
+      "decision": "Bond Weakness",
+      "why_it_matters": "Weak bonds keep duration pressure alive.",
+      "forward_implication": "Keep high-duration exposure disciplined.",
+      "regimeInputs": {
+        "current": 85.45,
+        "trendScore": 0,
+        "distanceTo200dPct": -2.67,
+        "drawdownPct": -7.18
+      },
+      "annotations": [
+        "Weak bonds keep duration pressure alive.",
+        "Keep high-duration exposure disciplined."
+      ],
+      "invalidates": "TLT reclaims 50D/200D."
+    }
+  ],
+  "rules": [
+    "Charts are evidence surfaces for regime permission, strategy posture, invalidation, and capital allocation.",
+    "Every chart declares role, current read, forward implication, and invalidation.",
+    "Market regime is produced from cross-chart confirmation: index trend, volatility, rates, dollar, bonds, and speculative liquidity."
+  ],
+  "render_permission": true
+}

@@ -1,6 +1,6 @@
 # VRT Opportunity Dossier
 
-Generated: 2026-07-06T21:48:47.729Z
+Generated: 2026-07-07T01:42:46.245Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 

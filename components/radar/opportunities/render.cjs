@@ -723,12 +723,39 @@ function renderDynamicSection(dynamicUniverse) {
 
 function renderAsymmetricCard(ticker, td, isAlsoPw) {
   const fmtP = v => v == null ? '—' : `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: Number(v) < 10 ? 2 : 0 })}`;
+  const pctCls = pct => pct == null ? '' : (pct < 0 ? 'below' : 'above');
+  const pctTx = pct => pct == null ? '—' : `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`;
   const cardCls = isAlsoPw ? 'opp-card opp-card-both' : 'opp-card opp-card-asym';
-  const thesis = snip(td.early_entry_signal || td.moat_summary || '', 300);
+  const thesis = td.early_entry_signal || td.moat_summary || '';
   const fw = [
-    td.next_catalyst ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Catalyst</span><span class="opp-fw-val">${esc(snip(td.next_catalyst, 120))}</span></div>` : '',
-    td.invalidation  ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Exit if</span><span class="opp-fw-val">${esc(snip(td.invalidation, 110))}</span></div>` : '',
+    td.next_catalyst ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Catalyst</span><span class="opp-fw-val">${esc(td.next_catalyst)}</span></div>` : '',
+    td.invalidation  ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Exit if</span><span class="opp-fw-val">${esc(td.invalidation)}</span></div>` : '',
   ].filter(Boolean).join('');
+  const convBadge = td.conviction_score != null
+    ? `<span class="opp-badge opp-badge-conv">Conv ${td.conviction_score}</span>` : '';
+  const maGrid = (td.ma50 || td.ma200 || td.rsi14) ? `
+    <div class="opp-ma-grid">
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">vs MA50</span>
+        <b class="opp-ma-val">${esc(fmtP(td.ma50))}</b>
+        <span class="opp-ma-pct ${pctCls(td.vsMa50Pct)}">${esc(pctTx(td.vsMa50Pct))}</span>
+      </div>
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">vs MA200</span>
+        <b class="opp-ma-val">${esc(fmtP(td.ma200))}</b>
+        <span class="opp-ma-pct ${pctCls(td.vsMa200Pct)}">${esc(pctTx(td.vsMa200Pct))}</span>
+      </div>
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">RSI 14</span>
+        <b class="opp-ma-val">${esc(td.rsi14 ?? '—')}</b>
+        <span class="opp-ma-pct">${td.rsi14 != null && td.rsi14 < 40 ? 'oversold' : td.rsi14 != null && td.rsi14 < 50 ? 'cooling' : ''}</span>
+      </div>
+      <div class="opp-ma-cell">
+        <span class="opp-ma-label">52w high</span>
+        <b class="opp-ma-val">${esc(td.pct_from_52w_high != null ? `${td.pct_from_52w_high}%` : '—')}</b>
+        <span class="opp-ma-pct">from peak</span>
+      </div>
+    </div>` : '';
   return `<article class="${cardCls}">
     <div class="opp-card-id">
       <b class="opp-ticker">${esc(ticker)}</b>
@@ -738,7 +765,9 @@ function renderAsymmetricCard(ticker, td, isAlsoPw) {
     <div class="opp-badges">
       <span class="opp-badge opp-badge-asym">Pre-consensus</span>
       ${isAlsoPw ? '<span class="opp-badge opp-badge-pw">At entry zone</span>' : ''}
+      ${convBadge}
     </div>
+    ${maGrid}
     ${thesis ? `<p class="opp-thesis">${esc(thesis)}</p>` : ''}
     ${fw ? `<div class="opp-fw">${fw}</div>` : ''}
   </article>`;
@@ -749,9 +778,12 @@ function renderPriceWindowCard(ticker, td, isAlsoAsym) {
   const pctCls = pct => pct == null ? '' : (pct < 0 ? 'below' : 'above');
   const pctTx = pct => pct == null ? '—' : `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`;
   const cardCls = isAlsoAsym ? 'opp-card opp-card-both' : 'opp-card opp-card-pw';
-  const moat = snip(td.moat_summary || '', 90);
+  const moat = td.moat_summary || '';
+  const convBadge = td.conviction_score != null
+    ? `<span class="opp-badge opp-badge-conv">Conv ${td.conviction_score}</span>` : '';
   const fw = [
-    td.next_catalyst ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Catalyst</span><span class="opp-fw-val">${esc(snip(td.next_catalyst, 100))}</span></div>` : '',
+    td.next_catalyst ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Catalyst</span><span class="opp-fw-val">${esc(td.next_catalyst)}</span></div>` : '',
+    td.invalidation  ? `<div class="opp-fw-row"><span class="opp-fw-lbl">Exit if</span><span class="opp-fw-val">${esc(td.invalidation)}</span></div>` : '',
   ].filter(Boolean).join('');
   return `<article class="${cardCls}">
     <div class="opp-card-id">
@@ -759,7 +791,10 @@ function renderPriceWindowCard(ticker, td, isAlsoAsym) {
       <span class="opp-price">${esc(fmtP(td.price))}</span>
       <span class="opp-name">${esc(td.name || '')}</span>
     </div>
-    ${isAlsoAsym ? '<div class="opp-badges"><span class="opp-badge opp-badge-asym">Pre-consensus</span></div>' : ''}
+    <div class="opp-badges">
+      ${isAlsoAsym ? '<span class="opp-badge opp-badge-asym">Pre-consensus</span>' : ''}
+      ${convBadge}
+    </div>
     <div class="opp-ma-grid">
       <div class="opp-ma-cell">
         <span class="opp-ma-label">vs MA50</span>
@@ -828,8 +863,8 @@ function renderTwoGroupSection(techState) {
       <div class="opp-group">
         <div class="opp-group-head">
           <span class="opp-group-label">Group B</span>
-          <p class="opp-group-title">Ideal entry position — price in range</p>
-          <p class="opp-group-desc">High-conviction names currently below MA50 with RSI cooling and MA200 acting as support. The setup, not a guess.</p>
+          <p class="opp-group-title">High-conviction names — price context</p>
+          <p class="opp-group-desc">Established names with durable moats. MA50/MA200 and RSI shown for each — use the technical levels to time entry, not to discover the idea.</p>
         </div>
         <div class="opp-pw-grid">${pwCards}</div>
       </div>
@@ -998,7 +1033,7 @@ function renderOpportunitiesStyle() {
 .opp-group-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 .opp-group-title{font-size:15px;font-weight:700;letter-spacing:-.02em;margin:4px 0 0;color:rgba(36,35,31,.9)}
 .opp-group-desc{font-size:12px;color:var(--muted);margin:3px 0 0;line-height:1.45}
-.opp-asym-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opp-asym-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
 .opp-pw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 .opp-card{border:1px solid rgba(201,191,173,.45);border-top:2px solid transparent;border-radius:0;padding:16px;background:#ffffff}
 .opp-card-asym{border-top-color:rgba(47,111,78,.5);background:rgba(47,111,78,.03)}
@@ -1012,6 +1047,7 @@ function renderOpportunitiesStyle() {
 .opp-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
 .opp-badge-asym{color:var(--green);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.07)}
 .opp-badge-pw{color:var(--warn);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.07)}
+.opp-badge-conv{color:rgba(36,35,31,.55);border-color:rgba(201,191,173,.55);background:rgba(201,191,173,.15)}
 .opp-thesis{font-size:12.5px;line-height:1.55;color:rgba(36,35,31,.82);margin:0 0 10px}
 .opp-moat{font-size:11.5px;color:var(--muted);line-height:1.4;margin:0 0 8px}
 .opp-ma-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:10px}
@@ -1025,8 +1061,7 @@ function renderOpportunitiesStyle() {
 .opp-fw-row{display:flex;gap:8px;align-items:baseline;font-size:12px}
 .opp-fw-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap;width:52px;flex-shrink:0}
 .opp-fw-val{color:rgba(36,35,31,.75);line-height:1.4}
-@media(max-width:900px){.opp-asym-grid,.opp-pw-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.opp-asym-grid,.opp-pw-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.opp-asym-grid,.opp-pw-grid{grid-template-columns:1fr}}
 </style>`;
 }
 

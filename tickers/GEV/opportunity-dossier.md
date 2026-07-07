@@ -1,6 +1,6 @@
 # GEV Opportunity Dossier
 
-Generated: 2026-07-01T04:02:58.296Z
+Generated: 2026-07-07T16:03:04.173Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,11 +8,11 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: GE Vernova
 - Lane: structural_candidate
-- Stage: PRIORITY_RESEARCH
-- Opportunity score: 81
+- Stage: BUILD_EVIDENCE_PACKET
+- Opportunity score: 71
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 1177
-- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
+- Current price: 1038.4
+- Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ A creative infrastructure candidate for the electricity scarcity layer: grid har
 
 ## Why Now
 
-- GEV positive 6.76% while broad tape is weak.
+- GEV down -9.86% in watched basket.
 - GEV: A creative infrastructure candidate for the electricity scarcity layer: grid hardware, gas turbines, and electrification may be a more durable AI-adjacent bottleneck than another software/platform add.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ A creative infrastructure candidate for the electricity scarcity layer: grid har
 ## Action Framework
 
 Observation:
-GEV positive 6.76% while broad tape is weak.
+GEV down -9.86% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

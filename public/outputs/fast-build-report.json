@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-06-12T20:06:28.757Z",
+  "mode": "fast",
+  "policy": "Fast build renders UI from existing artifacts only. It does not refresh live market data, regenerate research artifacts, or replace the full production pipeline by itself.",
+  "steps": [
+    {
+      "name": "render-homepage",
+      "purpose": "Render the canonical homepage from existing committed/generated artifacts.",
+      "command": "node scripts/render-capital-radar-home.cjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 22314,
+      "startedAt": "2026-06-12T20:06:28.757Z",
+      "finishedAt": "2026-06-12T20:06:51.071Z",
+      "stdoutTail": "strategy route applied to opportunities: risk-on but extended\n\n$ node scripts/enrich-opportunity-near-miss-diagnostics.cjs\nnear-miss diagnostics: closest=0 near=13 research=0\nnear-miss diagnostics: closest=0 near=13 research=0\n\n$ node scripts/inject-opportunities-home-modular.cjs\ninjected unified opportunity section: conviction_top3=AVGO(81), BWXT(77), KNSL(77)  scanner_full=1  scanner_partial=11  dynamic_conv=0  dynamic_watch=0  event_driven=11  pipeline_qualified=15  pipeline_shown=8\n\n=== home stage: cleanup-legacy-home-sections ===\n\n$ node scripts/strip-legacy-brief-strategy-home.cjs\nstripped legacy homepage sections: 0 bytes removed; 0 operations recorded\nwrote outputs/homepage-legacy-strip-report.json\n\n$ node scripts/normalize-homepage-sections.cjs\ninjected Duration evidence banner into Macro top\nhomepage section normalization complete: Macro / Decision chart / Holdings / Opportunity\nLegacy strip report: NOOP; 0 bytes removed; 0 operations; retirement_signal=candidate_after_repeated_stable_noop_builds\n\nCapital Radar homepage build passed in 22.3s\nWrote outputs/capital-radar-home-build-report.json\nWrote outputs/operational-chart-validation-report.json\nReferenced outputs/homepage-legacy-strip-report.json",
+      "stderrTail": ""
+    },
+    {
+      "name": "validate-operational-sections",
+      "purpose": "Verify required operational homepage sections are present before packaging.",
+      "command": "node scripts/validate-operational-sections.cjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 62,
+      "startedAt": "2026-06-12T20:06:51.071Z",
+      "finishedAt": "2026-06-12T20:06:51.133Z",
+      "stdoutTail": "{\n  \"status\": \"PASS\",\n  \"summary\": \"Capital Radar homepage validates against the four-section contract; backend intelligence remains preserved in JSON outputs.\",\n  \"checks\": [\n    \"PASS: Canonical four-section homepage\",\n    \"PASS: No redundant visible homepage sections\",\n    \"PASS: Macro\",\n    \"PASS: Decision chart\",\n    \"PASS: Holdings\",\n    \"PASS: Opportunity\",\n    \"PASS: Backend telemetry preserved\",\n    \"PASS: Operational score available\",\n    \"PASS: Public static sync\",\n    \"PASS: No object leaks\"\n  ]\n}",
+      "stderrTail": ""
+    },
+    {
+      "name": "build-vercel-static-output",
+      "purpose": "Copy existing static assets, data, outputs, pages, and index.html into public/.",
+      "command": "node scripts/build-vercel.cjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 848,
+      "startedAt": "2026-06-12T20:06:51.133Z",
+      "finishedAt": "2026-06-12T20:06:51.981Z",
+      "stdoutTail": "injected canonical macro section (decision command + charts + scorecard + cycle) into index.html\ninjected narrative-reality macro module: 7 themes, generated 2026-06-09\nkostolany-history-section injected (Chart.js multi-indicator)\nkostolany-projection-section injected (3-model Chart.js)\ninjected Macro design language into index.html\ninjected Macro design language into public/index.html\nkostolany-history-section injected (Chart.js multi-indicator)\nkostolany-projection-section injected (3-model Chart.js)\nPrepared Vercel static output at /Users/junnam/openclaw-capital-radar/public",
+      "stderrTail": ""
+    }
+  ],
+  "requiredOutputs": [
+    {
+      "file": "index.html",
+      "bytes": 1852623
+    },
+    {
+      "file": "public/index.html",
+      "bytes": 1852623
+    },
+    {
+      "file": "public/health.json",
+      "bytes": 57
+    }
+  ],
+  "status": "PASS"
+}

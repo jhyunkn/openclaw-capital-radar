@@ -28,15 +28,17 @@ const decisionByTicker = new Map((Array.isArray(decisions) ? decisions : []).map
 function levelSet(h, i) {
   const t = h.signalThresholds || {};
   const chart = h.analysisChart || {};
+  const chartZones = chart.zones || {};
+  const chartBasis = (Array.isArray(chart.indicators) ? chart.indicators : []).find(indicator => indicator?.label === 'basis')?.value;
   const fixed = {
     ...(h.actionBands || h.priceLevels || h.technicalMap || {}),
-    buyZoneLow: chart.buy?.low,
-    buyZoneHigh: chart.buy?.high,
-    trimLow: chart.trim?.low,
-    trimHigh: chart.trim?.high,
-    stopReview: chart.stop?.value,
-    hardExit: chart.hardExit?.value,
-    target: chart.target?.value,
+    buyZoneLow: chart.buy?.low ?? chartZones.buy?.low,
+    buyZoneHigh: chart.buy?.high ?? chartZones.buy?.high,
+    trimLow: chart.trim?.low ?? chartZones.trim?.low,
+    trimHigh: chart.trim?.high ?? chartZones.trim?.high,
+    stopReview: chart.stop?.value ?? chartZones.stop?.value,
+    hardExit: chart.hardExit?.value ?? chartZones.hardExit?.value,
+    target: chart.target?.value ?? chartZones.target?.value,
   };
   const price = n(h.livePrice);
   const addLow = n(fixed.buyLow ?? fixed.buyZoneLow ?? fixed.addLow ?? fixed.addBelow ?? t.addPrice);
@@ -63,7 +65,7 @@ function levelSet(h, i) {
     stopReview: stop,
     hardExit,
     volatility: {
-      addPrice: n(t.addPrice), addPct: n(t.addPct), trimPrice: n(t.trimPrice), trimPct: n(t.trimPct), riskReviewPrice: n(t.riskReviewPrice), riskReviewPct: n(t.riskReviewPct), formula: t.formula || null, exposureType: t.exposureType || null
+      addPrice: n(t.addPrice), addPct: n(t.addPct), trimPrice: n(t.trimPrice), trimPct: n(t.trimPct), riskReviewPrice: n(t.riskReviewPrice), riskReviewPct: n(t.riskReviewPct), formula: t.formula || chartBasis || chart.caveat || null, exposureType: t.exposureType || chart.profile || null
     },
     nearestBoundary: i?.nearestDecisionBoundary || null
   };

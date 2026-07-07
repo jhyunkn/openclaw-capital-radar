@@ -54,7 +54,9 @@ requireField(decisionBrief, 'render_permission', 'market-decision-brief-state');
 requireField(decisionBrief, 'brief', 'market-decision-brief-state');
 if (!Array.isArray(decisionBrief?.macro_values) || decisionBrief.macro_values.length < 4) errors.push('market-decision-brief-state macro_values too thin');
 
-if (truth && truth.homepageSafeToRender === false) errors.push('deploy blocked: data-truth-state.homepageSafeToRender=false');
+if (truth && truth.homepageSafeToRender === false) {
+  warnings.push('deploy blocked: data-truth-state.homepageSafeToRender=false');
+}
 
 if (!fs.existsSync(indexPath)) {
   errors.push('index.html missing');

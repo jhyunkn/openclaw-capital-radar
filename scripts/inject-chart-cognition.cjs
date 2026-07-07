@@ -44,6 +44,7 @@ for (const h of holdings) {
   if (!fs.existsSync(pagePath)) continue;
   let page = fs.readFileSync(pagePath, 'utf8');
   page = page.replace(/<style>\.chart-cognition[\s\S]*?<\/style>/, '');
+  page = page.replace(/<section class="section chart-cognition"[\s\S]*?<\/section>/g, '');
   page = page.replace(/<section class="section chart-cognition"[\s\S]*?<section class="section chart-section">/, '<section class="section chart-section">');
   if (!page.includes('.chart-cognition')) page = page.replace('</head>', `${css}</head>`);
   page = page.replace('<section class="section chart-section">', `${htmlFor(h, note)}<section class="section chart-section">`);

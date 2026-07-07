@@ -5,6 +5,7 @@
     {
       "name": "base-data",
       "commands": [
+        "node scripts/refresh-public-data-caches.cjs",
         "node validate-report.cjs data/report-state.sample.json",
         "node scripts/sync-robinhood-positions.cjs",
         "node scripts/apply-cost-basis.cjs",
@@ -26,12 +27,14 @@
     {
       "name": "live-state-and-research",
       "commands": [
+        "node scripts/apply-fundamentals-and-thresholds.cjs",
         "node scripts/write-data-health.cjs",
         "node scripts/generate-operating-brain-artifacts.cjs",
         "node scripts/evaluate-live-reactions.cjs",
         "node scripts/generate-delta-brief.cjs",
         "node scripts/generate-market-stress-brief.cjs",
         "node scripts/build-market-candles.cjs",
+        "node scripts/generate-current-market-state.cjs",
         "node scripts/generate-sp500-decision-map.cjs",
         "node scripts/generate-native-source-registry.cjs",
         "node scripts/generate-finance-goggles.cjs",
@@ -90,6 +93,8 @@
       "commands": [
         "node scripts/inject-strategy-interpreter-workbenches.cjs",
         "node scripts/inject-chart-first-workbenches.cjs",
+        "node scripts/inject-risk-budget-workbenches.cjs",
+        "node scripts/inject-chart-cognition.cjs",
         "node scripts/reorder-ticker-workbench-hierarchy.cjs",
         "node scripts/inject-ic-decision-memos.cjs",
         "node scripts/generate-authoritative-action-state.cjs",

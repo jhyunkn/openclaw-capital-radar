@@ -21,9 +21,11 @@ if (!fs.existsSync(manifestPath)) fail('config/build-pipeline.json missing');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 if (!Array.isArray(manifest.stages) || manifest.stages.length === 0) fail('manifest has no stages');
 
-const requestedStage = process.env.BUILD_STAGE || process.argv[2] || '';
+const stageAliases = { homepage: 'ship' };
+const requestedStageRaw = process.env.BUILD_STAGE || process.argv[2] || '';
+const requestedStage = stageAliases[requestedStageRaw] || requestedStageRaw;
 const stages = requestedStage ? manifest.stages.filter(stage => stage.name === requestedStage) : manifest.stages;
-if (requestedStage && stages.length === 0) fail(`unknown stage: ${requestedStage}`);
+if (requestedStage && stages.length === 0) fail(`unknown stage: ${requestedStageRaw}`);
 
 const startedAt = Date.now();
 const results = [];
@@ -56,7 +58,7 @@ for (const stage of stages) {
 }
 
 const totalMs = Date.now() - startedAt;
-const report = { generatedAt: new Date().toISOString(), requestedStage: requestedStage || 'all', totalMs, stages: results };
+const report = { generatedAt: new Date().toISOString(), requestedStage: requestedStageRaw || 'all', resolvedStage: requestedStage || 'all', totalMs, stages: results };
 const outPath = path.join(root, 'outputs', 'build-pipeline-last-run.json');
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(report, null, 2));

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openclaw-capital-radar.vercel.app/schemas/ticker-intelligence.schema.json",
+  "title": "OpenClaw Ticker Intelligence Note",
+  "type": "object",
+  "required": ["ticker", "agentThesis", "technicalMap", "strategyProtocol", "agentLog", "openQuestions", "lastReviewed"],
+  "properties": {
+    "ticker": { "type": "string", "minLength": 1 },
+    "lastReviewed": { "type": "string" },
+    "agentThesis": {
+      "type": "object",
+      "required": ["baseCase", "bullCase", "bearCase", "invalidation", "currentBias", "confidence"],
+      "properties": {
+        "baseCase": { "type": "string" },
+        "bullCase": { "type": "string" },
+        "bearCase": { "type": "string" },
+        "invalidation": { "type": "string" },
+        "currentBias": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "technicalMap": {
+      "type": "object",
+      "required": ["trendRegime", "supportLevels", "resistanceLevels", "buyZone", "trimZone", "stopZone", "fractalRead", "multiTimeframeRead"],
+      "properties": {
+        "trendRegime": { "type": "string" },
+        "supportLevels": { "type": "array", "items": { "type": "number" } },
+        "resistanceLevels": { "type": "array", "items": { "type": "number" } },
+        "buyZone": { "type": "array", "items": { "type": "number" } },
+        "trimZone": { "type": "array", "items": { "type": "number" } },
+        "stopZone": { "type": "array", "items": { "type": "number" } },
+        "fractalRead": { "type": "string" },
+        "multiTimeframeRead": { "type": "string" }
+      }
+    },
+    "strategyProtocol": {
+      "type": "object",
+      "required": ["holdIf", "addIf", "trimIf", "exitIf", "doNothingIf"],
+      "properties": {
+        "holdIf": { "type": "array", "items": { "type": "string" } },
+        "addIf": { "type": "array", "items": { "type": "string" } },
+        "trimIf": { "type": "array", "items": { "type": "string" } },
+        "exitIf": { "type": "array", "items": { "type": "string" } },
+        "doNothingIf": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "agentLog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "observation", "changedSinceLastReview", "recommendedReaction", "uncertainty", "nextCheck"],
+        "properties": {
+          "date": { "type": "string" },
+          "observation": { "type": "string" },
+          "changedSinceLastReview": { "type": "string" },
+          "recommendedReaction": { "type": "string" },
+          "uncertainty": { "type": "string" },
+          "nextCheck": { "type": "string" }
+        }
+      }
+    },
+    "openQuestions": { "type": "array", "items": { "type": "string" } }
+  }
+}

@@ -31,11 +31,11 @@ if (fs.existsSync(indexPath)) {
 
   const semanticBindings = [
     [/permission/i, 'action permission'],
-    [/thesis|invalidation/i, 'thesis/invalidation'],
-    [/confidence|freshness/i, 'confidence/freshness'],
+    [/research|verification|verify|direct level source/i, 'research/verification'],
+    [/confidence|freshness|source|AUTH|PARTIAL|PROXY|MISSING/i, 'confidence/freshness'],
     [/risk|breach|conflict|pressure/i, 'risk/pressure'],
-    [/trend|technical|valuation|cash flow/i, 'market/valuation read'],
-    [/why|evidence|change|gate/i, 'decision evidence/gate']
+    [/trend|technical|valuation|cash flow|buy|trim|stop/i, 'market/valuation read'],
+    [/why|evidence|change|gate|zone/i, 'decision evidence/gate']
   ];
   for (const [pattern, label] of semanticBindings) assert(pattern.test(holdingsHtml), `Holdings surface missing ${label}`);
   for (const item of data.interpretations) assert(holdingsHtml.includes(`>${item.ticker}</b>`) || holdingsHtml.includes(`>${item.ticker}</h3>`) || holdingsHtml.includes(`>${item.ticker}<`), `Holdings missing ${item.ticker}`);

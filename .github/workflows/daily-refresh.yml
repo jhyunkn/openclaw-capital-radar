@@ -48,6 +48,9 @@ jobs:
       - name: Build homepage from validated artifacts
         run: npm run build
 
+      - name: Validate operating brain contracts
+        run: npm run validate:operating-brain
+
       - name: Evaluate deploy gate
         id: gate
         run: npm run gate:deploy || test $? -eq 2

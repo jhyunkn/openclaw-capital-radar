@@ -1,4 +1,4 @@
-# VRT Opportunity Dossier
+# NVDA Opportunity Dossier
 
 Generated: 2026-07-08T18:52:34.072Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
@@ -6,22 +6,22 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
-- Name: Vertiv
-- Lane: structural_candidate
+- Name: NVIDIA
+- Lane: tactical_dislocation
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 70
-- Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 316.2
+- Portfolio role: AI infrastructure benchmark / center-stack exposure
+- Current price: 203.4
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
 
-Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.
+Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.
 
 ## Why Now
 
-- VRT positive 3.48% while broad tape is weak.
-- VRT: Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.
+- NVDA positive 3.29% while broad tape is weak.
+- NVDA: Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.
 
 ## Evidence Refs
 
@@ -33,15 +33,15 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 
 ## Confirm Before Promotion
 
-- Backlog/order growth supports the AI infrastructure thesis
-- Margins remain resilient as capacity scales
-- Entry price compensates for crowded theme risk
+- Forward revenue/gross-margin durability remains intact
+- Valuation reset or earnings growth justifies multiple
+- Customer concentration and export-control risks are understood
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Theme crowding
-- Risk to invalidate/check: Execution and margin pressure
-- Risk to invalidate/check: Industrial cyclicality if capex slows
+- Risk to invalidate/check: Crowding and multiple compression
+- Risk to invalidate/check: Export controls / supply chain limits
+- Risk to invalidate/check: AI capex digestion cycle
 
 ## Missing For Promotion
 
@@ -60,7 +60,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 ## Action Framework
 
 Observation:
-VRT positive 3.48% while broad tape is weak.
+NVDA positive 3.29% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

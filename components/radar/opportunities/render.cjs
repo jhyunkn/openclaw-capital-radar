@@ -822,7 +822,31 @@ function renderPriceWindowCard(ticker, td, isAlsoAsym) {
   </article>`;
 }
 
-function renderTwoGroupSection(techState) {
+function renderContextBrief(brief) {
+  if (!brief) return '';
+  const topEntry = brief.topEntry;
+  const topEntryHtml = topEntry ? `
+    <div class="opp-ctx-top-entry">
+      <span class="opp-ctx-entry-label">Top entry now</span>
+      <b class="opp-ctx-entry-ticker">${esc(topEntry.ticker)}</b>
+      <span class="opp-ctx-entry-why">${esc(topEntry.why)}</span>
+    </div>` : '';
+
+  const watchForHtml = (brief.watchFor || []).length > 0 ? `
+    <div class="opp-ctx-watch">
+      <span class="opp-ctx-watch-label">Watch for</span>
+      <ul class="opp-ctx-watch-list">${(brief.watchFor || []).map(w => `<li>${esc(w)}</li>`).join('')}</ul>
+    </div>` : '';
+
+  return `<div class="opp-context-brief">
+    <p class="opp-ctx-headline">${esc(brief.headline)}</p>
+    <p class="opp-ctx-market">${esc(brief.marketContext)}</p>
+    ${topEntryHtml}
+    ${watchForHtml}
+  </div>`;
+}
+
+function renderTwoGroupSection(techState, contextBrief) {
   const tickers = techState.tickers || {};
 
   const asymTickers = Object.entries(tickers).filter(([, td]) => td.isAsymmetric).map(([t]) => t);
@@ -841,6 +865,11 @@ function renderTwoGroupSection(techState) {
     ? new Date(techState.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : '';
 
+  const groupACtx = contextBrief?.groupAContext
+    ? `<p class="opp-group-ctx">${esc(contextBrief.groupAContext)}</p>` : '';
+  const groupBCtx = contextBrief?.groupBContext
+    ? `<p class="opp-group-ctx">${esc(contextBrief.groupBContext)}</p>` : '';
+
   return `<section id="opportunities-section" class="cr-section">
     <div class="cr-wrap">
       <div class="section-head">
@@ -851,11 +880,14 @@ function renderTwoGroupSection(techState) {
         <a class="button" href="outputs/conviction-ranking.json">Full ranking</a>
       </div>
 
+      ${renderContextBrief(contextBrief)}
+
       <div class="opp-group">
         <div class="opp-group-head">
           <span class="opp-group-label">Group A</span>
           <p class="opp-group-title">Phase-defining asymmetric picks</p>
           <p class="opp-group-desc">Pre-consensus names where the narrative hasn't caught up to the data. Early entry, low institutional crowding, defined exit.</p>
+          ${groupACtx}
         </div>
         <div class="opp-asym-grid">${asymCards}</div>
       </div>
@@ -865,6 +897,7 @@ function renderTwoGroupSection(techState) {
           <span class="opp-group-label">Group B</span>
           <p class="opp-group-title">High-conviction names — price context</p>
           <p class="opp-group-desc">Established names with durable moats. MA50/MA200 and RSI shown for each — use the technical levels to time entry, not to discover the idea.</p>
+          ${groupBCtx}
         </div>
         <div class="opp-pw-grid">${pwCards}</div>
       </div>
@@ -872,9 +905,9 @@ function renderTwoGroupSection(techState) {
   </section>`;
 }
 
-function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap, techState) {
+function renderOpportunitiesSection(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap, techState, contextBrief) {
   if (techState && techState.tickers && Object.keys(techState.tickers).length) {
-    return renderTwoGroupSection(techState);
+    return renderTwoGroupSection(techState, contextBrief || null);
   }
   // fallback to unified list render
   return renderOpportunitiesSectionLegacy(state, candidateRanking, conviction, scannerData, dynamicUniverse, bandMap);
@@ -1062,6 +1095,18 @@ function renderOpportunitiesStyle() {
 .opp-fw-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap;width:52px;flex-shrink:0}
 .opp-fw-val{color:rgba(36,35,31,.75);line-height:1.4}
 @media(max-width:620px){.opp-asym-grid,.opp-pw-grid{grid-template-columns:1fr}}
+.opp-context-brief{background:rgba(201,191,173,.1);border:1px solid rgba(201,191,173,.35);border-radius:0;padding:18px 22px;margin-bottom:28px}
+.opp-ctx-headline{font-size:15px;font-weight:700;letter-spacing:-.02em;color:rgba(36,35,31,.92);margin:0 0 8px;line-height:1.3}
+.opp-ctx-market{font-size:12.5px;line-height:1.6;color:rgba(36,35,31,.65);margin:0 0 14px}
+.opp-ctx-top-entry{display:flex;align-items:baseline;gap:10px;padding:10px 14px;background:rgba(255,255,255,.55);border:1px solid rgba(201,191,173,.4);margin-bottom:12px;flex-wrap:wrap}
+.opp-ctx-entry-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+.opp-ctx-entry-ticker{font-size:15px;font-weight:700;letter-spacing:-.02em;flex-shrink:0}
+.opp-ctx-entry-why{font-size:11.5px;color:rgba(36,35,31,.65);line-height:1.4}
+.opp-ctx-watch{margin-top:0}
+.opp-ctx-watch-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:5px}
+.opp-ctx-watch-list{margin:0;padding-left:16px;list-style:disc}
+.opp-ctx-watch-list li{font-size:11.5px;color:rgba(36,35,31,.65);line-height:1.5;margin-bottom:2px}
+.opp-group-ctx{font-size:12px;color:rgba(36,35,31,.6);line-height:1.5;margin:6px 0 0;font-style:italic}
 </style>`;
 }
 

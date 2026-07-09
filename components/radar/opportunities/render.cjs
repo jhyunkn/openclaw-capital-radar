@@ -769,6 +769,7 @@ function renderAsymmetricCard(ticker, td, isAlsoPw) {
     </div>
     ${maGrid}
     ${thesis ? `<p class="opp-thesis">${esc(thesis)}</p>` : ''}
+    ${td.selection_reason ? `<p class="opp-sel-reason"><span>Why selected</span> ${esc(td.selection_reason)}</p>` : ''}
     ${renderEvidenceTrail(td)}
     ${fw ? `<div class="opp-fw">${fw}</div>` : ''}
   </article>`;
@@ -913,7 +914,7 @@ function renderTwoGroupSection(techState, contextBrief) {
         <div class="opp-group-head">
           <span class="opp-group-label">Group A</span>
           <p class="opp-group-title">Phase-defining asymmetric picks</p>
-          <p class="opp-group-desc">Pre-consensus names where the narrative hasn't caught up to the data. Early entry, low institutional crowding, defined exit.</p>
+          <p class="opp-group-desc">Selected by framework, not by hand: quality + moat gates passed, decline not fundamentals-driven, ≥18% below 52-week high, conviction ≥55 — top 5 by conviction. Holdings excluded. Each card shows why it was selected.</p>
           ${groupACtx}
         </div>
         <div class="opp-asym-grid">${asymCards}</div>
@@ -923,7 +924,7 @@ function renderTwoGroupSection(techState, contextBrief) {
         <div class="opp-group-head">
           <span class="opp-group-label">Group B</span>
           <p class="opp-group-title">High-conviction names — price context</p>
-          <p class="opp-group-desc">Established names with durable moats. MA50/MA200 and RSI shown for each — use the technical levels to time entry, not to discover the idea.</p>
+          <p class="opp-group-desc">Selected by framework: conviction ≥60 with RSI below 55 — quality names cooling into the entry window, top 7 by conviction. Use MA50/MA200 and RSI to time entry, not to discover the idea.</p>
           ${groupBCtx}
         </div>
         <div class="opp-pw-grid">${pwCards}</div>
@@ -1150,6 +1151,8 @@ function renderOpportunitiesStyle() {
 .opp-ev-corrected{color:#8a6a2c;border-color:rgba(138,106,44,.4);background:rgba(138,106,44,.07)}
 .opp-ev-unverified{color:#9f3f35;border-color:rgba(159,63,53,.4);background:rgba(159,63,53,.06)}
 .opp-evidence-none{display:flex;align-items:baseline;gap:6px}
+.opp-sel-reason{font-size:10.5px;line-height:1.45;color:rgba(36,35,31,.6);margin:8px 0 0;padding:6px 8px;background:rgba(64,95,159,.05);border-left:2px solid rgba(64,95,159,.35)}
+.opp-sel-reason span{font-weight:700;text-transform:uppercase;font-size:8.5px;letter-spacing:.08em;color:rgba(64,95,159,.85);margin-right:5px}
 </style>`;
 }
 

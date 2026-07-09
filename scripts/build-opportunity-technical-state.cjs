@@ -53,11 +53,55 @@ function pctDiff(price, ma) {
   return Math.round(((price / ma) - 1) * 1000) / 10;
 }
 
-// Tickers needing fresh MA computation (all Group B entries + key Group A)
-const FETCH_TICKERS = [
-  'GEV', 'BWXT', 'KTOS', 'CLS', 'KNSL',   // Group A
-  'PLTR', 'AVGO', 'NVDA', 'VRT', 'ETN', 'PWR', 'CCJ',  // Group B
-];
+// Group membership is SELECTED, not hardcoded — derived from the conviction
+// ranking's gates per data/intelligence/opportunity-framework.json:
+//   Group A (pre-consensus dislocated quality): quality+moat gates passed,
+//     decline not FUNDAMENTAL_CONCERN, >=18% below 52wH, conviction >=55. Top 5.
+//   Group B (quality at entry window): conviction >=60, RSI < 55 (cooling into
+//     the window), not already in Group A. Top 7.
+// Current holdings are excluded (they live in the Holdings section).
+// TICKER_META below is a curated research overlay (theses, evidence trails) —
+// it enriches selected names but no longer decides membership.
+function read(f) { try { return JSON.parse(fs.readFileSync(path.join(root, f), 'utf8')); } catch { return null; } }
+
+function selectGroups() {
+  const ranked = (read('outputs/conviction-ranking.json')?.ranked) || [];
+  const wl = read('outputs/watchlist-market-data.json')?.tickers || {};
+  const holdings = new Set(((read('outputs/robinhood-positions.json')?.positions) || []).map(p => p.symbol || p.ticker));
+
+  const groupA = [];
+  const groupB = [];
+  const reasons = {};
+  for (const r of ranked) {
+    if (holdings.has(r.ticker)) continue;
+    const w = wl[r.ticker] || {};
+    const pct52 = Number.isFinite(w.pctFrom52wHigh) ? w.pctFrom52wHigh : null;
+    const rsi = Number.isFinite(w.rsi14) ? w.rsi14 : null;
+    const gates = r.gate_passed || {};
+    const isA = groupA.length < 5
+      && gates.quality && gates.moat
+      && r.decline_reason !== 'FUNDAMENTAL_CONCERN'
+      && pct52 != null && pct52 <= -18
+      && (r.conviction_score || 0) >= 55;
+    if (isA) {
+      groupA.push(r.ticker);
+      reasons[r.ticker] = `Track A: gates passed (${Object.keys(gates).filter(k => gates[k]).join(', ')}) · conviction ${r.conviction_score} · ${pct52}% from 52wH, RSI ${rsi ?? '?'} · decline read: ${r.decline_label || r.decline_reason || 'n/a'}`;
+      continue;
+    }
+    const isB = groupB.length < 7
+      && (r.conviction_score || 0) >= 60
+      && rsi != null && rsi < 55;
+    if (isB) {
+      groupB.push(r.ticker);
+      reasons[r.ticker] = `Track B window: conviction ${r.conviction_score} (tier ${r.conviction_tier || '?'}) · RSI ${rsi} inside entry window · ${pct52 != null ? pct52 + '% from 52wH' : 'dislocation n/a'}`;
+    }
+  }
+  return { groupA, groupB, reasons, rankedByTicker: Object.fromEntries(ranked.map(r => [r.ticker, r])) };
+}
+
+const SELECTION = selectGroups();
+const FETCH_TICKERS = [...SELECTION.groupA, ...SELECTION.groupB];
+console.log(`Framework selection — Group A: ${SELECTION.groupA.join(', ')} | Group B: ${SELECTION.groupB.join(', ')}`);
 
 // Static metadata for each ticker
 const TICKER_META = {
@@ -209,14 +253,26 @@ const TICKER_META = {
       continue;
     }
     const { ticker, currentPrice, ma50, ma200, rsi14, pct52 } = r.value;
-    const meta = TICKER_META[ticker];
-    if (!meta) continue;
+    const rk = SELECTION.rankedByTicker[ticker] || {};
+    const curated = TICKER_META[ticker] || {};
+    const meta = {
+      name: curated.name || rk.name || ticker,
+      early_entry_signal: curated.early_entry_signal
+        || (rk.decline_explanation ? `${rk.decline_explanation} ${(rk.fundamental_signals || []).slice(0, 3).join(' · ')}` : null),
+      moat_summary: curated.moat_summary || (rk.fundamental_signals || []).find(x => /moat|switching|lock-in|monopoly/i.test(x)) || null,
+      next_catalyst: curated.next_catalyst || rk.catalyst_note || null,
+      invalidation: curated.invalidation || rk.invalidation || null,
+      evidence: curated.evidence || null,
+      machine_generated: !curated.early_entry_signal,
+    };
 
     techData[ticker] = {
       price: currentPrice,
       name: meta.name,
-      isAsymmetric: meta.isAsymmetric,
-      isPriceWindow: meta.isPriceWindow,
+      isAsymmetric: SELECTION.groupA.includes(ticker),
+      isPriceWindow: SELECTION.groupB.includes(ticker),
+      selection_reason: SELECTION.reasons[ticker] || null,
+      machine_generated: meta.machine_generated,
       ma50,
       ma200,
       vsMa50Pct:  pctDiff(currentPrice, ma50),
@@ -228,7 +284,7 @@ const TICKER_META = {
       next_catalyst:        meta.next_catalyst         || null,
       invalidation:         meta.invalidation          || null,
       institutional_crowding: meta.institutional_crowding || null,
-      conviction_score:     meta.conviction_score      || null,
+      conviction_score:     rk.conviction_score        ?? null,
       evidence:             meta.evidence              || null,
     };
 
@@ -238,7 +294,13 @@ const TICKER_META = {
 
   const output = {
     generatedAt: new Date().toISOString(),
-    source: 'verified-research-lanes-jun-2026',
+    source: 'conviction-ranking framework selection (opportunity-framework v1)',
+    selection_criteria: {
+      group_a: 'Pre-consensus dislocated quality: quality+moat gates passed, decline not FUNDAMENTAL_CONCERN, >=18% below 52wH, conviction >=55, ranked by conviction. Top 5. Holdings excluded.',
+      group_b: 'Quality at entry window: conviction >=60, RSI < 55, not in Group A. Top 7. Holdings excluded.',
+      authority: 'data/intelligence/opportunity-framework.json',
+      scores: 'conviction_score comes from generate-conviction-ranking.cjs (scanner gates + signal tiers), not hand-typed values.'
+    },
     lanes: {
       ai_power: ['GEV', 'VRT', 'ETN', 'PWR', 'CEG', 'VST', 'CVX', 'CAT'],
       defense_tech: ['BWXT', 'KTOS', 'AVAV', 'PLTR'],

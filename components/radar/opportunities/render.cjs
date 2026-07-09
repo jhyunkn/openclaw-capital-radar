@@ -838,10 +838,21 @@ function renderContextBrief(brief) {
       <ul class="opp-ctx-watch-list">${(brief.watchFor || []).map(w => `<li>${esc(w)}</li>`).join('')}</ul>
     </div>` : '';
 
+  const disc = brief.discovery;
+  const discChip = c => `<span class="opp-disc-chip" title="${esc(c.why)}">${esc(c.ticker)} <em>RSI ${esc(c.rsi)}</em></span>`;
+  const discoveryHtml = disc ? `
+    <div class="opp-ctx-discovery">
+      <span class="opp-ctx-disc-label">Market-wide discovery · snapshots ${esc(disc.snapshot_status)}</span>
+      <div class="opp-disc-row"><b>Dislocated quality — ${esc(disc.new_counts?.dislocated_quality ?? 0)} new</b>${(disc.top_dislocated || []).map(discChip).join('')}</div>
+      <div class="opp-disc-row"><b>Inflection leaders — ${esc(disc.new_counts?.inflection_leaders ?? 0)} new</b>${(disc.top_leaders || []).map(discChip).join('')}</div>
+      <small class="opp-disc-note">Passed the market-wide screen, not yet the evidence gates — research queue, not buy list. Framework: opportunity-framework v1.</small>
+    </div>` : '';
+
   return `<div class="opp-context-brief">
     <p class="opp-ctx-headline">${esc(brief.headline)}</p>
     <p class="opp-ctx-market">${esc(brief.marketContext)}</p>
     ${topEntryHtml}
+    ${discoveryHtml}
     ${watchForHtml}
   </div>`;
 }
@@ -1107,6 +1118,13 @@ function renderOpportunitiesStyle() {
 .opp-ctx-watch-list{margin:0;padding-left:16px;list-style:disc}
 .opp-ctx-watch-list li{font-size:11.5px;color:rgba(36,35,31,.65);line-height:1.5;margin-bottom:2px}
 .opp-group-ctx{font-size:12px;color:rgba(36,35,31,.6);line-height:1.5;margin:6px 0 0;font-style:italic}
+.opp-ctx-discovery{padding:10px 14px;background:rgba(47,111,78,.05);border:1px solid rgba(47,111,78,.25);margin-bottom:12px}
+.opp-ctx-disc-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green,#2f6f4e);display:block;margin-bottom:7px}
+.opp-disc-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.opp-disc-row b{font-size:11px;font-weight:600;color:rgba(36,35,31,.75);margin-right:3px}
+.opp-disc-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(47,111,78,.35);background:rgba(255,255,255,.6);color:rgba(36,35,31,.85);letter-spacing:.02em}
+.opp-disc-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
+.opp-disc-note{display:block;font-size:10.5px;color:rgba(36,35,31,.5);line-height:1.4;margin-top:4px}
 </style>`;
 }
 

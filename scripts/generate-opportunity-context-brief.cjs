@@ -194,6 +194,17 @@ function buildTopEntry() {
 // --- Watch for ---
 const watchFor = nr.watchFor || [];
 
+// --- Market-wide discovery (opportunity-framework Tracks A/B) ---
+const ds = read('outputs/discovery-state.json') || {};
+const discovery = (ds.track_a_candidates || ds.track_b_candidates) ? {
+  generatedAt: ds.generatedAt || null,
+  snapshot_status: `${ds.snapshots?.track_a?.status || 'MISSING'}/${ds.snapshots?.track_b?.status || 'MISSING'}`,
+  new_counts: { dislocated_quality: ds.full_counts?.track_a_new || 0, inflection_leaders: ds.full_counts?.track_b_new || 0 },
+  top_dislocated: (ds.track_a_candidates || []).slice(0, 3).map(c => ({ ticker: c.ticker, name: c.name, rsi: c.rsi, why: c.why })),
+  top_leaders: (ds.track_b_candidates || []).slice(0, 3).map(c => ({ ticker: c.ticker, name: c.name, rsi: c.rsi, why: c.why })),
+  line: `Market-wide discovery: ${ds.full_counts?.track_a_new || 0} new dislocated-quality names (top: ${(ds.track_a_candidates || []).slice(0, 3).map(c => c.ticker).join(', ') || '—'}), ${ds.full_counts?.track_b_new || 0} new inflection leaders (top: ${(ds.track_b_candidates || []).slice(0, 3).map(c => c.ticker).join(', ') || '—'}). These passed the screen, not yet the evidence gates — research queue, not buy list.`,
+} : null;
+
 // --- Assemble brief ---
 const brief = {
   generatedAt: new Date().toISOString(),
@@ -202,6 +213,7 @@ const brief = {
   groupAContext: buildGroupAContext(),
   groupBContext: buildGroupBContext(),
   topEntry: buildTopEntry(),
+  discovery,
   watchFor: watchFor.slice(0, 3),
   entryScoreboard: entries.map(e => ({
     ticker: e.sym,

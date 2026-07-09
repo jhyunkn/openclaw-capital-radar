@@ -769,8 +769,24 @@ function renderAsymmetricCard(ticker, td, isAlsoPw) {
     </div>
     ${maGrid}
     ${thesis ? `<p class="opp-thesis">${esc(thesis)}</p>` : ''}
+    ${renderEvidenceTrail(td)}
     ${fw ? `<div class="opp-fw">${fw}</div>` : ''}
   </article>`;
+}
+
+function renderEvidenceTrail(td) {
+  const items = arr(td.evidence);
+  if (!items.length) {
+    return `<div class="opp-evidence opp-evidence-none"><span class="opp-ev-badge opp-ev-unverified">UNVERIFIED</span><small>Hand-written thesis — no source attached yet. Treat as hypothesis, not evidence.</small></div>`;
+  }
+  const rows = items.map(ev => {
+    const cls = ev.status === 'VERIFIED' ? 'opp-ev-verified' : ev.status === 'CORRECTED' ? 'opp-ev-corrected' : 'opp-ev-unverified';
+    const src = ev.url
+      ? `<a href="${esc(ev.url)}" target="_blank" rel="noopener">${esc(ev.source || 'source')}</a>`
+      : esc(ev.source || '');
+    return `<div class="opp-ev-row"><span class="opp-ev-badge ${cls}">${esc(ev.status)}</span><small>${esc(ev.claim)} · ${src}${ev.checked ? ` · checked ${esc(ev.checked)}` : ''}</small></div>`;
+  }).join('');
+  return `<div class="opp-evidence">${rows}</div>`;
 }
 
 function renderPriceWindowCard(ticker, td, isAlsoAsym) {
@@ -1125,6 +1141,15 @@ function renderOpportunitiesStyle() {
 .opp-disc-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(47,111,78,.35);background:rgba(255,255,255,.6);color:rgba(36,35,31,.85);letter-spacing:.02em}
 .opp-disc-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
 .opp-disc-note{display:block;font-size:10.5px;color:rgba(36,35,31,.5);line-height:1.4;margin-top:4px}
+.opp-evidence{margin:8px 0 0;border-top:1px dashed rgba(201,191,173,.5);padding-top:7px}
+.opp-ev-row{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.opp-ev-row small,.opp-evidence-none small{font-size:10.5px;line-height:1.45;color:rgba(36,35,31,.6)}
+.opp-ev-row a{color:rgba(47,111,78,.9)}
+.opp-ev-badge{flex-shrink:0;font-size:8px;font-weight:700;letter-spacing:.08em;padding:1px 5px;border:1px solid}
+.opp-ev-verified{color:#2f6f4e;border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.07)}
+.opp-ev-corrected{color:#8a6a2c;border-color:rgba(138,106,44,.4);background:rgba(138,106,44,.07)}
+.opp-ev-unverified{color:#9f3f35;border-color:rgba(159,63,53,.4);background:rgba(159,63,53,.06)}
+.opp-evidence-none{display:flex;align-items:baseline;gap:6px}
 </style>`;
 }
 

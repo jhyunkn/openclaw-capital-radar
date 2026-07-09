@@ -10,10 +10,30 @@ const opportunityPackets = readJson('outputs/opportunity-evidence-packets.json',
 const tickerGateAudit = readJson('outputs/ticker-gate-audit.json', {});
 const list = v => Array.isArray(v) ? v : [];
 function pass(label, ok, evidence, blocker = null) { return { label, status: ok ? 'PASS' : 'FAIL', evidence, blocker }; }
+function get(obj, pathExpr) {
+  return String(pathExpr).split('.').reduce((value, key) => value?.[key], obj);
+}
+function ageHours(timestamp) {
+  const date = new Date(timestamp);
+  if (!Number.isFinite(date.getTime())) return Infinity;
+  return (Date.now() - date.getTime()) / 3_600_000;
+}
+function freshnessCheck(label, rel, pathExpr, maxHours) {
+  const artifact = readJson(rel, null);
+  const timestamp = get(artifact, pathExpr);
+  const age = ageHours(timestamp);
+  const ok = Number.isFinite(age) && age <= maxHours;
+  return pass(
+    label,
+    ok,
+    timestamp ? `${rel} ${pathExpr}=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxHours}h` : `${rel} missing ${pathExpr}`,
+    ok ? null : 'Visible decision data is stale or missing.'
+  );
+}
 const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
-const expected = ['decision-brief-section','operational-chart-section','holdings-section','opportunities-section'];
-const finalFour = JSON.stringify(sectionIds) === JSON.stringify(expected);
-if (!finalFour) {
+const expected = ['decision-brief-section','market-calendar-section','operational-chart-section','holdings-section','opportunities-section'];
+const finalSurface = JSON.stringify(sectionIds) === JSON.stringify(expected);
+if (!finalSurface) {
   const output = {
     generatedAt: new Date().toISOString(),
     runMode: 'PRE_FINAL_RENDER_AUDIT_SKIPPED',
@@ -32,9 +52,10 @@ const forbidden = ['portfolio-scoreboard','live-reaction-state','native-research
 const publicSectionIds = [...publicHtml.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
 const publicOk = !publicHtml || JSON.stringify(publicSectionIds) === JSON.stringify(expected);
 const checks = [
-  pass('Canonical four-section homepage', JSON.stringify(sectionIds) === JSON.stringify(expected), `Sections: ${sectionIds.join(' > ')}`),
+  pass('Canonical operational homepage', JSON.stringify(sectionIds) === JSON.stringify(expected), `Sections: ${sectionIds.join(' > ')}`),
   pass('No redundant visible homepage sections', !forbidden.some(item => html.includes(item)), 'Health, Lens, Route, Egg, and Market Tape are not visible top-level sections.'),
   pass('Macro', html.includes('id="decision-brief-section"') && /Confirmation|Macro|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(html), 'Macro / confirmation / permission verdict rendered.'),
+  pass('Market calendar', html.includes('id="market-calendar-section"') && /Upcoming Events|FOMC|CPI|PCE|NFP|GDP|Major earnings/i.test(html), 'Calendar remains integrated in current production surface.'),
   pass('Decision chart', html.includes('id="operational-chart-section"') && /Operational Decision Chart|SPX|RSI|MACD|VIX|10Y|ADD|TRIM|DEFENSE/i.test(html), 'Chart, indicators, and action zones rendered.'),
   pass('Holdings', html.includes('id="holdings-section"') && /AUTH|PARTIAL|PROXY|MISSING|Buy|Trim|Stop|Exit/i.test(html), 'Holdings source tiers and price-zone fields rendered.'),
   pass('Robinhood execution bridge', html.includes('id="robinhood-execution-bridge-module"') && /Proposal-only execution rail|Human approval|Capital Radar remains the decision brain/i.test(html) && !/autonomous orders allowed|autonomous trading enabled|auto trade enabled/i.test(html), 'Proposal-only Robinhood rail is visible without enabling autonomous trading.'),
@@ -42,14 +63,27 @@ const checks = [
   pass('Backend telemetry preserved', nativeEvents.status === 'ACTIVE' || tickerGateAudit.status === 'ACTIVE' || opportunityPackets.status === 'ACTIVE', `Native events ${list(nativeEvents.events).length}; ticker gates ${tickerGateAudit.counts?.tickers || 'n/a'}; packets ${list(opportunityPackets.packets).length}.`),
   pass('Operational score available', Number(score.score || 0) >= 0 && Number(score.target || 0) >= 0, `CROS ${score.score || 0}/${score.target || 0}; stage ${score.stage || 'n/a'}.`),
   pass('Public static sync', publicOk, `Public sections: ${publicSectionIds.join(' > ')}`),
+  pass('No stale portfolio timestamp leak', !/4:30 AM\s*·\s*Jun 13/i.test(html + publicHtml), 'June 13 portfolio bar timestamp is not visible.'),
+  freshnessCheck('Portfolio freshness', 'outputs/portfolio-live-state.json', 'fetchedAt', 72),
+  freshnessCheck('Robinhood raw freshness', 'outputs/robinhood-positions.json', 'syncedAt', 72),
+  freshnessCheck('Market data freshness', 'outputs/data-health.json', 'sources.yahooFinance.lastSuccessfulFetchAt', 24),
+  freshnessCheck('Macro/FRED freshness', 'outputs/data-health.json', 'sources.fred.lastSuccessfulFetchAt', 72),
+  freshnessCheck('Operational chart freshness', 'outputs/operational-chart-state.json', 'as_of', 24),
+  freshnessCheck('Cross-asset market lens freshness', 'outputs/market-lens-state.json', 'as_of', 24),
+  freshnessCheck('Strategy routing freshness', 'outputs/strategy-routing-state.json', 'as_of', 24),
+  freshnessCheck('Trust strip freshness', 'outputs/trust-strip-state.json', 'as_of', 24),
+  freshnessCheck('Macro configuration freshness', 'outputs/macro-configuration-state.json', 'generatedAt', 24),
+  freshnessCheck('Macro historical analog freshness', 'outputs/macro-historical-analog-state.json', 'generatedAt', 24),
+  freshnessCheck('Macro portfolio translation freshness', 'outputs/macro-portfolio-translation-state.json', 'generatedAt', 24),
+  freshnessCheck('Kostolany diagram freshness', 'outputs/kostolany-egg-state.json', 'as_of', 24),
   pass('No object leaks', !html.includes('[object Object]'), 'No object serialization leak present.')
 ];
 const failed = checks.filter(c => c.status !== 'PASS');
 const output = {
   generatedAt: new Date().toISOString(),
-  runMode: 'FOUR_SECTION_OPERATIONAL_HOME_AUDIT',
+  runMode: 'OPERATIONAL_HOME_AUDIT',
   status: failed.length ? 'FAIL' : 'PASS',
-  summary: failed.length ? `${failed.length} homepage checks failed.` : 'Capital Radar homepage validates against the four-section contract; backend intelligence remains preserved in JSON outputs.',
+  summary: failed.length ? `${failed.length} homepage checks failed.` : 'Capital Radar homepage validates against the operational surface and freshness contract; backend intelligence remains preserved in JSON outputs.',
   sections: checks,
   nextRequiredForHighTrust: ['document evidence store', 'outcome ledger', 'source reliability learning loop']
 };

@@ -30,22 +30,24 @@ function sectionHtml(html, id) {
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
 const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
-const expected = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
+const expected = ['decision-brief-section', 'market-calendar-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
 
-const hasFinalFourSectionShell = html.includes('Capital Radar · four-section decision surface') || expected.every(id => sectionIds.includes(id)) && !sectionIds.includes('market-section') && !sectionIds.includes('kostolany-egg-section');
-if (!hasFinalFourSectionShell) {
-  console.log(`four-section homepage validator skipped before final render; current sections: ${sectionIds.join(' > ')}`);
+const hasFinalSurfaceShell = html.includes('Capital Radar · four-section decision surface') || expected.every(id => sectionIds.includes(id)) && !sectionIds.includes('market-section') && !sectionIds.includes('kostolany-egg-section');
+if (!hasFinalSurfaceShell) {
+  console.log(`homepage validator skipped before final render; current sections: ${sectionIds.join(' > ')}`);
   process.exit(0);
 }
 
 assert(JSON.stringify(sectionIds) === JSON.stringify(expected), `section order mismatch: expected ${expected.join(' > ')} got ${sectionIds.join(' > ')}`);
 
 const macro = sectionHtml(html, 'decision-brief-section');
+const calendar = sectionHtml(html, 'market-calendar-section');
 const chart = sectionHtml(html, 'operational-chart-section');
 const holdings = sectionHtml(html, 'holdings-section');
 const opportunity = sectionHtml(html, 'opportunities-section');
 
 assert(/Macro|Confirmation|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(macro), 'Macro missing regime/confirmation/permission/invalidation fields');
+assert(/Upcoming Events|FOMC|CPI|PCE|NFP|GDP|Major earnings/i.test(calendar), 'Market calendar missing event surface fields');
 assert(/Operational Decision Chart|SPX|RSI|MACD|VIX|10Y|ADD|TRIM|DEFENSE/i.test(chart), 'Decision chart missing chart/indicator/action fields');
 assert(/AUTH|PARTIAL|PROXY|MISSING|Price-zone|Buy|Trim|Stop|Exit/i.test(holdings), 'Holdings missing source tier and zone fields');
 assert(/id="robinhood-execution-bridge-module"/.test(holdings) && /Proposal-only execution rail|Capital Radar remains the decision brain/i.test(holdings), 'Holdings missing Robinhood proposal-only execution bridge');
@@ -74,4 +76,4 @@ const forbiddenIds = [
 for (const id of forbiddenIds) assert(!html.includes(`id="${id}"`), `removed section still present: ${id}`);
 
 ['Native Research Engine', 'Opportunity Evidence Engine', 'Ticker Gate Audit', 'What requires action now?', 'Read permission before price.', '[object Object]'].forEach(x => assert(!html.includes(x), `legacy phrase still present: ${x}`));
-console.log('four-section homepage validated: Macro / Decision chart / Holdings / Opportunity');
+console.log('homepage validated: Macro / Calendar / Decision chart / Holdings / Opportunity');

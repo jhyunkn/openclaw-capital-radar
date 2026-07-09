@@ -1237,6 +1237,20 @@ const _dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFix
 // Live Fed Funds Rate (DFF) from liveRatesCredit — used as the "now" data point
 const _dffEntry  = (liveState.liveRatesCredit || []).find(r => r.id === 'DFF');
 const _dffRate   = _dffEntry?.value != null ? Number(_dffEntry.value).toFixed(2) : '3.62';
+const _dffDate   = _dffEntry?.latestDate || _dffEntry?.asOf || new Date().toISOString().slice(0, 10);
+const _dffDateObj = new Date(`${String(_dffDate).slice(0, 10)}T00:00:00Z`);
+const _dffMonthLabel = Number.isFinite(_dffDateObj.getTime())
+  ? _dffDateObj.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) + " '" + String(_dffDateObj.getUTCFullYear()).slice(-2)
+  : "Latest";
+const _dffMonthIndex = Number.isFinite(_dffDateObj.getTime())
+  ? ((_dffDateObj.getUTCFullYear() - 2022) * 12) + _dffDateObj.getUTCMonth()
+  : 54;
+const _phaseCMonths = Number.isFinite(_dffDateObj.getTime())
+  ? ((_dffDateObj.getUTCFullYear() - 2023) * 12) + (_dffDateObj.getUTCMonth() - 9)
+  : 33;
+const _cycleMonths = Number.isFinite(_dffDateObj.getTime())
+  ? ((_dffDateObj.getUTCFullYear() - 2022) * 12) + (_dffDateObj.getUTCMonth() - 2)
+  : 52;
 
 // Unique canvas ID per build — prevents stale copies of this script
 // (embedded in holding-card detail views) from finding and overwriting this canvas.
@@ -1245,7 +1259,7 @@ const _cycleCanvasId = 'mcc_' + Date.now().toString(36);
 const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-topbar">
     <span class="mu-arc-label">Fed Funds Rate — tightening cycle (Mar 2022–present)</span>
-    <span class="mu-arc-meta">One of five inputs &middot; ~51 mo &middot; Next phase: Expansion</span>
+    <span class="mu-arc-meta">One of five inputs &middot; ~${_cycleMonths} mo &middot; Next phase: Expansion</span>
   </div>
   <div class="mu-arc-canvas-box">
     <canvas id="${_cycleCanvasId}"></canvas>
@@ -1272,7 +1286,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {id:"E", label:"Euphoria",     date:"—", color:"#6a8eb0"},
     {id:"F", label:"Distribution", date:"—", color:"#8a7aa0"},
   ];
-  // Historical data: actual FEDFUNDS (DFF) from Jan '22 through Jun '26 (DFF=${_dffRate}%).
+  // Historical data: actual FEDFUNDS (DFF) from Jan '22 through ${_dffMonthLabel} (DFF=${_dffRate}%).
   // Source: Federal Reserve H.15 / FRED DFF series. Phases per Kostolany egg framework.
   // Sep '25 onward are estimated/projected. current:true = today's position.
   var RATE_DATA=[
@@ -1296,7 +1310,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {d:"Sep '25",r:4.08,phase:"C"},           // 17 ← FRED Q3-2025 avg 4.10% → ~4.08 point-in-time
     {d:"Dec '25",r:3.83,phase:"C"},           // 18 ← FRED Q4-2025 avg 3.95% → ~3.83 point-in-time
     {d:"Mar '26",r:3.62,phase:"C"},           // 19 ← estimated
-    {d:"Jun '26",r:${_dffRate},phase:"C",current:true}, // 20 ← LIVE DFF
+    {d:"${_dffMonthLabel}",r:${_dffRate},phase:"C",current:true}, // 20 ← LIVE DFF as of ${_dffDate}
     {d:"Dec '26",r:3.25,phase:"D",projected:true},      // 21 ← projected
     {d:"Jun '27",r:3.10,phase:"D",projected:true},      // 22 ← projected
     {d:"Dec '27",r:3.00,phase:"E",projected:true},      // 23 ← projected
@@ -1489,7 +1503,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.fillText("Rate peaked \xb7 5.33% \xb7 Phase C begins",csBL+csW/2,pT+4+csH/2);
     c.restore();
 
-    // ── TODAY — animated pulse ON the rate line at actual Jun '26 rate ────────
+    // ── TODAY — animated pulse ON the latest DFF rate ────────────────────────
     var todayX=xOf(curIdx), todayY=yOf(RATE_DATA[curIdx].r);
     var todayCol="#b85c38";
     // Animated glow
@@ -1519,10 +1533,10 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.strokeStyle=todayCol+"70";c.lineWidth=1;c.stroke();
     c.font="600 10px IBM Plex Mono,monospace";
     c.fillStyle=todayCol;c.textAlign="center";c.textBaseline="middle";
-    c.fillText("YOU ARE HERE \xb7 Jun '26",bBL+bw/2,badgeY+11);
+    c.fillText("YOU ARE HERE \xb7 ${_dffMonthLabel}",bBL+bw/2,badgeY+11);
     c.font="8.5px IBM Plex Mono,monospace";
     c.fillStyle="rgba(42,37,32,0.72)";
-    c.fillText("Phase C \xb7 ${_dffRate}% \xb7 32 mo into cycle",bBL+bw/2,badgeY+25);
+    c.fillText("Phase C \xb7 ${_dffRate}% \xb7 ${_phaseCMonths} mo into cycle",bBL+bw/2,badgeY+25);
     // Connector from badge to dot
     if(badgeY+bh<todayY-8){
       c.beginPath();c.moveTo(todayX,badgeY+bh);c.lineTo(todayX,todayY-8);
@@ -1561,7 +1575,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
       {mo:2,  label:"Mar '22 ↑"},
       {mo:21, label:"Oct '23"},
       {mo:32, label:"Sep '24"},
-      {mo:53, label:"Jun '26 ▸"},
+      {mo:${_dffMonthIndex}, label:"${_dffMonthLabel} ▸"},
     ].forEach(function(tick){
       var tx=xOfMo(tick.mo);
       c.beginPath();c.moveTo(tx,pT+cH+1);c.lineTo(tx,pT+cH+6);
@@ -1590,7 +1604,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.font="9px IBM Plex Mono,monospace";
     c.fillStyle="rgba(184,92,56,0.85)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Phase C \xb7 Oct '23 → Jun '26 \xb7 32 mo",durBL+durW/2,yOf(2.8)-durH/2-4);
+    c.fillText("Phase C \xb7 Oct '23 → ${_dffMonthLabel} \xb7 ${_phaseCMonths} mo",durBL+durW/2,yOf(2.8)-durH/2-4);
     c.restore();
   }
 

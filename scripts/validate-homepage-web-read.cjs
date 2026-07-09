@@ -5,7 +5,7 @@ const root = path.join(__dirname, '..');
 const indexPath = path.join(root, 'index.html');
 const outputsDir = path.join(root, 'outputs');
 const reportPath = path.join(outputsDir, 'homepage-web-read-validation-report.json');
-const requiredIds = ['decision-brief-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
+const requiredIds = ['decision-brief-section', 'market-calendar-section', 'operational-chart-section', 'holdings-section', 'opportunities-section'];
 const forbiddenIds = [
   'data-refresh-section',
   'kostolany-egg-section',
@@ -50,12 +50,12 @@ const html = fs.readFileSync(indexPath, 'utf8');
 const bodyHtml = (html.match(/<body[\s\S]*?<\/body>/i) || [html])[0];
 const text = strip(bodyHtml);
 const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
-const finalFour = JSON.stringify(sectionIds) === JSON.stringify(requiredIds);
+const finalSurface = JSON.stringify(sectionIds) === JSON.stringify(requiredIds);
 
-if (!finalFour) {
+if (!finalSurface) {
   const message = `section contract mismatch: expected ${requiredIds.join(' > ')} got ${sectionIds.join(' > ')}`;
   report('FAILED', [message], {
-    mode: 'FINAL_FOUR_SECTION_VALIDATION',
+    mode: 'OPERATIONAL_SURFACE_VALIDATION',
     section_ids: sectionIds,
     text_sample: text.slice(0, 600),
   });
@@ -84,7 +84,7 @@ if (firstSectionIndex >= 0 && heroIndex >= 0 && heroIndex > firstSectionIndex) e
 for (const [id, n] of Object.entries(sectionCounts)) if (n !== 1) errors.push(`${id}_count=${n}; expected 1`);
 if (forbiddenPresent.length) errors.push(`forbidden_sections_present=${forbiddenPresent.join(',')}`);
 if (visibleNotAvailable > 0) errors.push(`visible_not_available_count=${visibleNotAvailable}`);
-if (!/Macro|Market permission|Decision chart|Holdings|Opportunity/i.test(text)) errors.push('missing_four_section_language');
+if (!/Macro|Market permission|Upcoming Events|Decision chart|Holdings|Opportunity/i.test(text)) errors.push('missing_operational_surface_language');
 if (!/Risk rule|Confirmation|VIX|10Y|M2|invalidation/i.test(text)) errors.push('missing_macro_decision_terms');
 if (!/SPX|ADD|TRIM|DEFENSE/i.test(text)) errors.push('missing_decision_chart_terms');
 if (!/Buy|Trim|Stop|Exit|AUTH|PARTIAL|PROXY|MISSING/i.test(text)) errors.push('missing_holdings_terms');
@@ -94,7 +94,7 @@ if (!/Opportunity|Research|Evidence|candidate|gate/i.test(text)) errors.push('mi
 if (/RegimeLiquidityActionRiskOpportunity/.test(text)) errors.push('concatenated_hero_pills_in_text_read');
 
 report(errors.length ? 'FAILED' : 'OK', errors, {
-  mode: 'FINAL_FOUR_SECTION_VALIDATION',
+  mode: 'OPERATIONAL_SURFACE_VALIDATION',
   topbar_count: topbarCount,
   main_nav_count: mainNavCount,
   brand_text_count: brandCount,
@@ -110,5 +110,5 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Homepage web-read validation OK: four sections, ${zoneCards} zone cards`);
+console.log(`Homepage web-read validation OK: operational surface, ${zoneCards} zone cards`);
 console.log(`Wrote ${path.relative(root, reportPath)}`);

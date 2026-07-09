@@ -14,7 +14,8 @@ if (!fs.existsSync(calPath)) {
 }
 
 const { events } = JSON.parse(fs.readFileSync(calPath, 'utf8'));
-const TODAY = new Date('2026-06-13');
+const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+const TODAY = new Date(`${todayKey}T00:00:00Z`);
 
 const TYPE_META = {
   fomc:     { label: 'FOMC',     color: '#8a6a2c', bg: 'rgba(138,106,44,.10)', border: 'rgba(138,106,44,.32)' },

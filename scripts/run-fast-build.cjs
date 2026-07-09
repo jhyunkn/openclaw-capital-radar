@@ -13,16 +13,16 @@ const steps = [
     purpose: 'Render the canonical homepage from existing committed/generated artifacts.'
   },
   {
-    name: 'validate-operational-sections',
-    command: 'node',
-    args: ['scripts/validate-operational-sections.cjs'],
-    purpose: 'Verify required operational homepage sections are present before packaging.'
-  },
-  {
     name: 'build-vercel-static-output',
     command: 'node',
     args: ['scripts/build-vercel.cjs'],
     purpose: 'Copy existing static assets, data, outputs, pages, and index.html into public/.'
+  },
+  {
+    name: 'validate-operational-sections',
+    command: 'node',
+    args: ['scripts/validate-operational-sections.cjs'],
+    purpose: 'Verify required operational homepage sections are present after packaging.'
   }
 ];
 

@@ -4,7 +4,7 @@ const { spawnSync } = require('child_process');
 const { writeDataHealthFromFile } = require('../lib/data-health.cjs');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'public');
-const copyEntries = ['index.html', 'assets', 'data', 'outputs', 'pages'];
+const copyEntries = ['index.html', 'assets', 'data', 'outputs', 'pages', 'agent-notes', 'schemas'];
 
 function rm(p) {
   if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });
@@ -220,6 +220,14 @@ function verifyFinalOutput() {
 
 archiveLiveReport();
 normalizeLiveState();
+runFinalInjector('generate-current-market-state.cjs', 'Current market state generation failed before Vercel copy');
+runFinalInjector('generate-market-lens-state.cjs', 'Market lens state generation failed before Vercel copy');
+runFinalInjector('generate-strategy-routing-state.cjs', 'Strategy routing state generation failed before Vercel copy');
+runFinalInjector('generate-trust-strip-state.cjs', 'Trust strip state generation failed before Vercel copy');
+runFinalInjector('generate-macro-cycle-state.cjs', 'Macro cycle state generation failed before Vercel copy');
+runFinalInjector('generate-macro-derived-states.cjs', 'Macro derived state generation failed before Vercel copy');
+runFinalInjector('generate-kostolany-egg-state.cjs', 'Kostolany egg state generation failed before Vercel copy');
+runFinalInjector('generate-portfolio-live-state.cjs', 'Portfolio live state generation failed before Vercel copy');
 runFinalInjector('inject-portfolio-bar-home.cjs', 'Portfolio bar injection failed before Vercel copy');
 runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection failed before Vercel copy');
 runFinalInjector('generate-macro-prices-state.cjs', 'Macro prices state generation failed before Vercel copy');
@@ -245,6 +253,7 @@ runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart 
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
+runFinalInjector('validate-visible-chart-freshness.cjs', 'Visible chart freshness validation failed after Vercel copy');
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 
 // Sync public/ → .vercel/output/static/ so --prebuilt deploy uses the same content

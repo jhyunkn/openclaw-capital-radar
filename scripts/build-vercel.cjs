@@ -241,6 +241,7 @@ runFinalInjector('inject-holdings-home-modular.cjs', 'Holdings decision chart in
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed before Vercel copy');
 runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
+runFinalInjector('harden-homepage-chrome.cjs', 'Homepage chrome hardening failed before Vercel copy', ['index.html']);
 rm(out);
 fs.mkdirSync(out, { recursive: true });
 for (const entry of copyEntries) {
@@ -252,6 +253,7 @@ runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart inject
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('harden-homepage-chrome.cjs', 'Homepage chrome hardening failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
 runFinalInjector('validate-visible-chart-freshness.cjs', 'Visible chart freshness validation failed after Vercel copy');
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));

@@ -51,8 +51,11 @@ if (!finalSurface) {
 const forbidden = ['portfolio-scoreboard','live-reaction-state','native-research-engine','opportunity-evidence-engine','ticker-gate-audit','information-hierarchy','research-candidate-map','Evidence-backed Market Landscape','Decision Posture','Strategy Posture','id="market-section"','id="kostolany-egg-section"','id="market-lens-section"','id="strategy-routing-section"','id="system-health-section"'];
 const publicSectionIds = [...publicHtml.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
 const publicOk = !publicHtml || JSON.stringify(publicSectionIds) === JSON.stringify(expected);
+const chromeHtml = html + publicHtml;
 const checks = [
   pass('Canonical operational homepage', JSON.stringify(sectionIds) === JSON.stringify(expected), `Sections: ${sectionIds.join(' > ')}`),
+  pass('Unified visual stylesheet loaded', html.includes('capital-radar-unified-visuals.css') && (!publicHtml || publicHtml.includes('capital-radar-unified-visuals.css')), 'Unified visual rail/font stylesheet is linked in root and public homepage output.'),
+  pass('Market calendar nav anchor', chromeHtml.includes('href="#market-calendar-section"'), 'Calendar section is reachable from the top navigation.'),
   pass('No redundant visible homepage sections', !forbidden.some(item => html.includes(item)), 'Health, Lens, Route, Egg, and Market Tape are not visible top-level sections.'),
   pass('Macro', html.includes('id="decision-brief-section"') && /Confirmation|Macro|VIX|10Y|M2|Risk rule|permission|invalidation/i.test(html), 'Macro / confirmation / permission verdict rendered.'),
   pass('Market calendar', html.includes('id="market-calendar-section"') && /Upcoming Events|FOMC|CPI|PCE|NFP|GDP|Major earnings/i.test(html), 'Calendar remains integrated in current production surface.'),

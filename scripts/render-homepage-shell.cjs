@@ -22,6 +22,7 @@ const html = `<!doctype html>
       <div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div>
       <nav class="nav">
         <a href="#decision-brief-section">Macro</a>
+        <a href="#market-calendar-section">Calendar</a>
         <a href="#operational-chart-section">Decision chart</a>
         <a href="#holdings-section">Holdings</a>
         <a href="#opportunities-section">Opportunity</a>
@@ -33,7 +34,7 @@ const html = `<!doctype html>
         <p class="eyebrow">Capital Radar · live decision surface</p>
         <h1>Capital Radar</h1>
         <p class="lede">Macro permission, price levels, portfolio exposure, and opportunity gates in one operating view.</p>
-        <div class="lens-strip"><span>Macro</span><span>Decision chart</span><span>Holdings</span><span>Opportunity</span></div>
+        <div class="lens-strip"><span>Macro</span><span>Calendar</span><span>Decision chart</span><span>Holdings</span><span>Opportunity</span></div>
       </div>
       <aside class="status"><span>Current surface</span><strong class="good">Four sections</strong><span>Supporting diagnostics are inputs, not standalone web sections.</span><span>Every visible block should support action, invalidation, or evidence quality.</span></aside>
     </header>

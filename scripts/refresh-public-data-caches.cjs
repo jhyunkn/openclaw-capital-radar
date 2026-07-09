@@ -211,14 +211,15 @@ async function main() {
     URANIUM: { label: 'Uranium equities proxy', symbol: 'URA', sourceUrl: 'https://finance.yahoo.com/quote/URA' },
     COPPER: { label: 'Copper futures proxy', symbol: 'HG=F', sourceUrl: 'https://finance.yahoo.com/quote/HG=F' },
     AGRI: { label: 'Agriculture basket proxy', symbol: 'DBA', sourceUrl: 'https://finance.yahoo.com/quote/DBA' },
-    SILVER: { label: 'Silver futures proxy', symbol: 'SI=F', sourceUrl: 'https://finance.yahoo.com/quote/SI=F' }
+    SILVER: { label: 'Silver futures proxy', symbol: 'SI=F', sourceUrl: 'https://finance.yahoo.com/quote/SI=F' },
+    GOLD: { label: 'Gold futures proxy', symbol: 'GC=F', sourceUrl: 'https://finance.yahoo.com/quote/GC=F' }
   }, 'Refreshed from Yahoo Finance public chart endpoints. Homepage build reads this cache and does not fetch commodities live.', [
     'Yahoo chart API is public/unofficial. Inventory data, futures curves, shipping data, regional power prices, and producer cost curves remain missing evidence.'
   ], {
     energy: ['oil', 'natural_gas', 'uranium'],
     industrial: ['copper'],
     food: ['agriculture_basket'],
-    monetary_metal: ['silver']
+    monetary_metal: ['silver', 'gold']
   });
 
   await writeYahooCache('equity-ownership-series.json', 'equity-ownership-series-cache', {

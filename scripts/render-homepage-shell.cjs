@@ -14,6 +14,7 @@ const html = `<!doctype html>
   <link rel="stylesheet" href="assets/capital-radar.css"/>
   <link rel="stylesheet" href="assets/homepage-editorial-reset.css"/>
   <link rel="stylesheet" href="assets/capital-radar-visual-pass.css"/>
+  <link rel="stylesheet" href="assets/capital-radar-unified-visuals.css"/>
 </head>
 <body>
   <main class="shell">

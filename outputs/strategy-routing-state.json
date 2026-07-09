@@ -1,21 +1,21 @@
 {
-  "as_of": "2026-07-09T13:26:14.100Z",
+  "as_of": "2026-07-09T13:36:53.397Z",
   "artifact": "strategy-routing-state",
-  "route_id": "risk_on_extended",
-  "route": "risk-on but extended",
-  "risk_budget": "active_but_disciplined",
-  "add_permission": "pullback_only",
-  "trim_permission": "weak_beta",
-  "opportunity_permission": "near_miss_only",
-  "confirmation_score": 88,
+  "route_id": "rate_constrained_growth",
+  "route": "rate-constrained growth",
+  "risk_budget": "constrained",
+  "add_permission": "quality_only",
+  "trim_permission": "duration_beta",
+  "opportunity_permission": "quality_discount_only",
+  "confirmation_score": 93,
   "market_lens_regime": "defensive pressure",
   "inputs": {
     "SPX": "SUPPORTIVE",
-    "QQQ": "VERIFY",
+    "QQQ": "SUPPORTIVE",
     "TLT": "DEFENSIVE",
     "BTC": "DEFENSIVE",
     "VIX": "CONTAINED",
-    "operational_chart": "Trend intact but extended"
+    "operational_chart": "Near upper resistance"
   },
   "permissions": [
     {
@@ -25,8 +25,8 @@
     },
     {
       "domain": "AI / growth compounders",
-      "permission": "PULLBACK ONLY",
-      "driver": "QQQ VERIFY; TLT DEFENSIVE"
+      "permission": "SELECTIVE ADD",
+      "driver": "QQQ SUPPORTIVE; TLT DEFENSIVE"
     },
     {
       "domain": "Duration-sensitive growth",
@@ -40,22 +40,22 @@
     },
     {
       "domain": "Opportunity promotion",
-      "permission": "NEAR MISS ONLY",
-      "driver": "route risk-on but extended"
+      "permission": "QUALITY DISCOUNT ONLY",
+      "driver": "route rate-constrained growth"
     }
   ],
   "blocks": [
-    "Rate pressure constrains duration/growth multiple expansion.",
-    "Growth leadership is extended/mixed; require pullback or confirmation."
+    "Rate pressure constrains duration/growth multiple expansion."
   ],
   "promotes": [
     "Broad market trend supports holding core exposure.",
+    "Growth leadership supports AI-linked holdings and candidates.",
     "Contained volatility supports staying invested."
   ],
   "action_protocol": [
     {
       "rule": "ADD",
-      "permission": "pullback_only",
+      "permission": "quality_only",
       "condition": "Only inside ruled buy zones with source tier AUTH/PARTIAL and evidence score high."
     },
     {
@@ -65,12 +65,12 @@
     },
     {
       "rule": "TRIM",
-      "permission": "weak_beta",
+      "permission": "duration_beta",
       "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
     },
     {
       "rule": "PROMOTE OPPORTUNITY",
-      "permission": "near_miss_only",
+      "permission": "quality_discount_only",
       "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
     },
     {

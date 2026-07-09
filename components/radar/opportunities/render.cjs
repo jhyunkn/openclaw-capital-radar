@@ -855,6 +855,15 @@ function renderContextBrief(brief) {
       <ul class="opp-ctx-watch-list">${(brief.watchFor || []).map(w => `<li>${esc(w)}</li>`).join('')}</ul>
     </div>` : '';
 
+  const ta = brief.tripleAlignment;
+  const taChip = r => `<span class="opp-ta-chip" title="macro ${esc(r.macro)}/30 · quality ${esc(r.quality)}/40 · momentum ${esc(r.momentum)}/30${r.coverage === 'XBRL_FALLBACK' ? ' · quality via XBRL fallback' : ''}">${esc(r.ticker)} <em>${esc(r.total)}</em></span>`;
+  const tripleHtml = ta && (ta.aligned || []).length ? `
+    <div class="opp-ctx-triple">
+      <span class="opp-ctx-triple-label">Triple-aligned · macro fit + quality math + momentum, all floors cleared · regime: ${esc(ta.regime || '')}</span>
+      <div class="opp-disc-row">${ta.aligned.slice(0, 8).map(taChip).join('')}</div>
+      ${(ta.near_miss || []).length ? `<small class="opp-disc-note">Near-miss (one lens below floor): ${ta.near_miss.map(n => `${esc(n.ticker)} (${esc(n.failing_lens)})`).join(' · ')}</small>` : ''}
+    </div>` : '';
+
   const disc = brief.discovery;
   const discChip = c => `<span class="opp-disc-chip" title="${esc(c.why)}">${esc(c.ticker)} <em>RSI ${esc(c.rsi)}</em></span>`;
   const discoveryHtml = disc ? `
@@ -869,6 +878,7 @@ function renderContextBrief(brief) {
     <p class="opp-ctx-headline">${esc(brief.headline)}</p>
     <p class="opp-ctx-market">${esc(brief.marketContext)}</p>
     ${topEntryHtml}
+    ${tripleHtml}
     ${discoveryHtml}
     ${watchForHtml}
   </div>`;
@@ -1153,6 +1163,10 @@ function renderOpportunitiesStyle() {
 .opp-evidence-none{display:flex;align-items:baseline;gap:6px}
 .opp-sel-reason{font-size:10.5px;line-height:1.45;color:rgba(36,35,31,.6);margin:8px 0 0;padding:6px 8px;background:rgba(64,95,159,.05);border-left:2px solid rgba(64,95,159,.35)}
 .opp-sel-reason span{font-weight:700;text-transform:uppercase;font-size:8.5px;letter-spacing:.08em;color:rgba(64,95,159,.85);margin-right:5px}
+.opp-ctx-triple{padding:10px 14px;background:rgba(64,95,159,.05);border:1px solid rgba(64,95,159,.28);margin-bottom:12px}
+.opp-ctx-triple-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(64,95,159,.9);display:block;margin-bottom:7px}
+.opp-ta-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(64,95,159,.35);background:rgba(255,255,255,.6);color:rgba(36,35,31,.85);letter-spacing:.02em}
+.opp-ta-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
 </style>`;
 }
 

@@ -205,6 +205,15 @@ const discovery = (ds.track_a_candidates || ds.track_b_candidates) ? {
   line: `Market-wide discovery: ${ds.full_counts?.track_a_new || 0} new dislocated-quality names (top: ${(ds.track_a_candidates || []).slice(0, 3).map(c => c.ticker).join(', ') || '—'}), ${ds.full_counts?.track_b_new || 0} new inflection leaders (top: ${(ds.track_b_candidates || []).slice(0, 3).map(c => c.ticker).join(', ') || '—'}). These passed the screen, not yet the evidence gates — research queue, not buy list.`,
 } : null;
 
+// --- Triple alignment (framework v2: macro fit + quality math + momentum, all floors) ---
+const ta = read('outputs/triple-alignment-state.json') || {};
+const tripleAlignment = ta.aligned ? {
+  regime: ta.regime || null,
+  floors: ta.floors || null,
+  aligned: (ta.aligned || []).map(r => ({ ticker: r.ticker, total: r.total, macro: r.macro_fit, quality: r.quality_math, momentum: r.momentum_structure, shape: r.momentum_shape, coverage: r.quality_coverage })),
+  near_miss: (ta.near_miss || []).map(r => ({ ticker: r.ticker, failing_lens: r.failing_lens })),
+} : null;
+
 // --- Assemble brief ---
 const brief = {
   generatedAt: new Date().toISOString(),
@@ -213,6 +222,7 @@ const brief = {
   groupAContext: buildGroupAContext(),
   groupBContext: buildGroupBContext(),
   topEntry: buildTopEntry(),
+  tripleAlignment,
   discovery,
   watchFor: watchFor.slice(0, 3),
   entryScoreboard: entries.map(e => ({

@@ -7,7 +7,9 @@ function fail(message){ console.error(`HOMEPAGE INFORMATION HIERARCHY VALIDATION
 function assert(condition, message){ if(!condition) fail(message); }
 assert(fs.existsSync(indexPath), 'index.html missing');
 const html = fs.readFileSync(indexPath, 'utf8');
-const ids = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
+// market-calendar-section is an allowed injected companion between decision-brief and
+// operational-chart (validate-homepage-web-read requires it); it is not manifest-managed.
+const ids = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]).filter(id => id !== 'market-calendar-section');
 const four = ['decision-brief-section','operational-chart-section','holdings-section','opportunities-section'];
 if (four.every(id => ids.includes(id))) {
   assert(fs.existsSync(manifestPath), 'homepage manifest missing for operational homepage');

@@ -868,6 +868,17 @@ function renderContextBrief(brief) {
       <small class="opp-disc-note">${esc(fp.activation)}. Base rates from FRED/SPX history at test time; small samples — probabilities, not certainties.</small>
     </div>` : '';
 
+  const db = brief.durationBooks;
+  const b1Chip = b => `<span class="opp-db-chip" title="${esc(b.why)}${b.crash_add ? ` · crash-add ${esc(b.crash_add)}` : ''}">${esc(b.ticker)} <em>${esc(b.zone)}</em></span>`;
+  const b2Chip = b => `<span class="opp-db-chip opp-db-tac" title="${esc(b.catalyst)} · exit: ${esc(b.exit)}">${esc(b.ticker)} <em>${esc(b.entry)}</em></span>`;
+  const booksHtml = db ? `
+    <div class="opp-ctx-books">
+      <span class="opp-ctx-db-label">Action plan by duration · ${esc(db.split || '')} · ${esc(db.as_of || '')}</span>
+      <div class="opp-disc-row"><b>Book 1 · long-term (&gt;1y), buy zones</b>${(db.book1 || []).map(b1Chip).join('')}</div>
+      <div class="opp-disc-row"><b>Book 2 · tactical (hard exits)</b>${(db.book2 || []).map(b2Chip).join('')}</div>
+      ${(db.protocol || []).map(p => `<small class="opp-disc-note">${esc(p)}</small>`).join('')}
+    </div>` : '';
+
   const ta = brief.tripleAlignment;
   const taChip = r => `<span class="opp-ta-chip" title="macro ${esc(r.macro)}/30 · quality ${esc(r.quality)}/40 · momentum ${esc(r.momentum)}/30${r.coverage === 'XBRL_FALLBACK' ? ' · quality via XBRL fallback' : ''}">${esc(r.ticker)} <em>${esc(r.total)}</em></span>`;
   const tripleHtml = ta && (ta.aligned || []).length ? `
@@ -892,6 +903,7 @@ function renderContextBrief(brief) {
     <p class="opp-ctx-market">${esc(brief.marketContext)}</p>
     ${topEntryHtml}
     ${frameworkHtml}
+    ${booksHtml}
     ${tripleHtml}
     ${discoveryHtml}
     ${watchForHtml}
@@ -1187,6 +1199,11 @@ function renderOpportunitiesStyle() {
 .opp-fp-cal{font-size:11px;line-height:1.5;color:rgba(36,35,31,.7);margin:6px 0;padding:6px 8px;background:rgba(255,255,255,.5);border-left:2px solid rgba(138,106,44,.4)}
 .opp-fp-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(138,106,44,.35);background:rgba(255,255,255,.6);color:rgba(36,35,31,.85)}
 .opp-fp-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
+.opp-ctx-books{padding:11px 14px;background:rgba(47,111,78,.06);border:1px solid rgba(47,111,78,.35);margin-bottom:12px}
+.opp-ctx-db-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green,#2f6f4e);display:block;margin-bottom:7px}
+.opp-db-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(47,111,78,.4);background:rgba(255,255,255,.65);color:rgba(36,35,31,.85)}
+.opp-db-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
+.opp-db-chip.opp-db-tac{border-color:rgba(64,95,159,.4)}
 </style>`;
 }
 

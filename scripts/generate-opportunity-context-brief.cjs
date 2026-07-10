@@ -238,6 +238,16 @@ const frameworkPanel = (mt.generatedAt || ws.generatedAt) ? {
   scanned_at: (ws.generatedAt || '').slice(0, 10),
 } : null;
 
+// --- Duration books (Jun's consolidated action plan) ---
+const db = read('data/intelligence/duration-books-state.json') || {};
+const durationBooks = db.book_1_long_term ? {
+  as_of: db.as_of || null,
+  split: db.capital_split ? `${db.capital_split.book_1_long_term} long-term / ${db.capital_split.book_2_tactical} tactical` : null,
+  book1: (db.book_1_long_term || []).map(b => ({ ticker: b.ticker, zone: b.buy_zone, crash_add: b.crash_add, why: b.why })),
+  book2: (db.book_2_tactical || []).map(b => ({ ticker: b.ticker, entry: b.entry, exit: b.exit, catalyst: b.catalyst })),
+  protocol: db.crash_avoidance_protocol ? [db.crash_avoidance_protocol.rule_1, db.crash_avoidance_protocol.rule_2] : [],
+} : null;
+
 // --- Assemble brief ---
 const brief = {
   generatedAt: new Date().toISOString(),
@@ -247,6 +257,7 @@ const brief = {
   groupBContext: buildGroupBContext(),
   topEntry: buildTopEntry(),
   frameworkPanel,
+  durationBooks,
   tripleAlignment,
   discovery,
   watchFor: watchFor.slice(0, 3),

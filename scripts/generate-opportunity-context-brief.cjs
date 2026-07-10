@@ -214,6 +214,30 @@ const tripleAlignment = ta.aligned ? {
   near_miss: (ta.near_miss || []).map(r => ({ ticker: r.ticker, failing_lens: r.failing_lens })),
 } : null;
 
+// --- Framework panel: v2 doctrine + tested macro + calibration findings ---
+const fw = read('data/intelligence/opportunity-framework.json') || {};
+const mt = read('outputs/macro-thesis-test.json') || {};
+const ws = read('outputs/wide-alignment-scan.json') || {};
+const tested = fw.current_regime_read?.thesis_tested_against_history || {};
+const disTable = ws.calibration?.dislocation_at_t0 || [];
+const deepDis = disTable[0], nearHigh = disTable[disTable.length - 1];
+const frameworkPanel = (mt.generatedAt || ws.generatedAt) ? {
+  version: fw.version || null,
+  thesis: 'Plateau rates ~3-3.5%, no zero-rate rescue, adjustment risk elevated (Jun)',
+  verdict: tested.verdict || null,
+  sizing: tested.sizing_translation ? tested.sizing_translation.split('.')[0] + '.' : null,
+  activation: `Activation trigger: Baa-10Y credit spread widening past ~2.5 while Fed holds (now ${mt.current?.hy_now?.v ?? '?'})`,
+  plateau_episodes: (mt.test_3_fed_plateau_episodes || []).filter(p => p.spx_fwd_12m != null)
+    .map(p => ({ from: (p.plateau_from || '').slice(0, 7), rate: p.fed_funds, fwd12m: p.spx_fwd_12m, maxDD: p.max_drawdown_18m })),
+  calibration_finding: (deepDis?.win_rate != null && nearHigh?.win_rate != null)
+    ? `Measured across ${ws.universe || '?'} names (6m forward): deep dislocation (>35% below high) won only ${deepDis.win_rate}% of the time; names within 10% of highs won ${nearHigh.win_rate}% (median ${nearHigh.median_fwd}%). Dislocation depth has been NEGATIVE alpha in this regime — buy stabilization, not depth.`
+    : null,
+  calibrated_top: (ws.finalists || []).filter(f => !f.hard_reject && f.ticker).slice(0, 6)
+    .map(f => ({ ticker: f.ticker, p: f.p_positive_6m, rev: f.sec?.ok ? f.sec.yoy : null })),
+  tested_at: (mt.generatedAt || '').slice(0, 10),
+  scanned_at: (ws.generatedAt || '').slice(0, 10),
+} : null;
+
 // --- Assemble brief ---
 const brief = {
   generatedAt: new Date().toISOString(),
@@ -222,6 +246,7 @@ const brief = {
   groupAContext: buildGroupAContext(),
   groupBContext: buildGroupBContext(),
   topEntry: buildTopEntry(),
+  frameworkPanel,
   tripleAlignment,
   discovery,
   watchFor: watchFor.slice(0, 3),

@@ -855,6 +855,19 @@ function renderContextBrief(brief) {
       <ul class="opp-ctx-watch-list">${(brief.watchFor || []).map(w => `<li>${esc(w)}</li>`).join('')}</ul>
     </div>` : '';
 
+  const fp = brief.frameworkPanel;
+  const plateauChip = p => `<span class="opp-fp-chip" title="Fed plateau began ${esc(p.from)} at ${esc(p.rate)}%; max drawdown next 18m: ${esc(p.maxDD)}%">${esc(p.from)} <em>${esc(p.fwd12m > 0 ? '+' : '')}${esc(p.fwd12m)}%</em></span>`;
+  const calChip = c => `<span class="opp-fp-chip" title="calibrated P(positive 6m) ${esc(c.p)}%${c.rev != null ? ` · SEC revenue +${esc(c.rev)}% YoY` : ''}">${esc(c.ticker)} <em>${esc(c.p)}%</em></span>`;
+  const frameworkHtml = fp ? `
+    <div class="opp-ctx-framework">
+      <span class="opp-ctx-fp-label">Framework v${esc(fp.version)} · macro thesis tested against history · ${esc(fp.tested_at)}</span>
+      <p class="opp-fp-verdict"><b>${esc(fp.thesis)}</b> → ${esc(fp.verdict || '')} ${esc(fp.sizing || '')}</p>
+      <div class="opp-disc-row"><b>Fed-plateau base rates (SPX fwd 12m)</b>${(fp.plateau_episodes || []).map(plateauChip).join('')}</div>
+      ${fp.calibration_finding ? `<p class="opp-fp-cal">${esc(fp.calibration_finding)}</p>` : ''}
+      ${(fp.calibrated_top || []).length ? `<div class="opp-disc-row"><b>Calibrated wide-scan leaders (${esc(fp.scanned_at)})</b>${fp.calibrated_top.map(calChip).join('')}</div>` : ''}
+      <small class="opp-disc-note">${esc(fp.activation)}. Base rates from FRED/SPX history at test time; small samples — probabilities, not certainties.</small>
+    </div>` : '';
+
   const ta = brief.tripleAlignment;
   const taChip = r => `<span class="opp-ta-chip" title="macro ${esc(r.macro)}/30 · quality ${esc(r.quality)}/40 · momentum ${esc(r.momentum)}/30${r.coverage === 'XBRL_FALLBACK' ? ' · quality via XBRL fallback' : ''}">${esc(r.ticker)} <em>${esc(r.total)}</em></span>`;
   const tripleHtml = ta && (ta.aligned || []).length ? `
@@ -878,6 +891,7 @@ function renderContextBrief(brief) {
     <p class="opp-ctx-headline">${esc(brief.headline)}</p>
     <p class="opp-ctx-market">${esc(brief.marketContext)}</p>
     ${topEntryHtml}
+    ${frameworkHtml}
     ${tripleHtml}
     ${discoveryHtml}
     ${watchForHtml}
@@ -1167,6 +1181,12 @@ function renderOpportunitiesStyle() {
 .opp-ctx-triple-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(64,95,159,.9);display:block;margin-bottom:7px}
 .opp-ta-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(64,95,159,.35);background:rgba(255,255,255,.6);color:rgba(36,35,31,.85);letter-spacing:.02em}
 .opp-ta-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
+.opp-ctx-framework{padding:11px 14px;background:rgba(138,106,44,.05);border:1px solid rgba(138,106,44,.3);margin-bottom:12px}
+.opp-ctx-fp-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(138,106,44,.95);display:block;margin-bottom:6px}
+.opp-fp-verdict{font-size:12px;line-height:1.5;color:rgba(36,35,31,.8);margin:0 0 7px}
+.opp-fp-cal{font-size:11px;line-height:1.5;color:rgba(36,35,31,.7);margin:6px 0;padding:6px 8px;background:rgba(255,255,255,.5);border-left:2px solid rgba(138,106,44,.4)}
+.opp-fp-chip{font-size:11px;font-weight:700;padding:2px 8px;border:1px solid rgba(138,106,44,.35);background:rgba(255,255,255,.6);color:rgba(36,35,31,.85)}
+.opp-fp-chip em{font-style:normal;font-weight:400;font-size:10px;color:var(--muted)}
 </style>`;
 }
 

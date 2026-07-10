@@ -107,8 +107,8 @@ console.log(`Framework selection — Group A: ${SELECTION.groupA.join(', ')} | G
 const TICKER_META = {
   GEV: {
     evidence: [
-      { claim: 'Chevron-Microsoft 20yr 2.67GW PPA (Project Kilby, West Texas); 7 GE Vernova turbines ordered, supplemented by Solar Turbines', status: 'VERIFIED', checked: '2026-07-08', source: 'Chevron press release Jun 22 2026', url: 'https://www.chevron.com/newsroom/2026/q2/chevron-signs-20-year-power-agreement-with-microsoft-for-west-texas-data-center' },
-      { claim: 'Caveat: final investment decision not until end-2026, first power 2028 — turbine order is FID-contingent', status: 'VERIFIED', checked: '2026-07-08', source: 'TechCrunch Jun 22 2026', url: 'https://techcrunch.com/2026/06/22/microsoft-and-chevron-plan-one-of-the-largest-gas-powered-data-center-projects-in-us/' }
+      { claim: 'Chevron-Microsoft 20yr 2.67GW PPA (Project Kilby, West Texas); 7 GE Vernova turbines ordered, supplemented by Solar Turbines', status: 'VERIFIED', checked: '2026-07-08', tier: 'PRIMARY', source: 'Chevron press release Jun 22 2026', url: 'https://www.chevron.com/newsroom/2026/q2/chevron-signs-20-year-power-agreement-with-microsoft-for-west-texas-data-center' },
+      { claim: 'Caveat: final investment decision not until end-2026, first power 2028 — turbine order is FID-contingent', status: 'VERIFIED', checked: '2026-07-08', tier: 'SECONDARY', source: 'TechCrunch Jun 22 2026', url: 'https://techcrunch.com/2026/06/22/microsoft-and-chevron-plan-one-of-the-largest-gas-powered-data-center-projects-in-us/' }
     ],
     name: 'GE Vernova',
     isAsymmetric: true,
@@ -121,8 +121,8 @@ const TICKER_META = {
   },
   BWXT: {
     evidence: [
-      { claim: '$8.65B backlog as of Mar 31 2026; Government Operations backlog ~$7.0B, +93% YoY incl. $1.4B naval pricing agreement', status: 'VERIFIED', checked: '2026-07-08', source: 'Simply Wall St / BWXT Q1 2026', url: 'https://simplywall.st/stocks/us/capital-goods/nyse-bwxt/bwx-technologies/news/how-bwx-technologies-expanding-us865-billion-backlog-at-bwx' },
-      { claim: 'Revenue +26.1% YoY, Q1 2026 $860M (SEC XBRL 10-Q, repo-verified)', status: 'VERIFIED', checked: '2026-07-08', source: 'SEC EDGAR CIK 0001486957', url: 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001486957&type=10-Q' },
+      { claim: '$8.65B backlog as of Mar 31 2026; Government Operations backlog ~$7.0B, +93% YoY incl. $1.4B naval pricing agreement', status: 'VERIFIED', checked: '2026-07-08', tier: 'SECONDARY (figure matches BWXT release)', source: 'Simply Wall St / BWXT Q1 2026', url: 'https://simplywall.st/stocks/us/capital-goods/nyse-bwxt/bwx-technologies/news/how-bwx-technologies-expanding-us865-billion-backlog-at-bwx' },
+      { claim: 'Revenue +26.1% YoY, Q1 2026 $860M (SEC XBRL 10-Q, repo-verified)', status: 'VERIFIED', checked: '2026-07-08', tier: 'PRIMARY', source: 'SEC EDGAR CIK 0001486957', url: 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001486957&type=10-Q' },
       { claim: 'Note: backlog/revenue is ~2.5x on annualized Q1 revenue, not the 2.3x stated in the thesis; \'legal monopoly\' = sole-source naval contractor in practice, not statute', status: 'CORRECTED', checked: '2026-07-08', source: 'derived from above', url: null }
     ],
     name: 'BWX Technologies',
@@ -136,7 +136,7 @@ const TICKER_META = {
   },
   KTOS: {
     evidence: [
-      { claim: 'Won ~$450M GMI ground-layer contract within Golden Dome; on Pentagon SHIELD vendor list', status: 'VERIFIED', checked: '2026-07-08', source: 'Benzinga / Zacks Jul 2026', url: 'https://www.tradingview.com/news/zacks:a59200b1f094b:0-is-kratos-defense-becoming-a-major-supplier-for-golden-dome/' }
+      { claim: 'Won ~$450M GMI ground-layer contract within Golden Dome; on Pentagon SHIELD vendor list', status: 'VERIFIED', checked: '2026-07-08', tier: 'SECONDARY (needs primary contract confirmation)', source: 'Benzinga / Zacks Jul 2026', url: 'https://www.tradingview.com/news/zacks:a59200b1f094b:0-is-kratos-defense-becoming-a-major-supplier-for-golden-dome/' }
     ],
     name: 'Kratos Defense',
     isAsymmetric: true,

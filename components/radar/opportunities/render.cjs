@@ -785,7 +785,7 @@ function renderEvidenceTrail(td) {
     const src = ev.url
       ? `<a href="${esc(ev.url)}" target="_blank" rel="noopener">${esc(ev.source || 'source')}</a>`
       : esc(ev.source || '');
-    return `<div class="opp-ev-row"><span class="opp-ev-badge ${cls}">${esc(ev.status)}</span><small>${esc(ev.claim)} · ${src}${ev.checked ? ` · checked ${esc(ev.checked)}` : ''}</small></div>`;
+    return `<div class="opp-ev-row"><span class="opp-ev-badge ${cls}">${esc(ev.status)}</span><small>${esc(ev.claim)} · ${src}${ev.tier ? ` · <b>${esc(String(ev.tier).split(' ')[0])}</b>` : ''}${ev.checked ? ` · checked ${esc(ev.checked)}` : ''}</small></div>`;
   }).join('');
   return `<div class="opp-evidence">${rows}</div>`;
 }

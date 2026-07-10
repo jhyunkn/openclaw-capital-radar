@@ -1,6 +1,6 @@
 # NVDA Opportunity Dossier
 
-Generated: 2026-07-09T03:24:54.384Z
+Generated: 2026-07-10T15:56:39.781Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 70
 - Portfolio role: AI infrastructure benchmark / center-stack exposure
-- Current price: 203.62
+- Current price: 208.9
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Direct exposure to AI accelerator demand; useful benchmark for whether the portf
 
 ## Why Now
 
-- NVDA positive 3.40% while broad tape is weak.
+- NVDA positive 3.02% while broad tape is weak.
 - NVDA: Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Direct exposure to AI accelerator demand; useful benchmark for whether the portf
 ## Action Framework
 
 Observation:
-NVDA positive 3.40% while broad tape is weak.
+NVDA positive 3.02% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

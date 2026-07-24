@@ -37,9 +37,13 @@ function readJson(rel) {
 
 const universe   = readJson('data/opportunity-universe.json');
 const scannerUni = readJson('data/scanner-universe.json');
+const discovery  = readJson('outputs/discovery-state.json');
 const convictionTickers = (universe?.tickers     || []).map(t => String(t.ticker).toUpperCase());
 const scannerTickers    = (scannerUni?.candidates || []).map(c => String(c.ticker).toUpperCase());
-const ALL_TICKERS       = [...new Set([...convictionTickers, ...scannerTickers])];
+// Track A discovery candidates need XBRL coverage too, or their quality lens
+// reads "unmeasured" (0) purely from a data gap, not a real quality signal.
+const discoveryTickers  = (discovery?.track_a_candidates || []).map(c => String(c.ticker).toUpperCase());
+const ALL_TICKERS       = [...new Set([...convictionTickers, ...scannerTickers, ...discoveryTickers])];
 
 // ── EDGAR XBRL API ────────────────────────────────────────────────────────────
 

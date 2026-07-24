@@ -18,12 +18,17 @@ function readJson(rel) {
 
 const universe    = readJson('data/opportunity-universe.json');
 const scannerUni  = readJson('data/scanner-universe.json');
+const discovery   = readJson('outputs/discovery-state.json');
 if (!universe) throw new Error('Missing data/opportunity-universe.json');
 
-// Combine conviction universe + scanner universe (deduped)
+// Combine conviction universe + scanner universe + market-wide discovery candidates (deduped).
+// Discovery candidates need technicals here too, or the triple-alignment momentum lens
+// has no data to score them on and they silently fail NO_DATA regardless of merit.
 const convictionTickers = universe.tickers.map(t => String(t.ticker).toUpperCase());
 const scannerTickers    = (scannerUni?.candidates || []).map(c => String(c.ticker).toUpperCase());
-const TICKERS = [...new Set([...convictionTickers, ...scannerTickers])];
+const discoveryTickers  = [...(discovery?.track_a_candidates || []), ...(discovery?.track_b_candidates || [])]
+  .map(c => String(c.ticker).toUpperCase());
+const TICKERS = [...new Set([...convictionTickers, ...scannerTickers, ...discoveryTickers])];
 
 // ── FETCH HELPERS ─────────────────────────────────────────────────────────────
 

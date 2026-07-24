@@ -15,8 +15,37 @@ const scanner = Object.fromEntries((read('data/scanner-universe.json')?.candidat
 const oppUniverse = Object.fromEntries((read('data/opportunity-universe.json')?.tickers || []).map(t => [t.ticker, t]));
 const holdings = new Set(((read('outputs/robinhood-positions.json')?.positions) || []).map(p => p.symbol || p.ticker));
 
+// Market-wide discovery candidates (Track A: dislocated quality) — these did NOT
+// come through hand-curation, so they carry no researched decline_reason or theme
+// tag. Normalized below and scored through the SAME three lenses as the curated
+// list; see 2026-07-23 note below on why that matters.
+const discoveryTrackA = read('outputs/discovery-state.json')?.track_a_candidates || [];
+const discoveryRanked = discoveryTrackA.map(c => ({
+  ticker: c.ticker,
+  name: c.name,
+  // Provisional, not hand-verified: Track A's own selection criterion IS
+  // "strong margins + oversold RSI", which is the operational definition of a
+  // sentiment/multiple-compression decline rather than a fundamentals break.
+  // The quality lens still gates on real XBRL coverage below — this label does
+  // not bypass that, it only says "this decline pattern looks regime-driven."
+  decline_reason: 'SENTIMENT_DRIVEN_UNVERIFIED',
+  fundamental_signals: [],
+  conviction_score: null,
+  _discoverySource: c.track,
+}));
+
 // Regime theme weights — hawkish repricing (re-set these when the regime flips;
-// authority: framework.current_regime_read)
+// authority: framework.current_regime_read). This is a BONUS for names riding a
+// confirmed structural tailwind on top of a regime-consistent decline — it is
+// deliberately NOT the only way to clear the macro floor (see scoreMacro below).
+// 2026-07-23: previously this table's 8 AI/power/defense/space themes were the
+// ONLY path to macro_fit >= floor (16) — anything else capped at 10 and was
+// mathematically incapable of ever passing, regardless of quality or momentum.
+// That's not "narrowly focused," it's a mechanical wall against every other
+// sector. Fixed by making the SENTIMENT_DRIVEN signal (rate/multiple compression,
+// not a broken business — the regime mechanism itself, independent of sector)
+// sufficient on its own to clear the floor; theme membership remains a bonus for
+// extra conviction, not a gate.
 const THEME_WEIGHTS = {
   AI_INFRASTRUCTURE: 10, SEMICONDUCTOR_CAPEX: 9, AI_INFERENCE_DEMAND: 8,
   NUCLEAR_POWER: 8, GRID_MODERNIZATION: 8, DEFENSE_AI: 7,
@@ -52,7 +81,16 @@ function scoreMacro(r) {
   const themeScore = Math.max(0, ...themes.map(t => THEME_WEIGHTS[t] || 0));
   let score = themeScore * 2;
   const notes = [`themes: ${themes.join('/') || 'none mapped'} (${themeScore}x2)`];
-  if (r.decline_reason === 'SENTIMENT_DRIVEN') { score += 8; notes.push('decline is rate/sentiment compression — the regime mechanism (+8)'); }
+  // Sentiment/multiple-compression decline is the regime mechanism itself, not a
+  // sector-specific signal — raised to clear the floor (16) on its own so a real
+  // regime-consistent dislocation isn't walled out just for lacking a theme tag.
+  // Verified and unverified get the SAME credit here: the quality lens is where
+  // "unverified" actually gets penalized (no scanner gates / no XBRL coverage
+  // scores 0 there, a hard floor-fail on its own) — discounting macro_fit too
+  // for the same reason would be double-penalizing the same coverage gap.
+  if (r.decline_reason === 'SENTIMENT_DRIVEN' || r.decline_reason === 'SENTIMENT_DRIVEN_UNVERIFIED') {
+    score += 16; notes.push(`decline is rate/sentiment compression — the regime mechanism (+16${r.decline_reason.endsWith('UNVERIFIED') ? ', pattern-matched not hand-verified' : ''})`);
+  }
   if (r.catalyst_note || scanner[r.ticker]?.catalystWindow) { score += 2; notes.push('dated catalyst in window (+2)'); }
   return { score: Math.min(30, score), notes };
 }
@@ -126,8 +164,17 @@ function scoreMomentum(ticker) {
 
 const FLOORS = { macro: cfg.lenses?.macro_fit?.floor ?? 16, quality: cfg.lenses?.quality_math?.floor ?? 22, momentum: cfg.lenses?.momentum_structure?.floor ?? 16 };
 
+// Curated (hand-picked, 33-name universe) + discovery (market-wide scan, Track A)
+// scored through the identical three lenses. Curated entries win on ticker
+// collision (shouldn't happen — ingest already excludes tracked tickers — but
+// hand-researched evidence should take precedence if it ever does).
+const seen = new Set();
+const scoringInput = [];
+for (const r of ranked) { if (!seen.has(r.ticker)) { seen.add(r.ticker); scoringInput.push({ ...r, _source: 'curated' }); } }
+for (const r of discoveryRanked) { if (!seen.has(r.ticker)) { seen.add(r.ticker); scoringInput.push({ ...r, _source: 'discovery' }); } }
+
 const results = [];
-for (const r of ranked) {
+for (const r of scoringInput) {
   if (holdings.has(r.ticker)) continue;
   const macro = scoreMacro(r);
   const quality = scoreQuality(r);
@@ -147,10 +194,19 @@ for (const r of ranked) {
     momentum_shape: momentum.shape,
     failing_lens: fails.length === 1 ? fails[0] : (fails.length > 1 ? fails.join('+') : null),
     conviction: r.conviction_score ?? null,
+    source: r._source,
     detail: { macro: macro.notes, quality: quality.notes, momentum: momentum.notes },
   });
 }
 results.sort((a, b) => (a.verdict === b.verdict ? b.total - a.total : a.verdict === 'TRIPLE_ALIGNED' ? -1 : b.verdict === 'TRIPLE_ALIGNED' ? 1 : a.verdict === 'NEAR_MISS' ? -1 : 1));
+if (process.env.DEBUG_DISCOVERY) {
+  for (const r of results.filter(x => x.source === 'discovery')) {
+    console.error(`DEBUG ${r.ticker} verdict=${r.verdict} macro=${r.macro_fit} quality=${r.quality_math} momentum=${r.momentum_structure}`);
+    console.error('  macro:', r.detail.macro.join(' | '));
+    console.error('  quality:', r.detail.quality.join(' | '));
+    console.error('  momentum:', r.detail.momentum.join(' | '));
+  }
+}
 
 const state = {
   artifact: 'triple-alignment-state',

@@ -149,17 +149,22 @@ function scoreMomentum(ticker) {
   const trend = Number.isFinite(w.trend1mPct) ? w.trend1mPct : null;
   const pct52 = Number.isFinite(w.pctFrom52wHigh) ? w.pctFrom52wHigh : null;
   if (rsi == null || pct52 == null) return { score: 0, shape: 'NO_DATA', notes: ['no watchlist technicals — cannot score momentum'] };
+  const bottomConfirmed = trend != null && trend >= 0 && rsi >= 35;
+  const fallingDislocation = trend != null && trend < -8;
   const reversion =
-    (rsi >= 33 && rsi <= 52 ? 12 : rsi > 52 && rsi <= 58 ? 6 : 0) +
-    (trend != null && trend >= -8 && trend <= 8 ? 8 : trend != null && trend > 8 ? 4 : 0) +
-    (pct52 <= -18 ? 10 : pct52 <= -12 ? 5 : 0);
+    (bottomConfirmed ? 10 : 0) +
+    (rsi >= 35 && rsi <= 52 ? 8 : rsi > 52 && rsi <= 58 ? 4 : 0) +
+    (trend != null && trend >= 0 && trend <= 8 ? 7 : trend != null && trend > 8 ? 4 : 0) +
+    (pct52 <= -18 ? 5 : pct52 <= -12 ? 3 : 0);
   const leadership =
     (rsi >= 50 && rsi <= 70 ? 12 : 0) +
     (trend != null && trend > 0 ? 8 : 0) +
     (pct52 >= -15 ? 10 : pct52 >= -20 ? 4 : 0);
   const shape = reversion >= leadership ? 'REVERSION' : 'LEADERSHIP';
-  const score = Math.max(reversion, leadership);
-  return { score, shape, notes: [`RSI ${rsi}, 1m ${trend != null ? trend + '%' : '?'}, ${pct52}% from 52wH → ${shape} shape ${score}/30`] };
+  let score = Math.max(reversion, leadership);
+  if (fallingDislocation) score = Math.min(score, 15);
+  const confirmation = bottomConfirmed ? 'bottom/stabilization evidence present' : fallingDislocation ? 'falling dislocation — no bottom confirmation' : 'stabilization not confirmed';
+  return { score, shape, notes: [`RSI ${rsi}, 1m ${trend != null ? trend + '%' : '?'}, ${pct52}% from 52wH → ${shape} shape ${score}/30; ${confirmation}`] };
 }
 
 const FLOORS = { macro: cfg.lenses?.macro_fit?.floor ?? 16, quality: cfg.lenses?.quality_math?.floor ?? 22, momentum: cfg.lenses?.momentum_structure?.floor ?? 16 };

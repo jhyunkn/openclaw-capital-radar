@@ -14,6 +14,7 @@ const wl = read('outputs/watchlist-market-data.json')?.tickers || {};
 const scanner = Object.fromEntries((read('data/scanner-universe.json')?.candidates || []).map(c => [c.ticker, c]));
 const oppUniverse = Object.fromEntries((read('data/opportunity-universe.json')?.tickers || []).map(t => [t.ticker, t]));
 const holdings = new Set(((read('outputs/robinhood-positions.json')?.positions) || []).map(p => p.symbol || p.ticker));
+const xbrlFullByTicker = Object.fromEntries((read('outputs/sec-xbrl-fundamentals.json')?.results || []).map(r => [r.ticker, r.fundamentals]));
 
 // Market-wide discovery candidates (Track A: dislocated quality) — these did NOT
 // come through hand-curation, so they carry no researched decline_reason or theme
@@ -109,6 +110,82 @@ const xbrlByTicker = (() => {
   return map;
 })();
 
+// Valuation discipline (2026-07-23): quality math alone isn't a real "quality"
+// assessment — a growth story at any price isn't investing, it's speculation
+// on continued multiple expansion. This computes P/S and P/FCF from SEC XBRL
+// (shares outstanding × price / revenue or FCF), bands them the same way
+// generate-universe-scanner.cjs's Gate 2 does (proven, reused rather than
+// reinvented), and — critically — makes the result a genuine constraint on
+// scoreQuality below, not an easily-outweighed additive line. Nothing in
+// revenue growth or FCF-positive flags can rescue a name that fails this.
+function scoreValuation(ticker) {
+  // >0 guards, not just isFinite: a mis-tagged SEC filing can report shares
+  // outstanding as literally 0, which passes isFinite and would otherwise
+  // silently produce a nonsensical $0 market cap / "free" valuation.
+  const price = Number.isFinite(wl[ticker]?.currentPrice) && wl[ticker].currentPrice > 0 ? wl[ticker].currentPrice : null;
+  const xf = xbrlFullByTicker[ticker];
+  const shares = xf && Number.isFinite(xf.shares_outstanding_millions) && xf.shares_outstanding_millions > 0 ? xf.shares_outstanding_millions : null;
+  const rev = xf && Number.isFinite(xf.revenue_ttm_usd_millions) ? xf.revenue_ttm_usd_millions : null;
+  const fcf = xf && Number.isFinite(xf.fcf_usd_millions) ? xf.fcf_usd_millions : null;
+
+  if (price == null || shares == null) {
+    return { ps: null, pFcf: null, label: 'UNVERIFIED', points: 0, hardCapBreach: false, notes: ['valuation unmeasured — missing price or shares outstanding'] };
+  }
+  const marketCapM = price * shares;
+  const ps = rev != null && rev > 0 ? Math.round((marketCapM / rev) * 10) / 10 : null;
+  const pFcf = fcf != null && fcf > 0 ? Math.round((marketCapM / fcf) * 10) / 10 : null;
+
+  const notes = [];
+  let points = 0;
+
+  if (ps != null) {
+    if (ps < 3) { points += 20; notes.push(`P/S ${ps}x — cheap by any standard`); }
+    else if (ps < 6) { points += 15; notes.push(`P/S ${ps}x — reasonable`); }
+    else if (ps < 10) { points += 10; notes.push(`P/S ${ps}x — moderate premium`); }
+    else if (ps < 15) { points += 6; notes.push(`P/S ${ps}x — paying up, needs strong growth`); }
+    else if (ps < 25) { points += 3; notes.push(`P/S ${ps}x — expensive, high conviction needed`); }
+    else { notes.push(`P/S ${ps}x — very expensive by sales`); }
+  } else {
+    notes.push('P/S not computable — no revenue coverage');
+  }
+
+  if (pFcf != null) {
+    if (pFcf < 20) { points += 10; notes.push(`P/FCF ${pFcf}x — attractively priced on cash`); }
+    else if (pFcf < 30) { points += 8; notes.push(`P/FCF ${pFcf}x — reasonable on cash`); }
+    else if (pFcf < 40) { points += 5; notes.push(`P/FCF ${pFcf}x — moderate`); }
+    else if (pFcf < 60) { points += 2; notes.push(`P/FCF ${pFcf}x — paying a premium on cash`); }
+    else { notes.push(`P/FCF ${pFcf}x — expensive on cash`); }
+  } else if (fcf != null && fcf < 0) {
+    notes.push(`FCF negative ($${Math.round(fcf).toLocaleString()}M) — burning cash, not generating it`);
+  } else {
+    notes.push('P/FCF not computable — no FCF coverage');
+  }
+
+  if (fcf != null && rev != null && rev > 0 && fcf > 0) {
+    const fcfMargin = (fcf / rev) * 100;
+    if (fcfMargin >= 40) { points += 8; notes.push(`FCF margin ${Math.round(fcfMargin * 10) / 10}% — strong cash conversion offsets the multiple`); }
+    else if (fcfMargin >= 25) { points += 4; notes.push(`FCF margin ${Math.round(fcfMargin * 10) / 10}% — decent cash conversion`); }
+  }
+
+  // The hard line: paying 100+ years of CURRENT free cash flow, or burning
+  // cash outright at real scale, isn't "expensive" — it's a bet on a
+  // multiple that has nothing to do with today's business. No amount of
+  // revenue growth or moat should be able to buy this back.
+  const burningCashAtScale = fcf != null && fcf < -50;
+  const hardCapBreach = (pFcf != null && pFcf >= 100) || burningCashAtScale;
+  if (hardCapBreach) notes.push('VALUATION HARD CAP — price paid is disconnected from current cash generation, capping quality regardless of growth story');
+
+  let label = 'UNVERIFIED';
+  if (ps != null || pFcf != null) {
+    label = hardCapBreach ? 'EXTREME'
+      : (ps != null && ps >= 15) || (pFcf != null && pFcf >= 60) ? 'VERY_EXPENSIVE'
+      : (ps != null && ps >= 6) || (pFcf != null && pFcf >= 30) ? 'MODERATE_PREMIUM'
+      : 'REASONABLE';
+  }
+
+  return { ps, pFcf, label, points: Math.min(38, points), hardCapBreach, notes };
+}
+
 function scoreQuality(r) {
   const gates = r.gate_passed;
   const scannerScored = gates && !Array.isArray(gates) && typeof gates === 'object';
@@ -140,7 +217,28 @@ function scoreQuality(r) {
     score += pts; notes.push(`revenue +${rev}% YoY (+${pts})`);
   }
   if ((r.fundamental_signals || []).some(s => /FCF \$[\d,]+M.*(strong|positive)/i.test(s))) { score += 8; notes.push('FCF positive (+8)'); }
-  return { score: Math.min(40, score), notes, coverage: scannerScored ? 'SCANNER' : 'XBRL_FALLBACK' };
+
+  const valuation = scoreValuation(r.ticker);
+  const preValuationScore = Math.min(40, score);
+  let finalScore = preValuationScore;
+  if (valuation.hardCapBreach) {
+    // Growth/moat/gate points are real signal, just disqualified from being
+    // called "cheap quality" by the price paid — cap well under the 22 floor
+    // so the ticker reads as NEAR_MISS(quality_math), not silently excluded.
+    finalScore = Math.min(preValuationScore, 15);
+  } else if (valuation.label === 'VERY_EXPENSIVE') {
+    finalScore = Math.max(0, preValuationScore - 8);
+  } else if (valuation.label === 'MODERATE_PREMIUM') {
+    finalScore = Math.max(0, preValuationScore - 3);
+  }
+  notes.push(...valuation.notes);
+
+  return {
+    score: Math.min(40, finalScore),
+    notes,
+    coverage: scannerScored ? 'SCANNER' : 'XBRL_FALLBACK',
+    valuation: { ps: valuation.ps, p_fcf: valuation.pFcf, label: valuation.label },
+  };
 }
 
 function scoreMomentum(ticker) {
@@ -191,6 +289,7 @@ for (const r of scoringInput) {
     total: macro.score + quality.score + momentum.score,
     macro_fit: macro.score, quality_math: quality.score, momentum_structure: momentum.score,
     quality_coverage: quality.coverage || 'SCANNER',
+    valuation: quality.valuation || { ps: null, p_fcf: null, label: 'UNVERIFIED' },
     momentum_shape: momentum.shape,
     failing_lens: fails.length === 1 ? fails[0] : (fails.length > 1 ? fails.join('+') : null),
     conviction: r.conviction_score ?? null,

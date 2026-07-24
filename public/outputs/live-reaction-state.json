@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-24T02:29:09.058Z",
+  "generatedAt": "2026-07-24T03:06:32.071Z",
   "sourceStateGeneratedAt": "2026-07-11T02:44:24.916Z",
   "posture": "HOLD",
   "freshnessPolicy": {
@@ -8,6 +8,13 @@
     "cadence": "daily refresh / generate:live"
   },
   "actionNow": [
+    {
+      "ticker": "BMNR",
+      "state": "DATA_BLOCKED",
+      "permission": "NO ACTION",
+      "price": 15.05,
+      "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+    },
     {
       "ticker": "MSFT",
       "state": "DATA_BLOCKED",
@@ -44,10 +51,10 @@
       "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
     },
     {
-      "ticker": "BMNR",
+      "ticker": "NFLX",
       "state": "DATA_BLOCKED",
       "permission": "NO ACTION",
-      "price": 15.05,
+      "price": 73.42,
       "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
     },
     {
@@ -55,13 +62,6 @@
       "state": "DATA_BLOCKED",
       "permission": "NO ACTION",
       "price": 5,
-      "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-    },
-    {
-      "ticker": "NFLX",
-      "state": "DATA_BLOCKED",
-      "permission": "NO ACTION",
-      "price": 73.42,
       "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
     },
     {
@@ -89,12 +89,62 @@
   "reviewSoon": [],
   "all": [
     {
+      "ticker": "BMNR",
+      "price": 15.05,
+      "asOf": "2026-07-11T00:00:00.000Z",
+      "freshness": {
+        "status": "stale_blocked",
+        "minutesOld": 18906.5,
+        "actionAllowed": false,
+        "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
+      },
+      "signal": "INVESTIGATE",
+      "computedSignal": "INVESTIGATE",
+      "levels": {
+        "current": 15.05,
+        "entryLow": 13.24,
+        "entryHigh": 14,
+        "addBelow": null,
+        "trimLow": 16.25,
+        "trimHigh": 17.31,
+        "stop": 13.55,
+        "hardExit": 12.79,
+        "target": 17.16,
+        "horizon": "days to weeks",
+        "basis": "spec dynamic band from current price"
+      },
+      "reaction": {
+        "state": "DATA_BLOCKED",
+        "permission": "NO ACTION",
+        "priority": 1,
+        "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+      },
+      "strategy": {
+        "posture": "Speculative verification",
+        "holdUntil": "Hold only while thesis/liquidity/downside are being verified.",
+        "addWhen": "No add until thesis, liquidity, catalyst, downside are documented.",
+        "trimWhen": "Trim on strength or if uncertainty remains high.",
+        "exitWhen": "Exit review if thesis cannot be verified or price breaks on poor liquidity.",
+        "invalidation": "Cannot explain why this beats SPY risk-adjusted.",
+        "review": "Priority research."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 8.67,
+      "healthScore": 54,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
       "ticker": "MSFT",
       "price": 385.35,
       "asOf": "2026-07-10T23:59:55.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.2,
+        "minutesOld": 18906.6,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -144,7 +194,7 @@
       "asOf": "2026-07-10T23:59:57.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.2,
+        "minutesOld": 18906.6,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -194,7 +244,7 @@
       "asOf": "2026-07-10T23:59:59.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.2,
+        "minutesOld": 18906.6,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -244,7 +294,7 @@
       "asOf": "2026-07-10T23:59:59.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.2,
+        "minutesOld": 18906.6,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -294,7 +344,7 @@
       "asOf": "2026-07-10T23:59:58.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.2,
+        "minutesOld": 18906.6,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -339,112 +389,12 @@
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "BMNR",
-      "price": 15.05,
-      "asOf": "2026-07-11T00:00:00.000Z",
-      "freshness": {
-        "status": "stale_blocked",
-        "minutesOld": 18869.2,
-        "actionAllowed": false,
-        "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
-      },
-      "signal": "INVESTIGATE",
-      "computedSignal": "INVESTIGATE",
-      "levels": {
-        "current": 15.05,
-        "entryLow": 13.24,
-        "entryHigh": 14,
-        "addBelow": null,
-        "trimLow": 16.25,
-        "trimHigh": 17.31,
-        "stop": 13.55,
-        "hardExit": 12.79,
-        "target": 17.16,
-        "horizon": "days to weeks",
-        "basis": "spec dynamic band from current price"
-      },
-      "reaction": {
-        "state": "DATA_BLOCKED",
-        "permission": "NO ACTION",
-        "priority": 1,
-        "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-      },
-      "strategy": {
-        "posture": "Speculative verification",
-        "holdUntil": "Hold only while thesis/liquidity/downside are being verified.",
-        "addWhen": "No add until thesis, liquidity, catalyst, downside are documented.",
-        "trimWhen": "Trim on strength or if uncertainty remains high.",
-        "exitWhen": "Exit review if thesis cannot be verified or price breaks on poor liquidity.",
-        "invalidation": "Cannot explain why this beats SPY risk-adjusted.",
-        "review": "Priority research."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 8.67,
-      "healthScore": 54,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
-      "ticker": "CONL",
-      "price": 5,
-      "asOf": "2026-07-10T23:59:51.000Z",
-      "freshness": {
-        "status": "stale_blocked",
-        "minutesOld": 18869.3,
-        "actionAllowed": false,
-        "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
-      },
-      "signal": "EXIT REVIEW",
-      "computedSignal": "EXIT REVIEW",
-      "levels": {
-        "entryLow": 8.2,
-        "entryHigh": 8.6,
-        "addBelow": 8.2,
-        "trimLow": 9.4,
-        "trimHigh": 10,
-        "stop": 7.8,
-        "hardExit": 7.7,
-        "target": 10,
-        "horizon": "2–5 trading days",
-        "current": 5,
-        "basis": "fixed tactical levels"
-      },
-      "reaction": {
-        "state": "DATA_BLOCKED",
-        "permission": "NO ACTION",
-        "priority": 1,
-        "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-      },
-      "strategy": {
-        "posture": "Tactical leveraged swing only",
-        "holdUntil": "Hold only while range thesis and COIN/BTC risk tone support bounce.",
-        "addWhen": "Add-watch near lower range only with crypto confirmation.",
-        "trimWhen": "Scale down into upper range unless breakout is confirmed.",
-        "exitWhen": "Exit/reduce below invalidation; never average down below invalidation.",
-        "invalidation": "Lower support breaks with COIN/BTC weakness.",
-        "review": "Daily while held; time stop 2–5 trading days."
-      },
-      "confirmation": [
-        "COIN stabilizes/reclaims intraday level",
-        "BTC risk tone not breaking down",
-        "CONL reclaims stop/entry level with volume"
-      ],
-      "context": "COIN 159.8 (0.86%), BTC 64107.67 (-0.03%).",
-      "weightPct": 0.34,
-      "healthScore": 52,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
       "ticker": "NFLX",
       "price": 73.42,
       "asOf": "2026-07-10T23:59:54.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.3,
+        "minutesOld": 18906.6,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -489,12 +439,62 @@
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
+      "ticker": "CONL",
+      "price": 5,
+      "asOf": "2026-07-10T23:59:51.000Z",
+      "freshness": {
+        "status": "stale_blocked",
+        "minutesOld": 18906.7,
+        "actionAllowed": false,
+        "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
+      },
+      "signal": "EXIT REVIEW",
+      "computedSignal": "EXIT REVIEW",
+      "levels": {
+        "entryLow": 8.2,
+        "entryHigh": 8.6,
+        "addBelow": 8.2,
+        "trimLow": 9.4,
+        "trimHigh": 10,
+        "stop": 7.8,
+        "hardExit": 7.7,
+        "target": 10,
+        "horizon": "2–5 trading days",
+        "current": 5,
+        "basis": "fixed tactical levels"
+      },
+      "reaction": {
+        "state": "DATA_BLOCKED",
+        "permission": "NO ACTION",
+        "priority": 1,
+        "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+      },
+      "strategy": {
+        "posture": "Tactical leveraged swing only",
+        "holdUntil": "Hold only while range thesis and COIN/BTC risk tone support bounce.",
+        "addWhen": "Add-watch near lower range only with crypto confirmation.",
+        "trimWhen": "Scale down into upper range unless breakout is confirmed.",
+        "exitWhen": "Exit/reduce below invalidation; never average down below invalidation.",
+        "invalidation": "Lower support breaks with COIN/BTC weakness.",
+        "review": "Daily while held; time stop 2–5 trading days."
+      },
+      "confirmation": [
+        "COIN stabilizes/reclaims intraday level",
+        "BTC risk tone not breaking down",
+        "CONL reclaims stop/entry level with volume"
+      ],
+      "context": "COIN 159.8 (0.86%), BTC 64107.67 (-0.03%).",
+      "weightPct": 0.34,
+      "healthScore": 52,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
       "ticker": "MA",
       "price": 526.12,
       "asOf": "2026-07-10T23:59:22.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18869.8,
+        "minutesOld": 18907.2,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -544,7 +544,7 @@
       "asOf": "2026-07-10T23:56:38.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18872.5,
+        "minutesOld": 18909.9,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -594,7 +594,7 @@
       "asOf": "2026-07-10T23:56:00.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 18873.2,
+        "minutesOld": 18910.5,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },

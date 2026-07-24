@@ -7,13 +7,24 @@ const root = path.join(__dirname, '..');
 const out  = path.join(root, 'outputs', 'sec-xbrl-fundamentals.json');
 
 // ── Tickers ──────────────────────────────────────────────────────────────────
-const EQUITY_TICKERS = [
-  'MSFT','AMZN','CEG','META','MA','NFLX',         // core holdings with GAAP
-  'RDDT','RKLB','NXT','ETN','PWR','GEV',          // candidates
-  'TMDX','AVGO','CCJ','PLTR','VRT','HIMS',        // candidates
-  'OKLO','TSLA','COIN',                            // speculative / context
-  'DT','TTD',                                      // new candidates: Dynatrace, The Trade Desk
-];
+// This was a hand-maintained 23-name list, and this script wasn't wired into
+// the build pipeline at all — meaning outputs/sec-xbrl-fundamentals.json (the
+// shares/revenue/FCF source the valuation-discipline gate depends on for P/S
+// and P/FCF) only ever covered whoever got manually added here. Sourced from
+// the same universes as the rest of the pipeline now, so valuation coverage
+// tracks whatever the radar actually surfaces instead of drifting behind it.
+function readJsonSafe(rel) {
+  try { return JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8')); } catch { return null; }
+}
+const HAND_SEEDED_EXTRAS = ['HIMS', 'OKLO', 'TSLA', 'COIN', 'DT']; // context/speculative names not in any universe file
+const oppUniverseTickers = (readJsonSafe('data/opportunity-universe.json')?.tickers || []).map(t => String(t.ticker).toUpperCase());
+const scannerTickers     = (readJsonSafe('data/scanner-universe.json')?.candidates || []).map(c => String(c.ticker).toUpperCase());
+const discoveryTickers   = [
+  ...(readJsonSafe('outputs/discovery-state.json')?.track_a_candidates || []),
+  ...(readJsonSafe('outputs/discovery-state.json')?.track_b_candidates || []),
+].map(c => String(c.ticker).toUpperCase());
+const holdingsTickers    = (readJsonSafe('outputs/robinhood-positions.json')?.positions || []).map(p => String(p.symbol || p.ticker).toUpperCase());
+const EQUITY_TICKERS = [...new Set([...oppUniverseTickers, ...scannerTickers, ...discoveryTickers, ...holdingsTickers, ...HAND_SEEDED_EXTRAS])];
 
 // These don't file 10-Ks with GAAP XBRL (ETFs, leveraged, OTC foreign)
 const SKIP_TICKERS = new Set(['SPY','TSLT','CONL','IBIT','BMNR','TSNF','SMR','ASTS','URA']);
@@ -57,42 +68,51 @@ function getJson(url) {
 
 // Extract the most recent annual (10-K) values for a concept.
 // Some filers use fp="FY"; others (e.g. NVDA) use fp="Q4" for their annual 10-K.
-function extractAnnual(facts, conceptNames) {
+// taxonomies defaults to us-gaap only; shares-outstanding concepts pass
+// ['us-gaap','dei'] too — EntityCommonStockSharesOutstanding (the cover-page
+// share count) lives under the dei taxonomy, not us-gaap, and was silently
+// unreachable before, which is why P/S was UNVERIFIED for some real filers
+// (e.g. BWXT) despite revenue/FCF data being available.
+function extractAnnual(facts, conceptNames, taxonomies = ['us-gaap']) {
   let best = null;
   for (const name of conceptNames) {
-    const concept = facts?.['us-gaap']?.[name];
-    if (!concept) continue;
-    const units = concept.units;
-    if (!units) continue;
-    const currency = units.USD || units.shares || units['USD/shares'] || Object.values(units)[0];
-    if (!Array.isArray(currency)) continue;
-    // Accept 10-K rows with fp=FY or fp=Q4 (NVDA-style fiscal-year filings)
-    const annuals = currency
-      .filter(r => r.form === '10-K' && (r.fp === 'FY' || r.fp === 'Q4') && r.end)
-      .sort((a, b) => b.end.localeCompare(a.end));
-    if (annuals.length === 0) continue;
-    // Prefer the concept with the most recent data
-    if (!best || annuals[0].end > best.rows[0].end) {
-      best = { name, rows: annuals.slice(0, 3) };
+    for (const tax of taxonomies) {
+      const concept = facts?.[tax]?.[name];
+      if (!concept) continue;
+      const units = concept.units;
+      if (!units) continue;
+      const currency = units.USD || units.shares || units['USD/shares'] || Object.values(units)[0];
+      if (!Array.isArray(currency)) continue;
+      // Accept 10-K rows with fp=FY or fp=Q4 (NVDA-style fiscal-year filings)
+      const annuals = currency
+        .filter(r => r.form === '10-K' && (r.fp === 'FY' || r.fp === 'Q4') && r.end)
+        .sort((a, b) => b.end.localeCompare(a.end));
+      if (annuals.length === 0) continue;
+      // Prefer the concept with the most recent data
+      if (!best || annuals[0].end > best.rows[0].end) {
+        best = { name, rows: annuals.slice(0, 3) };
+      }
     }
   }
   return best;
 }
 
 // Extract latest quarterly value for a concept (most recent 10-Q)
-function extractLatestQuarter(facts, conceptNames) {
+function extractLatestQuarter(facts, conceptNames, taxonomies = ['us-gaap']) {
   for (const name of conceptNames) {
-    const concept = facts?.['us-gaap']?.[name];
-    if (!concept) continue;
-    const units = concept.units;
-    if (!units) continue;
-    const currency = units.USD || units.shares || Object.values(units)[0];
-    if (!Array.isArray(currency)) continue;
-    const quarters = currency
-      .filter(r => ['10-Q', '10-K'].includes(r.form) && r.end)
-      .sort((a, b) => b.end.localeCompare(a.end));
-    if (quarters.length === 0) continue;
-    return { name, row: quarters[0] };
+    for (const tax of taxonomies) {
+      const concept = facts?.[tax]?.[name];
+      if (!concept) continue;
+      const units = concept.units;
+      if (!units) continue;
+      const currency = units.USD || units.shares || Object.values(units)[0];
+      if (!Array.isArray(currency)) continue;
+      const quarters = currency
+        .filter(r => ['10-Q', '10-K'].includes(r.form) && r.end)
+        .sort((a, b) => b.end.localeCompare(a.end));
+      if (quarters.length === 0) continue;
+      return { name, row: quarters[0] };
+    }
   }
   return null;
 }
@@ -137,7 +157,7 @@ async function enrichTicker(ticker, cik) {
   const epsDiluted = epsResult?.rows[0]?.val ?? null;
 
   // Shares outstanding
-  const sharesResult = extractLatestQuarter(f, SHARES_CONCEPTS);
+  const sharesResult = extractLatestQuarter(f, SHARES_CONCEPTS, ['us-gaap', 'dei']);
   const sharesOutM   = sharesResult?.row ? millions(sharesResult.row.val) : null;
 
   // Operating cash flow
@@ -154,7 +174,7 @@ async function enrichTicker(ticker, cik) {
   const debtUSD    = debtResult?.row ? millions(debtResult.row.val) : null;
 
   // Dilution check: compare current shares to prior annual
-  const sharesAnnual = extractAnnual(f, SHARES_CONCEPTS);
+  const sharesAnnual = extractAnnual(f, SHARES_CONCEPTS, ['us-gaap', 'dei']);
   const sharesNow    = sharesAnnual?.rows[0]?.val ?? null;
   const sharesPrior  = sharesAnnual?.rows[1]?.val ?? null;
   const dilutionPct  = (sharesNow != null && sharesPrior != null && sharesPrior !== 0)

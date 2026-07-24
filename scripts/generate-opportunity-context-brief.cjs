@@ -210,8 +210,8 @@ const ta = read('outputs/triple-alignment-state.json') || {};
 const tripleAlignment = ta.aligned ? {
   regime: ta.regime || null,
   floors: ta.floors || null,
-  aligned: (ta.aligned || []).map(r => ({ ticker: r.ticker, total: r.total, macro: r.macro_fit, quality: r.quality_math, momentum: r.momentum_structure, shape: r.momentum_shape, coverage: r.quality_coverage })),
-  near_miss: (ta.near_miss || []).map(r => ({ ticker: r.ticker, failing_lens: r.failing_lens })),
+  aligned: (ta.aligned || []).map(r => ({ ticker: r.ticker, total: r.total, macro: r.macro_fit, quality: r.quality_math, momentum: r.momentum_structure, shape: r.momentum_shape, coverage: r.quality_coverage, valuation: r.valuation })),
+  near_miss: (ta.near_miss || []).map(r => ({ ticker: r.ticker, failing_lens: r.failing_lens, valuation: r.valuation })),
 } : null;
 
 // --- Framework panel: v2 doctrine + tested macro + calibration findings ---

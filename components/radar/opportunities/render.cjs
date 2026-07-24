@@ -880,12 +880,13 @@ function renderContextBrief(brief) {
     </div>` : '';
 
   const ta = brief.tripleAlignment;
-  const taChip = r => `<span class="opp-ta-chip" title="macro ${esc(r.macro)}/30 · quality ${esc(r.quality)}/40 · momentum ${esc(r.momentum)}/30${r.coverage === 'XBRL_FALLBACK' ? ' · quality via XBRL fallback' : ''}">${esc(r.ticker)} <em>${esc(r.total)}</em></span>`;
+  const valTag = v => !v || v.label === 'UNVERIFIED' ? 'valuation unverified' : `P/S ${v.ps ?? '?'}x${v.p_fcf != null ? ` · P/FCF ${v.p_fcf}x` : ''} · ${v.label.replace(/_/g, ' ').toLowerCase()}`;
+  const taChip = r => `<span class="opp-ta-chip" title="macro ${esc(r.macro)}/30 · quality ${esc(r.quality)}/40 · momentum ${esc(r.momentum)}/30${r.coverage === 'XBRL_FALLBACK' ? ' · quality via XBRL fallback' : ''} · ${esc(valTag(r.valuation))}">${esc(r.ticker)} <em>${esc(r.total)}</em>${r.valuation && (r.valuation.label === 'VERY_EXPENSIVE' || r.valuation.label === 'EXTREME') ? ' <small>$$$</small>' : ''}</span>`;
   const tripleHtml = ta && (ta.aligned || []).length ? `
     <div class="opp-ctx-triple">
-      <span class="opp-ctx-triple-label">Triple-aligned · macro fit + quality math + momentum, all floors cleared · regime: ${esc(ta.regime || '')}</span>
+      <span class="opp-ctx-triple-label">Triple-aligned · macro fit + quality math + momentum, all floors cleared · regime: ${esc(ta.regime || '')} · <b>$$$</b> = valuation-expensive, hover for P/S and P/FCF</span>
       <div class="opp-disc-row">${ta.aligned.slice(0, 8).map(taChip).join('')}</div>
-      ${(ta.near_miss || []).length ? `<small class="opp-disc-note">Near-miss (one lens below floor): ${ta.near_miss.map(n => `${esc(n.ticker)} (${esc(n.failing_lens)})`).join(' · ')}</small>` : ''}
+      ${(ta.near_miss || []).length ? `<small class="opp-disc-note">Near-miss (one lens below floor): ${ta.near_miss.map(n => `${esc(n.ticker)} (${esc(n.failing_lens)}${n.valuation?.label === 'EXTREME' ? ' — extreme valuation' : ''})`).join(' · ')}</small>` : ''}
     </div>` : '';
 
   const disc = brief.discovery;

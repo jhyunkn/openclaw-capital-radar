@@ -25,6 +25,39 @@ const oppByTicker = {};
 for (const t of (oppUniverse?.tickers || [])) {
   oppByTicker[String(t.ticker).toUpperCase()] = t;
 }
+const NAME_OVERRIDES = {
+  NXT: 'Nextpower',
+};
+function companyName(ticker, fallback) {
+  return NAME_OVERRIDES[ticker] || fallback || ticker;
+}
+function technicalConfirmation(row = {}) {
+  const trend = Number(row.trend_1m_pct ?? row.trend1mPct);
+  const rsi = Number(row.rsi14);
+  const pct = Number(row.pct_from_52w_high ?? row.pctFrom52wHigh);
+  const hasTrend = Number.isFinite(trend);
+  const hasRsi = Number.isFinite(rsi);
+  const hasPct = Number.isFinite(pct);
+  const bottomConfirmed = hasTrend && hasRsi && trend >= 0 && rsi >= 35;
+  const leadershipConfirmed = hasTrend && hasRsi && hasPct && trend > 0 && rsi >= 50 && pct >= -20;
+  const fallingDislocation = hasTrend && trend < -8;
+  const status = bottomConfirmed || leadershipConfirmed ? 'CONFIRMED_OR_STABILIZING' : fallingDislocation ? 'NO_BOTTOM_CONFIRMATION' : 'UNCONFIRMED';
+  return {
+    status,
+    bottom_confirmed: bottomConfirmed,
+    leadership_confirmed: leadershipConfirmed,
+    reason: status === 'NO_BOTTOM_CONFIRMATION'
+      ? 'Sharp negative 1-month trend; treat as falling dislocation until price stabilizes.'
+      : status === 'UNCONFIRMED'
+        ? 'Trend/RSI do not yet prove a bottom or leadership.'
+        : 'Positive/stable 1-month trend with RSI support.',
+  };
+}
+function actionPermission(signal, tech) {
+  if (tech.status === 'NO_BOTTOM_CONFIRMATION') return 'RESEARCH_SCREENED — wait for bottom confirmation before sizing';
+  if (signal === 'FULL_SIGNAL' || signal === 'PARTIAL_SIGNAL') return 'RESEARCH_SCREENED — verify thesis before sizing';
+  return 'WATCH_ONLY — entry not signaled';
+}
 
 // Capital preservation hard-excludes.
 // These explicitly fail our capital preservation filter — do NOT show in opportunity list
@@ -146,7 +179,7 @@ const ranked = allCandidates.map(item => {
   return {
     rank: 0, // filled after sort
     ticker,
-    name: item.name,
+    name: companyName(ticker, item.name),
     conviction_score: conv,
     conviction_tier: tier(conv),
     scanner_signal: item.signal,
@@ -174,9 +207,8 @@ const ranked = allCandidates.map(item => {
     gross_margin_pct: item.gross_margin_pct ?? null,
     insider_signal: item.insider_signal ?? null,
     open_market_value_mm: item.open_market_value_mm ?? 0,
-    action_permission: item.signal === 'FULL_SIGNAL' || item.signal === 'PARTIAL_SIGNAL'
-      ? 'RESEARCH_SCREENED — verify thesis before sizing'
-      : 'WATCH_ONLY — entry not signaled',
+    technical_confirmation: technicalConfirmation(item),
+    action_permission: actionPermission(item.signal, technicalConfirmation(item)),
   };
 }).sort((a, b) => b.conviction_score - a.conviction_score || b.scanner_score - a.scanner_score);
 
@@ -228,7 +260,7 @@ for (const opp of (oppUniverse?.tickers || [])) {
   filteredRanked.push({
     rank: 0,
     ticker: t,
-    name: opp.name,
+    name: companyName(t, opp.name),
     conviction_score: oppConv,
     conviction_tier: tier(oppConv),
     scanner_signal: 'OPP_UNIVERSE',
@@ -248,7 +280,16 @@ for (const opp of (oppUniverse?.tickers || [])) {
     pct_from_52w_high: mkt?.pctFrom52wHigh ?? null,
     trend_1m_pct: mkt?.trend1mPct ?? null,
     rsi14: mkt?.rsi14 ?? null,
-    action_permission: 'RESEARCH_SCREENED — pre-consensus opportunity-universe pick. Crowding: ' + (opp.institutionalCrowding ?? 'unknown'),
+    technical_confirmation: technicalConfirmation({
+      trend_1m_pct: mkt?.trend1mPct,
+      pct_from_52w_high: mkt?.pctFrom52wHigh,
+      rsi14: mkt?.rsi14,
+    }),
+    action_permission: actionPermission('OPP_UNIVERSE', technicalConfirmation({
+      trend_1m_pct: mkt?.trend1mPct,
+      pct_from_52w_high: mkt?.pctFrom52wHigh,
+      rsi14: mkt?.rsi14,
+    })) + '. Crowding: ' + (opp.institutionalCrowding ?? 'unknown'),
     early_entry_signal: opp.earlyEntrySignal ?? null,
     institutional_crowding: opp.institutionalCrowding ?? null,
     invalidation: opp.invalidation ?? null,

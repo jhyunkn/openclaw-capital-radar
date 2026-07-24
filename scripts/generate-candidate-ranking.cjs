@@ -14,6 +14,34 @@ function read(rel, fb = null) {
 }
 function num(v) { const n = Number(v); return Number.isFinite(n) ? n : null; }
 function clamp(n, lo = 0, hi = 100) { return Math.max(lo, Math.min(hi, Math.round(n))); }
+function tickerOf(value) { return String(value || '').trim().toUpperCase(); }
+
+const NAME_OVERRIDES = {
+  NXT: 'Nextpower',
+};
+const THEME_OVERRIDES = {
+  ETN: 'Power & Grid Infrastructure',
+  GEV: 'Power & Grid Infrastructure',
+  NXT: 'Power & Grid Infrastructure',
+  PWR: 'Power & Grid Infrastructure',
+  VRT: 'Power & Grid Infrastructure',
+};
+
+function companyName(ticker, fallback) {
+  return NAME_OVERRIDES[ticker] || fallback || ticker;
+}
+function macroTheme(ticker, fallback) {
+  return THEME_OVERRIDES[ticker] || fallback || 'Research Candidates';
+}
+function betterCandidate(a, b) {
+  if (!a) return b;
+  const scoreDelta = b.adjusted_score - a.adjusted_score;
+  if (scoreDelta !== 0) return scoreDelta > 0 ? b : a;
+  const convictionDelta = b.conviction_score - a.conviction_score;
+  if (convictionDelta !== 0) return convictionDelta > 0 ? b : a;
+  const evidenceDelta = Number(Boolean(b.has_xbrl)) - Number(Boolean(a.has_xbrl));
+  return evidenceDelta > 0 ? b : a;
+}
 
 const asymmetry = read('outputs/opportunity-asymmetry-state.json', { opportunity_clusters: [] });
 const xbrlData  = read('outputs/sec-xbrl-fundamentals.json', { results: [] });
@@ -72,7 +100,8 @@ function newsFlag(ticker) {
 const candidates = [];
 for (const cluster of (asymmetry.opportunity_clusters || [])) {
   for (const t of (cluster.candidate_tickers || [])) {
-    const ticker = String(t.ticker || '').toUpperCase();
+    const ticker = tickerOf(t.ticker);
+    if (!ticker) continue;
     const xbrl   = xbrlByTicker[ticker] || null;
     const { bonus, signals: fundSignals } = fundamentalBonus(xbrl, ticker);
     const baseScore  = num(t.opportunity_score) ?? 0;
@@ -82,8 +111,8 @@ for (const cluster of (asymmetry.opportunity_clusters || [])) {
 
     candidates.push({
       ticker,
-      name: t.name || ticker,
-      macro_theme: cluster.macro_theme,
+      name: companyName(ticker, t.name),
+      macro_theme: macroTheme(ticker, cluster.macro_theme),
       opportunity_score: baseScore,
       conviction_score: conviction,
       fundamental_bonus: bonus,
@@ -107,11 +136,17 @@ for (const cluster of (asymmetry.opportunity_clusters || [])) {
   }
 }
 
+const duplicateCounts = {};
+for (const c of candidates) duplicateCounts[c.ticker] = (duplicateCounts[c.ticker] || 0) + 1;
+const dedupedByTicker = new Map();
+for (const c of candidates) dedupedByTicker.set(c.ticker, betterCandidate(dedupedByTicker.get(c.ticker), c));
+const deduped = Array.from(dedupedByTicker.values());
+
 // Sort by adjusted score descending
-candidates.sort((a, b) => b.adjusted_score - a.adjusted_score || b.conviction_score - a.conviction_score);
+deduped.sort((a, b) => b.adjusted_score - a.adjusted_score || b.conviction_score - a.conviction_score);
 
 // Tier classification
-for (const c of candidates) {
+for (const c of deduped) {
   // Tier A: strong fundamentals, adjusted ≥80, positive FCF
   const hasFcf = c.xbrl_summary?.fcf_usd_millions > 0;
   if (c.adjusted_score >= 80 && c.has_xbrl && hasFcf)  c.tier = 'A';
@@ -120,10 +155,11 @@ for (const c of candidates) {
   else                                                    c.tier = 'C';
 }
 
-const top3    = candidates.filter(c => c.tier === 'A').slice(0, 3);
-const tierB   = candidates.filter(c => c.tier === 'B');
-const tierC   = candidates.filter(c => c.tier === 'C');
-const tierD   = candidates.filter(c => c.tier === 'D');
+const tierA   = deduped.filter(c => c.tier === 'A');
+const top3    = tierA.slice(0, 3);
+const tierB   = deduped.filter(c => c.tier === 'B');
+const tierC   = deduped.filter(c => c.tier === 'C');
+const tierD   = deduped.filter(c => c.tier === 'D');
 
 const state = {
   artifact: 'candidate-ranking',
@@ -131,16 +167,19 @@ const state = {
   source_note: 'Adjusted score = opportunity_score + XBRL fundamental quality bonus (max ±35). Tier A = strong fundamentals + score ≥75. Tier B = score 60-74. Tier C = score 45-59. Tier D = pre-revenue or no XBRL.',
   promotion_rule: 'Only Tier A and B candidates eligible for add-watch promotion. Risk budget gate must clear independently.',
   summary: {
-    total: candidates.length,
-    tier_a: top3.length,
+    total: deduped.length,
+    raw_candidates: candidates.length,
+    duplicates_removed: candidates.length - deduped.length,
+    duplicate_tickers: Object.entries(duplicateCounts).filter(([, count]) => count > 1).map(([ticker, count]) => ({ ticker, count })),
+    tier_a: tierA.length,
     tier_b: tierB.length,
     tier_c: tierC.length,
     tier_d: tierD.length,
-    with_high_news: candidates.filter(c => c.high_materiality_news).length
+    with_high_news: deduped.filter(c => c.high_materiality_news).length
   },
   top3,
-  ranked: candidates,
-  tier_a: candidates.filter(c => c.tier === 'A'),
+  ranked: deduped,
+  tier_a: tierA,
   tier_b: tierB,
   tier_c: tierC,
   tier_d: tierD
@@ -148,5 +187,5 @@ const state = {
 
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, JSON.stringify(state, null, 2) + '\n');
-console.log(`candidate-ranking: ${candidates.length} candidates ranked | Tier A=${state.tier_a.length} B=${tierB.length} C=${tierC.length} D=${tierD.length}`);
+console.log(`candidate-ranking: ${deduped.length} candidates ranked (${candidates.length - deduped.length} duplicates removed) | Tier A=${state.tier_a.length} B=${tierB.length} C=${tierC.length} D=${tierD.length}`);
 console.log(`Top 3: ${top3.map(c => `${c.ticker}(${c.adjusted_score})`).join(' > ')}`);

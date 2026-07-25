@@ -175,9 +175,14 @@ async function main() {
     BAMLH0A0HYM2: { label: 'ICE BofA US High Yield OAS', sourceUrl: 'https://fred.stlouisfed.org/series/BAMLH0A0HYM2' },
     BAMLC0A0CM: { label: 'ICE BofA US Corporate OAS', sourceUrl: 'https://fred.stlouisfed.org/series/BAMLC0A0CM' },
     BAMLH0A3HYC: { label: 'ICE BofA CCC & Lower US High Yield OAS', sourceUrl: 'https://fred.stlouisfed.org/series/BAMLH0A3HYC' },
-    TOTBKCR: { label: 'Bank Credit, All Commercial Banks', sourceUrl: 'https://fred.stlouisfed.org/series/TOTBKCR' }
+    TOTBKCR: { label: 'Bank Credit, All Commercial Banks', sourceUrl: 'https://fred.stlouisfed.org/series/TOTBKCR' },
+    // Senior Loan Officer Opinion Survey — net % of banks tightening C&I lending
+    // standards to large/middle-market firms. Quarterly. Was an explicitly named
+    // gap ("lending standards... remain missing evidence") until 2026-07-25;
+    // verified independently (2023 ~45-51%, most recent ~8%) before adding.
+    DRTSCILM: { label: 'Net % of Banks Tightening C&I Loan Standards (Large/Mid Firms)', sourceUrl: 'https://fred.stlouisfed.org/series/DRTSCILM' }
   }, 'Refreshed from FRED public CSV endpoints. Homepage build reads this cache and does not fetch FRED live.', [
-    'Default rates, lending standards, HYG/LQD price trend, and private-credit stress remain missing evidence.'
+    'Default rates, HYG/LQD price trend, and private-credit stress remain missing evidence. Lending standards (DRTSCILM) added 2026-07-25.'
   ]);
 
   await writeFredCache('money-cash-series.json', 'money-cash-series-cache', {

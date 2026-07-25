@@ -20,6 +20,7 @@ const dynamicUni     = readJson('outputs/dynamic-universe.json', {});
 const oppUniverse    = readJson('data/opportunity-universe.json', {});
 const scannerUni     = readJson('data/scanner-universe.json', {});
 const marketEvents   = readJson('data/market-events.json', {});
+const concentration  = readJson('outputs/market-concentration-state.json', {});
 
 // ── UNIVERSE ──────────────────────────────────────────────────────────────────
 const holdingTickers = (liveState.holdings || []).map(h => String(h.ticker || '').toUpperCase()).filter(Boolean);
@@ -160,6 +161,18 @@ const input = {
     topConviction:         convTop,
   },
 
+  marketConcentration: {
+    readState:            concentration.read_state || 'UNKNOWN',
+    interpretation:        concentration.interpretation || '',
+    mag7AvgPctFrom52wHigh: concentration.mag7?.avg_pct_from_52w_high ?? null,
+    spyPctFrom52wHigh:     concentration.spy?.pct_from_52w_high ?? null,
+    divergenceGapPts:      concentration.divergence?.pct_from_52w_high_gap ?? null,
+    strongest:             concentration.mag7?.strongest ?? null,
+    weakest:               concentration.mag7?.weakest ?? null,
+    lendingStandardsZone:  concentration.credit_context?.lending_standards_zone ?? 'UNKNOWN',
+    lendingStandardsValue: concentration.credit_context?.lending_standards_value ?? null,
+  },
+
   // Filtered news ready for synthesis
   news: {
     highMateriality:   highMatNews,     // score >= 6, always include
@@ -170,6 +183,7 @@ const input = {
   synthesisInstructions: [
     'Read the data above and write outputs/narrative-reality-brief.json.',
     'Identify 3-5 major themes active in the market right now (e.g. nuclear/AI power, software SaaS, financial rails, credit/macro).',
+    'Always check marketConcentration.readState — if it is ROTATION_NOT_ROLLOVER or CONCENTRATION_UNWIND_RISK, it should be one of the themes: index-level calm can mask real weakness concentrated in the handful of names that dominate the index by weight.',
     'For each theme, extract: (1) the prevailing market narrative — what the news and price action imply the market believes; (2) what the hard data actually shows (use the dislocation depths, credit spreads, revenue signals, insider buying); (3) a counter-read — where narrative and data diverge, and what that means for positioning.',
     'Classify each theme: NARRATIVE_AHEAD (price is ahead of fundamentals — caution), DATA_AHEAD (fundamentals ahead of price — opportunity), or ALIGNED (narrative and data agree).',
     'Write a strategyPosture (1-2 sentences: current action posture).',

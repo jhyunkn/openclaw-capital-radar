@@ -28,7 +28,10 @@ const convictionTickers = universe.tickers.map(t => String(t.ticker).toUpperCase
 const scannerTickers    = (scannerUni?.candidates || []).map(c => String(c.ticker).toUpperCase());
 const discoveryTickers  = [...(discovery?.track_a_candidates || []), ...(discovery?.track_b_candidates || [])]
   .map(c => String(c.ticker).toUpperCase());
-const TICKERS = [...new Set([...convictionTickers, ...scannerTickers, ...discoveryTickers])];
+// Magnificent 7 + SPX benchmark — needed for generate-market-concentration-state.cjs
+// (index-concentration / breadth divergence check, added 2026-07-25).
+const MACRO_BENCHMARK_TICKERS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'SPY'];
+const TICKERS = [...new Set([...convictionTickers, ...scannerTickers, ...discoveryTickers, ...MACRO_BENCHMARK_TICKERS])];
 
 // ── FETCH HELPERS ─────────────────────────────────────────────────────────────
 

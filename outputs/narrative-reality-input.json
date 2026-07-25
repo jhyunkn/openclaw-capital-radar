@@ -1,5 +1,5 @@
 {
-  "assembledAt": "2026-07-25T02:47:37.581Z",
+  "assembledAt": "2026-07-25T14:14:33.214Z",
   "purpose": "Input for Claude Code to synthesize into outputs/narrative-reality-brief.json. Read this file during the operating loop and write the brief.",
   "marketSnapshot": {
     "spy": {
@@ -284,7 +284,7 @@
         "ticker": "KNSL",
         "name": "Kinsale Capital",
         "livePrice": 349.1,
-        "pctFrom52wH": -31.9,
+        "pctFrom52wH": -28.2,
         "trend1m": 12.5,
         "rsi14": 57.5,
         "signal": "PARTIAL_SIGNAL",
@@ -371,6 +371,36 @@
         "declineReason": "SENTIMENT_DRIVEN"
       },
       {
+        "ticker": "MSFT",
+        "name": "MSFT",
+        "livePrice": 381.7,
+        "pctFrom52wH": -31.3,
+        "trend1m": 4.4,
+        "rsi14": 44.7,
+        "signal": "PARTIAL_SIGNAL",
+        "declineReason": "SENTIMENT_DRIVEN"
+      },
+      {
+        "ticker": "KTOS",
+        "name": "KTOS",
+        "livePrice": 47.35,
+        "pctFrom52wH": -64.7,
+        "trend1m": -1.3,
+        "rsi14": 42.9,
+        "signal": "PARTIAL_SIGNAL",
+        "declineReason": "SENTIMENT_DRIVEN"
+      },
+      {
+        "ticker": "VRT",
+        "name": "Vertiv",
+        "livePrice": 290.36,
+        "pctFrom52wH": -23.6,
+        "trend1m": -8.2,
+        "rsi14": 43.2,
+        "signal": "PARTIAL_SIGNAL",
+        "declineReason": "SENTIMENT_DRIVEN"
+      },
+      {
         "ticker": "VRT",
         "name": "Vertiv",
         "livePrice": 290.36,
@@ -401,6 +431,16 @@
         "declineReason": "ACUTE_CATALYST"
       },
       {
+        "ticker": "AMZN",
+        "name": "AMZN",
+        "livePrice": 232.11,
+        "pctFrom52wH": -16.7,
+        "trend1m": -0.9,
+        "rsi14": 37.5,
+        "signal": "PARTIAL_SIGNAL",
+        "declineReason": "MULTIPLE_COMPRESSION"
+      },
+      {
         "ticker": "AMAT",
         "name": "Applied Materials",
         "livePrice": 536.25,
@@ -429,6 +469,16 @@
         "rsi14": 41.1,
         "signal": "PARTIAL_SIGNAL",
         "declineReason": "ACUTE_CATALYST"
+      },
+      {
+        "ticker": "META",
+        "name": "META",
+        "livePrice": 595.19,
+        "pctFrom52wH": -25.3,
+        "trend1m": 6.7,
+        "rsi14": 43.8,
+        "signal": "PARTIAL_SIGNAL",
+        "declineReason": "SENTIMENT_DRIVEN"
       }
     ],
     "pullbackPosture": "RESEARCH_SCREENED: All candidates passed 5-gate screening. Verify thesis before sizing any position.",
@@ -569,9 +619,9 @@
         "tier": "B",
         "window": 2,
         "timingStatus": "Earnings Aug 2026",
-        "pct52wH": -31.9,
+        "pct52wH": -28.2,
         "rsi": 57.5,
-        "declineExp": "Revenue growing 18% while stock is 31.9% below its high — the fundamentals and price are moving in opposite directions. This is the setup.",
+        "declineExp": "Revenue growing 18% while stock is 28.2% below its high — the fundamentals and price are moving in opposite directions. This is the setup.",
         "signals": [
           "Revenue +18% YoY (solid growth)",
           "FCF $490M (26.9% FCF margin) — strong cash generation",
@@ -605,6 +655,23 @@
         "signals": []
       }
     ]
+  },
+  "marketConcentration": {
+    "readState": "ROTATION_NOT_ROLLOVER",
+    "interpretation": "Mag7 is underperforming SPY by 17.97 points on distance from 52-week highs, but bank lending standards are LOOSE (SLOOS 8.1%, well below the ~40% stress threshold). Historically this combination reads as index-leadership rotation, not a confirmed broad rollover — but the divergence itself is real and worth tracking, since credit conditions can flip.",
+    "mag7AvgPctFrom52wHigh": -20.77,
+    "spyPctFrom52wHigh": -2.8,
+    "divergenceGapPts": -17.97,
+    "strongest": {
+      "ticker": "AAPL",
+      "pct_from_52w_high": -0.6
+    },
+    "weakest": {
+      "ticker": "TSLA",
+      "pct_from_52w_high": -37.2
+    },
+    "lendingStandardsZone": "LOOSE",
+    "lendingStandardsValue": 8.1
   },
   "news": {
     "highMateriality": [
@@ -640,9 +707,10 @@
         "name": "AI Data Center Power Demand Crisis",
         "status": "active",
         "signal_strength": "HIGH",
-        "hit_count": 2,
+        "hit_count": 4,
         "matched_headlines": [
           "Utility ETFs Soar 8% YTD on AI Power Demand. Here’s Which One to Buy",
+          "GE Vernova (GEV): $176 Billion Backlog and AI Power Demand Outweigh Short-Term EPS Miss",
           "Why These 3 Nuclear ETFs Are Getting a Fresh Look as AI Power Demand Rises"
         ],
         "beneficiaries": [
@@ -659,6 +727,7 @@
   "synthesisInstructions": [
     "Read the data above and write outputs/narrative-reality-brief.json.",
     "Identify 3-5 major themes active in the market right now (e.g. nuclear/AI power, software SaaS, financial rails, credit/macro).",
+    "Always check marketConcentration.readState — if it is ROTATION_NOT_ROLLOVER or CONCENTRATION_UNWIND_RISK, it should be one of the themes: index-level calm can mask real weakness concentrated in the handful of names that dominate the index by weight.",
     "For each theme, extract: (1) the prevailing market narrative — what the news and price action imply the market believes; (2) what the hard data actually shows (use the dislocation depths, credit spreads, revenue signals, insider buying); (3) a counter-read — where narrative and data diverge, and what that means for positioning.",
     "Classify each theme: NARRATIVE_AHEAD (price is ahead of fundamentals — caution), DATA_AHEAD (fundamentals ahead of price — opportunity), or ALIGNED (narrative and data agree).",
     "Write a strategyPosture (1-2 sentences: current action posture).",

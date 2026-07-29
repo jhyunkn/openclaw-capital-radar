@@ -35,8 +35,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run production build locally
-        run: npm run build
+      - name: Run Vercel production build entry locally
+        env:
+          CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS: 168
+        run: node scripts/vercel-build-entry.cjs
 
       - name: Validate Vercel CLI credentials
         shell: bash
@@ -57,6 +59,7 @@ jobs:
       - name: Deploy production with Vercel CLI
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS: 168
         run: |
           npm install --global vercel@latest
           vercel pull --yes --environment=production --token="$VERCEL_TOKEN"

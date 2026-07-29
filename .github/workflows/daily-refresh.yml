@@ -2,6 +2,8 @@ name: Capital Radar 4-Hour Operating Loop
 
 on:
   schedule:
+    # Daily full refresh/deploy at 08:05 ET during EDT. Revisit UTC offset when EST resumes.
+    - cron: '5 12 * * *'
     # 4-hour operating cycle on market days, America/New_York during EDT.
     # 09:30, 13:30, 16:15, 20:00 ET. Revisit UTC offsets when EST resumes.
     - cron: '30 13 * * 1-5'
@@ -37,6 +39,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Regenerate live data
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
@@ -51,6 +56,9 @@ jobs:
       - name: Validate operating brain contracts
         run: npm run validate:operating-brain
 
+      - name: Mark Vercel deploy trigger
+        run: npm run trigger:vercel-deploy
+
       - name: Evaluate deploy gate
         id: gate
         run: npm run gate:deploy || test $? -eq 2
@@ -58,21 +66,49 @@ jobs:
       - name: Show operating cadence state
         run: cat outputs/operating-cadence-state.json
 
-      - name: Commit only meaningful decision-state changes
-        if: steps.gate.outputs.should_deploy == 'true'
+      - name: Commit refreshed Capital Radar artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
-            echo "No deployable artifact/homepage changes to commit."
+            echo "No refreshed artifact/homepage changes to commit."
           else
-            git commit -m "Run Capital Radar 4-hour operating loop"
+            git commit -m "Refresh Capital Radar data and deployment artifacts"
             git pull --rebase origin main
             git push origin main
           fi
 
-      - name: Skip deploy when state is unchanged or unsafe
+      - name: Report deploy gate state
         if: steps.gate.outputs.should_deploy != 'true'
         run: |
-          echo "Deploy skipped. meaningful_state_changed=${{ steps.gate.outputs.meaningful_state_changed }} homepage_safe_to_render=${{ steps.gate.outputs.homepage_safe_to_render }}"
+          echo "Deploy trigger committed for daily refresh. Gate state: meaningful_state_changed=${{ steps.gate.outputs.meaningful_state_changed }} homepage_safe_to_render=${{ steps.gate.outputs.homepage_safe_to_render }}"
+
+      - name: Validate Vercel CLI credentials
+        if: steps.gate.outputs.homepage_safe_to_render != 'false'
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "::error::Missing GitHub secret: VERCEL_TOKEN"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VERCEL_ORG_ID }}" ]; then
+            echo "::error::Missing GitHub secret: VERCEL_ORG_ID"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then
+            echo "::error::Missing GitHub secret: VERCEL_PROJECT_ID"
+            exit 1
+          fi
+
+      - name: Deploy refreshed Capital Radar to Vercel
+        if: steps.gate.outputs.homepage_safe_to_render != 'false'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm install --global vercel@latest
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --archive=tgz --token="$VERCEL_TOKEN"

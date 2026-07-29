@@ -94,6 +94,16 @@ function themeBonus(themes) {
   return best;
 }
 
+function crowdingPenalty(opp) {
+  if (!opp) return 0;
+  let penalty = 0;
+  if (opp.institutionalCrowding === 'high') penalty += 14;
+  else if (opp.institutionalCrowding === 'medium') penalty += 6;
+  if (opp.watchlistStatus === 'benchmark_only') penalty += 10;
+  if (opp.watchlistStatus === 'demoted_comp') penalty += 8;
+  return penalty;
+}
+
 // ── SCORE CONVERSION ─────────────────────────────────────────────────────────
 // Scanner total_score range: [40 (WATCH floor), ~155 (theoretical max)].
 // Map to conviction [40, 90], then add signal tier bonus and theme bonus.
@@ -107,7 +117,9 @@ function scannerToConviction(item) {
   const base    = CONV_FLOOR + Math.round(((clamped - SCANNER_FLOOR) / SCANNER_RANGE) * CONV_RANGE);
   const signalBonus = item.signal === 'FULL_SIGNAL' ? 5 : 0;
   const tBonus      = themeBonus(item.theme_adjacency);
-  return Math.min(95, base + signalBonus + tBonus);
+  const opp         = oppByTicker[item.ticker];
+  const cPenalty    = crowdingPenalty(opp);
+  return Math.max(40, Math.min(95, base + signalBonus + tBonus - cPenalty));
 }
 
 function tier(s) {
@@ -174,6 +186,9 @@ const ranked = allCandidates.map(item => {
     gross_margin_pct: item.gross_margin_pct ?? null,
     insider_signal: item.insider_signal ?? null,
     open_market_value_mm: item.open_market_value_mm ?? 0,
+    institutional_crowding: oppByTicker[ticker]?.institutionalCrowding ?? null,
+    watchlist_status: oppByTicker[ticker]?.watchlistStatus ?? null,
+    demotion_reason: oppByTicker[ticker]?.demotionReason ?? null,
     action_permission: item.signal === 'FULL_SIGNAL' || item.signal === 'PARTIAL_SIGNAL'
       ? 'RESEARCH_SCREENED — verify thesis before sizing'
       : 'WATCH_ONLY — entry not signaled',
@@ -209,6 +224,8 @@ for (const opp of (oppUniverse?.tickers || [])) {
       }
       if (opp.earlyEntrySignal)      item.early_entry_signal    = opp.earlyEntrySignal;
       if (opp.institutionalCrowding) item.institutional_crowding = opp.institutionalCrowding;
+      if (opp.watchlistStatus)       item.watchlist_status       = opp.watchlistStatus;
+      if (opp.demotionReason)        item.demotion_reason        = opp.demotionReason;
       if (opp.invalidation)          item.invalidation           = opp.invalidation;
       if (opp.catalystWindow)        item.next_catalyst          = opp.catalystWindow;
     }
@@ -223,7 +240,7 @@ for (const opp of (oppUniverse?.tickers || [])) {
   const pctFrom52wH = watchlist.tickers[t]?.pctFrom52wHigh ?? 0;
   if (pctFrom52wH > -12) continue;
   const mkt      = watchlist.tickers[t];
-  const oppConv  = Math.min(88, Math.round(opp.baseScore * 0.92));
+  const oppConv  = Math.max(40, Math.min(88, Math.round(opp.baseScore * 0.92) - crowdingPenalty(opp)));
   const timing   = assessTiming(t);
   filteredRanked.push({
     rank: 0,
@@ -251,6 +268,8 @@ for (const opp of (oppUniverse?.tickers || [])) {
     action_permission: 'RESEARCH_SCREENED — pre-consensus opportunity-universe pick. Crowding: ' + (opp.institutionalCrowding ?? 'unknown'),
     early_entry_signal: opp.earlyEntrySignal ?? null,
     institutional_crowding: opp.institutionalCrowding ?? null,
+    watchlist_status: opp.watchlistStatus ?? null,
+    demotion_reason: opp.demotionReason ?? null,
     invalidation: opp.invalidation ?? null,
   });
 }

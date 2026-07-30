@@ -1,22 +1,31 @@
 {
-  "generatedAt": "2026-07-30T03:24:04.191Z",
+  "generatedAt": "2026-07-30T14:26:39.823Z",
   "runMode": "LOCAL_TICKER_GATE_AUDIT_NO_WEB_SEARCH",
   "status": "ACTIVE",
   "policy": "Every ticker must carry primary evidence, price zone, invalidation, risk budget, and portfolio role before promotion. Degraded/local mode blocks missing primary evidence rather than inventing it.",
   "counts": {
-    "tickers": 27,
+    "tickers": 31,
     "pass": 24,
-    "blocked": 3,
+    "blocked": 7,
     "holdings": 11,
-    "candidates": 16
+    "candidates": 20
   },
   "blockedByGate": {
     "primaryEvidence": [
+      "BWXT",
+      "CLS",
+      "ET",
       "GOOGL",
+      "KNSL",
       "NVDA",
       "TSNF"
     ],
-    "priceZone": [],
+    "priceZone": [
+      "BWXT",
+      "CLS",
+      "ET",
+      "KNSL"
+    ],
     "invalidation": [],
     "riskBudget": [],
     "portfolioRole": []
@@ -25,7 +34,7 @@
     {
       "ticker": "AMZN",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -57,16 +66,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 230,
-          "entryLow": 212,
-          "entryHigh": 221,
-          "addBelow": 207,
-          "trimLow": 258,
-          "trimHigh": 276,
-          "stop": 198,
-          "hardExit": 189,
-          "target": 272,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 237,
+          "entryLow": 218,
+          "entryHigh": 227,
+          "addBelow": 213,
+          "trimLow": 265,
+          "trimHigh": 284,
+          "stop": 204,
+          "hardExit": 194,
+          "target": 279,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -94,7 +103,7 @@
     {
       "ticker": "AVGO",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -126,15 +135,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 383,
-          "entryLow": 352,
-          "entryHigh": 368,
-          "addBelow": 345,
-          "trimLow": 429,
-          "trimHigh": 460,
-          "stop": 329,
-          "hardExit": 314,
-          "target": 452,
+          "current": 387,
+          "entryLow": 356,
+          "entryHigh": 372,
+          "addBelow": 348,
+          "trimLow": 433,
+          "trimHigh": 464,
+          "stop": 333,
+          "hardExit": 317,
+          "target": 457,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -163,7 +172,7 @@
     {
       "ticker": "BMNR",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -195,16 +204,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "spec dynamic band from current price",
-          "current": 17.68,
-          "entryLow": 15.56,
-          "entryHigh": 16.44,
+          "current": 17.51,
+          "entryLow": 15.41,
+          "entryHigh": 16.28,
           "addBelow": null,
-          "trimLow": 19.09,
-          "trimHigh": 20.33,
-          "stop": 15.91,
-          "hardExit": 15.03,
-          "target": 20.16,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "trimLow": 18.91,
+          "trimHigh": 20.14,
+          "stop": 15.76,
+          "hardExit": 14.88,
+          "target": 19.96,
+          "note": "Thesis/liquidity/downside proof required before capital."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -230,9 +239,53 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
+      "ticker": "BWXT",
+      "universe": "candidate",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
+      "gateStatus": "BLOCKED",
+      "promotionPermission": "NO_PROMOTION",
+      "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
+      "gates": {
+        "primaryEvidence": {
+          "gate": "primaryEvidence",
+          "status": "BLOCK",
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
+        },
+        "priceZone": {
+          "gate": "priceZone",
+          "status": "BLOCK",
+          "basis": "missing price",
+          "note": "No current/provisional price available; cannot define price zone."
+        },
+        "invalidation": {
+          "gate": "invalidation",
+          "status": "PASS",
+          "rule": "Defense budget cuts | Execution on backlog | Valuation if growth stalls",
+          "source": "candidate packet risks"
+        },
+        "riskBudget": {
+          "gate": "riskBudget",
+          "status": "PASS",
+          "budgetType": "starter/research",
+          "maxPositionPct": 1,
+          "maxLossPct": 0.5,
+          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
+        },
+        "portfolioRole": {
+          "gate": "portfolioRole",
+          "status": "PASS",
+          "role": "power/grid infrastructure opportunity lane",
+          "concentrationCheck": "candidate; must check overlap before promotion"
+        }
+      },
+      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
+    },
+    {
       "ticker": "CCJ",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -251,15 +304,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 87.12,
-          "entryLow": 80.15,
-          "entryHigh": 83.64,
-          "addBelow": 78.41,
-          "trimLow": 97.57,
+          "current": 87.81,
+          "entryLow": 80.79,
+          "entryHigh": 84.3,
+          "addBelow": 79.03,
+          "trimLow": 98.35,
           "trimHigh": 105,
-          "stop": 74.92,
-          "hardExit": 71.44,
-          "target": 103,
+          "stop": 75.52,
+          "hardExit": 72,
+          "target": 104,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -288,7 +341,7 @@
     {
       "ticker": "CEG",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -320,16 +373,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "watch dynamic band from current price",
-          "current": 260,
-          "entryLow": 234,
-          "entryHigh": 245,
-          "addBelow": 227,
-          "trimLow": 286,
-          "trimHigh": 302,
-          "stop": 229,
-          "hardExit": 219,
-          "target": 299,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 268,
+          "entryLow": 241,
+          "entryHigh": 252,
+          "addBelow": 233,
+          "trimLow": 295,
+          "trimHigh": 311,
+          "stop": 236,
+          "hardExit": 225,
+          "target": 309,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -355,9 +408,53 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
+      "ticker": "CLS",
+      "universe": "candidate",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
+      "gateStatus": "BLOCKED",
+      "promotionPermission": "NO_PROMOTION",
+      "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
+      "gates": {
+        "primaryEvidence": {
+          "gate": "primaryEvidence",
+          "status": "BLOCK",
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
+        },
+        "priceZone": {
+          "gate": "priceZone",
+          "status": "BLOCK",
+          "basis": "missing price",
+          "note": "No current/provisional price available; cannot define price zone."
+        },
+        "invalidation": {
+          "gate": "invalidation",
+          "status": "PASS",
+          "rule": "Customer concentration | Thin contract-manufacturing margins | Tariff and supply-chain exposure",
+          "source": "candidate packet risks"
+        },
+        "riskBudget": {
+          "gate": "riskBudget",
+          "status": "PASS",
+          "budgetType": "starter/research",
+          "maxPositionPct": 1,
+          "maxLossPct": 0.5,
+          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
+        },
+        "portfolioRole": {
+          "gate": "portfolioRole",
+          "status": "PASS",
+          "role": "power/grid infrastructure opportunity lane",
+          "concentrationCheck": "candidate; must check overlap before promotion"
+        }
+      },
+      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
+    },
+    {
       "ticker": "CONL",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -375,7 +472,7 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "fixed tactical levels",
-          "current": 5.33,
+          "current": 4.9,
           "entryLow": 8.2,
           "entryHigh": 8.6,
           "addBelow": 8.2,
@@ -384,7 +481,7 @@
           "stop": 7.8,
           "hardExit": 7.7,
           "target": 10,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "note": "At/below hard-exit review 7.7. Do not treat as bargain."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -410,9 +507,53 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
+      "ticker": "ET",
+      "universe": "candidate",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
+      "gateStatus": "BLOCKED",
+      "promotionPermission": "NO_PROMOTION",
+      "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
+      "gates": {
+        "primaryEvidence": {
+          "gate": "primaryEvidence",
+          "status": "BLOCK",
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
+        },
+        "priceZone": {
+          "gate": "priceZone",
+          "status": "BLOCK",
+          "basis": "missing price",
+          "note": "No current/provisional price available; cannot define price zone."
+        },
+        "invalidation": {
+          "gate": "invalidation",
+          "status": "PASS",
+          "rule": "Leverage | MLP tax complexity | Gas demand/capex slowdown",
+          "source": "candidate packet risks"
+        },
+        "riskBudget": {
+          "gate": "riskBudget",
+          "status": "PASS",
+          "budgetType": "starter/research",
+          "maxPositionPct": 1,
+          "maxLossPct": 0.5,
+          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
+        },
+        "portfolioRole": {
+          "gate": "portfolioRole",
+          "status": "PASS",
+          "role": "power/grid infrastructure opportunity lane",
+          "concentrationCheck": "candidate; must check overlap before promotion"
+        }
+      },
+      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
+    },
+    {
       "ticker": "ETN",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -446,12 +587,12 @@
           "basis": "core dynamic band from current price",
           "current": 385,
           "entryLow": 354,
-          "entryHigh": 369,
+          "entryHigh": 370,
           "addBelow": 346,
           "trimLow": 431,
           "trimHigh": 462,
           "stop": 331,
-          "hardExit": 315,
+          "hardExit": 316,
           "target": 454,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
@@ -481,7 +622,7 @@
     {
       "ticker": "GEV",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -513,15 +654,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 947,
-          "entryLow": 871,
-          "entryHigh": 909,
-          "addBelow": 852,
-          "trimLow": 1061,
-          "trimHigh": 1136,
-          "stop": 814,
-          "hardExit": 777,
-          "target": 1118,
+          "current": 980,
+          "entryLow": 901,
+          "entryHigh": 941,
+          "addBelow": 882,
+          "trimLow": 1097,
+          "trimHigh": 1176,
+          "stop": 843,
+          "hardExit": 803,
+          "target": 1156,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -550,7 +691,7 @@
     {
       "ticker": "GOOGL",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence.",
@@ -567,12 +708,12 @@
           "status": "PASS",
           "basis": "core dynamic band from current price",
           "current": 333,
-          "entryLow": 306,
+          "entryLow": 307,
           "entryHigh": 320,
           "addBelow": 300,
           "trimLow": 373,
           "trimHigh": 400,
-          "stop": 286,
+          "stop": 287,
           "hardExit": 273,
           "target": 393,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
@@ -603,7 +744,7 @@
     {
       "ticker": "HIMS",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -635,15 +776,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 28.48,
-          "entryLow": 26.2,
-          "entryHigh": 27.34,
-          "addBelow": 25.63,
-          "trimLow": 31.9,
-          "trimHigh": 34.18,
-          "stop": 24.49,
-          "hardExit": 23.35,
-          "target": 33.61,
+          "current": 26.28,
+          "entryLow": 24.18,
+          "entryHigh": 25.23,
+          "addBelow": 23.65,
+          "trimLow": 29.43,
+          "trimHigh": 31.54,
+          "stop": 22.6,
+          "hardExit": 21.55,
+          "target": 31.01,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -672,7 +813,7 @@
     {
       "ticker": "IBIT",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -690,15 +831,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 36.13,
-          "entryLow": 33.24,
-          "entryHigh": 34.68,
-          "addBelow": 32.52,
-          "trimLow": 40.47,
-          "trimHigh": 43.36,
-          "stop": 31.07,
-          "hardExit": 29.63,
-          "target": 42.63,
+          "current": 36.65,
+          "entryLow": 33.72,
+          "entryHigh": 35.18,
+          "addBelow": 32.98,
+          "trimLow": 41.05,
+          "trimHigh": 43.98,
+          "stop": 31.52,
+          "hardExit": 30.05,
+          "target": 43.25,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -725,9 +866,53 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
+      "ticker": "KNSL",
+      "universe": "candidate",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
+      "gateStatus": "BLOCKED",
+      "promotionPermission": "NO_PROMOTION",
+      "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
+      "gates": {
+        "primaryEvidence": {
+          "gate": "primaryEvidence",
+          "status": "BLOCK",
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
+        },
+        "priceZone": {
+          "gate": "priceZone",
+          "status": "BLOCK",
+          "basis": "missing price",
+          "note": "No current/provisional price available; cannot define price zone."
+        },
+        "invalidation": {
+          "gate": "invalidation",
+          "status": "PASS",
+          "rule": "E&S pricing softening | Catastrophe year | Insurance names staying ignored in an AI tape",
+          "source": "candidate packet risks"
+        },
+        "riskBudget": {
+          "gate": "riskBudget",
+          "status": "PASS",
+          "budgetType": "starter/speculative",
+          "maxPositionPct": 0.5,
+          "maxLossPct": 0.25,
+          "rule": "Research-only. If promoted, start tiny; max loss must be pre-accepted."
+        },
+        "portfolioRole": {
+          "gate": "portfolioRole",
+          "status": "PASS",
+          "role": "quality platform / valuation reset candidate",
+          "concentrationCheck": "candidate; must check overlap before promotion"
+        }
+      },
+      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
+    },
+    {
       "ticker": "MA",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -742,15 +927,15 @@
           "recentMaterialFilings": [
             {
               "form": "8-K",
+              "filingDate": "2026-07-30"
+            },
+            {
+              "form": "8-K",
               "filingDate": "2026-06-17"
             },
             {
               "form": "8-K",
               "filingDate": "2026-06-08"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-06-02"
             }
           ],
           "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
@@ -759,16 +944,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 561,
-          "entryLow": 516,
-          "entryHigh": 539,
-          "addBelow": 505,
-          "trimLow": 628,
-          "trimHigh": 673,
-          "stop": 483,
-          "hardExit": 460,
-          "target": 662,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 572,
+          "entryLow": 526,
+          "entryHigh": 549,
+          "addBelow": 515,
+          "trimLow": 640,
+          "trimHigh": 686,
+          "stop": 492,
+          "hardExit": 469,
+          "target": 675,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -796,7 +981,7 @@
     {
       "ticker": "META",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -811,15 +996,15 @@
           "recentMaterialFilings": [
             {
               "form": "8-K",
+              "filingDate": "2026-07-29"
+            },
+            {
+              "form": "8-K",
               "filingDate": "2026-05-29"
             },
             {
               "form": "8-K",
               "filingDate": "2026-05-04"
-            },
-            {
-              "form": "10-Q",
-              "filingDate": "2026-04-30"
             }
           ],
           "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
@@ -828,16 +1013,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 594,
-          "entryLow": 546,
-          "entryHigh": 570,
-          "addBelow": 535,
-          "trimLow": 665,
-          "trimHigh": 713,
-          "stop": 511,
-          "hardExit": 487,
-          "target": 701,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 531,
+          "entryLow": 489,
+          "entryHigh": 510,
+          "addBelow": 478,
+          "trimLow": 595,
+          "trimHigh": 637,
+          "stop": 457,
+          "hardExit": 436,
+          "target": 627,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -865,7 +1050,7 @@
     {
       "ticker": "MSFT",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -879,16 +1064,16 @@
           "cik": "0000789019",
           "recentMaterialFilings": [
             {
+              "form": "10-K",
+              "filingDate": "2026-07-29"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-07-29"
+            },
+            {
               "form": "8-K",
               "filingDate": "2026-06-05"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-05-14"
-            },
-            {
-              "form": "10-Q",
-              "filingDate": "2026-04-29"
             }
           ],
           "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
@@ -897,16 +1082,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 399,
-          "entryLow": 367,
-          "entryHigh": 383,
-          "addBelow": 359,
-          "trimLow": 447,
-          "trimHigh": 479,
-          "stop": 343,
-          "hardExit": 327,
-          "target": 471,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 449,
+          "entryLow": 413,
+          "entryHigh": 431,
+          "addBelow": 404,
+          "trimLow": 503,
+          "trimHigh": 539,
+          "stop": 386,
+          "hardExit": 368,
+          "target": 530,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -934,7 +1119,7 @@
     {
       "ticker": "NFLX",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -966,16 +1151,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "watch dynamic band from current price",
-          "current": 73.21,
-          "entryLow": 65.89,
-          "entryHigh": 68.82,
-          "addBelow": 63.69,
-          "trimLow": 80.53,
-          "trimHigh": 84.92,
-          "stop": 64.42,
-          "hardExit": 61.5,
-          "target": 84.19,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 70.71,
+          "entryLow": 63.64,
+          "entryHigh": 66.47,
+          "addBelow": 61.52,
+          "trimLow": 77.78,
+          "trimHigh": 82.02,
+          "stop": 62.22,
+          "hardExit": 59.4,
+          "target": 81.32,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1003,7 +1188,7 @@
     {
       "ticker": "NVDA",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence.",
@@ -1019,21 +1204,21 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 197,
+          "current": 196,
           "entryLow": 181,
-          "entryHigh": 189,
-          "addBelow": 178,
-          "trimLow": 221,
-          "trimHigh": 237,
-          "stop": 170,
-          "hardExit": 162,
-          "target": 233,
+          "entryHigh": 188,
+          "addBelow": 177,
+          "trimLow": 220,
+          "trimHigh": 236,
+          "stop": 169,
+          "hardExit": 161,
+          "target": 232,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
           "gate": "invalidation",
           "status": "PASS",
-          "rule": "Crowding and multiple compression | Export controls / supply chain limits | AI capex digestion cycle",
+          "rule": "Consensus crowding | Multiple compression | AI capex digestion cycle",
           "source": "candidate packet risks"
         },
         "riskBudget": {
@@ -1047,7 +1232,7 @@
         "portfolioRole": {
           "gate": "portfolioRole",
           "status": "PASS",
-          "role": "AI infrastructure benchmark / center-stack exposure",
+          "role": "quality platform / valuation reset candidate",
           "concentrationCheck": "candidate; must check overlap before promotion"
         }
       },
@@ -1056,7 +1241,7 @@
     {
       "ticker": "NXT",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1088,15 +1273,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 97.15,
-          "entryLow": 89.38,
-          "entryHigh": 93.26,
-          "addBelow": 87.44,
-          "trimLow": 109,
-          "trimHigh": 117,
-          "stop": 83.55,
-          "hardExit": 79.66,
-          "target": 115,
+          "current": 99.49,
+          "entryLow": 91.53,
+          "entryHigh": 95.51,
+          "addBelow": 89.54,
+          "trimLow": 111,
+          "trimHigh": 119,
+          "stop": 85.56,
+          "hardExit": 81.58,
+          "target": 117,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1125,7 +1310,7 @@
     {
       "ticker": "OKLO",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1140,15 +1325,15 @@
           "recentMaterialFilings": [
             {
               "form": "8-K",
+              "filingDate": "2026-07-28"
+            },
+            {
+              "form": "8-K",
               "filingDate": "2026-06-08"
             },
             {
               "form": "8-K",
               "filingDate": "2026-05-13"
-            },
-            {
-              "form": "10-Q",
-              "filingDate": "2026-05-12"
             }
           ],
           "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
@@ -1157,15 +1342,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 40.4,
-          "entryLow": 37.17,
-          "entryHigh": 38.78,
-          "addBelow": 36.36,
-          "trimLow": 45.25,
-          "trimHigh": 48.48,
-          "stop": 34.74,
-          "hardExit": 33.13,
-          "target": 47.67,
+          "current": 40.83,
+          "entryLow": 37.56,
+          "entryHigh": 39.2,
+          "addBelow": 36.75,
+          "trimLow": 45.73,
+          "trimHigh": 49,
+          "stop": 35.11,
+          "hardExit": 33.48,
+          "target": 48.18,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1194,7 +1379,7 @@
     {
       "ticker": "PLTR",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1226,15 +1411,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 124,
-          "entryLow": 114,
-          "entryHigh": 119,
-          "addBelow": 111,
-          "trimLow": 138,
-          "trimHigh": 148,
-          "stop": 106,
-          "hardExit": 101,
-          "target": 146,
+          "current": 121,
+          "entryLow": 111,
+          "entryHigh": 116,
+          "addBelow": 109,
+          "trimLow": 135,
+          "trimHigh": 145,
+          "stop": 104,
+          "hardExit": 99.1,
+          "target": 143,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1263,7 +1448,7 @@
     {
       "ticker": "PWR",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1278,15 +1463,15 @@
           "recentMaterialFilings": [
             {
               "form": "8-K",
-              "filingDate": "2026-05-27"
+              "filingDate": "2026-07-30"
             },
             {
               "form": "10-Q",
-              "filingDate": "2026-04-30"
+              "filingDate": "2026-07-30"
             },
             {
               "form": "8-K",
-              "filingDate": "2026-04-30"
+              "filingDate": "2026-05-27"
             }
           ],
           "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
@@ -1295,15 +1480,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 584,
-          "entryLow": 537,
-          "entryHigh": 561,
-          "addBelow": 526,
-          "trimLow": 654,
-          "trimHigh": 701,
-          "stop": 502,
-          "hardExit": 479,
-          "target": 689,
+          "current": 648,
+          "entryLow": 596,
+          "entryHigh": 622,
+          "addBelow": 583,
+          "trimLow": 726,
+          "trimHigh": 777,
+          "stop": 557,
+          "hardExit": 531,
+          "target": 764,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1332,7 +1517,7 @@
     {
       "ticker": "RDDT",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1364,15 +1549,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 178,
-          "entryLow": 164,
-          "entryHigh": 171,
-          "addBelow": 161,
-          "trimLow": 200,
-          "trimHigh": 214,
-          "stop": 153,
-          "hardExit": 146,
-          "target": 211,
+          "current": 176,
+          "entryLow": 162,
+          "entryHigh": 169,
+          "addBelow": 159,
+          "trimLow": 198,
+          "trimHigh": 212,
+          "stop": 152,
+          "hardExit": 145,
+          "target": 208,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1401,7 +1586,7 @@
     {
       "ticker": "RKLB",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1433,15 +1618,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 64.03,
-          "entryLow": 58.91,
-          "entryHigh": 61.47,
-          "addBelow": 57.63,
-          "trimLow": 71.71,
-          "trimHigh": 76.84,
-          "stop": 55.07,
-          "hardExit": 52.5,
-          "target": 75.56,
+          "current": 63.23,
+          "entryLow": 58.17,
+          "entryHigh": 60.7,
+          "addBelow": 56.91,
+          "trimLow": 70.82,
+          "trimHigh": 75.88,
+          "stop": 54.38,
+          "hardExit": 51.85,
+          "target": 74.61,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1470,7 +1655,7 @@
     {
       "ticker": "SPY",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1489,16 +1674,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 742,
-          "entryLow": 682,
-          "entryHigh": 712,
-          "addBelow": 667,
-          "trimLow": 831,
-          "trimHigh": 890,
-          "stop": 638,
-          "hardExit": 608,
-          "target": 875,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "current": 738,
+          "entryLow": 679,
+          "entryHigh": 708,
+          "addBelow": 664,
+          "trimLow": 826,
+          "trimHigh": 885,
+          "stop": 634,
+          "hardExit": 605,
+          "target": 871,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1526,7 +1711,7 @@
     {
       "ticker": "TMDX",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1558,15 +1743,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 74.14,
-          "entryLow": 68.21,
-          "entryHigh": 71.17,
-          "addBelow": 66.73,
-          "trimLow": 83.04,
-          "trimHigh": 88.97,
-          "stop": 63.76,
-          "hardExit": 60.79,
-          "target": 87.49,
+          "current": 74.71,
+          "entryLow": 68.73,
+          "entryHigh": 71.72,
+          "addBelow": 67.24,
+          "trimLow": 83.68,
+          "trimHigh": 89.65,
+          "stop": 64.25,
+          "hardExit": 61.26,
+          "target": 88.16,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {
@@ -1595,7 +1780,7 @@
     {
       "ticker": "TSLT",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1613,7 +1798,7 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "fixed tactical levels",
-          "current": 9.97,
+          "current": 9.95,
           "entryLow": 20.5,
           "entryHigh": 22,
           "addBelow": 20.5,
@@ -1622,7 +1807,7 @@
           "stop": 19,
           "hardExit": 18.25,
           "target": 28,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "note": "At/below hard-exit review 18.25. Do not treat as bargain."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1650,7 +1835,7 @@
     {
       "ticker": "TSNF",
       "universe": "holding",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence.",
@@ -1666,16 +1851,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "spec dynamic band from current price",
-          "current": 28.26,
-          "entryLow": 24.87,
-          "entryHigh": 26.28,
+          "current": 28.64,
+          "entryLow": 25.2,
+          "entryHigh": 26.64,
           "addBelow": null,
-          "trimLow": 30.52,
-          "trimHigh": 32.5,
-          "stop": 25.43,
-          "hardExit": 24.02,
-          "target": 32.22,
-          "note": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+          "trimLow": 30.93,
+          "trimHigh": 32.94,
+          "stop": 25.78,
+          "hardExit": 24.34,
+          "target": 32.65,
+          "note": "Thesis/liquidity/downside proof required before capital."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1703,7 +1888,7 @@
     {
       "ticker": "VRT",
       "universe": "candidate",
-      "generatedAt": "2026-07-30T03:24:04.191Z",
+      "generatedAt": "2026-07-30T14:26:39.823Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1717,16 +1902,16 @@
           "cik": "0001674101",
           "recentMaterialFilings": [
             {
+              "form": "10-Q",
+              "filingDate": "2026-07-29"
+            },
+            {
+              "form": "8-K",
+              "filingDate": "2026-07-29"
+            },
+            {
               "form": "8-K",
               "filingDate": "2026-06-18"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-06-12"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-06-03"
             }
           ],
           "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
@@ -1735,15 +1920,15 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 268,
-          "entryLow": 246,
-          "entryHigh": 257,
-          "addBelow": 241,
-          "trimLow": 300,
-          "trimHigh": 321,
-          "stop": 230,
-          "hardExit": 219,
-          "target": 316,
+          "current": 233,
+          "entryLow": 215,
+          "entryHigh": 224,
+          "addBelow": 210,
+          "trimLow": 261,
+          "trimHigh": 280,
+          "stop": 201,
+          "hardExit": 191,
+          "target": 275,
           "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
         },
         "invalidation": {

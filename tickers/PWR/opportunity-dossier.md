@@ -1,6 +1,6 @@
 # PWR Opportunity Dossier
 
-Generated: 2026-07-30T21:34:04.005Z
+Generated: 2026-07-31T02:53:57.454Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 70
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 651.8
+- Current price: 660.02
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 
 ## Why Now
 
-- PWR positive 16.16% while broad tape is weak.
+- PWR positive 17.62% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A picks-and-shovels candidate for the physical grid buildout needed by electrifi
 ## Action Framework
 
 Observation:
-PWR positive 16.16% while broad tape is weak.
+PWR positive 17.62% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

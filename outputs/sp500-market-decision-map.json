@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-31T14:28:57.533Z",
+  "generatedAt": "2026-07-31T21:30:38.055Z",
   "artifact": "sp500-market-decision-map",
   "version": 1,
   "status": "SOURCE_LIMITED_PUBLIC_MARKET_DATA",
   "purpose": "Annotated market-direction decision map inspired by chart-reader workflows: combine SPY/SPX trend, Nasdaq leadership, breadth, fear/volatility, rates, credit, and portfolio translation.",
   "sourceBoundary": "Uses public/unofficial Yahoo chart candles plus FRED rates/credit from Capital Radar. Fear & Greed is modeled as a required future adapter, not claimed unless sourced.",
-  "headline": "RISK_OFF_PROTECT_CAPITAL: score 13/100",
-  "score": 13,
-  "regime": "RISK_OFF",
-  "decision": "RISK_OFF_PROTECT_CAPITAL",
+  "headline": "SELECTIVE_RISK_ON_EVIDENCE_GATED: score 60/100",
+  "score": 60,
+  "regime": "SELECTIVE_RISK_ON",
+  "decision": "SELECTIVE_RISK_ON_EVIDENCE_GATED",
   "chartPanels": [
     {
       "id": "spy_price_structure",
@@ -19,7 +19,7 @@
         "support/resistance zones",
         "annotated breakout/pullback areas"
       ],
-      "currentRead": "SPY 740.51; 20D 745.37, 50D 744.86, 200D 700.35."
+      "currentRead": "SPY 747.03; 20D 745.69, 50D 744.99, 200D 700.39."
     },
     {
       "id": "momentum",
@@ -28,7 +28,7 @@
         "RSI14",
         "MACD histogram"
       ],
-      "currentRead": "RSI14 48.33, MACD hist -1.19."
+      "currentRead": "RSI14 52.99, MACD hist -0.77."
     },
     {
       "id": "fear_greed_volatility",
@@ -38,7 +38,7 @@
         "future CNN Fear & Greed adapter",
         "put/call ratio future adapter"
       ],
-      "currentRead": "VIX 18.59 (WATCH)."
+      "currentRead": "VIX 15.99 (CALM)."
     },
     {
       "id": "participation",
@@ -57,7 +57,7 @@
         "10Y Treasury",
         "HY OAS"
       ],
-      "currentRead": "10Y 4.67%, HY OAS 2.84."
+      "currentRead": "10Y 4.68%, HY OAS 2.84."
     },
     {
       "id": "portfolio_translation",
@@ -72,45 +72,45 @@
   ],
   "annotations": [
     {
-      "points": -8,
-      "label": "SPY below 20D trend",
-      "evidence": "price 740.51 < 20D 745.37",
-      "implication": "near-term trend weakening"
+      "points": 8,
+      "label": "SPY above 20D trend",
+      "evidence": "price 747.03 > 20D 745.69",
+      "implication": "near-term trend constructive"
     },
     {
-      "points": -12,
-      "label": "SPY below 50D trend",
-      "evidence": "price 740.51 < 50D 744.86",
-      "implication": "intermediate trend blocks risk-on"
+      "points": 10,
+      "label": "SPY above 50D trend",
+      "evidence": "price 747.03 > 50D 744.99",
+      "implication": "intermediate trend supports risk"
     },
     {
       "points": 8,
       "label": "SPY above 200D regime line",
-      "evidence": "price 740.51 > 200D 700.35",
+      "evidence": "price 747.03 > 200D 700.39",
       "implication": "long-term regime intact"
     },
     {
       "points": 2,
       "label": "RSI neutral/usable",
-      "evidence": "RSI14 48.33",
+      "evidence": "RSI14 52.99",
       "implication": "momentum not at an extreme"
     },
     {
       "points": -5,
       "label": "MACD negative",
-      "evidence": "hist -1.19",
+      "evidence": "hist -0.77",
       "implication": "momentum caution"
     },
     {
       "points": -5,
       "label": "Nasdaq lagging",
-      "evidence": "QQQ 20D vs SPY -3.41 pts",
+      "evidence": "QQQ 20D vs SPY -3.76 pts",
       "implication": "growth appetite weak"
     },
     {
       "points": -4,
       "label": "Small caps lagging",
-      "evidence": "IWM 20D vs SPY -2.09 pts",
+      "evidence": "IWM 20D vs SPY -2.45 pts",
       "implication": "rally may be narrow"
     },
     {
@@ -120,10 +120,10 @@
       "implication": "narrow/fragile market"
     },
     {
-      "points": -4,
-      "label": "VIX watch",
-      "evidence": "VIX 18.59",
-      "implication": "position size should be moderate"
+      "points": 5,
+      "label": "VIX calm",
+      "evidence": "VIX 15.99 vs 20D 17.23",
+      "implication": "volatility not blocking risk"
     },
     {
       "points": 4,
@@ -134,7 +134,7 @@
     {
       "points": -5,
       "label": "Rate pressure present",
-      "evidence": "10Y 4.67%",
+      "evidence": "10Y 4.68%",
       "implication": "multiple expansion constrained"
     }
   ],
@@ -142,7 +142,7 @@
     {
       "scenario": "base_case",
       "label": "Trend continues but chase risk is elevated",
-      "probabilityPct": 30,
+      "probabilityPct": 55,
       "conditions": [
         "SPY holds 20D/50D area",
         "VIX remains below stress zone",
@@ -153,7 +153,7 @@
     {
       "scenario": "pullback_case",
       "label": "Healthy pullback / consolidation",
-      "probabilityPct": 35,
+      "probabilityPct": 30,
       "conditions": [
         "RSI cools",
         "SPY retests 20D or 50D",
@@ -164,7 +164,7 @@
     {
       "scenario": "risk_off_case",
       "label": "Breakdown / defensive rotation",
-      "probabilityPct": 45,
+      "probabilityPct": 15,
       "conditions": [
         "SPY loses 50D",
         "VIX > 22",
@@ -193,7 +193,7 @@
     ]
   },
   "portfolioTranslation": {
-    "currentBias": "RISK_OFF_PROTECT_CAPITAL",
+    "currentBias": "SELECTIVE_RISK_ON_EVIDENCE_GATED",
     "allowed": [
       "Hold core exposure",
       "Use pullbacks to evaluate evidence-gated adds",
@@ -204,18 +204,18 @@
       "Do not promote opportunities from chart signal alone",
       "Do not add levered products without explicit risk budget"
     ],
-    "rebalanceImplication": "Reduce beta/levered exposure before core quality."
+    "rebalanceImplication": "Maintain exposure, but shift from broad enthusiasm to selective evidence-backed adds."
   },
   "directionRadar": {
     "question": "Is the S&P 500 trend confirming risk-on, setting up a normal pullback, or warning of risk-off?",
-    "answer": "RISK_OFF_PROTECT_CAPITAL",
+    "answer": "SELECTIVE_RISK_ON_EVIDENCE_GATED",
     "marketDirectionLikelihoods": {
-      "continuationPct": 30,
-      "pullbackConsolidationPct": 35,
-      "riskOffBreakdownPct": 45
+      "continuationPct": 55,
+      "pullbackConsolidationPct": 30,
+      "riskOffBreakdownPct": 15
     },
-    "channelRead": "below_50d_defensive_watch",
-    "nextInflection": "SPY is below 20D; watch whether 50D near 744.86 holds or fails.",
+    "channelRead": "constructive_above_20d",
+    "nextInflection": "SPY remains above 20D by 0.18%; trend is intact while 20D/50D hold.",
     "invalidation": "Risk-on interpretation weakens if SPY loses 50D with VIX > 22, breadth < 45% above 50D, or credit spreads widen.",
     "confirmation": "Risk-on interpretation strengthens if SPY holds/reclaims 20D after cooling, QQQ leadership persists, VIX stays calm, and breadth expands."
   },
@@ -235,12 +235,12 @@
   "assetBalanceGuidance": [
     {
       "lane": "Core quality / broad equity",
-      "stance": "protect",
+      "stance": "hold / maintain",
       "rule": "Core exposure follows the S&P regime unless credit/volatility confirm stress."
     },
     {
       "lane": "Levered / synthetic beta",
-      "stance": "reduce / block",
+      "stance": "small, risk-budgeted only",
       "rule": "Levered products require 20D/50D support, VIX calm, and explicit stop/invalidation."
     },
     {
@@ -320,46 +320,46 @@
   },
   "data": {
     "sp": {
-      "price": 740.51,
+      "price": 747.03,
       "date": "2026-07-31",
-      "sma20": 745.3685000000002,
-      "sma50": 744.8596000000001,
-      "sma100": 718.6669999999998,
-      "sma200": 700.3535,
-      "rsi14": 48.326959932721195,
+      "sma20": 745.6945000000002,
+      "sma50": 744.99,
+      "sma100": 718.7321999999999,
+      "sma200": 700.3861,
+      "rsi14": 52.99412626587869,
       "macd": {
-        "line": -1.3421245680852962,
-        "signal": -0.15528708173047415,
-        "histogram": -1.1868374863548221,
+        "line": -0.8220106079713787,
+        "signal": -0.05126428970769062,
+        "histogram": -0.7707463182636881,
         "priorHistogram": -1.511611846822537
       },
       "bollinger": {
-        "lower": 732.5838447054683,
-        "mid": 745.3685000000002,
-        "upper": 758.153155294532,
-        "bandwidthPct": 3.4304254323953307
+        "lower": 733.090793442007,
+        "mid": 745.6945000000002,
+        "upper": 758.2982065579934,
+        "bandwidthPct": 3.3803941313750236
       },
-      "perf5d": 0.21382268956464667,
-      "perf20d": -0.5733236660490304,
-      "perf60d": 2.312889453832012,
-      "drawdownFrom1yHigh": -2.5093144805613754
+      "perf5d": 1.0961796110592337,
+      "perf20d": 0.3021026343349664,
+      "perf60d": 3.213728118048542,
+      "drawdownFrom1yHigh": -1.6509340811248552
     },
     "qqq": {
-      "perf20d": -3.984703901206843,
-      "perf60d": 0.3807162453602464,
-      "relative20dVsSPY": -3.4113802351578126,
+      "perf20d": -3.453550378894188,
+      "perf60d": 0.9360191311747146,
+      "relative20dVsSPY": -3.7556530132291543,
       "above50": false
     },
     "iwm": {
-      "perf20d": -2.661469184757026,
-      "relative20dVsSPY": -2.0881455187079956,
+      "perf20d": -2.1439612877209524,
+      "relative20dVsSPY": -2.446063922055919,
       "above50": false
     },
     "volatility": {
-      "vix": 18.59,
-      "vixSma20": 17.356999999999996,
-      "vixPerf5d": 0.05382131324005446,
-      "state": "WATCH"
+      "vix": 15.99,
+      "vixSma20": 17.226999999999997,
+      "vixPerf5d": -13.93972012917114,
+      "state": "CALM"
     },
     "breadth": {
       "breadth50Pct": 30.77,
@@ -367,99 +367,99 @@
       "rows": [
         {
           "symbol": "SPY",
-          "close": 740.51,
-          "above50": false,
+          "close": 747.03,
+          "above50": true,
           "above200": true,
-          "perf20": -0.5733236660490304
+          "perf20": 0.3021026343349664
         },
         {
           "symbol": "QQQ",
-          "close": 684.205,
+          "close": 687.99,
           "above50": false,
           "above200": true,
-          "perf20": -3.984703901206843
+          "perf20": -3.453550378894188
         },
         {
           "symbol": "IWM",
-          "close": 289.66,
+          "close": 291.2,
           "above50": false,
           "above200": true,
-          "perf20": -2.661469184757026
+          "perf20": -2.1439612877209524
         },
         {
           "symbol": "MSFT",
-          "close": 453.5041,
+          "close": 464.72,
           "above50": true,
           "above200": true,
-          "perf20": 16.13718661169299
+          "perf20": 19.00944966580451
         },
         {
           "symbol": "AMZN",
-          "close": 269.34,
+          "close": 271.58,
           "above50": true,
           "above200": true,
-          "perf20": 10.990233650636672
+          "perf20": 11.9132978942597
         },
         {
           "symbol": "META",
-          "close": 547.395,
+          "close": 556.71,
           "above50": false,
           "above200": false,
-          "perf20": -6.09109624292331
+          "perf20": -4.4930519814719405
         },
         {
           "symbol": "NVDA",
-          "close": 196.94,
+          "close": 200.75,
           "above50": false,
           "above200": true,
-          "perf20": 1.0829954319149904
+          "perf20": 3.0385464250885397
         },
         {
           "symbol": "AVGO",
-          "close": 382.86,
+          "close": 389.28,
           "above50": false,
           "above200": true,
-          "perf20": 6.2172284644194775
+          "perf20": 7.998335414065738
         },
         {
           "symbol": "VRT",
-          "close": 239.19,
+          "close": 241.57,
           "above50": false,
           "above200": false,
-          "perf20": -20.410607925997393
+          "perf20": -19.618673676504837
         },
         {
           "symbol": "GOOGL",
-          "close": 347.6,
+          "close": 356.13,
           "above50": false,
           "above200": true,
-          "perf20": -3.420299519324277
+          "perf20": -1.0502625656414133
         },
         {
           "symbol": "CEG",
-          "close": 263.4101,
-          "above50": true,
+          "close": 262.75,
+          "above50": false,
           "above200": false,
-          "perf20": 10.098265412748164
+          "perf20": 9.822361546499469
         },
         {
           "symbol": "MA",
-          "close": 568.87,
+          "close": 573.1,
           "above50": true,
           "above200": true,
-          "perf20": 5.465433174511958
+          "perf20": 6.249652385101689
         },
         {
           "symbol": "NFLX",
-          "close": 71.3533,
+          "close": 71.71,
           "above50": false,
           "above200": false,
-          "perf20": -8.109079201545399
+          "perf20": -7.649710238248564
         }
       ]
     },
     "credit": {
-      "tenYear": 4.67,
+      "tenYear": 4.68,
       "highYieldOas": 2.84,
       "state": "CREDIT_CONTAINED",
       "ratePressure": "RATE_PRESSURE_PRESENT"

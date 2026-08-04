@@ -1,6 +1,6 @@
 # RKLB Opportunity Dossier
 
-Generated: 2026-08-04T15:56:09.504Z
+Generated: 2026-08-04T19:01:44.773Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 72
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 74.35
+- Current price: 75.18
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 
 ## Why Now
 
-- RKLB positive 5.57% while broad tape is weak.
+- RKLB positive 6.74% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -61,7 +61,7 @@ A creative industrial-space candidate: asymmetric if launch cadence, defense/cus
 ## Action Framework
 
 Observation:
-RKLB positive 5.57% while broad tape is weak.
+RKLB positive 6.74% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

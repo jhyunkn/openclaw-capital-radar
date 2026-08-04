@@ -1,6 +1,6 @@
 # PLTR Opportunity Dossier
 
-Generated: 2026-07-07T19:18:21.189Z
+Generated: 2026-08-04T14:35:26.927Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,11 +8,11 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Palantir
 - Lane: structural_candidate
-- Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 70
+- Stage: PRIORITY_RESEARCH
+- Opportunity score: 78
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 135.71
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Current price: 158.3
+- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ A controversial but interesting candidate: if AI shifts from model infrastructur
 
 ## Why Now
 
-- PLTR positive 2.40% while broad tape is weak.
+- PLTR positive 25.98% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A controversial but interesting candidate: if AI shifts from model infrastructur
 ## Action Framework
 
 Observation:
-PLTR positive 2.40% while broad tape is weak.
+PLTR positive 25.98% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

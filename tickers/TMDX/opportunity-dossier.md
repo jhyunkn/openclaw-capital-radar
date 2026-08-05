@@ -1,6 +1,6 @@
 # TMDX Opportunity Dossier
 
-Generated: 2026-07-10T03:27:41.525Z
+Generated: 2026-08-05T02:35:56.661Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -9,10 +9,10 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Name: TransMedics
 - Lane: structural_candidate
 - Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 70
+- Opportunity score: 71
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 72.5
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Current price: 74.42
+- Price read: sharp downside dislocation; require cause check before any add-zone work
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ A genuinely different growth infrastructure idea: organ transplant logistics and
 
 ## Why Now
 
-- TMDX positive 2.92% while broad tape is weak.
+- TMDX down -8.74% in watched basket.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A genuinely different growth infrastructure idea: organ transplant logistics and
 ## Action Framework
 
 Observation:
-TMDX positive 2.92% while broad tape is weak.
+TMDX down -8.74% in watched basket.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

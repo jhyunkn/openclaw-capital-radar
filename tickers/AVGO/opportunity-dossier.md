@@ -1,6 +1,6 @@
 # AVGO Opportunity Dossier
 
-Generated: 2026-08-04T21:38:20.706Z
+Generated: 2026-08-05T02:35:56.661Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 74
 - Portfolio role: AI infrastructure benchmark / center-stack exposure
-- Current price: 415.9
+- Current price: 417.55
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Picks-and-shovels exposure to AI networking and custom ASIC demand with a more d
 
 ## Why Now
 
-- AVGO positive 6.03% while broad tape is weak.
+- AVGO positive 6.46% while broad tape is weak.
 - AVGO: Picks-and-shovels exposure to AI networking and custom ASIC demand with a more diversified enterprise/software profile than pure GPU exposure.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Picks-and-shovels exposure to AI networking and custom ASIC demand with a more d
 ## Action Framework
 
 Observation:
-AVGO positive 6.03% while broad tape is weak.
+AVGO positive 6.46% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

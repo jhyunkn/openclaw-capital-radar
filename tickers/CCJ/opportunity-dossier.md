@@ -1,6 +1,6 @@
 # CCJ Opportunity Dossier
 
-Generated: 2026-06-24T03:42:05.671Z
+Generated: 2026-08-05T14:28:13.582Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -8,10 +8,10 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 - Name: Cameco
 - Lane: structural_candidate
-- Stage: PRIORITY_RESEARCH
-- Opportunity score: 75
+- Stage: BUILD_EVIDENCE_PACKET
+- Opportunity score: 71
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 109.59
+- Current price: 95.53
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
@@ -20,8 +20,7 @@ A creative non-AI software expression of the power scarcity thesis: nuclear fuel
 
 ## Why Now
 
-- CCJ positive 2.35% while broad tape is weak.
-- CCJ: A creative non-AI software expression of the power scarcity thesis: nuclear fuel exposure if electricity demand and energy security remain structurally important.
+- CCJ positive 2.62% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -60,7 +59,7 @@ A creative non-AI software expression of the power scarcity thesis: nuclear fuel
 ## Action Framework
 
 Observation:
-CCJ positive 2.35% while broad tape is weak.
+CCJ positive 2.62% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

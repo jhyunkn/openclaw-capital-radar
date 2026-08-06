@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-06T02:38:48.339Z",
-  "sourceStateGeneratedAt": "2026-08-06T02:38:44.549Z",
+  "generatedAt": "2026-08-06T14:30:56.160Z",
+  "sourceStateGeneratedAt": "2026-08-06T14:30:52.748Z",
   "posture": "HOLD",
   "freshnessPolicy": {
     "staleBlockedAfterMinutes": 1440,
@@ -9,18 +9,18 @@
   },
   "actionNow": [
     {
-      "ticker": "CONL",
-      "state": "HARD_EXIT_REVIEW",
-      "permission": "NO ADD / REVIEW EXIT",
-      "price": 4.19,
-      "read": "At/below hard-exit review 7.7. Do not treat as bargain."
-    },
-    {
       "ticker": "TSLT",
       "state": "HARD_EXIT_REVIEW",
       "permission": "NO ADD / REVIEW EXIT",
-      "price": 10.89,
+      "price": 10.86,
       "read": "At/below hard-exit review 18.25. Do not treat as bargain."
+    },
+    {
+      "ticker": "CONL",
+      "state": "HARD_EXIT_REVIEW",
+      "permission": "NO ADD / REVIEW EXIT",
+      "price": 4.16,
+      "read": "At/below hard-exit review 7.7. Do not treat as bargain."
     }
   ],
   "reviewSoon": [
@@ -28,7 +28,7 @@
       "ticker": "BMNR",
       "state": "THESIS_VERIFICATION_REQUIRED",
       "permission": "NO ADD",
-      "price": 18.29
+      "price": 18.43
     },
     {
       "ticker": "TSNF",
@@ -39,14 +39,63 @@
   ],
   "all": [
     {
-      "ticker": "CONL",
-      "price": 4.19,
-      "asOf": "2026-08-05T23:59:50.000Z",
+      "ticker": "TSLT",
+      "price": 10.86,
+      "asOf": "2026-08-05T20:00:00.000Z",
       "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 159,
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
         "actionAllowed": true,
-        "note": "Within current refresh cycle."
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
+      },
+      "signal": "TRIM WATCH",
+      "computedSignal": "TRIM WATCH",
+      "levels": {
+        "entryLow": 20.5,
+        "entryHigh": 22,
+        "addBelow": 20.5,
+        "trimLow": 26,
+        "trimHigh": 28.5,
+        "stop": 19,
+        "hardExit": 18.25,
+        "target": 28,
+        "horizon": "days, not weeks",
+        "current": 10.86,
+        "basis": "fixed tactical levels"
+      },
+      "reaction": {
+        "state": "HARD_EXIT_REVIEW",
+        "permission": "NO ADD / REVIEW EXIT",
+        "priority": 1,
+        "read": "At/below hard-exit review 18.25. Do not treat as bargain."
+      },
+      "strategy": {
+        "posture": "Tactical leveraged TSLA product",
+        "holdUntil": "Hold only with explicit short-term TSLA thesis.",
+        "addWhen": "Add only if TSLA catalyst/support confirms and risk bucket stays small.",
+        "trimWhen": "Trim into sharp TSLA/TSLT rallies.",
+        "exitWhen": "Exit/reduce if TSLA thesis fails or product decay dominates.",
+        "invalidation": "No TSLA catalyst plus daily leverage decay.",
+        "review": "Daily while held."
+      },
+      "confirmation": [
+        "TSLA confirms support/reversal",
+        "levered decay risk budget remains small"
+      ],
+      "context": "TSLA 321.55 (-1.77%).",
+      "weightPct": 0.26,
+      "healthScore": 46,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
+      "ticker": "CONL",
+      "price": 4.16,
+      "asOf": "2026-08-05T20:00:01.000Z",
+      "freshness": {
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
+        "actionAllowed": true,
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
       },
       "signal": "EXIT REVIEW",
       "computedSignal": "EXIT REVIEW",
@@ -60,7 +109,7 @@
         "hardExit": 7.7,
         "target": 10,
         "horizon": "2–5 trading days",
-        "current": 4.19,
+        "current": 4.16,
         "basis": "fixed tactical levels"
       },
       "reaction": {
@@ -83,82 +132,33 @@
         "BTC risk tone not breaking down",
         "CONL reclaims stop/entry level with volume"
       ],
-      "context": "COIN 150.06 (-0.44%), BTC 64417.43 (-0.29%).",
+      "context": "COIN 149.89 (-0.56%), BTC 64786.2 (0.28%).",
       "weightPct": 0.27,
       "healthScore": 42,
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "TSLT",
-      "price": 10.89,
-      "asOf": "2026-08-05T23:58:25.000Z",
-      "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 160.4,
-        "actionAllowed": true,
-        "note": "Within current refresh cycle."
-      },
-      "signal": "TRIM WATCH",
-      "computedSignal": "TRIM WATCH",
-      "levels": {
-        "entryLow": 20.5,
-        "entryHigh": 22,
-        "addBelow": 20.5,
-        "trimLow": 26,
-        "trimHigh": 28.5,
-        "stop": 19,
-        "hardExit": 18.25,
-        "target": 28,
-        "horizon": "days, not weeks",
-        "current": 10.89,
-        "basis": "fixed tactical levels"
-      },
-      "reaction": {
-        "state": "HARD_EXIT_REVIEW",
-        "permission": "NO ADD / REVIEW EXIT",
-        "priority": 1,
-        "read": "At/below hard-exit review 18.25. Do not treat as bargain."
-      },
-      "strategy": {
-        "posture": "Tactical leveraged TSLA product",
-        "holdUntil": "Hold only with explicit short-term TSLA thesis.",
-        "addWhen": "Add only if TSLA catalyst/support confirms and risk bucket stays small.",
-        "trimWhen": "Trim into sharp TSLA/TSLT rallies.",
-        "exitWhen": "Exit/reduce if TSLA thesis fails or product decay dominates.",
-        "invalidation": "No TSLA catalyst plus daily leverage decay.",
-        "review": "Daily while held."
-      },
-      "confirmation": [
-        "TSLA confirms support/reversal",
-        "levered decay risk budget remains small"
-      ],
-      "context": "TSLA 321.5 (-1.79%).",
-      "weightPct": 0.27,
-      "healthScore": 46,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
       "ticker": "BMNR",
-      "price": 18.29,
-      "asOf": "2026-08-05T23:59:36.000Z",
+      "price": 18.43,
+      "asOf": "2026-08-05T20:00:03.000Z",
       "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 159.2,
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
         "actionAllowed": true,
-        "note": "Within current refresh cycle."
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
       },
       "signal": "INVESTIGATE",
       "computedSignal": "INVESTIGATE",
       "levels": {
-        "current": 18.29,
-        "entryLow": 16.1,
-        "entryHigh": 17.01,
+        "current": 18.43,
+        "entryLow": 16.22,
+        "entryHigh": 17.14,
         "addBelow": null,
-        "trimLow": 19.75,
-        "trimHigh": 21.03,
-        "stop": 16.46,
-        "hardExit": 15.55,
-        "target": 20.85,
+        "trimLow": 19.9,
+        "trimHigh": 21.19,
+        "stop": 16.59,
+        "hardExit": 15.67,
+        "target": 21.01,
         "horizon": "days to weeks",
         "basis": "spec dynamic band from current price"
       },
@@ -183,19 +183,19 @@
         "portfolio fit"
       ],
       "context": null,
-      "weightPct": 10.11,
+      "weightPct": 10.19,
       "healthScore": 59,
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
       "ticker": "TSNF",
       "price": 30.68,
-      "asOf": "2026-08-05T22:18:01.000Z",
+      "asOf": "2026-08-05T17:03:29.000Z",
       "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 260.8,
+        "status": "cycle_caution",
+        "minutesOld": 1287.5,
         "actionAllowed": true,
-        "note": "Within current refresh cycle."
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
       },
       "signal": "INVESTIGATE",
       "computedSignal": "INVESTIGATE",
@@ -233,19 +233,69 @@
         "portfolio fit"
       ],
       "context": null,
-      "weightPct": 1.99,
+      "weightPct": 2,
       "healthScore": 54,
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "AMZN",
-      "price": 272.75,
-      "asOf": "2026-08-05T23:59:59.000Z",
+      "ticker": "MSFT",
+      "price": 487.46,
+      "asOf": "2026-08-05T20:00:01.000Z",
       "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 158.8,
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
         "actionAllowed": true,
-        "note": "Within current refresh cycle."
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
+      },
+      "signal": "HOLD",
+      "computedSignal": "HOLD",
+      "levels": {
+        "current": 487,
+        "entryLow": 448,
+        "entryHigh": 468,
+        "addBelow": 439,
+        "trimLow": 546,
+        "trimHigh": 585,
+        "stop": 419,
+        "hardExit": 400,
+        "target": 575,
+        "horizon": "weeks to quarters",
+        "basis": "core dynamic band from current price"
+      },
+      "reaction": {
+        "state": "HOLD_TRACK",
+        "permission": "HOLD / TRACK",
+        "priority": 3,
+        "read": "No immediate reaction trigger; keep tracking."
+      },
+      "strategy": {
+        "posture": "Core AI/cloud compounder",
+        "holdUntil": "Hold while Azure/cloud and enterprise AI adoption remain intact.",
+        "addWhen": "Add on pullback if Azure growth and AI monetization stay strong.",
+        "trimWhen": "Trim if AI capex outruns monetization or valuation stretches.",
+        "exitWhen": "Exit review if cloud growth decelerates materially.",
+        "invalidation": "Enterprise cloud + AI advantage stops compounding.",
+        "review": "Earnings / Azure / AI / antitrust."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 2.38,
+      "healthScore": 83,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
+      "ticker": "AMZN",
+      "price": 272.65,
+      "asOf": "2026-08-05T20:00:01.000Z",
+      "freshness": {
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
+        "actionAllowed": true,
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
       },
       "signal": "HOLD",
       "computedSignal": "HOLD",
@@ -256,7 +306,7 @@
         "addBelow": 245,
         "trimLow": 305,
         "trimHigh": 327,
-        "stop": 235,
+        "stop": 234,
         "hardExit": 224,
         "target": 322,
         "horizon": "weeks to quarters",
@@ -288,227 +338,27 @@
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "META",
-      "price": 591.42,
-      "asOf": "2026-08-05T23:59:59.000Z",
-      "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 158.8,
-        "actionAllowed": true,
-        "note": "Within current refresh cycle."
-      },
-      "signal": "HOLD",
-      "computedSignal": "HOLD",
-      "levels": {
-        "current": 591,
-        "entryLow": 544,
-        "entryHigh": 568,
-        "addBelow": 532,
-        "trimLow": 662,
-        "trimHigh": 710,
-        "stop": 509,
-        "hardExit": 485,
-        "target": 698,
-        "horizon": "weeks to quarters",
-        "basis": "core dynamic band from current price"
-      },
-      "reaction": {
-        "state": "HOLD_TRACK",
-        "permission": "HOLD / TRACK",
-        "priority": 3,
-        "read": "No immediate reaction trigger; keep tracking."
-      },
-      "strategy": {
-        "posture": "Core compounder",
-        "holdUntil": "Hold while ads, engagement, margins, and AI distribution remain intact.",
-        "addWhen": "Add on pullback if ad growth and margins remain strong.",
-        "trimWhen": "Trim if capex rises without revenue evidence or weight exceeds target.",
-        "exitWhen": "Exit review if ads/engagement thesis breaks.",
-        "invalidation": "AI/capex spend stops translating into platform strength.",
-        "review": "Earnings / capex / regulation."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 8.01,
-      "healthScore": 70,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
-      "ticker": "MSFT",
-      "price": 485.75,
-      "asOf": "2026-08-05T23:59:54.000Z",
-      "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 158.9,
-        "actionAllowed": true,
-        "note": "Within current refresh cycle."
-      },
-      "signal": "HOLD",
-      "computedSignal": "HOLD",
-      "levels": {
-        "current": 486,
-        "entryLow": 447,
-        "entryHigh": 466,
-        "addBelow": 437,
-        "trimLow": 544,
-        "trimHigh": 583,
-        "stop": 418,
-        "hardExit": 398,
-        "target": 573,
-        "horizon": "weeks to quarters",
-        "basis": "core dynamic band from current price"
-      },
-      "reaction": {
-        "state": "HOLD_TRACK",
-        "permission": "HOLD / TRACK",
-        "priority": 3,
-        "read": "No immediate reaction trigger; keep tracking."
-      },
-      "strategy": {
-        "posture": "Core AI/cloud compounder",
-        "holdUntil": "Hold while Azure/cloud and enterprise AI adoption remain intact.",
-        "addWhen": "Add on pullback if Azure growth and AI monetization stay strong.",
-        "trimWhen": "Trim if AI capex outruns monetization or valuation stretches.",
-        "exitWhen": "Exit review if cloud growth decelerates materially.",
-        "invalidation": "Enterprise cloud + AI advantage stops compounding.",
-        "review": "Earnings / Azure / AI / antitrust."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 2.37,
-      "healthScore": 83,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
-      "ticker": "SPY",
-      "price": 771.1,
-      "asOf": "2026-08-05T23:59:46.000Z",
-      "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 159,
-        "actionAllowed": true,
-        "note": "Within current refresh cycle."
-      },
-      "signal": "HOLD",
-      "computedSignal": "HOLD",
-      "levels": {
-        "current": 771,
-        "entryLow": 709,
-        "entryHigh": 740,
-        "addBelow": 694,
-        "trimLow": 864,
-        "trimHigh": 925,
-        "stop": 663,
-        "hardExit": 632,
-        "target": 910,
-        "horizon": "weeks to quarters",
-        "basis": "core dynamic band from current price"
-      },
-      "reaction": {
-        "state": "HOLD_TRACK",
-        "permission": "HOLD / TRACK",
-        "priority": 3,
-        "read": "No immediate reaction trigger; keep tracking."
-      },
-      "strategy": {
-        "posture": "Core anchor",
-        "holdUntil": "Hold while it remains the portfolio baseline.",
-        "addWhen": "Add on broad-market pullback, not euphoric strength.",
-        "trimWhen": "Trim if SPY/megacap overlap crowds out better opportunities.",
-        "exitWhen": "Full exit only if whole portfolio strategy changes.",
-        "invalidation": "Strategic invalidation only.",
-        "review": "Weekly / macro stress."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 54.18,
-      "healthScore": 78,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
-      "ticker": "NFLX",
-      "price": 74.11,
-      "asOf": "2026-08-05T23:59:51.000Z",
-      "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 159,
-        "actionAllowed": true,
-        "note": "Within current refresh cycle."
-      },
-      "signal": "HOLD / WATCH",
-      "computedSignal": "HOLD / WATCH",
-      "levels": {
-        "current": 74.11,
-        "entryLow": 66.7,
-        "entryHigh": 69.66,
-        "addBelow": 64.48,
-        "trimLow": 81.52,
-        "trimHigh": 85.97,
-        "stop": 65.22,
-        "hardExit": 62.25,
-        "target": 85.23,
-        "horizon": "weeks",
-        "basis": "watch dynamic band from current price"
-      },
-      "reaction": {
-        "state": "HOLD_TRACK",
-        "permission": "HOLD / TRACK",
-        "priority": 3,
-        "read": "No immediate reaction trigger; keep tracking."
-      },
-      "strategy": {
-        "posture": "Hold/watch compounder",
-        "holdUntil": "Hold while subscriber/ads/margin story supports valuation.",
-        "addWhen": "Add after pullback or stronger ad-tier/pricing evidence.",
-        "trimWhen": "Trim if valuation expands faster than earnings.",
-        "exitWhen": "Exit review if growth narrative breaks for multiple quarters.",
-        "invalidation": "Ad-tier/pricing no longer offsets content/competition risk.",
-        "review": "Earnings / subs / ads."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 3.01,
-      "healthScore": 70,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
       "ticker": "CEG",
-      "price": 267.81,
-      "asOf": "2026-08-05T23:59:30.000Z",
+      "price": 265.12,
+      "asOf": "2026-08-05T20:00:01.000Z",
       "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 159.3,
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
         "actionAllowed": true,
-        "note": "Within current refresh cycle."
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
       },
       "signal": "HOLD / WATCH",
       "computedSignal": "HOLD / WATCH",
       "levels": {
-        "current": 268,
-        "entryLow": 241,
-        "entryHigh": 252,
-        "addBelow": 233,
-        "trimLow": 295,
-        "trimHigh": 311,
-        "stop": 236,
-        "hardExit": 225,
-        "target": 308,
+        "current": 265,
+        "entryLow": 239,
+        "entryHigh": 249,
+        "addBelow": 231,
+        "trimLow": 292,
+        "trimHigh": 308,
+        "stop": 233,
+        "hardExit": 223,
+        "target": 305,
         "horizon": "weeks",
         "basis": "watch dynamic band from current price"
       },
@@ -533,32 +383,132 @@
         "portfolio fit"
       ],
       "context": null,
-      "weightPct": 1.31,
+      "weightPct": 1.29,
       "healthScore": 75,
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "MA",
-      "price": 571.63,
-      "asOf": "2026-08-05T23:57:47.000Z",
+      "ticker": "META",
+      "price": 588.77,
+      "asOf": "2026-08-05T20:00:01.000Z",
       "freshness": {
-        "status": "fresh_cycle",
-        "minutesOld": 161,
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
         "actionAllowed": true,
-        "note": "Within current refresh cycle."
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
       },
       "signal": "HOLD",
       "computedSignal": "HOLD",
       "levels": {
-        "current": 572,
-        "entryLow": 526,
-        "entryHigh": 549,
-        "addBelow": 514,
-        "trimLow": 640,
-        "trimHigh": 686,
-        "stop": 492,
-        "hardExit": 469,
-        "target": 675,
+        "current": 589,
+        "entryLow": 542,
+        "entryHigh": 565,
+        "addBelow": 530,
+        "trimLow": 659,
+        "trimHigh": 707,
+        "stop": 506,
+        "hardExit": 483,
+        "target": 695,
+        "horizon": "weeks to quarters",
+        "basis": "core dynamic band from current price"
+      },
+      "reaction": {
+        "state": "HOLD_TRACK",
+        "permission": "HOLD / TRACK",
+        "priority": 3,
+        "read": "No immediate reaction trigger; keep tracking."
+      },
+      "strategy": {
+        "posture": "Core compounder",
+        "holdUntil": "Hold while ads, engagement, margins, and AI distribution remain intact.",
+        "addWhen": "Add on pullback if ad growth and margins remain strong.",
+        "trimWhen": "Trim if capex rises without revenue evidence or weight exceeds target.",
+        "exitWhen": "Exit review if ads/engagement thesis breaks.",
+        "invalidation": "AI/capex spend stops translating into platform strength.",
+        "review": "Earnings / capex / regulation."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 7.98,
+      "healthScore": 70,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
+      "ticker": "SPY",
+      "price": 769.79,
+      "asOf": "2026-08-05T20:00:00.000Z",
+      "freshness": {
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
+        "actionAllowed": true,
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
+      },
+      "signal": "HOLD",
+      "computedSignal": "HOLD",
+      "levels": {
+        "current": 770,
+        "entryLow": 708,
+        "entryHigh": 739,
+        "addBelow": 693,
+        "trimLow": 862,
+        "trimHigh": 924,
+        "stop": 662,
+        "hardExit": 631,
+        "target": 908,
+        "horizon": "weeks to quarters",
+        "basis": "core dynamic band from current price"
+      },
+      "reaction": {
+        "state": "HOLD_TRACK",
+        "permission": "HOLD / TRACK",
+        "priority": 3,
+        "read": "No immediate reaction trigger; keep tracking."
+      },
+      "strategy": {
+        "posture": "Core anchor",
+        "holdUntil": "Hold while it remains the portfolio baseline.",
+        "addWhen": "Add on broad-market pullback, not euphoric strength.",
+        "trimWhen": "Trim if SPY/megacap overlap crowds out better opportunities.",
+        "exitWhen": "Full exit only if whole portfolio strategy changes.",
+        "invalidation": "Strategic invalidation only.",
+        "review": "Weekly / macro stress."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 54.12,
+      "healthScore": 78,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
+      "ticker": "MA",
+      "price": 570.48,
+      "asOf": "2026-08-05T20:00:02.000Z",
+      "freshness": {
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
+        "actionAllowed": true,
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
+      },
+      "signal": "HOLD",
+      "computedSignal": "HOLD",
+      "levels": {
+        "current": 570,
+        "entryLow": 525,
+        "entryHigh": 548,
+        "addBelow": 513,
+        "trimLow": 639,
+        "trimHigh": 685,
+        "stop": 491,
+        "hardExit": 468,
+        "target": 673,
         "horizon": "weeks to quarters",
         "basis": "core dynamic band from current price"
       },
@@ -583,8 +533,58 @@
         "portfolio fit"
       ],
       "context": null,
-      "weightPct": 3.73,
+      "weightPct": 3.72,
       "healthScore": 78,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
+      "ticker": "NFLX",
+      "price": 74.2,
+      "asOf": "2026-08-05T20:00:00.000Z",
+      "freshness": {
+        "status": "cycle_caution",
+        "minutesOld": 1110.9,
+        "actionAllowed": true,
+        "note": "Older than intraday comfort window; verify before fast action, but do not block daily-cycle analysis."
+      },
+      "signal": "HOLD / WATCH",
+      "computedSignal": "HOLD / WATCH",
+      "levels": {
+        "current": 74.2,
+        "entryLow": 66.78,
+        "entryHigh": 69.75,
+        "addBelow": 64.55,
+        "trimLow": 81.62,
+        "trimHigh": 86.07,
+        "stop": 65.3,
+        "hardExit": 62.33,
+        "target": 85.33,
+        "horizon": "weeks",
+        "basis": "watch dynamic band from current price"
+      },
+      "reaction": {
+        "state": "HOLD_TRACK",
+        "permission": "HOLD / TRACK",
+        "priority": 3,
+        "read": "No immediate reaction trigger; keep tracking."
+      },
+      "strategy": {
+        "posture": "Hold/watch compounder",
+        "holdUntil": "Hold while subscriber/ads/margin story supports valuation.",
+        "addWhen": "Add after pullback or stronger ad-tier/pricing evidence.",
+        "trimWhen": "Trim if valuation expands faster than earnings.",
+        "exitWhen": "Exit review if growth narrative breaks for multiple quarters.",
+        "invalidation": "Ad-tier/pricing no longer offsets content/competition risk.",
+        "review": "Earnings / subs / ads."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 3.02,
+      "healthScore": 70,
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     }
   ]

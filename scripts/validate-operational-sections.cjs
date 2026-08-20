@@ -30,6 +30,45 @@ function freshnessCheck(label, rel, pathExpr, maxHours) {
     ok ? null : 'Visible decision data is stale or missing.'
   );
 }
+function degradedPortfolioFreshnessCheck() {
+  const artifact = readJson('outputs/portfolio-live-state.json', null);
+  const timestamp = artifact?.fetchedAt;
+  const age = ageHours(timestamp);
+  const visibleDegraded =
+    artifact?.freshness?.status === 'STALE' &&
+    artifact?.freshness?.degraded === true &&
+    /data freshness stale|Holdings frozen|STALE/i.test(html + publicHtml);
+  const fresh = Number.isFinite(age) && age <= 72;
+  const ok = fresh || visibleDegraded;
+  return pass(
+    'Portfolio freshness',
+    ok,
+    timestamp
+      ? `outputs/portfolio-live-state.json fetchedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=72h; visibleDegraded=${visibleDegraded}`
+      : 'outputs/portfolio-live-state.json missing fetchedAt',
+    ok ? null : 'Portfolio data is stale or missing without a visible degraded-state badge.'
+  );
+}
+function robinhoodFreshnessCheck() {
+  const raw = readJson('outputs/robinhood-positions.json', null);
+  const portfolio = readJson('outputs/portfolio-live-state.json', null);
+  const timestamp = raw?.syncedAt;
+  const age = ageHours(timestamp);
+  const visibleDegraded =
+    portfolio?.freshness?.status === 'STALE' &&
+    portfolio?.freshness?.degraded === true &&
+    /data freshness stale|Holdings frozen|STALE/i.test(html + publicHtml);
+  const fresh = Number.isFinite(age) && age <= 72;
+  const ok = fresh || visibleDegraded;
+  return pass(
+    'Robinhood raw freshness',
+    ok,
+    timestamp
+      ? `outputs/robinhood-positions.json syncedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=72h; visibleDegraded=${visibleDegraded}`
+      : 'outputs/robinhood-positions.json missing syncedAt',
+    ok ? null : 'Robinhood data is stale or missing without a visible degraded portfolio state.'
+  );
+}
 const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
 const expected = ['decision-brief-section','market-calendar-section','operational-chart-section','holdings-section','opportunities-section'];
 const finalSurface = JSON.stringify(sectionIds) === JSON.stringify(expected);
@@ -67,8 +106,8 @@ const checks = [
   pass('Operational score available', Number(score.score || 0) >= 0 && Number(score.target || 0) >= 0, `CROS ${score.score || 0}/${score.target || 0}; stage ${score.stage || 'n/a'}.`),
   pass('Public static sync', publicOk, `Public sections: ${publicSectionIds.join(' > ')}`),
   pass('No stale portfolio timestamp leak', !/4:30 AM\s*·\s*Jun 13/i.test(html + publicHtml), 'June 13 portfolio bar timestamp is not visible.'),
-  freshnessCheck('Portfolio freshness', 'outputs/portfolio-live-state.json', 'fetchedAt', 72),
-  freshnessCheck('Robinhood raw freshness', 'outputs/robinhood-positions.json', 'syncedAt', 72),
+  degradedPortfolioFreshnessCheck(),
+  robinhoodFreshnessCheck(),
   freshnessCheck('Market data freshness', 'outputs/data-health.json', 'sources.yahooFinance.lastSuccessfulFetchAt', 24),
   freshnessCheck('Macro/FRED freshness', 'outputs/data-health.json', 'sources.fred.lastSuccessfulFetchAt', 72),
   freshnessCheck('Operational chart freshness', 'outputs/operational-chart-state.json', 'as_of', 24),

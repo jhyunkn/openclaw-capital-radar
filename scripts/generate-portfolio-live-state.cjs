@@ -46,8 +46,12 @@ if (!rh?.syncedAt || !Array.isArray(rh.positions)) {
 
 const rhAgeHours = ageHours(rh.syncedAt);
 const maxAgeHours = Number(process.env.CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS || 72);
-if (rhAgeHours > maxAgeHours) {
-  throw new Error(`Robinhood positions are stale: ${rhAgeHours.toFixed(1)}h old; max ${maxAgeHours}h`);
+const rhStale = rhAgeHours > maxAgeHours;
+if (rhStale) {
+  // Degrade, don't die: a stale holdings feed must freeze only the portfolio block,
+  // not take down macro/calendar/opportunities/deploy. Downstream renderers already
+  // surface freshness.status === 'STALE' as a visible badge.
+  console.warn(`WARN Robinhood positions stale: ${rhAgeHours.toFixed(1)}h old (max ${maxAgeHours}h). Freezing portfolio block as STALE; continuing build.`);
 }
 
 const liveState = readJson('data/report-state.live.json', {});
@@ -120,9 +124,11 @@ const state = {
   fetchedAt: rh.syncedAt,
   source: 'robinhood-positions + report-state.live market prices',
   freshness: {
-    status: rhAgeHours <= maxAgeHours ? 'OK' : 'STALE',
+    status: rhStale ? 'STALE' : 'OK',
+    degraded: rhStale,
     ageHours: round(rhAgeHours, 1),
     maxAgeHours,
+    ...(rhStale ? { note: `Holdings frozen: Robinhood sync is ${rhAgeHours.toFixed(1)}h old (> ${maxAgeHours}h). Restore the positions producer to refresh.` } : {}),
   },
   portfolio: {
     totalValue: round(portfolio.totalValue ?? (totalCurrentValue + Number(portfolio.cash || 0) + Number(portfolio.cryptoValue || 0)), 2),

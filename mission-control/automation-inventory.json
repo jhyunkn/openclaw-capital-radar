@@ -1,0 +1,390 @@
+{
+  "schema": "openclaw-automation-inventory.v1",
+  "generatedAt": "2026-08-20T23:30:16.187Z",
+  "source": "openclaw.cmd cron list --json + openclaw.cmd cron runs --limit 1",
+  "host": "windows:C:/Users/moosi",
+  "records": [
+    {
+      "id": "5022d4c9-d96d-47a6-bde8-3f7a65104f73",
+      "name": "Weekday YouTube Digest daily-light - 07:00 deadline",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 3 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "research-leader",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Daily-light Capital Radar YouTube digest. Starts at 03:00 ET for the 07:00 ET deadline. Mandatory Tier-1 SUB lead scan only, shortlist before transcript, one-screen market-read-first FINAL_DIGEST.0700.md with Scanned X->Y->Z footer.",
+      "inputs": [
+        "C:\\Users\\moosi\\.openclaw\\workspace.",
+        "openclaw-state\\youtube-digest-runs\\YYYY-MM-DD-rolling-weekday-cache.",
+        "scripts\\youtube-digest-runner.cjs",
+        "openclaw-state\\youtube-digest-runs\\YYYY-MM-DD-rolling-weekday-cache",
+        "tools\\youtube-digest-freeze-slot.cjs"
+      ],
+      "outputs": [
+        "openclaw-state/youtube-digest-runs/**"
+      ],
+      "lastRunAt": "2026-08-20T03:00:00.034-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/weekday-youtube-digest-daily-light-07-00-deadline.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "dafc55dc-b0a6-4a16-b070-dcf4923d588c",
+      "name": "Daily Morning Huddle",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 5 * * *",
+        "tz": "America/New_York",
+        "staggerMs": 0
+      },
+      "model": null,
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Run the Daily Morning Huddle Protocol for Jun by following openclaw-state/morning-huddle-cron-message.md and openclaw-state/daily-morning-huddle-protocol.md. Mandatory visible delivery: final response must be the Morning Huddle report for Discord #general chan",
+      "inputs": [],
+      "outputs": [
+        "runs/morning-huddle/YYYY-MM-DD/**",
+        "mission-control/**"
+      ],
+      "lastRunAt": "2026-08-20T05:00:00.038-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/daily-morning-huddle.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "15c65a3a-5958-4f5b-8b68-a1ac5670e44e",
+      "name": "Global Task Oversight Steward daily audit",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "15 5 * * *",
+        "tz": "America/New_York"
+      },
+      "model": "openai/gpt-5.5",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Act as Global Task Oversight Steward. Audit every OpenClaw task, including internal tasks like Morning Huddle, heartbeats, validators, audits, file edits, background maintenance, jobs, cron, automation, and recent local scripted work before anything is reporte",
+      "inputs": [],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T15:54:51.066-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/global-task-oversight-steward-daily-audit.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "9e76d583-0652-4ef7-aafd-0423056d6922",
+      "name": "Daily Morning Huddle Archive Verification Backstop",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "20 5 * * *",
+        "tz": "America/New_York"
+      },
+      "model": "main",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Verifies the 5:00 AM isolated huddle produced today's archive and reconciled Mission Control; requests recovery when missing.",
+      "inputs": [],
+      "outputs": [
+        "runs/morning-huddle/YYYY-MM-DD/**",
+        "mission-control/**"
+      ],
+      "lastRunAt": "2026-08-20T19:25:38.023-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/daily-morning-huddle-archive-verification-backstop.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "c1bf4262-0b4f-40e9-a4c0-b3ff88d3c204",
+      "name": "Global Task Independent Reviewer daily audit",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "25 5 * * *",
+        "tz": "America/New_York"
+      },
+      "model": "openai/gpt-5.5",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Act as Global Task Independent Reviewer. Independently audit the Global Task Oversight Steward output and all underlying OpenClaw tasks, including internal tasks like Morning Huddle, heartbeats, validators, audits, file edits, background maintenance, jobs, cro",
+      "inputs": [],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T15:54:50.494-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/global-task-independent-reviewer-daily-audit.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "af9ca44e-5389-4856-b6d7-de1d4adebc7c",
+      "name": "Ticker and Watchlist Sentinel",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 6 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "research-leader",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Weekday early-morning watchlist sentinel. Internal-only by default after 2026-08-12 duplicate-report incident; writes artifacts and escalates only truly urgent, user-actionable thesis breaks.",
+      "inputs": [
+        "C:\\Users\\moosi\\.openclaw\\workspace\\openclaw-state\\overnight-autonomous-research-automation-plan.md",
+        "C:\\Users\\moosi\\.openclaw\\workspace\\openclaw-state\\automation-public-output-contract.md"
+      ],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T06:00:00.034-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/ticker-and-watchlist-sentinel.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "bc34db83-0f6e-4bf6-895e-1fe53601aee8",
+      "name": "Daily Morning Brief Update",
+      "trigger": "command",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 6 * * *",
+        "tz": "America/New_York"
+      },
+      "model": null,
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Updates Jun's Morning Brief every day at 6:00 AM America/New_York by running the checked-in script directly, then validating, committing/pushing generated changes, and checking the live site.",
+      "inputs": [
+        "C:\\Users\\moosi\\.openclaw\\workspace\\projects\\morning-brief",
+        "powershell.exe -ExecutionPolicy Bypass -File C:\\\\Users\\\\moosi\\\\.openclaw\\\\workspace\\\\projects\\\\morning-brief\\\\scripts\\\\run-daily-update.ps1"
+      ],
+      "outputs": [
+        "projects/morning-brief/index.html",
+        "projects/morning-brief/market-data.json",
+        "projects/morning-brief/news-data.json"
+      ],
+      "lastRunAt": "2026-08-20T19:24:27.394-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/daily-morning-brief-update.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "d110492e-7748-4d3b-97f1-93ac08e01956",
+      "name": "Capital Radar Robinhood Positions Freshness Sentinel",
+      "trigger": "command",
+      "schedule": {
+        "kind": "cron",
+        "expr": "10 6 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": null,
+      "host": "windows:C:/Users/moosi",
+      "purpose": "",
+      "inputs": [
+        "C:/Users/moosi/.openclaw/workspace/github-work/openclaw-capital-radar",
+        "node scripts/validate-robinhood-positions-freshness.cjs --max-age-hours 24"
+      ],
+      "outputs": [
+        "github-work/openclaw-capital-radar/outputs/robinhood-positions-freshness-status.json",
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T19:22:37.603-04:00",
+      "lastExitCode": 2,
+      "lastReceiptPath": "mission-control/last-run/capital-radar-robinhood-positions-freshness-sentinel.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "d62f1600-43df-4636-8472-1e89d0e34952",
+      "name": "YouTube Digest Deadline Failure Notifier",
+      "trigger": "command",
+      "schedule": {
+        "kind": "cron",
+        "expr": "5 7,14 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": null,
+      "host": "windows:C:/Users/moosi",
+      "purpose": "After weekday 07:00 and 14:00 ET YouTube Digest deadlines, inspect same-day digest status and post a compact failure/status note to #research only when the complete-only digest was not delivered.",
+      "inputs": [
+        "C:/Users/moosi/.openclaw/workspace",
+        "node tools/youtube-digest-deadline-gate.cjs --scan both --strict-immutable"
+      ],
+      "outputs": [
+        "openclaw-state/youtube-digest-runs/**"
+      ],
+      "lastRunAt": "2026-08-20T19:22:46.585-04:00",
+      "lastExitCode": 2,
+      "lastReceiptPath": "mission-control/last-run/youtube-digest-deadline-failure-notifier.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "c590e449-67ea-410e-a546-cdf8decdb398",
+      "name": "Digest Oversight Steward after weekday morning scan",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 7 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "openai/gpt-5.5",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Act as Digest Oversight Steward for the weekday morning YouTube daily-light lane. Current source of truth is the live 07:00 cron prompt and tools/youtube-digest-daily-light-proof.cjs, not older broad-memo or Reddit wording. Check the just-run 07:00 artifacts u",
+      "inputs": [],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T15:54:50.252-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/digest-oversight-steward-after-weekday-morning-scan.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "3df81dca-4508-45a4-ba2d-0816fb68fc3a",
+      "name": "Digest Independent Reviewer after weekday morning scan",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "45 7 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "openai/gpt-5.5",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Act as independent reviewer for the weekday morning YouTube daily-light automation. Audit the Digest Oversight Steward result and the underlying 07:00 YouTube artifacts against the current locked standard: one-screen market-read-first daily-light digest, Scann",
+      "inputs": [],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T15:54:51.181-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/digest-independent-reviewer-after-weekday-morning-scan.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "9c95f4ce-24b5-4fe1-bef4-dcc1ef04e934",
+      "name": "Automation Output Hygiene Gate - weekday morning",
+      "trigger": "command",
+      "schedule": {
+        "kind": "cron",
+        "expr": "10 8 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": null,
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Runs after the morning research report window to catch duplicate public reports, overwritten digest artifacts, encoding drift, and mistaken completion claims.",
+      "inputs": [
+        "C:/Users/moosi/.openclaw/workspace",
+        "node tools/automation-output-hygiene-gate.cjs"
+      ],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T19:25:07.402-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/automation-output-hygiene-gate-weekday-morning.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "480d38f0-8cba-4442-988d-1a3c1299e81f",
+      "name": "Weekday YouTube Digest daily-light - 14:00 deadline",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 10 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "research-leader",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Daily-light Capital Radar YouTube digest. Starts at 10:00 ET for the 14:00 ET deadline. Mandatory Tier-1 SUB lead scan only, pull REC only on signal, shortlist before transcript, one-screen market-read-first FINAL_DIGEST.1400.md with Scanned X->Y->Z footer.",
+      "inputs": [
+        "C:\\Users\\moosi\\.openclaw\\workspace.",
+        "openclaw-state\\youtube-digest-runs\\YYYY-MM-DD-rolling-weekday-cache.",
+        "scripts\\youtube-digest-runner.cjs",
+        "openclaw-state\\youtube-digest-runs\\YYYY-MM-DD-rolling-weekday-cache",
+        "tools\\youtube-digest-freeze-slot.cjs"
+      ],
+      "outputs": [
+        "openclaw-state/youtube-digest-runs/**"
+      ],
+      "lastRunAt": "2026-08-20T15:48:09.900-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/weekday-youtube-digest-daily-light-14-00-deadline.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "918cbbe2-eefc-4c56-a795-afe9c09a48b2",
+      "name": "Digest Oversight Steward after afternoon scan",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 14 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "openai/gpt-5.5",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Act as Digest Oversight Steward for the weekday afternoon YouTube daily-light lane. Current source of truth is the live 14:00 cron prompt and tools/youtube-digest-daily-light-proof.cjs, not older broad-memo or Reddit wording. Check the just-run 14:00 artifacts",
+      "inputs": [],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T16:00:38.778-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/digest-oversight-steward-after-afternoon-scan.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "47e7d0cf-ca98-49ec-acb6-80843e57f1d0",
+      "name": "Digest Independent Reviewer after afternoon scan",
+      "trigger": "cron",
+      "schedule": {
+        "kind": "cron",
+        "expr": "45 14 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": "openai/gpt-5.5",
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Act as independent reviewer for the weekday afternoon YouTube daily-light automation. Audit the Digest Oversight Steward result and the underlying 14:00 YouTube artifacts against the current locked standard: one-screen market-read-first daily-light digest, Sca",
+      "inputs": [],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T16:06:14.673-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/digest-independent-reviewer-after-afternoon-scan.json",
+      "status": "LIVE"
+    },
+    {
+      "id": "093cc636-769d-42a1-82e6-980cb25d297a",
+      "name": "Automation Output Hygiene Gate - weekday afternoon",
+      "trigger": "command",
+      "schedule": {
+        "kind": "cron",
+        "expr": "55 14 * * 1-5",
+        "tz": "America/New_York"
+      },
+      "model": null,
+      "host": "windows:C:/Users/moosi",
+      "purpose": "Runs after the afternoon research report window to catch duplicate public reports, overwritten digest artifacts, encoding drift, and mistaken completion claims.",
+      "inputs": [
+        "C:/Users/moosi/.openclaw/workspace",
+        "node tools/automation-output-hygiene-gate.cjs"
+      ],
+      "outputs": [
+        "mission-control/**",
+        "openclaw-state/run-ledgers/**"
+      ],
+      "lastRunAt": "2026-08-20T19:25:15.845-04:00",
+      "lastExitCode": 0,
+      "lastReceiptPath": "mission-control/last-run/automation-output-hygiene-gate-weekday-afternoon.json",
+      "status": "LIVE"
+    }
+  ]
+}

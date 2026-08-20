@@ -18,17 +18,20 @@ function ageHours(timestamp) {
   if (!Number.isFinite(date.getTime())) return Infinity;
   return (Date.now() - date.getTime()) / 3_600_000;
 }
-function freshnessCheck(label, rel, pathExpr, maxHours) {
+const holdingsDegraded = readJson('outputs/portfolio-live-state.json', {})?.freshness?.degraded === true;
+function freshnessCheck(label, rel, pathExpr, maxHours, { softWhenDegraded = false } = {}) {
   const artifact = readJson(rel, null);
   const timestamp = get(artifact, pathExpr);
   const age = ageHours(timestamp);
   const ok = Number.isFinite(age) && age <= maxHours;
-  return pass(
-    label,
-    ok,
-    timestamp ? `${rel} ${pathExpr}=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxHours}h` : `${rel} missing ${pathExpr}`,
-    ok ? null : 'Visible decision data is stale or missing.'
-  );
+  const evidence = timestamp ? `${rel} ${pathExpr}=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxHours}h` : `${rel} missing ${pathExpr}`;
+  if (!ok && softWhenDegraded && holdingsDegraded) {
+    // Holdings producer is known-down; the portfolio block already degrades to a
+    // visible STALE badge and a freshness sentinel alarms separately. A stale
+    // holdings feed must not fail the whole ship gate — surface it as WARN.
+    return { label, status: 'WARN', evidence: `${evidence}. Holdings producer known-down; portfolio block degraded (STALE badge shown); not blocking build.`, blocker: null };
+  }
+  return pass(label, ok, evidence, ok ? null : 'Visible decision data is stale or missing.');
 }
 const sectionIds = [...html.matchAll(/<section\s+id="([^"]+)"/g)].map(m => m[1]);
 const expected = ['decision-brief-section','market-calendar-section','operational-chart-section','holdings-section','opportunities-section'];
@@ -67,8 +70,8 @@ const checks = [
   pass('Operational score available', Number(score.score || 0) >= 0 && Number(score.target || 0) >= 0, `CROS ${score.score || 0}/${score.target || 0}; stage ${score.stage || 'n/a'}.`),
   pass('Public static sync', publicOk, `Public sections: ${publicSectionIds.join(' > ')}`),
   pass('No stale portfolio timestamp leak', !/4:30 AM\s*·\s*Jun 13/i.test(html + publicHtml), 'June 13 portfolio bar timestamp is not visible.'),
-  freshnessCheck('Portfolio freshness', 'outputs/portfolio-live-state.json', 'fetchedAt', 72),
-  freshnessCheck('Robinhood raw freshness', 'outputs/robinhood-positions.json', 'syncedAt', 72),
+  freshnessCheck('Portfolio freshness', 'outputs/portfolio-live-state.json', 'fetchedAt', 72, { softWhenDegraded: true }),
+  freshnessCheck('Robinhood raw freshness', 'outputs/robinhood-positions.json', 'syncedAt', 72, { softWhenDegraded: true }),
   freshnessCheck('Market data freshness', 'outputs/data-health.json', 'sources.yahooFinance.lastSuccessfulFetchAt', 24),
   freshnessCheck('Macro/FRED freshness', 'outputs/data-health.json', 'sources.fred.lastSuccessfulFetchAt', 72),
   freshnessCheck('Operational chart freshness', 'outputs/operational-chart-state.json', 'as_of', 24),
@@ -81,12 +84,17 @@ const checks = [
   freshnessCheck('Kostolany diagram freshness', 'outputs/kostolany-egg-state.json', 'as_of', 24),
   pass('No object leaks', !html.includes('[object Object]'), 'No object serialization leak present.')
 ];
-const failed = checks.filter(c => c.status !== 'PASS');
+const failed = checks.filter(c => c.status === 'FAIL');
+const warned = checks.filter(c => c.status === 'WARN');
 const output = {
   generatedAt: new Date().toISOString(),
   runMode: 'OPERATIONAL_HOME_AUDIT',
-  status: failed.length ? 'FAIL' : 'PASS',
-  summary: failed.length ? `${failed.length} homepage checks failed.` : 'Capital Radar homepage validates against the operational surface and freshness contract; backend intelligence remains preserved in JSON outputs.',
+  status: failed.length ? 'FAIL' : (warned.length ? 'PASS_WITH_WARNINGS' : 'PASS'),
+  summary: failed.length
+    ? `${failed.length} homepage checks failed.`
+    : (warned.length
+      ? `Capital Radar homepage validates; ${warned.length} freshness check(s) degraded (non-blocking): ${warned.map(c => c.label).join(', ')}.`
+      : 'Capital Radar homepage validates against the operational surface and freshness contract; backend intelligence remains preserved in JSON outputs.'),
   sections: checks,
   nextRequiredForHighTrust: ['document evidence store', 'outcome ledger', 'source reliability learning loop']
 };

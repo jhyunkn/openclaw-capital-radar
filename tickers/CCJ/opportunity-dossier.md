@@ -1,6 +1,6 @@
 # CCJ Opportunity Dossier
 
-Generated: 2026-08-23T12:57:09.430Z
+Generated: 2026-08-24T13:06:55.142Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: PRIORITY_RESEARCH
 - Opportunity score: 79
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 102.74
+- Current price: 102
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A creative non-AI software expression of the power scarcity thesis: nuclear fuel
 
 ## Why Now
 
-- CCJ positive 7.48% while broad tape is weak.
+- CCJ positive 6.71% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A creative non-AI software expression of the power scarcity thesis: nuclear fuel
 ## Action Framework
 
 Observation:
-CCJ positive 7.48% while broad tape is weak.
+CCJ positive 6.71% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

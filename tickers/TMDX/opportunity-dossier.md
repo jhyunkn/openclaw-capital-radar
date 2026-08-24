@@ -1,6 +1,6 @@
 # TMDX Opportunity Dossier
 
-Generated: 2026-08-23T12:57:09.430Z
+Generated: 2026-08-24T13:06:55.142Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: PRIORITY_RESEARCH
 - Opportunity score: 76
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 95
+- Current price: 94.26
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
@@ -20,7 +20,7 @@ A genuinely different growth infrastructure idea: organ transplant logistics and
 
 ## Why Now
 
-- TMDX positive 4.57% while broad tape is weak.
+- TMDX positive 3.75% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ A genuinely different growth infrastructure idea: organ transplant logistics and
 ## Action Framework
 
 Observation:
-TMDX positive 4.57% while broad tape is weak.
+TMDX positive 3.75% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

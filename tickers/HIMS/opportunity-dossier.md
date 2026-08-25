@@ -1,6 +1,6 @@
 # HIMS Opportunity Dossier
 
-Generated: 2026-08-25T01:16:54.316Z
+Generated: 2026-08-25T17:52:02.554Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -9,10 +9,10 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Name: Hims & Hers
 - Lane: structural_candidate
 - Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 73
+- Opportunity score: 70
 - Portfolio role: non-correlated health/medical infrastructure lane
-- Current price: 31.05
-- Price read: sharp downside dislocation; require cause check before any add-zone work
+- Current price: 32.26
+- Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
 
@@ -20,7 +20,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 
 ## Why Now
 
-- HIMS down -8.08% in watched basket.
+- HIMS positive 3.80% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -60,7 +60,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 ## Action Framework
 
 Observation:
-HIMS down -8.08% in watched basket.
+HIMS positive 3.80% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

@@ -1,27 +1,26 @@
 # NVDA Opportunity Dossier
 
-Generated: 2026-07-25T14:12:10.645Z
+Generated: 2026-08-27T22:12:21.725Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
 ## Current Setup
 
 - Name: NVIDIA
-- Lane: tactical_dislocation
+- Lane: structural_candidate
 - Stage: BUILD_EVIDENCE_PACKET
-- Opportunity score: 70
-- Portfolio role: AI infrastructure benchmark / center-stack exposure
-- Current price: 210.57
-- Price read: neutral price context; compare against thesis and valuation evidence
+- Opportunity score: 73
+- Portfolio role: quality platform / valuation reset candidate
+- Current price: 225.91
+- Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
 
-Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.
+Benchmark only: the business quality is obvious, but watchlist asymmetry is weaker because everyone already knows the AI accelerator thesis.
 
 ## Why Now
 
-- NVDA positive 3.84% while broad tape is weak.
-- NVDA: Direct exposure to AI accelerator demand; useful benchmark for whether the portfolio should own the center of the AI capex stack instead of only cloud/platform beneficiaries.
+- NVDA positive 7.75% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -33,14 +32,14 @@ Direct exposure to AI accelerator demand; useful benchmark for whether the portf
 
 ## Confirm Before Promotion
 
-- Forward revenue/gross-margin durability remains intact
-- Valuation reset or earnings growth justifies multiple
-- Customer concentration and export-control risks are understood
+- Major valuation reset
+- Demand/gross-margin durability remains intact
+- Export-control and customer concentration risks are understood
 
 ## Invalidation / Risk Questions
 
-- Risk to invalidate/check: Crowding and multiple compression
-- Risk to invalidate/check: Export controls / supply chain limits
+- Risk to invalidate/check: Consensus crowding
+- Risk to invalidate/check: Multiple compression
 - Risk to invalidate/check: AI capex digestion cycle
 
 ## Missing For Promotion
@@ -60,7 +59,7 @@ Direct exposure to AI accelerator demand; useful benchmark for whether the portf
 ## Action Framework
 
 Observation:
-NVDA positive 3.84% while broad tape is weak.
+NVDA positive 7.75% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

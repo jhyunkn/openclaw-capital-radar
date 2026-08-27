@@ -1,6 +1,6 @@
 # VRT Opportunity Dossier
 
-Generated: 2026-08-26T23:38:47.263Z
+Generated: 2026-08-27T08:00:01.880Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 72
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 272.61
+- Current price: 273.5
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 
 ## Why Now
 
-- VRT positive 6.59% while broad tape is weak.
+- VRT positive 6.94% while broad tape is weak.
 - VRT: Infrastructure-side exposure to AI/data-center buildout: power, cooling, and uptime constraints rather than model/platform winners.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Infrastructure-side exposure to AI/data-center buildout: power, cooling, and upt
 ## Action Framework
 
 Observation:
-VRT positive 6.59% while broad tape is weak.
+VRT positive 6.94% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

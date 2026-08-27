@@ -1,6 +1,6 @@
 # NVDA Opportunity Dossier
 
-Generated: 2026-08-27T22:12:21.725Z
+Generated: 2026-08-27T23:01:55.021Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 73
 - Portfolio role: quality platform / valuation reset candidate
-- Current price: 225.91
+- Current price: 226.38
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Benchmark only: the business quality is obvious, but watchlist asymmetry is weak
 
 ## Why Now
 
-- NVDA positive 7.75% while broad tape is weak.
+- NVDA positive 7.97% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -59,7 +59,7 @@ Benchmark only: the business quality is obvious, but watchlist asymmetry is weak
 ## Action Framework
 
 Observation:
-NVDA positive 7.75% while broad tape is weak.
+NVDA positive 7.97% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const out  = path.join(root, 'outputs', 'news-catalyst-state.json');
 
 // ── Tickers to scan ──────────────────────────────────────────────────────────
-const HOLDINGS   = ['MSFT','AMZN','CEG','META','TSLT','CONL','SPY','MA','BMNR','TSNF','NFLX'];
+const HOLDINGS   = ['AMZN','META','TSLT','CONL','SPY','MA','BMNR','NFLX','IAU','VST','UBER','AVGO','VRT'];
 const CANDIDATES = ['RDDT','RKLB','NXT','ETN','GOOGL','PWR','GEV','TMDX','NVDA','AVGO','CCJ','PLTR','VRT','IBIT','OKLO','HIMS'];
 const ALL_TICKERS = [...new Set([...HOLDINGS, ...CANDIDATES])];
 

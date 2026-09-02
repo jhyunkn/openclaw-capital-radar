@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-09-02T03:20:55.444Z",
+  "generatedAt": "2026-09-02T13:05:55.843Z",
   "runMode": "LOCAL_TICKER_GATE_AUDIT_NO_WEB_SEARCH",
   "status": "ACTIVE",
   "policy": "Every ticker must carry primary evidence, price zone, invalidation, risk budget, and portfolio role before promotion. Degraded/local mode blocks missing primary evidence rather than inventing it.",
   "counts": {
     "tickers": 31,
-    "pass": 24,
-    "blocked": 7,
-    "holdings": 11,
+    "pass": 22,
+    "blocked": 9,
+    "holdings": 13,
     "candidates": 20
   },
   "blockedByGate": {
@@ -16,9 +16,11 @@
       "CLS",
       "ET",
       "GOOGL",
+      "IAU",
       "KNSL",
       "NVDA",
-      "TSNF"
+      "UBER",
+      "VST"
     ],
     "priceZone": [
       "BWXT",
@@ -26,7 +28,10 @@
       "ET",
       "KNSL"
     ],
-    "invalidation": [],
+    "invalidation": [
+      "IAU",
+      "UBER"
+    ],
     "riskBudget": [],
     "portfolioRole": []
   },
@@ -34,7 +39,7 @@
     {
       "ticker": "AMZN",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -102,8 +107,8 @@
     },
     {
       "ticker": "AVGO",
-      "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "universe": "holding+candidate",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -135,16 +140,16 @@
           "gate": "priceZone",
           "status": "PASS",
           "basis": "core dynamic band from current price",
-          "current": 371,
-          "entryLow": 342,
-          "entryHigh": 356,
-          "addBelow": 334,
-          "trimLow": 416,
-          "trimHigh": 446,
-          "stop": 319,
-          "hardExit": 304,
-          "target": 438,
-          "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
+          "current": 370,
+          "entryLow": 340,
+          "entryHigh": 355,
+          "addBelow": 333,
+          "trimLow": 414,
+          "trimHigh": 444,
+          "stop": 318,
+          "hardExit": 303,
+          "target": 436,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -163,8 +168,8 @@
         "portfolioRole": {
           "gate": "portfolioRole",
           "status": "PASS",
-          "role": "AI infrastructure benchmark / center-stack exposure",
-          "concentrationCheck": "candidate; must check overlap before promotion"
+          "role": "Newly synced from live Robinhood account; needs thesis, risk-band, and fundamentals review.",
+          "concentrationCheck": "current holding"
         }
       },
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
@@ -172,7 +177,7 @@
     {
       "ticker": "BMNR",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -241,7 +246,7 @@
     {
       "ticker": "BWXT",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
@@ -285,7 +290,7 @@
     {
       "ticker": "CCJ",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -339,78 +344,9 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
-      "ticker": "CEG",
-      "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
-      "gateStatus": "PASS",
-      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
-      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
-      "gates": {
-        "primaryEvidence": {
-          "gate": "primaryEvidence",
-          "status": "PASS",
-          "sourceType": "SEC submissions JSON",
-          "sourceUrl": "https://data.sec.gov/submissions/CIK0001868275.json",
-          "entityName": "Constellation Energy Corp",
-          "cik": "0001868275",
-          "recentMaterialFilings": [
-            {
-              "form": "10-Q",
-              "filingDate": "2026-08-06"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-08-06"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-08-05"
-            }
-          ],
-          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
-        },
-        "priceZone": {
-          "gate": "priceZone",
-          "status": "PASS",
-          "basis": "watch dynamic band from current price",
-          "current": 280,
-          "entryLow": 252,
-          "entryHigh": 263,
-          "addBelow": 244,
-          "trimLow": 308,
-          "trimHigh": 325,
-          "stop": 247,
-          "hardExit": 235,
-          "target": 322,
-          "note": "No immediate reaction trigger; keep tracking."
-        },
-        "invalidation": {
-          "gate": "invalidation",
-          "status": "PASS",
-          "rule": "Power-demand upside fails to translate into durable cash-flow, or CEG becomes merely crowded narrative exposure.",
-          "source": "strategy rules"
-        },
-        "riskBudget": {
-          "gate": "riskBudget",
-          "status": "PASS",
-          "budgetType": "starter/research",
-          "maxPositionPct": 1,
-          "maxLossPct": 0.5,
-          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
-        },
-        "portfolioRole": {
-          "gate": "portfolioRole",
-          "status": "PASS",
-          "role": "Nuclear scarcity + data-center electricity demand.",
-          "concentrationCheck": "current holding"
-        }
-      },
-      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
-    },
-    {
       "ticker": "CLS",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
@@ -454,7 +390,7 @@
     {
       "ticker": "CONL",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -509,7 +445,7 @@
     {
       "ticker": "ET",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
@@ -553,7 +489,7 @@
     {
       "ticker": "ETN",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -622,7 +558,7 @@
     {
       "ticker": "GEV",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -691,7 +627,7 @@
     {
       "ticker": "GOOGL",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence.",
@@ -744,7 +680,7 @@
     {
       "ticker": "HIMS",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -811,9 +747,63 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
+      "ticker": "IAU",
+      "universe": "holding",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
+      "gateStatus": "BLOCKED",
+      "promotionPermission": "NO_PROMOTION",
+      "reason": "Missing/blocking gates: primaryEvidence, invalidation.",
+      "gates": {
+        "primaryEvidence": {
+          "gate": "primaryEvidence",
+          "status": "BLOCK",
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
+        },
+        "priceZone": {
+          "gate": "priceZone",
+          "status": "PASS",
+          "basis": "core dynamic band from current price",
+          "current": 81.34,
+          "entryLow": 74.83,
+          "entryHigh": 78.09,
+          "addBelow": 73.21,
+          "trimLow": 91.1,
+          "trimHigh": 97.61,
+          "stop": 69.95,
+          "hardExit": 66.7,
+          "target": 95.98,
+          "note": "No immediate reaction trigger; keep tracking."
+        },
+        "invalidation": {
+          "gate": "invalidation",
+          "status": "BLOCK",
+          "rule": null,
+          "source": null,
+          "note": "No invalidation rule available."
+        },
+        "riskBudget": {
+          "gate": "riskBudget",
+          "status": "PASS",
+          "budgetType": "starter/research",
+          "maxPositionPct": 1,
+          "maxLossPct": 0.5,
+          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
+        },
+        "portfolioRole": {
+          "gate": "portfolioRole",
+          "status": "PASS",
+          "role": "Newly synced from live Robinhood account; needs thesis, risk-band, and fundamentals review.",
+          "concentrationCheck": "current holding"
+        }
+      },
+      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
+    },
+    {
       "ticker": "IBIT",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -868,7 +858,7 @@
     {
       "ticker": "KNSL",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence, priceZone.",
@@ -912,7 +902,7 @@
     {
       "ticker": "MA",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -981,7 +971,7 @@
     {
       "ticker": "META",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1048,78 +1038,9 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
-      "ticker": "MSFT",
-      "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
-      "gateStatus": "PASS",
-      "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
-      "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
-      "gates": {
-        "primaryEvidence": {
-          "gate": "primaryEvidence",
-          "status": "PASS",
-          "sourceType": "SEC submissions JSON",
-          "sourceUrl": "https://data.sec.gov/submissions/CIK0000789019.json",
-          "entityName": "MICROSOFT CORP",
-          "cik": "0000789019",
-          "recentMaterialFilings": [
-            {
-              "form": "10-K",
-              "filingDate": "2026-07-29"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-07-29"
-            },
-            {
-              "form": "8-K",
-              "filingDate": "2026-06-05"
-            }
-          ],
-          "note": "Primary filing metadata attached. Phase 3 should fetch full filing text/companyfacts for claim-level evidence."
-        },
-        "priceZone": {
-          "gate": "priceZone",
-          "status": "PASS",
-          "basis": "core dynamic band from current price",
-          "current": 501,
-          "entryLow": 461,
-          "entryHigh": 481,
-          "addBelow": 451,
-          "trimLow": 561,
-          "trimHigh": 601,
-          "stop": 431,
-          "hardExit": 411,
-          "target": 591,
-          "note": "No immediate reaction trigger; keep tracking."
-        },
-        "invalidation": {
-          "gate": "invalidation",
-          "status": "PASS",
-          "rule": "Enterprise cloud + AI advantage stops compounding.",
-          "source": "strategy rules"
-        },
-        "riskBudget": {
-          "gate": "riskBudget",
-          "status": "PASS",
-          "budgetType": "starter/research",
-          "maxPositionPct": 1,
-          "maxLossPct": 0.5,
-          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
-        },
-        "portfolioRole": {
-          "gate": "portfolioRole",
-          "status": "PASS",
-          "role": "Enterprise cloud + AI infrastructure durability.",
-          "concentrationCheck": "current holding"
-        }
-      },
-      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
-    },
-    {
       "ticker": "NFLX",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1188,7 +1109,7 @@
     {
       "ticker": "NVDA",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
       "reason": "Missing/blocking gates: primaryEvidence.",
@@ -1241,7 +1162,7 @@
     {
       "ticker": "NXT",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1310,7 +1231,7 @@
     {
       "ticker": "OKLO",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1379,7 +1300,7 @@
     {
       "ticker": "PLTR",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1448,7 +1369,7 @@
     {
       "ticker": "PWR",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1517,7 +1438,7 @@
     {
       "ticker": "RDDT",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1586,7 +1507,7 @@
     {
       "ticker": "RKLB",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1655,7 +1576,7 @@
     {
       "ticker": "SPY",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1711,7 +1632,7 @@
     {
       "ticker": "TMDX",
       "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1780,7 +1701,7 @@
     {
       "ticker": "TSLT",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1833,53 +1754,54 @@
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
     },
     {
-      "ticker": "TSNF",
+      "ticker": "UBER",
       "universe": "holding",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "BLOCKED",
       "promotionPermission": "NO_PROMOTION",
-      "reason": "Missing/blocking gates: primaryEvidence.",
+      "reason": "Missing/blocking gates: primaryEvidence, invalidation.",
       "gates": {
         "primaryEvidence": {
           "gate": "primaryEvidence",
           "status": "BLOCK",
-          "sourceType": "issuer/prospectus/security identity required",
-          "source": null,
-          "note": "Instrument identity/liquidity/issuer evidence must be verified before promotion. Direct REX TSNF URL and Yahoo quote page returned 404/stale-or-moved during degraded run."
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
         },
         "priceZone": {
           "gate": "priceZone",
           "status": "PASS",
-          "basis": "spec dynamic band from current price",
-          "current": 30,
-          "entryLow": 26.4,
-          "entryHigh": 27.9,
-          "addBelow": null,
-          "trimLow": 32.4,
-          "trimHigh": 34.5,
-          "stop": 27,
-          "hardExit": 25.5,
-          "target": 34.2,
-          "note": "Thesis/liquidity/downside proof required before capital."
+          "basis": "core dynamic band from current price",
+          "current": 75.25,
+          "entryLow": 69.23,
+          "entryHigh": 72.24,
+          "addBelow": 67.73,
+          "trimLow": 84.28,
+          "trimHigh": 90.3,
+          "stop": 64.72,
+          "hardExit": 61.71,
+          "target": 88.8,
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
-          "status": "PASS",
-          "rule": "Cannot verify what you own and why it should outperform.",
-          "source": "strategy rules"
+          "status": "BLOCK",
+          "rule": null,
+          "source": null,
+          "note": "No invalidation rule available."
         },
         "riskBudget": {
           "gate": "riskBudget",
           "status": "PASS",
-          "budgetType": "starter/speculative",
-          "maxPositionPct": 0.5,
-          "maxLossPct": 0.25,
-          "rule": "Research-only. If promoted, start tiny; max loss must be pre-accepted."
+          "budgetType": "starter/research",
+          "maxPositionPct": 1,
+          "maxLossPct": 0.5,
+          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
         },
         "portfolioRole": {
           "gate": "portfolioRole",
           "status": "PASS",
-          "role": "Potential asymmetry if thesis is real.",
+          "role": "Newly synced from live Robinhood account; needs thesis, risk-band, and fundamentals review.",
           "concentrationCheck": "current holding"
         }
       },
@@ -1887,8 +1809,8 @@
     },
     {
       "ticker": "VRT",
-      "universe": "candidate",
-      "generatedAt": "2026-09-02T03:20:55.444Z",
+      "universe": "holding+candidate",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
       "gateStatus": "PASS",
       "promotionPermission": "ELIGIBLE_FOR_HUMAN_REVIEW_ONLY",
       "reason": "All five gates populated/passed from local state. Still requires human review; no automatic trade execution.",
@@ -1929,7 +1851,7 @@
           "stop": 220,
           "hardExit": 210,
           "target": 302,
-          "note": "Candidate zone is provisional until primary evidence and technical structure are attached."
+          "note": "No immediate reaction trigger; keep tracking."
         },
         "invalidation": {
           "gate": "invalidation",
@@ -1948,8 +1870,61 @@
         "portfolioRole": {
           "gate": "portfolioRole",
           "status": "PASS",
-          "role": "power/grid infrastructure opportunity lane",
-          "concentrationCheck": "candidate; must check overlap before promotion"
+          "role": "Newly synced from live Robinhood account; needs thesis, risk-band, and fundamentals review.",
+          "concentrationCheck": "current holding"
+        }
+      },
+      "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."
+    },
+    {
+      "ticker": "VST",
+      "universe": "holding",
+      "generatedAt": "2026-09-02T13:05:55.843Z",
+      "gateStatus": "BLOCKED",
+      "promotionPermission": "NO_PROMOTION",
+      "reason": "Missing/blocking gates: primaryEvidence.",
+      "gates": {
+        "primaryEvidence": {
+          "gate": "primaryEvidence",
+          "status": "BLOCK",
+          "sourceType": "primary evidence required",
+          "sourceUrl": null,
+          "note": "No SEC/issuer/company primary evidence attached in local state."
+        },
+        "priceZone": {
+          "gate": "priceZone",
+          "status": "PASS",
+          "basis": "watch dynamic band from current price",
+          "current": 138,
+          "entryLow": 124,
+          "entryHigh": 130,
+          "addBelow": 120,
+          "trimLow": 152,
+          "trimHigh": 160,
+          "stop": 122,
+          "hardExit": 116,
+          "target": 159,
+          "note": "No immediate reaction trigger; keep tracking."
+        },
+        "invalidation": {
+          "gate": "invalidation",
+          "status": "PASS",
+          "rule": "Power-demand upside fails to translate into durable earnings/cash-flow or position becomes duplicate CEG exposure without better risk/reward.",
+          "source": "strategy rules"
+        },
+        "riskBudget": {
+          "gate": "riskBudget",
+          "status": "PASS",
+          "budgetType": "starter/research",
+          "maxPositionPct": 1,
+          "maxLossPct": 0.5,
+          "rule": "Research-only. If promoted, starter size only until primary thesis and price zone confirmed."
+        },
+        "portfolioRole": {
+          "gate": "portfolioRole",
+          "status": "PASS",
+          "role": "Newly synced from live Robinhood account; needs thesis, risk-band, and fundamentals review.",
+          "concentrationCheck": "current holding"
         }
       },
       "actionBoundary": "Gate pass means eligible for human review only. It is not a buy/add instruction."

@@ -14,10 +14,15 @@ function classify(h) {
   if (ticker === 'SPY') return ['index_market_beta', 'Index / market beta', 'Broad market index exposure used as portfolio beta and ballast.', 55];
   if (ticker === 'AMZN') return ['ecommerce_cloud', 'E-commerce / cloud infrastructure', 'Amazon-specific exposure: e-commerce, AWS, advertising, logistics, and operating leverage.', 20];
   if (ticker === 'MSFT') return ['cloud_software_ai', 'Cloud / software / AI platform', 'Enterprise software, cloud, and AI platform exposure.', 25];
+  if (ticker === 'AVGO') return ['cloud_software_ai', 'Cloud / software / AI platform', 'Enterprise software, cloud, and AI platform exposure.', 25];
   if (ticker === 'META') return ['digital_ads_ai_platform', 'Digital ads / AI platform', 'Advertising, social platform, AI infrastructure, and metaverse optionality exposure.', 15];
   if (ticker === 'CEG') return ['power_energy_infrastructure', 'Power / energy infrastructure', 'Power generation and grid-adjacent infrastructure exposure.', 15];
+  if (ticker === 'VST') return ['power_energy_infrastructure', 'Power / energy infrastructure', 'Power generation and grid-adjacent infrastructure exposure.', 15];
+  if (ticker === 'VRT') return ['power_energy_infrastructure', 'Power / energy infrastructure', 'Power generation and grid-adjacent infrastructure exposure.', 15];
   if (ticker === 'MA') return ['payments_financial_infrastructure', 'Payments / financial infrastructure', 'Global payment network and transaction infrastructure exposure.', 15];
   if (ticker === 'NFLX') return ['streaming_media', 'Streaming / media', 'Subscription entertainment and media platform exposure.', 15];
+  if (ticker === 'UBER') return ['mobility_ondemand_platform', 'Mobility / on-demand platform', 'Ride-hailing, delivery, and on-demand logistics platform exposure.', 15];
+  if (ticker === 'IAU') return ['commodities_precious_metals', 'Commodities / precious metals', 'Gold and precious-metals exposure used as an inflation/uncertainty hedge.', 20];
   if (ticker === 'BMNR') return ['speculative_crypto_infrastructure', 'Speculative crypto infrastructure', 'High-volatility crypto/mining/infrastructure optionality requiring explicit thesis review.', 5];
   if (ticker === 'TSNF') return ['speculative_single_name', 'Speculative single-name equity', 'Speculative or thesis-uncertain single-name equity exposure.', 5];
   if (['TSLT','CONL','TMF','TQQQ','SQQQ','SOXL','SOXS','BITX'].includes(ticker)) return ['levered_tactical', 'Levered / tactical products', 'Daily-reset or levered tactical exposure where volatility path and decay matter.', 5];

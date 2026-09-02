@@ -27,7 +27,7 @@ const holdingsTickers    = (readJsonSafe('outputs/robinhood-positions.json')?.po
 const EQUITY_TICKERS = [...new Set([...oppUniverseTickers, ...scannerTickers, ...discoveryTickers, ...holdingsTickers, ...HAND_SEEDED_EXTRAS])];
 
 // These don't file 10-Ks with GAAP XBRL (ETFs, leveraged, OTC foreign)
-const SKIP_TICKERS = new Set(['SPY','TSLT','CONL','IBIT','BMNR','TSNF','SMR','ASTS','URA']);
+const SKIP_TICKERS = new Set(['SPY','TSLT','CONL','IBIT','IAU','BMNR','TSNF','SMR','ASTS','URA']);
 
 // ── Concepts to extract (try each in order) ──────────────────────────────────
 const REVENUE_CONCEPTS = [
@@ -308,6 +308,6 @@ async function main() {
 }
 
 // Reference for skipped logic
-const HOLDINGS_REF = new Set(['MSFT','AMZN','CEG','META','TSLT','CONL','SPY','MA','BMNR','TSNF','NFLX']);
+const HOLDINGS_REF = new Set(['AMZN','META','TSLT','CONL','SPY','MA','BMNR','NFLX','IAU','VST','UBER','AVGO','VRT']);
 
 main().catch(e => { console.error(e); process.exit(1); });

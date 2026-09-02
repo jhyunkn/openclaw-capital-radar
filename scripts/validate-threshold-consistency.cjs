@@ -21,9 +21,9 @@ const uniqueTrim = new Set(rows.map(r => Number(r.trimPct).toFixed(2)));
 const uniqueReview = new Set(rows.map(r => Number(r.riskReviewPct).toFixed(2)));
 ok(uniqueAdd.size >= 4, `add bands too uniform: ${[...uniqueAdd].join(', ')}`); ok(uniqueTrim.size >= 4, `trim bands too uniform: ${[...uniqueTrim].join(', ')}`); ok(uniqueReview.size >= 4, `review bands too uniform: ${[...uniqueReview].join(', ')}`);
 function row(t){ return rows.find(r => r.ticker === t); }
-for (const t of ['CONL','TSLT','BMNR','SPY','MSFT','MA']) ok(row(t), `${t} row missing`);
+for (const t of ['CONL','TSLT','BMNR','SPY','AVGO','MA']) ok(row(t), `${t} row missing`);
 const wideAvg = ['CONL','TSLT','BMNR'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
-const tightAvg = ['SPY','MSFT','MA'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
+const tightAvg = ['SPY','AVGO','MA'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
 ok(wideAvg > tightAvg * 2, `wide bands not wider enough: ${wideAvg}/${tightAvg}`);
 ok(Array.isArray(interp.interpretations), 'interpretations missing');
 for (const item of interp.interpretations) ok(item.thresholdPolicy && /volatility_adjusted|signalThresholds/i.test(item.thresholdPolicy), `${item.ticker} not using threshold policy`);

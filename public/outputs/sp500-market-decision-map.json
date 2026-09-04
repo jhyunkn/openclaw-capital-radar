@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-09-04T02:37:41.365Z",
+  "generatedAt": "2026-09-04T03:01:55.218Z",
   "artifact": "sp500-market-decision-map",
   "version": 1,
   "status": "SOURCE_LIMITED_PUBLIC_MARKET_DATA",
   "purpose": "Annotated market-direction decision map inspired by chart-reader workflows: combine SPY/SPX trend, Nasdaq leadership, breadth, fear/volatility, rates, credit, and portfolio translation.",
   "sourceBoundary": "Uses public/unofficial Yahoo chart candles plus FRED rates/credit from Capital Radar. Fear & Greed is modeled as a required future adapter, not claimed unless sourced.",
-  "headline": "RISK_ON_BUT_DO_NOT_CHASE: score 77/100",
-  "score": 77,
-  "regime": "RISK_ON_TREND",
-  "decision": "RISK_ON_BUT_DO_NOT_CHASE",
+  "headline": "SELECTIVE_RISK_ON_EVIDENCE_GATED: score 61/100",
+  "score": 61,
+  "regime": "SELECTIVE_RISK_ON",
+  "decision": "SELECTIVE_RISK_ON_EVIDENCE_GATED",
   "chartPanels": [
     {
       "id": "spy_price_structure",
@@ -19,7 +19,7 @@
         "support/resistance zones",
         "annotated breakout/pullback areas"
       ],
-      "currentRead": "SPY 773.17; 20D 769.21, 50D 756.14, 200D 711.63."
+      "currentRead": "SPY 765.16; 20D 768.98, 50D 755.34, 200D 711.12."
     },
     {
       "id": "momentum",
@@ -28,7 +28,7 @@
         "RSI14",
         "MACD histogram"
       ],
-      "currentRead": "RSI14 58.79, MACD hist -0.83."
+      "currentRead": "RSI14 51.93, MACD hist -1.38."
     },
     {
       "id": "fear_greed_volatility",
@@ -48,7 +48,7 @@
         "IWM vs SPY",
         "proxy basket above 50D/200D"
       ],
-      "currentRead": "63.64% proxy basket above 50D, 72.73% above 200D."
+      "currentRead": "45.45% proxy basket above 50D, 72.73% above 200D."
     },
     {
       "id": "macro_constraints",
@@ -57,7 +57,7 @@
         "10Y Treasury",
         "HY OAS"
       ],
-      "currentRead": "10Y 4.75%, HY OAS 2.63."
+      "currentRead": "10Y 4.79%, HY OAS 2.66."
     },
     {
       "id": "portfolio_translation",
@@ -72,33 +72,33 @@
   ],
   "annotations": [
     {
-      "points": 8,
-      "label": "SPY above 20D trend",
-      "evidence": "price 773.17 > 20D 769.21",
-      "implication": "near-term trend constructive"
+      "points": -8,
+      "label": "SPY below 20D trend",
+      "evidence": "price 765.16 < 20D 768.98",
+      "implication": "near-term trend weakening"
     },
     {
       "points": 10,
       "label": "SPY above 50D trend",
-      "evidence": "price 773.17 > 50D 756.14",
+      "evidence": "price 765.16 > 50D 755.34",
       "implication": "intermediate trend supports risk"
     },
     {
       "points": 8,
       "label": "SPY above 200D regime line",
-      "evidence": "price 773.17 > 200D 711.63",
+      "evidence": "price 765.16 > 200D 711.12",
       "implication": "long-term regime intact"
     },
     {
       "points": 2,
       "label": "RSI neutral/usable",
-      "evidence": "RSI14 58.79",
+      "evidence": "RSI14 51.93",
       "implication": "momentum not at an extreme"
     },
     {
       "points": -5,
       "label": "MACD negative",
-      "evidence": "hist -0.83",
+      "evidence": "hist -1.38",
       "implication": "momentum caution"
     },
     {
@@ -110,13 +110,13 @@
     {
       "points": 4,
       "label": "Credit contained",
-      "evidence": "HY OAS 2.63",
+      "evidence": "HY OAS 2.66",
       "implication": "credit not confirming stress"
     },
     {
       "points": -5,
       "label": "Rate pressure present",
-      "evidence": "10Y 4.75%",
+      "evidence": "10Y 4.79%",
       "implication": "multiple expansion constrained"
     }
   ],
@@ -175,7 +175,7 @@
     ]
   },
   "portfolioTranslation": {
-    "currentBias": "RISK_ON_BUT_DO_NOT_CHASE",
+    "currentBias": "SELECTIVE_RISK_ON_EVIDENCE_GATED",
     "allowed": [
       "Hold core exposure",
       "Use pullbacks to evaluate evidence-gated adds",
@@ -190,14 +190,14 @@
   },
   "directionRadar": {
     "question": "Is the S&P 500 trend confirming risk-on, setting up a normal pullback, or warning of risk-off?",
-    "answer": "RISK_ON_BUT_DO_NOT_CHASE",
+    "answer": "SELECTIVE_RISK_ON_EVIDENCE_GATED",
     "marketDirectionLikelihoods": {
       "continuationPct": 55,
       "pullbackConsolidationPct": 30,
       "riskOffBreakdownPct": 15
     },
-    "channelRead": "constructive_above_20d",
-    "nextInflection": "SPY remains above 20D by 0.52%; trend is intact while 20D/50D hold.",
+    "channelRead": "pullback_to_intermediate_support",
+    "nextInflection": "SPY is below 20D; watch whether 50D near 755.34 holds or fails.",
     "invalidation": "Risk-on interpretation weakens if SPY loses 50D with VIX > 22, breadth < 45% above 50D, or credit spreads widen.",
     "confirmation": "Risk-on interpretation strengthens if SPY holds/reclaims 20D after cooling, QQQ leadership persists, VIX stays calm, and breadth expands."
   },
@@ -222,7 +222,7 @@
     },
     {
       "lane": "Levered / synthetic beta",
-      "stance": "no chase; only after pullback confirmation",
+      "stance": "small, risk-budgeted only",
       "rule": "Levered products require 20D/50D support, VIX calm, and explicit stop/invalidation."
     },
     {
@@ -302,39 +302,39 @@
   },
   "data": {
     "sp": {
-      "price": 773.17,
-      "date": "2026-09-03",
-      "sma20": 769.2065,
-      "sma50": 756.1394,
-      "sma100": 744.5564999999999,
-      "sma200": 711.6303000000003,
-      "rsi14": 58.79114869813516,
+      "price": 765.16,
+      "date": "2026-09-02",
+      "sma20": 768.9759999999999,
+      "sma50": 755.3408000000002,
+      "sma100": 743.6858,
+      "sma200": 711.1241,
+      "rsi14": 51.93105957922522,
       "macd": {
-        "line": 3.0709650807899607,
-        "signal": 3.900335825404666,
-        "histogram": -0.8293707446147054,
-        "priorHistogram": -1.383576520176243
+        "line": 2.724101991382099,
+        "signal": 4.107678511558342,
+        "histogram": -1.383576520176243,
+        "priorHistogram": -1.3962537496662835
       },
       "bollinger": {
-        "lower": 760.3778414948816,
-        "mid": 769.2065,
-        "upper": 778.0351585051184,
-        "bandwidthPct": 2.2955236351014774
+        "lower": 760.3345640082217,
+        "mid": 768.9759999999999,
+        "upper": 777.617435991778,
+        "bandwidthPct": 2.247517735736412
       },
-      "perf5d": 0.26844767215665755,
-      "perf20d": 0.5998230456958575,
-      "perf60d": 4.900617325825918,
-      "drawdownFrom1yHigh": -0.6054918496426254
+      "perf5d": -0.12009189640769247,
+      "perf20d": -0.6014627365904968,
+      "perf60d": 3.509104190903911,
+      "drawdownFrom1yHigh": -1.6352136576335718
     },
     "qqq": {
-      "perf20d": 0.42258448191421216,
-      "perf60d": 1.3901643049884838,
-      "relative20dVsSPY": -0.17723856378164538,
-      "above50": true
+      "perf20d": -1.1236581625540198,
+      "perf60d": -0.9538173642241743,
+      "relative20dVsSPY": -0.5221954259635231,
+      "above50": false
     },
     "iwm": {
-      "perf20d": -1.0259849119865883,
-      "relative20dVsSPY": -1.6258079576824458,
+      "perf20d": -1.9214731293991982,
+      "relative20dVsSPY": -1.3200103928087015,
       "above50": false
     },
     "volatility": {
@@ -344,91 +344,91 @@
       "state": "CALM"
     },
     "breadth": {
-      "breadth50Pct": 63.64,
+      "breadth50Pct": 45.45,
       "breadth200Pct": 72.73,
       "rows": [
         {
           "symbol": "SPY",
-          "close": 773.17,
+          "close": 765.16,
           "above50": true,
           "above200": true,
-          "perf20": 0.5998230456958575
+          "perf20": -0.6014627365904968
         },
         {
           "symbol": "QQQ",
-          "close": 717.67,
-          "above50": true,
+          "close": 709.24,
+          "above50": false,
           "above200": true,
-          "perf20": 0.42258448191421216
+          "perf20": -1.1236581625540198
         },
         {
           "symbol": "IWM",
-          "close": 295.19,
+          "close": 294.01,
           "above50": false,
           "above200": true,
-          "perf20": -1.0259849119865883
+          "perf20": -1.9214731293991982
         },
         {
           "symbol": "AMZN",
-          "close": 258.9,
+          "close": 254.98,
           "above50": true,
           "above200": true,
-          "perf20": -4.90707412032616
+          "perf20": -6.480836236933795
         },
         {
           "symbol": "META",
-          "close": 610.68,
-          "above50": true,
+          "close": 592.85,
+          "above50": false,
           "above200": false,
-          "perf20": 3.522630954399042
+          "perf20": 0.6929700901880276
         },
         {
           "symbol": "NVDA",
-          "close": 228.45,
+          "close": 224.41,
           "above50": true,
           "above200": true,
-          "perf20": 4.31983195579706
+          "perf20": 2.3674847185475745
         },
         {
           "symbol": "AVGO",
-          "close": 357.16,
+          "close": 367.24,
           "above50": false,
           "above200": false,
-          "perf20": -15.077157191430668
+          "perf20": -12.202352491154244
         },
         {
           "symbol": "VRT",
-          "close": 268.83,
+          "close": 256.7,
           "above50": false,
           "above200": true,
-          "perf20": -2.3040302358542153
+          "perf20": -7.641937108728502
         },
         {
           "symbol": "GOOGL",
-          "close": 342.48,
+          "close": 337.12,
           "above50": false,
           "above200": true,
-          "perf20": -4.26834381551362
+          "perf20": -6.983417487514831
         },
         {
           "symbol": "MA",
-          "close": 585.71,
+          "close": 588.14,
           "above50": true,
           "above200": true,
-          "perf20": 1.6945915444048998
+          "perf20": 3.0956387603421565
         },
         {
           "symbol": "NFLX",
-          "close": 82.67,
+          "close": 82.73,
           "above50": true,
           "above200": false,
-          "perf20": 12.186185371149417
+          "perf20": 11.495956873315372
         }
       ]
     },
     "credit": {
-      "tenYear": 4.75,
-      "highYieldOas": 2.63,
+      "tenYear": 4.79,
+      "highYieldOas": 2.66,
       "state": "CREDIT_CONTAINED",
       "ratePressure": "RATE_PRESSURE_PRESENT"
     }

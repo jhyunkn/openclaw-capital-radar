@@ -42,3 +42,25 @@ fs.writeFileSync(cbPath, JSON.stringify({
 }, null, 2));
 
 console.log(`sync-robinhood-positions: synced ${rh.positions.length} positions → cost-basis.manual.json  (${ageHours.toFixed(1)}h old)`);
+
+// Also push live prices into report-state.live.json's holdings — nothing else in the
+// regular pipeline refreshes h.livePrice/priceAsOf/marketValue, so without this they
+// freeze at whatever a one-off script last set them to.
+const statePath = path.join(root, 'data', 'report-state.live.json');
+if (fs.existsSync(statePath)) {
+  const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+  const rhBySym = new Map((rh.positions || []).map(p => [String(p.symbol).toUpperCase(), p]));
+  let priceUpdated = 0;
+  for (const h of (state.holdings || [])) {
+    const pos = rhBySym.get(String(h.ticker || '').toUpperCase());
+    if (!pos) continue;
+    const price = Number(pos.livePrice);
+    if (!Number.isFinite(price)) continue;
+    h.livePrice = price;
+    h.priceAsOf = rh.syncedAt;
+    h.marketValue = Math.round(price * parseFloat(pos.quantity) * 100) / 100;
+    priceUpdated++;
+  }
+  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+  console.log(`sync-robinhood-positions: refreshed livePrice/priceAsOf/marketValue for ${priceUpdated} holdings in report-state.live.json`);
+}

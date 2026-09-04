@@ -35,7 +35,9 @@ const positions = (rh.positions || []).map(pos => {
   const sym = String(pos.symbol).toUpperCase();
   const shares = round(pos.quantity, 6);
   const avgCostPrice = round(pos.avgCostPrice, 2);
-  const totalCostBasis = round(pos.costBasis, 2);
+  const totalCostBasis = Number.isFinite(pos.costBasis)
+    ? round(pos.costBasis, 2)
+    : (shares != null && avgCostPrice != null ? round(shares * avgCostPrice, 2) : null);
 
   const lh = liveHoldingsMap.get(sym);
   const wl = watchlist[sym] || watchlist.tickers?.[sym];

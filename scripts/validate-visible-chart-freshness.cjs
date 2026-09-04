@@ -25,7 +25,7 @@ function check(label, rel, pathExpr, maxHours) {
   const obj = readJson(rel);
   const timestamp = get(obj, pathExpr);
   const age = ageHours(timestamp);
-  const ok = Number.isFinite(age) && age <= maxHours;
+  const ok = Number.isFinite(age) && age >= -0.25 && age <= maxHours;
   return {
     label,
     path: rel,
@@ -47,6 +47,11 @@ const publicHtml = fs.existsSync(publicIndexPath) && publicMtime >= indexMtime
 const combinedHtml = html + publicHtml;
 
 const checks = [
+  // Generated wrapper timestamps are not evidence freshness. These checks follow
+  // the source timestamps that the visible decision surface actually depends on.
+  check('Live report source', 'data/report-state.live.json', 'meta.generatedAt', 24),
+  check('Holdings source', 'data/report-state.live.json', 'meta.holdingsSyncedAt', 24),
+  check('Narrative vs reality source', 'outputs/narrative-reality-brief.json', 'generatedAt', 72),
   check('Current market state', 'outputs/current-market-state.json', 'asOf', 24),
   check('Macro configuration', 'outputs/macro-configuration-state.json', 'generatedAt', 24),
   check('Macro historical analogs', 'outputs/macro-historical-analog-state.json', 'generatedAt', 24),
@@ -59,6 +64,7 @@ const checks = [
   check('Operational decision chart', 'outputs/operational-chart-state.json', 'as_of', 24),
   check('Macro price strip', 'outputs/macro-prices-state.json', 'generatedAt', 24),
   check('Holdings chart zones', 'outputs/holding-zone-state.json', 'as_of', 24),
+  check('Live reaction source lineage', 'outputs/live-reaction-state.json', 'sourceStateGeneratedAt', 24),
 ];
 
 if (/market-chart|chart-panel/i.test(combinedHtml)) {
@@ -87,7 +93,9 @@ const failed = checks.filter(item => item.status !== 'PASS');
 const report = {
   generatedAt: new Date().toISOString(),
   status: failed.length ? 'FAIL' : 'PASS',
-  summary: failed.length ? `${failed.length} visible chart freshness checks failed.` : 'Visible chart and diagram source states are fresh.',
+  summary: failed.length
+    ? `${failed.length} visible decision-source freshness checks failed.`
+    : 'Visible decision sources and derived chart states are fresh.',
   checks,
 };
 

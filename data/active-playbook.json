@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-22T21:00:00-04:00",
+  "mandateId": "agentic",
+  "status": "monitor_only",
+  "symbol": "SOXL",
+  "name": "SOXL confirmation pullback",
+  "expiresAt": "2026-09-25T20:00:00.000Z",
+  "eventBlackout": {
+    "label": "August PCE",
+    "startsAt": "2026-09-29T20:00:00.000Z",
+    "eventAt": "2026-09-30T12:30:00.000Z"
+  },
+  "ticket": {
+    "side": "buy",
+    "quantity": 10,
+    "referenceEntry": 148,
+    "entryRangeLow": 147,
+    "entryRangeHigh": 149,
+    "stopReference": 142,
+    "minimumObjective": 160,
+    "plannedDeployment": 1480,
+    "plannedRisk": 60,
+    "orderPolicy": "alert_then_submit_after_confirmation",
+    "authorization": "not_authorized"
+  },
+  "conditions": [
+    {
+      "id": "opening_window",
+      "label": "Opening window complete",
+      "required": true,
+      "source": "market_clock",
+      "rule": "Regular session has been open at least 30 minutes."
+    },
+    {
+      "id": "soxl_structure",
+      "label": "SOXL structure",
+      "required": true,
+      "source": "intraday_market_data",
+      "rule": "SOXL trades in the 147-149 area and holds above 147 and session VWAP."
+    },
+    {
+      "id": "smh_confirmation",
+      "label": "SMH confirmation",
+      "required": true,
+      "source": "intraday_market_data",
+      "rule": "SMH holds its confirmation level and session VWAP."
+    },
+    {
+      "id": "breadth_confirmation",
+      "label": "NYSE breadth",
+      "required": true,
+      "source": "manual_or_verified_proxy",
+      "rule": "NYSE advance/decline is positive and improving."
+    },
+    {
+      "id": "financial_stability",
+      "label": "Financial stability",
+      "required": true,
+      "source": "intraday_market_data",
+      "rule": "XLF and KRE are not making fresh session lows."
+    }
+  ]
+}

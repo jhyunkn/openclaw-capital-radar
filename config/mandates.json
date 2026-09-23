@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
+  "defaultMandate": "core",
+  "mandates": [
+    {
+      "id": "core",
+      "label": "Core portfolio",
+      "description": "Longer-horizon portfolio oversight, concentration control, thesis verification, and measured exposure changes.",
+      "source": "outputs/portfolio-live-state.json",
+      "freshness": {
+        "positionsMaxMinutes": 4320,
+        "quotesMaxMinutes": 1440,
+        "dataHealthMaxMinutes": 1440,
+        "calendarMaxMinutes": 10080
+      }
+    },
+    {
+      "id": "agentic",
+      "label": "Agentic tactical",
+      "description": "One-position tactical account. Monitoring never implies order authorization.",
+      "source": "outputs/agentic-account-state.json",
+      "riskPolicy": {
+        "capitalBase": 3000,
+        "maxDeployment": 1500,
+        "maxPlannedRisk": 90,
+        "maxPositions": 1,
+        "allowAveragingDown": false,
+        "allowUnprotectedEntry": false
+      },
+      "freshness": {
+        "accountMaxMinutes": 15,
+        "quotesMaxMinutes": 5,
+        "ordersMaxMinutes": 5,
+        "gateObservationsMaxMinutes": 5,
+        "calendarMaxMinutes": 10080
+      }
+    }
+  ]
+}

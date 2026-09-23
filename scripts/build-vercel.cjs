@@ -229,6 +229,9 @@ runFinalInjector('generate-macro-derived-states.cjs', 'Macro derived state gener
 runFinalInjector('generate-kostolany-egg-state.cjs', 'Kostolany egg state generation failed before Vercel copy');
 runFinalInjector('generate-portfolio-live-state.cjs', 'Portfolio live state generation failed before Vercel copy');
 runFinalInjector('inject-portfolio-bar-home.cjs', 'Portfolio bar injection failed before Vercel copy');
+runFinalInjector('generate-mandate-state.cjs', 'Mandate state generation failed before Vercel copy');
+runFinalInjector('validate-mandate-state.cjs', 'Mandate state validation failed before Vercel copy');
+runFinalInjector('inject-mandate-command-home.cjs', 'Mandate command injection failed before Vercel copy');
 runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection failed before Vercel copy');
 runFinalInjector('generate-macro-prices-state.cjs', 'Macro prices state generation failed before Vercel copy');
 runFinalInjector('inject-operational-chart-home.cjs', 'Operational chart injection failed before Vercel copy');
@@ -255,6 +258,7 @@ runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('harden-homepage-chrome.cjs', 'Homepage chrome hardening failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();
+runFinalInjector('validate-mandate-home.cjs', 'Mandate command homepage validation failed after Vercel copy');
 runFinalInjector('validate-visible-chart-freshness.cjs', 'Visible chart freshness validation failed after Vercel copy');
 fs.writeFileSync(path.join(out, 'health.json'), JSON.stringify({ ok: true, builtAt: new Date().toISOString() }, null, 2));
 

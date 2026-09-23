@@ -75,7 +75,7 @@ function renderPortfolioBarStyle() {
 .pb-up{color:var(--green,#2f6f4e)!important}
 .pb-dn{color:var(--red,#9f3f35)!important}
 .pb-timestamp{font-size:9px;color:rgba(36,35,31,.3);font-family:var(--mono,monospace);white-space:nowrap;margin-left:auto}
-@media(max-width:760px){.pb-tiles{gap:14px}.pb-timestamp{display:none}}
+@media(max-width:760px){.pb-wrap{width:calc(100% - 36px);display:block}.pb-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-left:1px solid rgba(201,191,173,.32);border-top:1px solid rgba(201,191,173,.32)}.pb-tile{min-width:0;padding:9px;border-right:1px solid rgba(201,191,173,.32);border-bottom:1px solid rgba(201,191,173,.32)}.pb-val{display:block;overflow-wrap:anywhere}.pb-pct{display:inline}.pb-timestamp{display:none}}
 </style>`;
 }
 

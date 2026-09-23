@@ -46,6 +46,7 @@ if (!rh?.syncedAt || !Array.isArray(rh.positions)) {
 
 const rhAgeHours = ageHours(rh.syncedAt);
 const maxAgeHours = Number(process.env.CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS || 72);
+const maxQuoteAgeHours = Number(process.env.CAPITAL_RADAR_MAX_QUOTE_AGE_HOURS || 24);
 const rhStale = rhAgeHours > maxAgeHours;
 if (rhStale) {
   // Degrade, don't die: a stale holdings feed must freeze only the portfolio block,
@@ -80,6 +81,8 @@ const positions = rh.positions.map(pos => {
   const dayChangePct = round(live.dayChangePct ?? pos.dayChangePct, 2);
   const dayChange = dayChangeFromPct(currentValue, dayChangePct);
   const signal = signalByTicker.get(symbol) || live.signal || live.computedSignal || null;
+  const priceAsOf = live.priceAsOf || live.asOf || pos.priceAsOf || rh.syncedAt;
+  const quoteAgeHours = ageHours(priceAsOf);
 
   return {
     symbol,
@@ -95,6 +98,12 @@ const positions = rh.positions.map(pos => {
     dayChangePct,
     signal,
     signalClass: signalClass(signal),
+    priceAsOf,
+    priceFreshness: {
+      status: quoteAgeHours <= maxQuoteAgeHours ? 'OK' : 'STALE',
+      ageHours: round(quoteAgeHours, 1),
+      maxAgeHours: maxQuoteAgeHours,
+    },
   };
 }).filter(pos => pos.symbol);
 
@@ -119,16 +128,18 @@ const actionQueue = positions
   }));
 
 const portfolio = rh.portfolio || {};
+const staleQuoteCount = positions.filter(position => position.priceFreshness?.status !== 'OK').length;
 const state = {
   generatedAt: rh.syncedAt,
   fetchedAt: rh.syncedAt,
   source: 'robinhood-positions + report-state.live market prices',
   freshness: {
-    status: rhStale ? 'STALE' : 'OK',
-    degraded: rhStale,
+    status: rhStale || staleQuoteCount ? 'STALE' : 'OK',
+    degraded: rhStale || staleQuoteCount > 0,
     ageHours: round(rhAgeHours, 1),
     maxAgeHours,
-    ...(rhStale ? { note: `Holdings frozen: Robinhood sync is ${rhAgeHours.toFixed(1)}h old (> ${maxAgeHours}h). Restore the positions producer to refresh.` } : {}),
+    staleQuoteCount,
+    ...(rhStale || staleQuoteCount ? { note: `Portfolio changes blocked: position sync age ${rhAgeHours.toFixed(1)}h; ${staleQuoteCount} quote(s) exceed ${maxQuoteAgeHours}h.` } : {}),
   },
   portfolio: {
     totalValue: round(portfolio.totalValue ?? (totalCurrentValue + Number(portfolio.cash || 0) + Number(portfolio.cryptoValue || 0)), 2),

@@ -12,6 +12,7 @@ const reactions = readJson('outputs/live-reaction-state.json') || {};
 const health = readJson('outputs/data-health.json') || {};
 const candidateMap = readJson('outputs/research-candidate-map.json') || {};
 const systemQuality = readJson('outputs/system-quality-score.json') || {};
+const mandateState = readJson('outputs/mandate-state.json') || {};
 const holdings = Array.isArray(state.holdings) ? state.holdings : [];
 const reactionRows = Array.isArray(reactions.all) ? reactions.all : [];
 
@@ -22,7 +23,7 @@ function hasEvery(rows, fn) { return rows.length > 0 && rows.every(fn); }
 function hasSome(rows, fn) { return rows.some(fn); }
 function fileContains(rel, text) { if (!exists(rel)) return false; return fs.readFileSync(path.join(root, rel), 'utf8').includes(text); }
 
-const liveFresh = reactionRows.filter(r => r.freshness?.status === 'live').length;
+const liveFresh = reactionRows.filter(r => ['live', 'fresh_cycle'].includes(r.freshness?.status)).length;
 const allHaveFreshness = hasEvery(reactionRows, r => r.freshness && r.asOf);
 const allHaveLevels = hasEvery(reactionRows, r => r.levels && r.levels.stop != null && r.levels.hardExit != null);
 const allHavePermission = hasEvery(reactionRows, r => r.reaction?.permission && r.reaction?.state);
@@ -179,6 +180,10 @@ if (!exists('outputs/reaction-state-delta.json')) caps.push({ cap: 66, reason: '
 const deltaState = readJson('outputs/reaction-state-delta.json') || {};
 if (deltaState.baselineOnly) caps.push({ cap: 87, reason: 'Reaction-state delta layer exists, but only as a first baseline; it needs a second run to prove real change detection.' });
 if (!exists('outputs/source-reliability-ledger.json') || !exists('outputs/decision-outcome-ledger.json')) caps.push({ cap: 89, reason: 'High-trust status requires source reliability and decision-outcome ledgers.' });
+const mandateRows = Array.isArray(mandateState.mandates) ? mandateState.mandates : [];
+if (!mandateRows.length) caps.push({ cap: 59, reason: 'Mandate decision state is missing; the system cannot prove which capital/risk policy applies.' });
+if (mandateRows.length && mandateRows.every(row => row.state === 'PAUSED_STALE' || row.state === 'BLACKOUT')) caps.push({ cap: 59, reason: 'All mandates are paused by stale/missing dependencies or blackout.' });
+else if (mandateRows.some(row => row.dependencies?.some(dep => dep.required && dep.status !== 'OK'))) caps.push({ cap: 74, reason: 'At least one mandate has a stale or missing required action dependency.' });
 const total = Number(Math.min(rawTotal, ...caps.map(c => c.cap), 100).toFixed(1));
 const stage = total < 40 ? 'Prototype' : total < 60 ? 'Structured but fragile' : total < 80 ? 'Operational beta' : total < 90 ? 'Operational' : 'High-trust operating system';
 const weakest = [...categories].sort((a, b) => (a.score / a.max) - (b.score / b.max)).slice(0, 3);

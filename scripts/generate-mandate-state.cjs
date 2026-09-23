@@ -125,6 +125,10 @@ const mandates = (config.mandates || []).map(mandate => {
     dependency('gate_observations', 'Playbook observations', gateTimestamp, mandate.freshness.gateObservationsMaxMinutes, {
       available: Boolean(gateTimestamp), source: 'playbook-observations', missingReason: 'No timestamped gate observation set is available.'
     }),
+    dependency('data_health', 'Market data health', dataHealth?.generatedAt, mandate.freshness.dataHealthMaxMinutes, {
+      available: Boolean(dataHealth), valid: dataHealth?.status === 'OK', source: 'data-health',
+      invalidReason: `Data health reports ${dataHealth?.status || 'UNKNOWN'}.`
+    }),
     dependency('calendar', 'Market calendar', calendarTimestamp, mandate.freshness.calendarMaxMinutes, {
       available: Boolean(calendarTimestamp), source: 'market-events'
     })

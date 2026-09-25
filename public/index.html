@@ -514,6 +514,36 @@ details[open].mu-details summary:before{content:'↑'}
 @media(max-width:860px){.mu-cycle-hero{grid-template-columns:1fr}.mu-ev-grid{grid-template-columns:repeat(2,1fr)}.mu-guide-grid{grid-template-columns:1fr}}
 @media(max-width:480px){.mu-pb-seg span{display:none}.mu-pb-seg{padding:8px 2px}.mu-pb-seg i{font-size:7px}.mu-cycle{padding:16px}.mu-ev-grid{grid-template-columns:1fr 1fr}}
 
+/* ── Cycle Watch — daily tripwire tracker ── */
+.mu-cw{border-top:1px solid var(--rule);padding-top:14px;margin-bottom:14px}
+.mu-cw-asof{display:block;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px}
+.mu-cw-read{font-size:13px;font-weight:600;color:rgba(26,23,20,.88);line-height:1.5;margin:0 0 12px;max-width:760px}
+.mu-cw-stalenote{font-size:11.5px;color:#8a6a2c;background:rgba(138,106,44,.08);border:1px solid rgba(138,106,44,.3);border-radius:10px;padding:8px 12px;margin:0 0 12px;line-height:1.45}
+.mu-cw-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mu-cw-h{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.mu-cw-item{border:1px solid var(--rule);border-radius:10px;padding:8px 10px;background:rgba(201,191,173,.06);margin-bottom:6px}
+.mu-cw-item b{display:block;font-size:11.5px;color:rgba(26,23,20,.88);margin-bottom:2px}
+.mu-cw-item span{display:block;font-size:11px;color:rgba(26,23,20,.62);line-height:1.45;margin-bottom:3px}
+.mu-cw-item small{display:block;font-size:10px;color:var(--muted);line-height:1.4}
+.mu-cw-rows{display:flex;flex-direction:column;gap:6px}
+.mu-cw-row{display:grid;grid-template-columns:minmax(140px,1.25fr) minmax(96px,.85fr) minmax(64px,.6fr) 92px minmax(130px,1.05fr) minmax(76px,.65fr);gap:8px;align-items:center;border:1px solid var(--rule);border-radius:12px;padding:9px 12px;background:#ffffff}
+.mu-cw-name{font-size:12px;font-weight:600;color:rgba(26,23,20,.85);line-height:1.3}
+.mu-cw-proxy{display:inline-block;font-style:normal;font-weight:700;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:#8a6a2c;border:1px solid rgba(138,106,44,.45);border-radius:999px;padding:0 7px;margin-left:5px;vertical-align:1px}
+.mu-cw-now{font-size:14px;font-weight:700;color:rgba(26,23,20,.92);letter-spacing:-.01em}
+.mu-cw-delta{font-size:12px;color:rgba(26,23,20,.65);font-variant-numeric:tabular-nums}
+.mu-cw-delta small{display:block;font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.mu-cw-sparkw{display:flex;align-items:center}
+.mu-cw-nospark{font-size:12px;color:var(--muted)}
+.mu-cw-dist{font-size:11px;color:rgba(26,23,20,.7);line-height:1.35}
+.mu-cw-dist small{display:block;font-size:9px;color:var(--muted);line-height:1.3}
+.mu-cw-chip{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:4px 10px;text-align:center;white-space:nowrap;justify-self:end}
+.mu-cw-calm{color:#2a6b4a;background:rgba(47,111,78,.1)}
+.mu-cw-watch{color:#8a6a2c;background:rgba(138,106,44,.12)}
+.mu-cw-tripped{color:#fff;background:#A4502F}
+.mu-cw-stale{color:#6b665c;background:rgba(120,113,100,.14)}
+@media(max-width:860px){.mu-cw-cols{grid-template-columns:1fr}.mu-cw-row{grid-template-columns:minmax(120px,1.2fr) minmax(80px,.8fr) minmax(56px,.6fr) 76px minmax(110px,1fr) minmax(64px,.6fr);padding:8px 10px}}
+@media(max-width:480px){.mu-cw-row{grid-template-columns:1fr 1fr;row-gap:6px}.mu-cw-name{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}.mu-cw-chip{justify-self:end}.mu-cw-sparkw{grid-column:1/-1}.mu-cw-dist{grid-column:1/-1}}
+
 </style><style id="operational-chart-style">
 .op-chart-section .section-head{margin-bottom:20px}
 .op-route-hero{border:1px solid var(--rule);background:#ffffff;padding:24px 28px;margin:0 0 20px;border-left:5px solid var(--ink,#24231f)}
@@ -978,7 +1008,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <h3 class="mc-dep-heading">Required evidence</h3>
     <ul class="mc-dependencies"><li class="mc-dependency mc-stale">
     <div class="mc-dep-top"><b>STALE</b><span>Positions</span></div>
-    <p class="mc-dep-why">Why it’s blocked: Positions is 21 days old; maximum is 3 days</p>
+    <p class="mc-dep-why">Why it’s blocked: Positions is 22 days old; maximum is 3 days</p>
     <p class="mc-dep-guidance"><strong>What this is:</strong> Your share counts and holdings list. <strong>What unblocks it:</strong> Share counts come from Robinhood and are updated by hand — there is no automatic sync. A fresh manual sync clears this.</p>
     <small>Last checked Sep 3, 2026</small>
   </li><li class="mc-dependency mc-ok">
@@ -1201,6 +1231,77 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   <li><b>HY OAS widens past 6.00</b> — 2.70 now; credit stress would end the expansion read.</li></ul>
     <p class="mu-prob">Next-phase odds — holds D 50% · advances to E 30% · slips to C 10% · other 10%</p>
   </div>
+  
+  <div class="mu-cw" id="mu-cycle-watch">
+    <p class="mu-ev-kicker">Cycle Watch — daily tripwire tracker <span class="mu-cw-asof">data through 2026-09-25 · updates automatically</span></p>
+    <p class="mu-cw-read">Late Phase D — expansion price action on contraction-grade monetary fuel. Position as late-D: hold winners, trim rips, no new risk.</p>
+    
+    <div class="mu-cw-cols">
+      <div class="mu-cw-col"><span class="mu-cw-h">Exceptions to the rules</span>
+    <div class="mu-cw-item"><b>Credit hasn&#39;t blinked</b><span>HY spreads near record tights while the Fed hikes into 41.6× CAPE. Credit is either right (no recession) or the last to know — no middle ground at these spreads.</span>
+    <small>Confirm: Spreads stay contained through the next hike. · Refute: Credit proxy breaks &gt;2.5% below its 50-day average.</small></div>
+    <div class="mu-cw-item"><b>Narrow leadership, complacent vol</b><span>Mag7 correcting while the index holds and VIX sleeps — distribution-phase behavior wearing an expansion-phase mask.</span>
+    <small>Confirm: Mag7 gap narrows below 5 pts (breadth healing). · Refute: Gap widens past 12 pts (rollover risk).</small></div>
+    <div class="mu-cw-item"><b>The long end is doing the tightening</b><span>10Y at 5.16% vs funds at 3.75–4.00% prices fiscal risk, not just Fed policy — a term-premium revolt, not a normal hiking cycle.</span>
+    <small>Confirm: 10Y rolls over on soft CPI. · Refute: 10Y prints new highs into further hikes.</small></div></div>
+      <div class="mu-cw-col"><span class="mu-cw-h">Historical analogs</span>
+    <div class="mu-cw-item"><b>1999–2000 — closest rhyme</b><span>CAPE ~44 then vs 41.6 now; narrow must-own leadership; Fed hiking into strength; credit calm until it wasn&#39;t.</span>
+    <small>Confirm: Credit widens while the index holds. · Refute: Breadth heals and the Fed pauses.</small></div>
+    <div class="mu-cw-item"><b>2018 Q4 — the mechanism to fear</b><span>Hiking on autopilot into rich valuations; −20% in a quarter; credit serene weeks earlier.</span>
+    <small>Confirm: Hawkish surprise plus vol spike. · Refute: Fed signals pause.</small></div>
+    <div class="mu-cw-item"><b>1994–95 — comforting, likely wrong</b><span>Aggressive hikes and bond pain, but CAPE was 24× and the hikes actually slowed the economy — transmission worked. This cycle&#39;s broken transmission cuts both ways.</span>
+    <small>Confirm: Economy absorbs hikes; 1995-style rip follows. · Refute: Transmission was just lagged — the break arrives late.</small></div></div>
+    </div>
+    <div class="mu-cw-rows">
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">S&amp;P 500 vs 200-day</span>
+      <b class="mu-cw-now">+7.1% above</b>
+      <span class="mu-cw-delta">+0.08 pp<small>1d</small></span>
+      <span class="mu-cw-sparkw"><svg class="mu-cw-spark" width="84" height="24" viewBox="0 0 84 24" aria-hidden="true"><polyline points="2.0,2.0 4.8,4.7 7.5,8.1 10.3,7.4 13.0,11.6 15.8,9.9 18.6,11.5 21.3,10.3 24.1,10.7 26.8,7.8 29.6,9.2 32.3,10.9 35.1,14.4 37.9,12.6 40.6,8.2 43.4,10.2 46.1,13.2 48.9,15.7 51.7,18.6 54.4,15.1 57.2,17.5 59.9,19.8 62.7,22.0 65.4,17.3 68.2,16.8 71.0,10.4 73.7,10.7 76.5,14.4 79.2,14.8 82.0,14.4" fill="none" stroke="#2a6b4a" stroke-width="1.6"/><circle cx="82.0" cy="14.4" r="2.4" fill="#2a6b4a"/></svg></span>
+      <span class="mu-cw-dist">7.1% of clearance<small>Daily close below 200D</small></span>
+      <span class="mu-cw-chip mu-cw-calm">CALM</span>
+    </div>
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">VIX</span>
+      <b class="mu-cw-now">15.55</b>
+      <span class="mu-cw-delta">-0.12<small>1d</small></span>
+      <span class="mu-cw-sparkw"><svg class="mu-cw-spark" width="84" height="24" viewBox="0 0 84 24" aria-hidden="true"><polyline points="2.0,21.8 4.8,16.6 7.5,13.0 10.3,18.3 13.0,12.1 15.8,16.9 18.6,13.0 21.3,15.2 24.1,16.5 26.8,20.3 29.6,20.8 32.3,18.1 35.1,10.3 37.9,16.5 40.6,21.4 43.4,20.2 46.1,13.7 48.9,9.6 51.7,2.0 54.4,13.0 57.2,6.1 59.9,5.5 62.7,2.7 65.4,15.2 68.2,18.7 71.0,18.4 73.7,22.0 76.5,16.7 79.2,14.0 82.0,14.6" fill="none" stroke="#2a6b4a" stroke-width="1.6"/><circle cx="82.0" cy="14.6" r="2.4" fill="#2a6b4a"/></svg></span>
+      <span class="mu-cw-dist">9.45 pts below 25<small>&gt; 25 = watch · spike + 200D break = tripped</small></span>
+      <span class="mu-cw-chip mu-cw-calm">CALM</span>
+    </div>
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">10Y Treasury</span>
+      <b class="mu-cw-now">5.22%</b>
+      <span class="mu-cw-delta">+0.06 pp<small>1d</small></span>
+      <span class="mu-cw-sparkw"><svg class="mu-cw-spark" width="84" height="24" viewBox="0 0 84 24" aria-hidden="true"><polyline points="2.0,19.9 4.8,19.2 7.5,19.6 10.3,21.7 13.0,19.9 15.8,18.6 18.6,19.9 21.3,22.0 24.1,21.3 26.8,21.0 29.6,19.2 32.3,17.9 35.1,16.5 37.9,16.5 40.6,17.9 43.4,17.2 46.1,16.1 48.9,15.1 51.7,11.7 54.4,10.6 57.2,11.0 59.9,9.6 62.7,9.2 65.4,11.3 68.2,9.6 71.0,11.0 73.7,10.6 76.5,5.8 79.2,4.1 82.0,2.0" fill="none" stroke="#8a6a2c" stroke-width="1.6"/><circle cx="82.0" cy="2.0" r="2.4" fill="#8a6a2c"/></svg></span>
+      <span class="mu-cw-dist">AT 30d high<small>New 30d high = watch</small></span>
+      <span class="mu-cw-chip mu-cw-watch">WATCH · 3d</span>
+    </div>
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">Credit — HYG/LQD <i class="mu-cw-proxy">proxy</i></span>
+      <b class="mu-cw-now">+1.06% vs 50d avg</b>
+      <span class="mu-cw-delta">+0.08 pp<small>1d</small></span>
+      <span class="mu-cw-sparkw"><svg class="mu-cw-spark" width="84" height="24" viewBox="0 0 84 24" aria-hidden="true"><polyline points="2.0,4.6 4.8,2.0 7.5,5.4 10.3,11.5 13.0,8.5 15.8,6.7 18.6,8.9 21.3,13.8 24.1,13.8 26.8,14.1 29.6,12.4 32.3,10.2 35.1,8.8 37.9,10.8 40.6,11.6 43.4,12.8 46.1,14.2 48.9,15.2 51.7,10.5 54.4,11.1 57.2,12.6 59.9,15.3 62.7,17.2 65.4,21.1 68.2,19.1 71.0,21.5 73.7,22.0 76.5,17.2 79.2,12.2 82.0,11.3" fill="none" stroke="#2a6b4a" stroke-width="1.6"/><circle cx="82.0" cy="11.3" r="2.4" fill="#2a6b4a"/></svg></span>
+      <span class="mu-cw-dist">2.06% above watch line<small>−1% = watch · −2.5% = tripped</small></span>
+      <span class="mu-cw-chip mu-cw-calm">CALM</span>
+    </div>
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">Breadth — RSP/SPY <i class="mu-cw-proxy">proxy</i></span>
+      <b class="mu-cw-now">-4.25% / 30d</b>
+      <span class="mu-cw-delta">-0.14 pp<small>1d</small></span>
+      <span class="mu-cw-sparkw"><svg class="mu-cw-spark" width="84" height="24" viewBox="0 0 84 24" aria-hidden="true"><polyline points="2.0,10.7 4.8,9.6 7.5,9.9 10.3,5.5 13.0,4.8 15.8,4.0 18.6,4.9 21.3,4.0 24.1,2.0 26.8,8.6 29.6,9.4 32.3,9.4 35.1,8.0 37.9,8.2 40.6,11.5 43.4,13.5 46.1,16.6 48.9,20.2 51.7,22.0 54.4,17.6 57.2,14.0 59.9,12.9 62.7,12.9 65.4,14.5 68.2,15.1 71.0,17.8 73.7,17.8 76.5,19.1 79.2,20.0 82.0,20.3" fill="none" stroke="#8a6a2c" stroke-width="1.6"/><circle cx="82.0" cy="20.3" r="2.4" fill="#8a6a2c"/></svg></span>
+      <span class="mu-cw-dist">AT 30d low<small>New 30d low = watch</small></span>
+      <span class="mu-cw-chip mu-cw-watch">WATCH · 2d</span>
+    </div>
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">Mag7 divergence gap</span>
+      <b class="mu-cw-now">8.19 pts</b>
+      <span class="mu-cw-delta">+0.41 pts<small>1d</small></span>
+      <span class="mu-cw-sparkw"><svg class="mu-cw-spark" width="84" height="24" viewBox="0 0 84 24" aria-hidden="true"><polyline points="2.0,3.7 4.8,2.0 7.5,2.1 10.3,4.5 13.0,4.1 15.8,4.4 18.6,4.8 21.3,5.4 24.1,4.8 26.8,6.9 29.6,9.0 32.3,9.2 35.1,9.3 37.9,10.0 40.6,13.0 43.4,10.5 46.1,11.2 48.9,12.5 51.7,14.1 54.4,14.3 57.2,16.3 59.9,15.7 62.7,16.7 65.4,18.0 68.2,17.3 71.0,21.1 73.7,21.1 76.5,21.0 79.2,22.0 82.0,20.8" fill="none" stroke="#2a6b4a" stroke-width="1.6"/><circle cx="82.0" cy="20.8" r="2.4" fill="#2a6b4a"/></svg></span>
+      <span class="mu-cw-dist">3.81 pts below 12<small>&gt; 12 pts = watch (rollover risk)</small></span>
+      <span class="mu-cw-chip mu-cw-calm">CALM</span>
+    </div></div>
+  </div>
   <details class="mu-guide-det"><summary class="mu-guide-sum">Full A1–F phase guide</summary><div class="mu-guide-grid">
   <div class="mu-guide-item">
     <b>A1 · Capitulation</b><span>Panic selling; prices bottom as the weak hands give up.</span>
@@ -1232,7 +1333,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <span class="mu-arc-meta">One of five inputs &middot; ~54 mo &middot; Next phase: Euphoria</span>
   </div>
   <div class="mu-arc-canvas-box">
-    <canvas id="mcc_muh1rt8i"></canvas>
+    <canvas id="mcc_muh33nqv"></canvas>
   </div>
   <div class="mu-arc-legend">
     <span><span class="mu-leg mu-leg-actual"></span>Actual rate · FRED DFF last-known-good</span>
@@ -1301,7 +1402,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
-  var canvas=document.getElementById("mcc_muh1rt8i");
+  var canvas=document.getElementById("mcc_muh33nqv");
   if(!canvas)return;
   var c=canvas.getContext("2d");
   var anim=0, raf;
@@ -3917,7 +4018,7 @@ else{window.addEventListener('load',init);}
 <div id="robinhood-execution-bridge-module" class="rh-live-holdings" aria-labelledby="rh-lh-title">
   <div class="rh-lh-head">
     <div>
-      <p class="eyebrow rh-stale-eyebrow">Robinhood · Stale (21d)</p>
+      <p class="eyebrow rh-stale-eyebrow">Robinhood · Stale (22d)</p>
       <h3 id="rh-lh-title">Proposal-only execution rail</h3>
       <p class="rh-lh-safety">Human approval required. Capital Radar remains the decision brain; this bridge does not place autonomous orders.</p>
     </div>

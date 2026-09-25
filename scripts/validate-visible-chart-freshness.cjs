@@ -60,6 +60,7 @@ const checks = [
   check('Strategy routing state', 'outputs/strategy-routing-state.json', 'as_of', 24),
   check('Trust strip state', 'outputs/trust-strip-state.json', 'as_of', 24),
   check('Macro cycle state', 'outputs/macro-cycle-state.json', 'as_of', 24),
+  check('Cycle Watch state', 'outputs/cycle-watch-state.json', 'asOf', 24),
   check('Kostolany cycle diagram state', 'outputs/kostolany-egg-state.json', 'as_of', 24),
   check('Operational decision chart', 'outputs/operational-chart-state.json', 'as_of', 24),
   check('Macro price strip', 'outputs/macro-prices-state.json', 'generatedAt', 24),

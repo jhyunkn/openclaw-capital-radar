@@ -22,6 +22,7 @@ const config   = read('outputs/macro-configuration-state.json');
 const analogs  = read('outputs/macro-historical-analog-state.json');
 const portfolio= read('outputs/macro-portfolio-translation-state.json');
 const cycle    = read('outputs/macro-cycle-state.json');
+const cycleWatch = read('outputs/cycle-watch-state.json', null);
 const liveState   = read('data/report-state.live.json', {});
 const allHoldings = Array.isArray(liveState.holdings) ? liveState.holdings : [];
 
@@ -1955,6 +1956,36 @@ details[open].mu-details summary:before{content:'↑'}
 @media(max-width:860px){.mu-cycle-hero{grid-template-columns:1fr}.mu-ev-grid{grid-template-columns:repeat(2,1fr)}.mu-guide-grid{grid-template-columns:1fr}}
 @media(max-width:480px){.mu-pb-seg span{display:none}.mu-pb-seg{padding:8px 2px}.mu-pb-seg i{font-size:7px}.mu-cycle{padding:16px}.mu-ev-grid{grid-template-columns:1fr 1fr}}
 
+/* ── Cycle Watch — daily tripwire tracker ── */
+.mu-cw{border-top:1px solid var(--rule);padding-top:14px;margin-bottom:14px}
+.mu-cw-asof{display:block;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px}
+.mu-cw-read{font-size:13px;font-weight:600;color:rgba(26,23,20,.88);line-height:1.5;margin:0 0 12px;max-width:760px}
+.mu-cw-stalenote{font-size:11.5px;color:#8a6a2c;background:rgba(138,106,44,.08);border:1px solid rgba(138,106,44,.3);border-radius:10px;padding:8px 12px;margin:0 0 12px;line-height:1.45}
+.mu-cw-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mu-cw-h{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.mu-cw-item{border:1px solid var(--rule);border-radius:10px;padding:8px 10px;background:rgba(201,191,173,.06);margin-bottom:6px}
+.mu-cw-item b{display:block;font-size:11.5px;color:rgba(26,23,20,.88);margin-bottom:2px}
+.mu-cw-item span{display:block;font-size:11px;color:rgba(26,23,20,.62);line-height:1.45;margin-bottom:3px}
+.mu-cw-item small{display:block;font-size:10px;color:var(--muted);line-height:1.4}
+.mu-cw-rows{display:flex;flex-direction:column;gap:6px}
+.mu-cw-row{display:grid;grid-template-columns:minmax(140px,1.25fr) minmax(96px,.85fr) minmax(64px,.6fr) 92px minmax(130px,1.05fr) minmax(76px,.65fr);gap:8px;align-items:center;border:1px solid var(--rule);border-radius:12px;padding:9px 12px;background:#ffffff}
+.mu-cw-name{font-size:12px;font-weight:600;color:rgba(26,23,20,.85);line-height:1.3}
+.mu-cw-proxy{display:inline-block;font-style:normal;font-weight:700;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:#8a6a2c;border:1px solid rgba(138,106,44,.45);border-radius:999px;padding:0 7px;margin-left:5px;vertical-align:1px}
+.mu-cw-now{font-size:14px;font-weight:700;color:rgba(26,23,20,.92);letter-spacing:-.01em}
+.mu-cw-delta{font-size:12px;color:rgba(26,23,20,.65);font-variant-numeric:tabular-nums}
+.mu-cw-delta small{display:block;font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.mu-cw-sparkw{display:flex;align-items:center}
+.mu-cw-nospark{font-size:12px;color:var(--muted)}
+.mu-cw-dist{font-size:11px;color:rgba(26,23,20,.7);line-height:1.35}
+.mu-cw-dist small{display:block;font-size:9px;color:var(--muted);line-height:1.3}
+.mu-cw-chip{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:4px 10px;text-align:center;white-space:nowrap;justify-self:end}
+.mu-cw-calm{color:#2a6b4a;background:rgba(47,111,78,.1)}
+.mu-cw-watch{color:#8a6a2c;background:rgba(138,106,44,.12)}
+.mu-cw-tripped{color:#fff;background:#A4502F}
+.mu-cw-stale{color:#6b665c;background:rgba(120,113,100,.14)}
+@media(max-width:860px){.mu-cw-cols{grid-template-columns:1fr}.mu-cw-row{grid-template-columns:minmax(120px,1.2fr) minmax(80px,.8fr) minmax(56px,.6fr) 76px minmax(110px,1fr) minmax(64px,.6fr);padding:8px 10px}}
+@media(max-width:480px){.mu-cw-row{grid-template-columns:1fr 1fr;row-gap:6px}.mu-cw-name{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}.mu-cw-chip{justify-self:end}.mu-cw-sparkw{grid-column:1/-1}.mu-cw-dist{grid-column:1/-1}}
+
 </style>`;
 
 // ── Today's action: market news strip + AI briefing ──────────────────────────
@@ -2141,6 +2172,65 @@ const guideGridHtml = PHASES7.map(pp => `
     <b>${pp.code} · ${pp.name}${pp.code === curPhase.code ? ' — we are here' : ''}</b><span>${pp.desc}</span>
   </div>`).join('');
 
+// ── Cycle Watch — daily tripwire tracker (fully automated; no manual step) ──
+// Reads outputs/cycle-watch-state.json (written by generate-cycle-watch-state.cjs
+// from data/cycle-watch-history.json, appended by fetch-cycle-watch.cjs).
+// Renders nothing if state is missing — never breaks the build.
+const CW_STATUS_COLOR = { calm: '#2a6b4a', watch: '#8a6a2c', tripped: '#A4502F', stale: '#8a8578' };
+function cwSparkSvg(vals, status) {
+  const pts = (vals || []).filter(v => typeof v === 'number' && Number.isFinite(v));
+  if (pts.length < 2) return '<span class="mu-cw-nospark">—</span>';
+  const w = 84, h = 24, pad = 2;
+  const lo = Math.min(...pts), hi = Math.max(...pts), rng = (hi - lo) || 1;
+  const step = (w - pad * 2) / (pts.length - 1);
+  const d = pts.map((v, i) => `${(pad + i * step).toFixed(1)},${(h - pad - (v - lo) / rng * (h - pad * 2)).toFixed(1)}`).join(' ');
+  const last = pts[pts.length - 1];
+  const lx = (pad + (pts.length - 1) * step).toFixed(1), ly = (h - pad - (last - lo) / rng * (h - pad * 2)).toFixed(1);
+  const col = CW_STATUS_COLOR[status] || '#8a8578';
+  return `<svg class="mu-cw-spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${d}" fill="none" stroke="${col}" stroke-width="1.6"/><circle cx="${lx}" cy="${ly}" r="2.4" fill="${col}"/></svg>`;
+}
+function cwDeltaTxt(sig) {
+  if (sig.delta_1d == null) return '—';
+  const u = sig.unit === '%' ? 'pp' : (sig.unit || '');
+  return `${sig.delta_1d >= 0 ? '+' : ''}${sig.delta_1d}${u ? ' ' + u : ''}`;
+}
+let cycleWatchHtml = '';
+if (cycleWatch && Array.isArray(cycleWatch.signals) && cycleWatch.signals.length) {
+  const th = cycleWatch.thesis || {};
+  const dataThru = cycleWatch.data_through ? esc(cycleWatch.data_through) : '—';
+  const excHtml = (th.exceptions || []).map(e => `
+    <div class="mu-cw-item"><b>${esc(e.name)}</b><span>${esc(e.detail)}</span>
+    <small>Confirm: ${esc(e.confirm)} · Refute: ${esc(e.refute)}</small></div>`).join('');
+  const anaHtml = (th.analogs || []).map(a => `
+    <div class="mu-cw-item"><b>${esc(a.name)}</b><span>${esc(a.detail)}</span>
+    <small>Confirm: ${esc(a.confirm)} · Refute: ${esc(a.refute)}</small></div>`).join('');
+  const rowsHtml = cycleWatch.signals.map(sig => {
+    const st = CW_STATUS_COLOR[sig.status] ? sig.status : 'calm';
+    const chipTxt = sig.status === 'stale' ? `STALE · ${esc(sig.as_of_date || '')}`
+      : sig.status.toUpperCase() + (sig.streak_days > 1 ? ` · ${sig.streak_days}d` : '');
+    return `
+    <div class="mu-cw-row">
+      <span class="mu-cw-name">${esc(sig.name)}${sig.proxy ? ' <i class="mu-cw-proxy">proxy</i>' : ''}</span>
+      <b class="mu-cw-now">${esc(sig.display || '—')}</b>
+      <span class="mu-cw-delta">${esc(cwDeltaTxt(sig))}<small>1d</small></span>
+      <span class="mu-cw-sparkw">${cwSparkSvg(sig.spark_30d, st)}</span>
+      <span class="mu-cw-dist">${esc(sig.distance || '—')}<small>${esc(sig.tripwire || '')}</small></span>
+      <span class="mu-cw-chip mu-cw-${st}">${chipTxt}</span>
+    </div>`;
+  }).join('');
+  cycleWatchHtml = `
+  <div class="mu-cw" id="mu-cycle-watch">
+    <p class="mu-ev-kicker">Cycle Watch — daily tripwire tracker <span class="mu-cw-asof">data through ${dataThru} · updates automatically</span></p>
+    ${th.read ? `<p class="mu-cw-read">${esc(th.read)}</p>` : ''}
+    ${cycleWatch.feed_stale ? '<p class="mu-cw-stalenote">Price feed unreachable on the last run — rows show last-good values with their dates.</p>' : ''}
+    <div class="mu-cw-cols">
+      <div class="mu-cw-col"><span class="mu-cw-h">Exceptions to the rules</span>${excHtml}</div>
+      <div class="mu-cw-col"><span class="mu-cw-h">Historical analogs</span>${anaHtml}</div>
+    </div>
+    <div class="mu-cw-rows">${rowsHtml}</div>
+  </div>`;
+}
+
 const cycleHeroHtml = `
 <div class="mu-cycle" id="mu-market-cycle">
   <p class="mu-cycle-eyebrow">Market Cycle · Kostolany framework</p>
@@ -2167,6 +2257,7 @@ const cycleHeroHtml = `
     <ul class="mu-break-list">${breakListHtml}</ul>
     <p class="mu-prob">Next-phase odds — holds ${esc(curPhase.code)} ${pStay}% · advances to E ${pNext}% · slips to C ${pPrev}% · other ${pOther}%</p>
   </div>
+  ${cycleWatchHtml}
   <details class="mu-guide-det"><summary class="mu-guide-sum">Full A1–F phase guide</summary><div class="mu-guide-grid">${guideGridHtml}</div></details>
 </div>`;
 

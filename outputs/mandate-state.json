@@ -1,0 +1,296 @@
+{
+  "generatedAt": "2026-09-25T02:36:35.389Z",
+  "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
+  "defaultMandate": "core",
+  "mandates": [
+    {
+      "id": "core",
+      "label": "Core portfolio",
+      "description": "Longer-horizon portfolio oversight, concentration control, thesis verification, and measured exposure changes.",
+      "state": "PAUSED_STALE",
+      "actionAllowed": false,
+      "permission": "NO_ACTION",
+      "reason": "3 required dependency blocker(s).",
+      "dependencies": [
+        {
+          "id": "positions",
+          "label": "Positions",
+          "required": true,
+          "status": "STALE",
+          "asOf": "2026-09-04T02:37:16.000000Z",
+          "ageMinutes": 30239.3,
+          "maxMinutes": 4320,
+          "source": "portfolio-live-state",
+          "reason": "Positions is 30239 minutes old; maximum is 4320."
+        },
+        {
+          "id": "quotes",
+          "label": "Holding prices",
+          "required": true,
+          "status": "OK",
+          "asOf": "2026-09-24T21:53:17.000Z",
+          "ageMinutes": 283.3,
+          "maxMinutes": 1440,
+          "source": "portfolio-live-state.positions",
+          "reason": null
+        },
+        {
+          "id": "data_health",
+          "label": "Data health",
+          "required": true,
+          "status": "INVALID",
+          "asOf": "2026-09-25T02:36:31.155Z",
+          "ageMinutes": 0.1,
+          "maxMinutes": 1440,
+          "source": "data-health",
+          "reason": "Data health reports PARTIAL."
+        },
+        {
+          "id": "calendar",
+          "label": "Market calendar",
+          "required": true,
+          "status": "STALE",
+          "asOf": "2026-06-06",
+          "ageMinutes": 159996.6,
+          "maxMinutes": 10080,
+          "source": "market-events",
+          "reason": "Market calendar is 159997 minutes old; maximum is 10080."
+        }
+      ],
+      "blockers": [
+        {
+          "id": "positions",
+          "status": "STALE",
+          "reason": "Positions is 30239 minutes old; maximum is 4320."
+        },
+        {
+          "id": "data_health",
+          "status": "INVALID",
+          "reason": "Data health reports PARTIAL."
+        },
+        {
+          "id": "calendar",
+          "status": "STALE",
+          "reason": "Market calendar is 159997 minutes old; maximum is 10080."
+        }
+      ],
+      "portfolio": {
+        "totalValue": 92525.93,
+        "buyingPower": 5027.11,
+        "positionCount": 13,
+        "dayChange": 616.87
+      }
+    },
+    {
+      "id": "agentic",
+      "label": "Agentic tactical",
+      "description": "One-position tactical account. Monitoring never implies order authorization.",
+      "state": "PAUSED_STALE",
+      "actionAllowed": false,
+      "permission": "NO_ACTION",
+      "reason": "7 required dependency blocker(s).",
+      "dependencies": [
+        {
+          "id": "account",
+          "label": "Agentic account snapshot",
+          "required": true,
+          "status": "MISSING",
+          "asOf": null,
+          "ageMinutes": null,
+          "maxMinutes": 5,
+          "source": "agentic-account-state",
+          "reason": "No fresh Agentic account snapshot is available."
+        },
+        {
+          "id": "positions",
+          "label": "Agentic positions",
+          "required": true,
+          "status": "MISSING",
+          "asOf": null,
+          "ageMinutes": null,
+          "maxMinutes": 5,
+          "source": "agentic-account-state.positions",
+          "reason": "Agentic positions are unavailable."
+        },
+        {
+          "id": "orders",
+          "label": "Open orders and protection",
+          "required": true,
+          "status": "MISSING",
+          "asOf": null,
+          "ageMinutes": null,
+          "maxMinutes": 5,
+          "source": "agentic-account-state.orders",
+          "reason": "Agentic open orders and protective-stop status are unavailable."
+        },
+        {
+          "id": "buying_power",
+          "label": "Buying power",
+          "required": true,
+          "status": "MISSING",
+          "asOf": null,
+          "ageMinutes": null,
+          "maxMinutes": 5,
+          "source": "agentic-account-state.buyingPower",
+          "reason": "Agentic buying power is unavailable."
+        },
+        {
+          "id": "gate_observations",
+          "label": "Playbook observations",
+          "required": true,
+          "status": "MISSING",
+          "asOf": null,
+          "ageMinutes": null,
+          "maxMinutes": 5,
+          "source": "playbook-observations",
+          "reason": "No timestamped gate observation set is available."
+        },
+        {
+          "id": "data_health",
+          "label": "Market data health",
+          "required": true,
+          "status": "INVALID",
+          "asOf": "2026-09-25T02:36:31.155Z",
+          "ageMinutes": 0.1,
+          "maxMinutes": 15,
+          "source": "data-health",
+          "reason": "Data health reports PARTIAL."
+        },
+        {
+          "id": "calendar",
+          "label": "Market calendar",
+          "required": true,
+          "status": "STALE",
+          "asOf": "2026-06-06",
+          "ageMinutes": 159996.6,
+          "maxMinutes": 10080,
+          "source": "market-events",
+          "reason": "Market calendar is 159997 minutes old; maximum is 10080."
+        }
+      ],
+      "blockers": [
+        {
+          "id": "account",
+          "status": "MISSING",
+          "reason": "No fresh Agentic account snapshot is available."
+        },
+        {
+          "id": "positions",
+          "status": "MISSING",
+          "reason": "Agentic positions are unavailable."
+        },
+        {
+          "id": "orders",
+          "status": "MISSING",
+          "reason": "Agentic open orders and protective-stop status are unavailable."
+        },
+        {
+          "id": "buying_power",
+          "status": "MISSING",
+          "reason": "Agentic buying power is unavailable."
+        },
+        {
+          "id": "gate_observations",
+          "status": "MISSING",
+          "reason": "No timestamped gate observation set is available."
+        },
+        {
+          "id": "data_health",
+          "status": "INVALID",
+          "reason": "Data health reports PARTIAL."
+        },
+        {
+          "id": "calendar",
+          "status": "STALE",
+          "reason": "Market calendar is 159997 minutes old; maximum is 10080."
+        }
+      ],
+      "riskPolicy": {
+        "capitalBase": 3000,
+        "maxDeployment": 1500,
+        "maxPlannedRisk": 90,
+        "maxPositions": 1,
+        "allowAveragingDown": false,
+        "allowUnprotectedEntry": false
+      },
+      "account": null,
+      "playbook": {
+        "name": "SOXL confirmation pullback",
+        "symbol": "SOXL",
+        "status": "monitor_only",
+        "expiresAt": "2026-09-25T20:00:00.000Z",
+        "eventBlackout": {
+          "label": "August PCE",
+          "startsAt": "2026-09-29T20:00:00.000Z",
+          "eventAt": "2026-09-30T12:30:00.000Z"
+        },
+        "ticket": {
+          "side": "buy",
+          "quantity": 10,
+          "referenceEntry": 148,
+          "entryRangeLow": 147,
+          "entryRangeHigh": 149,
+          "stopReference": 142,
+          "minimumObjective": 160,
+          "plannedDeployment": 1480,
+          "plannedRisk": 60,
+          "orderPolicy": "alert_then_submit_after_confirmation",
+          "authorization": "not_authorized"
+        },
+        "conditions": [
+          {
+            "id": "opening_window",
+            "label": "Opening window complete",
+            "rule": "Regular session has been open at least 30 minutes.",
+            "required": true,
+            "source": "unwired",
+            "observedAt": null,
+            "status": "UNKNOWN"
+          },
+          {
+            "id": "soxl_structure",
+            "label": "SOXL structure",
+            "rule": "SOXL trades in the 147-149 area and holds above 147 and session VWAP.",
+            "required": true,
+            "source": "unwired",
+            "observedAt": null,
+            "status": "UNKNOWN"
+          },
+          {
+            "id": "smh_confirmation",
+            "label": "SMH confirmation",
+            "rule": "SMH holds its confirmation level and session VWAP.",
+            "required": true,
+            "source": "unwired",
+            "observedAt": null,
+            "status": "UNKNOWN"
+          },
+          {
+            "id": "breadth_confirmation",
+            "label": "NYSE breadth",
+            "rule": "NYSE advance/decline is positive and improving.",
+            "required": true,
+            "source": "manual_required",
+            "observedAt": null,
+            "status": "UNKNOWN"
+          },
+          {
+            "id": "financial_stability",
+            "label": "Financial stability",
+            "rule": "XLF and KRE are not making fresh session lows.",
+            "required": true,
+            "source": "unwired",
+            "observedAt": null,
+            "status": "UNKNOWN"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "readyForReview": 0,
+    "armed": 0,
+    "paused": 2,
+    "executionAuthorized": 0
+  }
+}

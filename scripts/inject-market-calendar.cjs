@@ -147,9 +147,14 @@ if (html.includes(`id="${STYLE_ID}"`)) {
   html = html.replace('</' + 'head>', style + '</' + 'head>');
 }
 
-// Section: replace existing block if present
-if (html.includes(`id="${SECTION_ID}"`)) {
-  html = html.replace(/<!-- MC_CALENDAR_START -->[\s\S]*?<!-- MC_CALENDAR_END -->/, section);
+// Section: replace existing block if present.
+// Matches with or without the START marker (a previous injection left the
+// section without MC_CALENDAR_START, which froze all later updates).
+const sectionRe = new RegExp(
+  `(?:<!-- MC_CALENDAR_START -->\\s*)?<section[^>]*id="${SECTION_ID}"[^>]*>[\\s\\S]*?<!-- MC_CALENDAR_END -->`
+);
+if (sectionRe.test(html)) {
+  html = html.replace(sectionRe, section);
 } else {
   // Insert after KP_PROJECTION_END if present, else before operational chart section
   if (html.includes('<!-- KP_PROJECTION_END -->')) {

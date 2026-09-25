@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const input = process.argv[2] || path.join(__dirname, 'data', 'report-state.sample.json');
 const state = JSON.parse(fs.readFileSync(input, 'utf8'));
-const allowedSignals = ["HOLD","HOLD / WATCH","ADD WATCH","ADD CANDIDATE","TRIM WATCH","TRIM CANDIDATE","EXIT REVIEW","INVESTIGATE","TACTICAL WATCH","SPECULATIVE REVIEW"];
+// Signal taxonomy: <action> <qualifier>. REVIEW = newly tracked holding whose
+// thesis is still pending (role "Pending thesis review"); no action stance set yet.
+// Distinct from INVESTIGATE (speculative thesis check) and SPECULATIVE REVIEW.
+const allowedSignals = ["HOLD","HOLD / WATCH","ADD WATCH","ADD CANDIDATE","TRIM WATCH","TRIM CANDIDATE","EXIT REVIEW","INVESTIGATE","TACTICAL WATCH","SPECULATIVE REVIEW","REVIEW"];
 const requiredSections = ['marketRegime','kostolanyCycle','holdings','newsMonitoring','valuationExpectation','rebalance','opportunityScout','riskOfficer','finalOutput'];
 const errors = [];
 for (const key of requiredSections) if (!state[key]) errors.push('missing ' + key);

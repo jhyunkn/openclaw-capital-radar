@@ -697,270 +697,6 @@ function buildBearComparisonChart(spyCandles) {
 
 // ── Cycle analysis: normalized anchor chart + 4-column argument ───────────────
 
-function buildCycleAnalysis(spyCandles, rateSeries, signals, cycleState, analogsData) {
-  // Anchor: 2022-03-17 — first Fed rate hike of this cycle
-  // X-axis: calendar time (anchor → 2027-06)
-  // Y-axis: % change from anchor close
-  // Shows: full current cycle journey, key events annotated, Phase D projection
-
-  const ANCHOR_DATE = '2022-03-17';
-  const anchorCandle = spyCandles.find(c => c.time >= ANCHOR_DATE);
-  if (!anchorCandle || spyCandles.length < 100) return '';
-
-  const anchorClose = anchorCandle.close;
-  const anchorIdx   = spyCandles.indexOf(anchorCandle);
-  const chartCandles = spyCandles.slice(anchorIdx);
-  const normVals   = chartCandles.map(c => (c.close - anchorClose) / anchorClose * 100);
-  const chartDates = chartCandles.map(c => c.time);
-  const n = normVals.length;
-
-  // SVG geometry
-  const W = 900, H_PRICE = 200, H_RATE = 62, GAP = 20, H_TOTAL = H_PRICE + GAP + H_RATE + 22;
-  const pL = 52, pR = 90, pT = 16, cW = W - pL - pR;
-
-  // Time-based x mapping: anchor → 2027-01-01
-  const anchorMs = new Date(ANCHOR_DATE).getTime();
-  const endMs    = new Date('2027-01-01').getTime();
-  const totalMs  = endMs - anchorMs;
-  const pxT = ms => pL + ((ms - anchorMs) / totalMs) * cW;
-  const pxD = dateStr => pxT(new Date(dateStr).getTime());
-
-  // Price scale — leave headroom above for projection, -30% floor
-  const curNorm = normVals[n - 1];
-  const priceMin = Math.min(...normVals, -30) * 1.06;
-  const priceMax = Math.max(...normVals, curNorm + 20) * 1.18;
-  const priceRange = priceMax - priceMin || 1;
-  const pyP = v => pT + H_PRICE - ((v - priceMin) / priceRange) * H_PRICE;
-
-  // Zero line
-  const y0 = pyP(0);
-
-  // Price line path (time-based x)
-  const linePts = chartCandles.map((c, i) =>
-    `${i===0?'M':'L'}${pxD(c.time).toFixed(1)},${pyP(normVals[i]).toFixed(1)}`
-  ).join(' ');
-  const lastX = pxD(chartDates[n-1]), lastY = pyP(curNorm);
-
-  // Phase D projection (dotted) — 3 scenarios from TODAY
-  const todayMs = new Date(chartDates[n-1]).getTime();
-  const proj6Ms = todayMs + 180 * 86400000;  // +6 months
-  const proj6X  = pxT(proj6Ms);
-
-  const baseProj  = curNorm + 14;   // Base: +14% (Phase D expansion)
-  const bearProj  = curNorm - 10;   // Bear: -10% (stall/correction)
-
-  const baseY   = pyP(baseProj);
-  const bearY   = pyP(bearProj);
-  const cone = `M${lastX.toFixed(1)},${lastY.toFixed(1)} L${proj6X.toFixed(1)},${baseY.toFixed(1)} L${proj6X.toFixed(1)},${bearY.toFixed(1)} Z`;
-
-  // Horizontal grid lines
-  const gridVals = [-20, 0, 20, 40, 60, 80];
-  const gridLines = gridVals.map(v => {
-    if (v < priceMin || v > priceMax) return '';
-    const gy = pyP(v);
-    const isZero = v === 0;
-    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}"
-      stroke="${isZero ? 'rgba(26,23,20,.25)' : 'rgba(201,191,173,.28)'}"
-      stroke-width="${isZero ? 0.8 : 0.5}" ${isZero ? '' : 'stroke-dasharray="3 2"'}/>
-  <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5"
-    fill="rgba(26,23,20,.${isZero?'45':'28'})" font-family="inherit">${v > 0 ? '+' : ''}${v}%</text>`;
-  }).join('');
-
-  // Key event annotations
-  const KEY_EVENTS = [
-    { date: '2022-03-17', label: 'First Hike',    sub: '0→0.5%',      side: 'above', phase: null },
-    { date: '2022-10-13', label: 'Bear Low',       sub: '−17%',        side: 'below', phase: 'A1' },
-    { date: '2023-07-26', label: 'Rate Peak',      sub: '5.33%',       side: 'above', phase: 'B'  },
-    { date: '2024-09-18', label: 'First Cut',      sub: '5.33→5%',     side: 'below', phase: 'C'  },
-  ];
-
-  const eventMarkup = KEY_EVENTS.map(ev => {
-    if (!chartDates.some(d => d <= ev.date)) return '';
-    const ex = pxD(ev.date);
-    const evIdx = chartCandles.findIndex(c => c.time >= ev.date);
-    if (evIdx < 0) return '';
-    const ey = pyP(normVals[evIdx] ?? 0);
-    const labelY = ev.side === 'above' ? ey - 22 : ey + 22;
-    const subY   = ev.side === 'above' ? ey - 10 : ey + 34;
-    return `<line x1="${ex.toFixed(1)}" y1="${pT}" x2="${ex.toFixed(1)}" y2="${(pT+H_PRICE)}"
-      stroke="rgba(201,191,173,.45)" stroke-width="0.5" stroke-dasharray="3 2"/>
-  <circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="3.5" fill="rgba(201,191,173,.8)" stroke="rgba(26,23,20,.3)" stroke-width="0.5"/>
-  <text x="${ex.toFixed(1)}" y="${labelY}" text-anchor="middle" font-size="9" font-weight="600"
-    fill="rgba(26,23,20,.55)" font-family="inherit">${esc(ev.label)}</text>
-  <text x="${ex.toFixed(1)}" y="${subY}" text-anchor="middle" font-size="8"
-    fill="rgba(26,23,20,.38)" font-family="inherit">${esc(ev.sub)}</text>`;
-  }).join('');
-
-  // TODAY line
-  const todayX = lastX;
-  const todayLine = `<line x1="${todayX.toFixed(1)}" y1="${pT}" x2="${todayX.toFixed(1)}" y2="${(pT+H_PRICE)}"
-    stroke="rgba(26,23,20,.5)" stroke-width="1.2" stroke-dasharray="4 2"/>
-  <text x="${(todayX+4).toFixed(1)}" y="${(pT+13)}" font-size="8.5" font-weight="700"
-    fill="rgba(26,23,20,.6)" letter-spacing=".06em" font-family="inherit">TODAY</text>
-  <text x="${(todayX+4).toFixed(1)}" y="${(pT+25)}" font-size="8.5"
-    fill="#2a6b4a" font-weight="600" font-family="inherit">+${curNorm.toFixed(0)}%</text>`;
-
-  // Phase D projection labels at the right edge
-  const projLabels = `
-  <text x="${(proj6X+4).toFixed(1)}" y="${(baseY+4).toFixed(1)}" font-size="9" fill="rgba(42,107,74,.8)"
-    font-weight="600" font-family="inherit">+${baseProj.toFixed(0)}%</text>
-  <text x="${(proj6X+4).toFixed(1)}" y="${(baseY+15).toFixed(1)}" font-size="8" fill="rgba(42,107,74,.65)"
-    font-family="inherit">Base</text>
-  <text x="${(proj6X+4).toFixed(1)}" y="${(bearY+4).toFixed(1)}" font-size="9" fill="rgba(164,80,47,.8)"
-    font-weight="600" font-family="inherit">+${bearProj.toFixed(0)}%</text>
-  <text x="${(proj6X+4).toFixed(1)}" y="${(bearY+15).toFixed(1)}" font-size="8" fill="rgba(164,80,47,.65)"
-    font-family="inherit">Bear</text>`;
-
-  // Year labels on x-axis
-  let lastYr = '', xTicks = '';
-  const years = ['2022','2023','2024','2025','2026','2027'];
-  years.forEach(yr => {
-    const yx = pxD(`${yr}-01-01`);
-    if (yx < pL || yx > pL + cW) return;
-    xTicks += `<line x1="${yx.toFixed(1)}" y1="${(pT+H_PRICE)}" x2="${yx.toFixed(1)}" y2="${(pT+H_PRICE+4)}"
-      stroke="rgba(201,191,173,.5)" stroke-width="0.5"/>
-  <text x="${yx.toFixed(1)}" y="${(pT+H_PRICE+14).toFixed(1)}" text-anchor="middle"
-    font-size="9" fill="rgba(26,23,20,.35)" font-family="inherit">${yr}</text>`;
-  });
-
-  // ── Rate panel ──────────────────────────────────────────────────────────────
-  const rY0 = pT + H_PRICE + GAP, rH = H_RATE;
-  const dffObs = (rateSeries?.DFF || []).filter(o => o.date >= ANCHOR_DATE);
-  const rateMax = 6.5;
-  const pyR = v => rY0 + rH - (Math.min(v, rateMax) / rateMax) * rH;
-
-  const rateGrid = [2, 4, 5.5].map(v => {
-    const gy = pyR(v);
-    return `<line x1="${pL}" y1="${gy.toFixed(1)}" x2="${(pL+cW)}" y2="${gy.toFixed(1)}"
-      stroke="rgba(201,191,173,.28)" stroke-width="0.5" stroke-dasharray="2 2"/>
-    <text x="${(pL-4)}" y="${(gy+3.5).toFixed(1)}" text-anchor="end" font-size="8.5"
-      fill="rgba(26,23,20,.28)" font-family="inherit">${v}%</text>`;
-  }).join('');
-
-  const dffPath = dffObs.length > 1
-    ? dffObs.map((o,i) => `${i===0?'M':'L'}${pxD(o.date).toFixed(1)},${pyR(o.value).toFixed(1)}`).join(' ')
-    : '';
-  const dffAreaPath = dffPath
-    ? `${dffPath} L${pxD(dffObs[dffObs.length-1].date).toFixed(1)},${(rY0+rH)} L${pxD(dffObs[0].date).toFixed(1)},${(rY0+rH)}Z`
-    : '';
-  const dffNow = dffObs.length ? dffObs[dffObs.length-1].value : null;
-
-  // ── Phase Kostolany markers on rate panel ───────────────────────────────────
-  // Show which Kostolany phase corresponds to each rate period
-  const phaseMarkers = [
-    { from: '2022-03-17', to: '2022-10-13', label: 'A1', color: 'rgba(164,80,47,.18)' },
-    { from: '2022-10-13', to: '2023-07-26', label: 'B', color: 'rgba(42,107,74,.12)' },
-    { from: '2023-07-26', to: '2024-09-18', label: 'C', color: 'rgba(138,106,44,.12)' },
-    { from: '2024-09-18', to: chartDates[n-1], label: 'C→', color: 'rgba(138,106,44,.18)' },
-  ];
-
-  const phaseBar = phaseMarkers.map(pm => {
-    const x1 = Math.max(pL, pxD(pm.from)), x2 = Math.min(pL+cW, pxD(pm.to));
-    if (x2 <= x1) return '';
-    const midX = (x1 + x2) / 2;
-    return `<rect x="${x1.toFixed(1)}" y="${(rY0+rH+3)}" width="${(x2-x1).toFixed(1)}" height="10" fill="${pm.color}"/>
-  <text x="${midX.toFixed(1)}" y="${(rY0+rH+11)}" text-anchor="middle" font-size="7.5"
-    fill="rgba(26,23,20,.45)" font-weight="600" font-family="inherit">${pm.label}</text>`;
-  }).join('');
-
-  // ── SVG assembly ─────────────────────────────────────────────────────────────
-  const svg = `<svg viewBox="0 0 ${W} ${H_TOTAL + 16}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
-  <defs>
-    <linearGradient id="cycleGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(26,23,20,.08)"/><stop offset="100%" stop-color="rgba(26,23,20,.01)"/>
-    </linearGradient>
-    <linearGradient id="rateGrad2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(138,106,44,.22)"/><stop offset="100%" stop-color="rgba(138,106,44,.02)"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Grid -->
-  ${gridLines}
-
-  <!-- Projection cone (past TODAY) -->
-  <polygon points="${cone}" fill="rgba(26,23,20,.05)" stroke="none"/>
-  <line x1="${todayX.toFixed(1)}" y1="${lastY.toFixed(1)}" x2="${proj6X.toFixed(1)}" y2="${baseY.toFixed(1)}"
-    stroke="rgba(42,107,74,.4)" stroke-width="1.2" stroke-dasharray="6 3"/>
-  <line x1="${todayX.toFixed(1)}" y1="${lastY.toFixed(1)}" x2="${proj6X.toFixed(1)}" y2="${bearY.toFixed(1)}"
-    stroke="rgba(164,80,47,.4)" stroke-width="1.2" stroke-dasharray="4 3"/>
-  ${projLabels}
-
-  <!-- Price area -->
-  <path d="${linePts} L${lastX.toFixed(1)},${(pT+H_PRICE)} L${pxD(ANCHOR_DATE).toFixed(1)},${(pT+H_PRICE)}Z"
-    fill="url(#cycleGrad)"/>
-  <!-- Price line -->
-  <path d="${linePts}" fill="none" stroke="#1A1714" stroke-width="1.8" stroke-linejoin="round"/>
-  <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#1A1714"/>
-
-  <!-- Key events -->
-  ${eventMarkup}
-
-  <!-- TODAY line -->
-  ${todayLine}
-
-  <!-- X-axis year ticks -->
-  ${xTicks}
-
-  <!-- Rate panel separator -->
-  <line x1="${pL}" y1="${(rY0-6)}" x2="${(pL+cW)}" y2="${(rY0-6)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
-  <text x="${pL}" y="${(rY0-10)}" font-size="8" fill="rgba(26,23,20,.32)" letter-spacing=".1em" font-family="inherit">FED FUNDS RATE</text>
-  ${dffNow != null ? `<text x="${(pL+cW)}" y="${(rY0-10)}" text-anchor="end" font-size="9" fill="rgba(138,106,44,.8)" font-weight="600" font-family="inherit">${dffNow.toFixed(2)}% now</text>` : ''}
-
-  <!-- Rate panel -->
-  ${rateGrid}
-  <line x1="${pL}" y1="${(rY0+rH)}" x2="${(pL+cW)}" y2="${(rY0+rH)}" stroke="rgba(201,191,173,.38)" stroke-width="0.5"/>
-  ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad2)"/>` : ''}
-  ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
-  ${dffNow != null ? `<circle cx="${pxD(dffObs[dffObs.length-1].date).toFixed(1)}" cy="${pyR(dffNow).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
-
-  <!-- Kostolany phase bar (below rate panel) -->
-  ${phaseBar}
-  <text x="${pL}" y="${(rY0+rH+22)}" font-size="7.5" fill="rgba(26,23,20,.32)" letter-spacing=".08em" font-family="inherit">KOSTOLANY PHASE</text>
-</svg>`;
-
-  // ── 4-column analysis panel ───────────────────────────────────────────────────
-
-  const confirming = signals.filter(s => s.color === 'green');
-  const watching   = signals.filter(s => s.color === 'amber');
-  const contradicting = signals.filter(s => s.color === 'red');
-
-  const topAnalog = (analogsData?.analogs || [])[0] || {};
-  const phaseCode = cycleState?.phase_code || 'C';
-  const nextPhase = cycleState?.cycle_diagram?.next_watch || 'Expansion or distribution';
-
-  const panel = `<div class="mu-cycle-analysis-grid">
-    <div class="mu-ca-col">
-      <div class="mu-ca-head">Signal Check</div>
-      <p class="mu-ca-desc">Confirming vs contradicting Phase D</p>
-      <div class="mu-ca-signals">
-        ${confirming.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-g">✓ ${esc(s.name)} — ${esc(s.label)}.</div>`).join('')}
-        ${watching.slice(0,2).map(s => `<div class="mu-ca-sig mu-ca-sig-a">~ ${esc(s.name)} — ${esc(s.label)}.</div>`).join('')}
-        ${contradicting.slice(0,3).map(s => `<div class="mu-ca-sig mu-ca-sig-r">✗ ${esc(s.name)} — ${esc(s.label)}.</div>`).join('')}
-      </div>
-    </div>
-    <div class="mu-ca-col">
-      <div class="mu-ca-head">Projection</div>
-      <p class="mu-ca-desc">Where the cycle points next</p>
-      <div class="mu-ca-proj">
-        <div class="mu-ca-proj-base">
-          <span>Base case (65%)</span>
-          <b>Phase C → D: Expansion</b>
-          <p class="mu-ca-proj-read">Path: ${esc(nextPhase)}</p>
-          <small class="mu-ca-proj-rule">Rule: add on pullbacks 7,216–7,440.</small>
-        </div>
-        <div class="mu-ca-proj-bear">
-          <span>Bear case (35%)</span>
-          <b>Stall / Phase F risk</b>
-          <p class="mu-ca-proj-read">Trigger: credit widens + VIX above 20.</p>
-          <small class="mu-ca-proj-rule">Warning line: HY OAS above 3.5%.</small>
-        </div>
-      </div>
-    </div>
-  </div>`;
-
-  return `<div class="mu-cycle-analysis">${svg}${panel}</div>`;
-}
-
 // ── Traffic light logic ───────────────────────────────────────────────────────
 
 function axisSignal(axis) {
@@ -1233,6 +969,55 @@ function buildDailyBriefing() {
       const gapNote = distToAdd !== null ? ` SPX is ${distToAdd}% above the add zone (${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})}) — if the pullback continues, that is the prepared entry level, not a reason to act now.` : '';
       strategy.push(`Watching, not acting.${gapNote} Triggers: add zone ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})} · defense ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})} · VIX 20 posture review · HY OAS 3.5% phase warning. No triggers hit — no action.`);
     }
+  } else if (phaseCode === 'D') {
+    // Interpret today's session in Phase D (Expansion) context
+    if (isSharp || isStress) {
+      if (aboveMa200 && creditContained) {
+        context.push(`A Phase D stress event, not a phase break. SPX holds above the 200D MA (${ma200v?.toLocaleString('en-US',{maximumFractionDigits:0})}) and credit spreads (HY OAS ${credit}) remain contained — the two conditions that separate an expansion pullback from a deterioration. Expansion phases routinely shake out weak hands through exactly this kind of session.`);
+      } else if (!aboveMa200) {
+        context.push(`SPX has closed below the 200D MA (${ma200v?.toLocaleString('en-US',{maximumFractionDigits:0})}) — the Phase D invalidation trigger. Posture shifts defensive; the expansion call is under review until price reclaims the 200D with VIX calm.`);
+      } else if (!aboveMa50) {
+        context.push(`SPX has broken below the 50D MA (${ma50v?.toLocaleString('en-US',{maximumFractionDigits:0})}) — a technical deterioration inside Phase D. The 200D MA (${ma200v?.toLocaleString('en-US',{maximumFractionDigits:0})}) remains the line that decides the phase.`);
+      }
+      if (vixElevated || vixCrisis) {
+        context.push(`VIX at ${vix?.toFixed(1)} has crossed into elevated territory. Expansion can absorb watchful VIX (15–20) as normal rate-pressure noise; a sustained spike above 25 alongside a 200D break would confirm the phase break.`);
+      }
+      if (!rsiHealthy) {
+        context.push(`RSI has fallen to ${rsi?.toFixed(1)}${rsiNeutral ? ', now in neutral territory' : ' — weakened significantly'}. In Phase D this reads as a pullback within the uptrend, not a thesis break — the thesis breaks at the 200D, not at the RSI.`);
+      }
+    } else if (isStrong || isRecovery) {
+      context.push(`A Phase D expansion session. Broad strength with contained credit is what expansion looks like — the framework says hold and let winners run; add only on pullbacks to ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}, not on breakouts.`);
+      if (!vixElevated && vix !== null && vix < 17) {
+        context.push(`VIX calm near ${vix?.toFixed(1)} keeps the risk backdrop supportive for the expansion read.`);
+      }
+    } else if (isFlat) {
+      context.push(`Consolidation. No regime change signal — expansion phases digest gains sideways while rate pressure persists. The longer-term framework remains Phase D at ${confWord.toLowerCase()} confidence.`);
+    }
+
+    // Portfolio-specific context
+    if (worstHolding && num(worstHolding.dayChangePct) < -5) {
+      const isExposed = worstHolding.analysisChart?.profile === 'tactical_risk';
+      context.push(`${worstHolding.ticker} (${(num(worstHolding.dayChangePct) >= 0 ? '+' : '') + num(worstHolding.dayChangePct).toFixed(1)}%) leads portfolio damage${isExposed ? ' — as a Phase-exposed leveraged instrument, this is expected behavior in Phase D pullbacks' : ''}.`);
+    }
+
+    // Strategy
+    if (nearDefense) {
+      strategy.push(`Price approaching the defense level (${defense?.toLocaleString('en-US',{maximumFractionDigits:0})}). Prepare for potential posture shift: review stop levels and reduce Phase-exposed instruments (TSLT, CONL) if this level is breached.`);
+    } else if (nearAdd && (isStress || isSharp)) {
+      strategy.push(`Price entering the prepared add-review zone (${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}+). Phase D protocol: controlled pullback adds in quality names only — confirmed by credit and VIX stability. ${!aboveMa200 ? '200D is broken — defense, not adds, until it reclaims.' : ''}`);
+    } else if (isSharp || isStress) {
+      strategy.push(`Phase D protocol: hold core, no broad adds during volatility. Let the pullback develop — expansion rewards patience at the prepared add zone ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}. The line that changes everything is the 200D (${ma200v?.toLocaleString('en-US',{maximumFractionDigits:0})}); defense at ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})}.`);
+      if (creditWarning) {
+        strategy.push(`⚠ HY OAS at ${credit} is widening. Monitor closely — a close above 6.00 would end the expansion read and shift the risk posture toward defense.`);
+      }
+    } else if (isStrong || isRecovery) {
+      strategy.push(`Do not chase the breakout. Phase D advances reward holders; new risk enters on pullbacks to ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})}, not on green days.`);
+
+    } else {
+      const distToAddD = addLow && spx ? ((spx - addLow) / spx * 100).toFixed(1) : null;
+      const gapNoteD = distToAddD !== null ? ` SPX is ${distToAddD}% above the add zone (${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})}) — if the pullback continues, that is the prepared entry level, not a reason to act now.` : '';
+      strategy.push(`Watching, not acting.${gapNoteD} Triggers: add zone ${addLow?.toLocaleString('en-US',{maximumFractionDigits:0})}–${(addLow ? Math.round(addLow * 1.03) : 0)?.toLocaleString('en-US',{maximumFractionDigits:0})} · defense ${defense?.toLocaleString('en-US',{maximumFractionDigits:0})} · 200D ${ma200v?.toLocaleString('en-US',{maximumFractionDigits:0})} phase-break line · HY OAS 6.00 expansion-break. No triggers hit — no action.`);
+    }
   }
 
   // Format numbers for display strip
@@ -1310,6 +1095,9 @@ const _dffDateObj = new Date(`${String(_dffDate).slice(0, 10)}T00:00:00Z`);
 const _dffMonthLabel = Number.isFinite(_dffDateObj.getTime())
   ? _dffDateObj.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) + " '" + String(_dffDateObj.getUTCFullYear()).slice(-2)
   : "Latest";
+const _dffDateShort = Number.isFinite(_dffDateObj.getTime())
+  ? _dffDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+  : 'Sep 17';
 const _dffMonthIndex = Number.isFinite(_dffDateObj.getTime())
   ? ((_dffDateObj.getUTCFullYear() - 2022) * 12) + _dffDateObj.getUTCMonth()
   : 54;
@@ -1327,16 +1115,16 @@ const _cycleCanvasId = 'mcc_' + Date.now().toString(36);
 const cycleHtml = `<div class="mu-arc-wrap">
   <div class="mu-arc-topbar">
     <span class="mu-arc-label">Fed Funds Rate — tightening cycle (Mar 2022–present)</span>
-    <span class="mu-arc-meta">One of five inputs &middot; ~${_cycleMonths} mo &middot; Next phase: Expansion</span>
+    <span class="mu-arc-meta">One of five inputs &middot; ~${_cycleMonths} mo &middot; Next phase: Euphoria</span>
   </div>
   <div class="mu-arc-canvas-box">
     <canvas id="${_cycleCanvasId}"></canvas>
   </div>
   <div class="mu-arc-legend">
-    <span><span class="mu-leg mu-leg-actual"></span>Actual rate</span>
+    <span><span class="mu-leg mu-leg-actual"></span>Actual rate \u00b7 FRED DFF last-known-good</span>
     <span><span class="mu-leg mu-leg-proj"></span>Projected path</span>
     <span><span class="mu-leg mu-leg-plateau"></span>Rate plateau · 13 mo held</span>
-    <span><span class="mu-leg mu-leg-neutral"></span>Neutral rate ~3%</span>
+    <span><span class="mu-leg mu-leg-neutral"></span>Neutral ~3.2% \u00b7 SEP longer-run</span>
     <span><span class="mu-leg mu-leg-node"></span>Phase start</span>
     <span><span class="mu-leg mu-leg-today"></span>You are here</span>
   </div>
@@ -1350,7 +1138,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {id:"A2",label:"Accumulation", date:"Sep '22",color:"#c47a50"},
     {id:"B", label:"Recovery",     date:"Mar '23",color:"#c4a050"},
     {id:"C", label:"Verification", date:"Oct '23",color:"#b85c38"},
-    {id:"D", label:"Expansion",    date:"~Dec '25",color:"#7a9e82"},
+    {id:"D", label:"Expansion",    date:"Sep '26",color:"#7a9e82"},
     {id:"E", label:"Euphoria",     date:"—", color:"#6a8eb0"},
     {id:"F", label:"Distribution", date:"—", color:"#8a7aa0"},
   ];
@@ -1378,11 +1166,11 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {d:"Sep '25",r:4.08,phase:"C"},           // 17 ← FRED Q3-2025 avg 4.10% → ~4.08 point-in-time
     {d:"Dec '25",r:3.83,phase:"C"},           // 18 ← FRED Q4-2025 avg 3.95% → ~3.83 point-in-time
     {d:"Mar '26",r:3.62,phase:"C"},           // 19 ← estimated
-    {d:"${_dffMonthLabel}",r:${_dffRate},phase:"C",current:true}, // 20 ← LIVE DFF as of ${_dffDate}
-    {d:"Dec '26",r:3.25,phase:"D",projected:true},      // 21 ← projected
-    {d:"Jun '27",r:3.10,phase:"D",projected:true},      // 22 ← projected
-    {d:"Dec '27",r:3.00,phase:"E",projected:true},      // 23 ← projected
-    {d:"2028+",  r:3.00,phase:"E",projected:true},      // 24 ← projected
+    {d:"${_dffMonthLabel}",r:${_dffRate},phase:"D",current:true}, // 20 ← last-known-good DFF ${_dffDate} (FRED feed down since 9/18)
+    {d:"Dec '26",r:4.10,phase:"D",projected:true},      // 21 ← Sep 2026 SEP median end-2026
+    {d:"Jun '27",r:4.10,phase:"D",projected:true},      // 22 ← Sep 2026 SEP median path
+    {d:"Dec '27",r:4.10,phase:"E",projected:true},      // 23 ← Sep 2026 SEP median end-2027
+    {d:"2028+",  r:3.20,phase:"E",projected:true},      // 24 ← Sep 2026 SEP longer-run
   ];
   // Node di values reference the RATE_DATA index where each phase was identified.
   var NODES=[
@@ -1390,7 +1178,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {id:"A2",di:3},  // Sep '22: DFF 3.08% — mid-hike, SPX bottomed Oct '22 (fact)
     {id:"B", di:5},  // Mar '23: DFF 4.65% — hike pace slowing (fact)
     {id:"C", di:8},  // Oct '23: DFF 5.33% — rate peak confirmed (fact)
-    {id:"D", di:21}, // ~Dec '26: projected Phase D
+    {id:"D", di:20}, // Sep '26: Phase D — current
     {id:"E", di:23}, // ~Dec '27: projected Phase E
   ];
   // Time-proportional X: parse "Jan '22" → months from Jan 2022 (month 0)
@@ -1481,7 +1269,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.setLineDash([]);c.restore();
 
     // Neutral ~3% reference line (projected side only)
-    var neutralY=yOf(3.0);
+    var neutralY=yOf(3.2);
     c.save();c.setLineDash([3,5]);c.beginPath();
     c.moveTo(xOf(curIdx),neutralY);c.lineTo(pL+cW,neutralY);
     c.strokeStyle="rgba(122,158,130,0.36)";c.lineWidth=0.75;c.stroke();
@@ -1489,7 +1277,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.font="8px IBM Plex Mono,monospace";
     c.fillStyle="rgba(122,158,130,0.55)";
     c.textAlign="right";c.textBaseline="middle";
-    c.fillText("neutral ~3%",pL+cW-3,neutralY-7);c.restore();
+    c.fillText("neutral ~3.2%",pL+cW-3,neutralY-7);c.restore();
 
     // Divider at current + "← projected" label
     // Divider at today (solid/dashed boundary)
@@ -1543,7 +1331,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.strokeStyle="rgba(90,140,110,0.35)";c.lineWidth=0.5;c.stroke();
     c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.82)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Phase D projected \xb7 ~Dec '26",pdBL+pdW/2,pdY-pdH/2-8);
+    c.fillText("Sep SEP median \xb7 4.1% end-26/27",pdBL+pdW/2,pdY-pdH/2-8);
     c.restore();
 
     // ── PHASE IDENTIFICATION NODES (static markers — where each phase started) ─
@@ -1559,16 +1347,16 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.fillStyle=isPast?"rgba(244,239,230,0.80)":col;c.fill();
     });
 
-    // "Rate peaked · 5.33% · Phase C begins" — anchored at chart top, clear of "held 13 mo"
+    // "Rate peaked · 5.33%" — anchored at chart top, clear of "held 13 mo"
     c.save();
-    var csX=xOf(8), csW=220,csH=17;
+    var csX=xOf(8), csW=150,csH=17;
     var csBL=badgeLeft(csX,csW);
     rr(c,csBL,pT+4,csW,csH,3);
     c.fillStyle="rgba(251,250,246,0.97)";c.fill();
     c.strokeStyle="rgba(184,92,56,0.40)";c.lineWidth=0.75;c.stroke();
     c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(184,92,56,0.90)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Rate peaked \xb7 5.33% \xb7 Phase C begins",csBL+csW/2,pT+4+csH/2);
+    c.fillText("Rate peaked \xb7 5.33%",csBL+csW/2,pT+4+csH/2);
     c.restore();
 
     // ── TODAY — animated pulse ON the latest DFF rate ────────────────────────
@@ -1604,7 +1392,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.fillText("YOU ARE HERE \xb7 ${_dffMonthLabel}",bBL+bw/2,badgeY+11);
     c.font="8.5px IBM Plex Mono,monospace";
     c.fillStyle="rgba(42,37,32,0.72)";
-    c.fillText("Phase C \xb7 ${_dffRate}% \xb7 ${_phaseCMonths} mo into cycle",bBL+bw/2,badgeY+25);
+    c.fillText("Phase D \xb7 ${_dffRate}% \xb7 FRED ${_dffDateShort}",bBL+bw/2,badgeY+25);
     // Connector from badge to dot
     if(badgeY+bh<todayY-8){
       c.beginPath();c.moveTo(todayX,badgeY+bh);c.lineTo(todayX,todayY-8);
@@ -1654,26 +1442,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.fillText(tick.label,tx,dateY);
     });
 
-    // ── PHASE C DURATION SPAN — shows how long this phase has lasted ──────────
-    var annX=(xOf(8)+xOf(curIdx))/2;
-    c.save();
-    c.beginPath();c.moveTo(xOf(8),yOf(2.8));c.lineTo(xOf(curIdx),yOf(2.8));
-    c.strokeStyle="rgba(184,92,56,0.30)";c.lineWidth=0.75;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);
-    // End caps
-    [xOf(8),xOf(curIdx)].forEach(function(cx){
-      c.beginPath();c.moveTo(cx,yOf(2.8)-4);c.lineTo(cx,yOf(2.8)+4);
-      c.strokeStyle="rgba(184,92,56,0.40)";c.lineWidth=0.75;c.stroke();
-    });
-    var durW=226,durH=17;
-    var durBL=badgeLeft(annX,durW);
-    rr(c,durBL,yOf(2.8)-durH-4,durW,durH,3);
-    c.fillStyle="rgba(251,250,246,0.96)";c.fill();
-    c.strokeStyle="rgba(184,92,56,0.28)";c.lineWidth=0.5;c.stroke();
-    c.font="9px IBM Plex Mono,monospace";
-    c.fillStyle="rgba(184,92,56,0.85)";
-    c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Phase C \xb7 Oct '23 → ${_dffMonthLabel} \xb7 ${_phaseCMonths} mo",durBL+durW/2,yOf(2.8)-durH/2-4);
-    c.restore();
+    
   }
 
   function resize(){
@@ -1779,49 +1548,6 @@ function dirColor(dir) {
   return dir === '↑' ? '#2a6b4a' : dir === '↓' ? '#A4502F' : 'rgba(26,23,20,.40)';
 }
 
-function regimeInputRow(inp) {
-  return `<div class="mu-rg-inp-row">
-    <span class="mu-rg-inp-label">${esc(inp.label)}</span>
-    <b class="mu-rg-inp-val">${esc(inp.val)}</b>
-    <em class="mu-rg-inp-dir" style="color:${dirColor(inp.dir)}">${inp.dir}</em>
-  </div>`;
-}
-
-const regimeCol = `<div class="mu-regime-col">
-  <span class="mu-rg-eyebrow">Macro Regime Engine</span>
-  <b class="mu-rg-name">${esc(regime.name)}</b>
-  <p class="mu-rg-sub">${esc(regime.sub)}</p>
-
-  <div class="mu-rg-quad-wrap">
-    <div class="mu-rg-axis-y">Growth ↑ — stronger at top</div>
-    <div class="mu-rg-grid">
-      <div class="mu-rg-cell ${regime.name === 'GOLDILOCKS'   ? 'mu-rg-on' : ''}"><b>Goldilocks</b><small>Tech · Quality</small></div>
-      <div class="mu-rg-cell ${regime.name === 'REFLATION'    ? 'mu-rg-on' : ''}"><b>Reflation</b><small>Cyclicals · Energy</small></div>
-      <div class="mu-rg-cell ${regime.name === 'DEFLATION'    ? 'mu-rg-on' : ''}"><b>Deflation</b><small>Bonds · Defensives</small></div>
-      <div class="mu-rg-cell ${regime.name === 'STAGFLATION'  ? 'mu-rg-on' : ''}"><b>Stagflation</b><small>Cash · Real assets</small></div>
-    </div>
-    <div class="mu-rg-axis-x">Inflation → — hotter to the right</div>
-  </div>
-
-  <div class="mu-rg-inputs">
-    <div class="mu-rg-inp-col">
-      <span class="mu-rg-inp-head">Growth</span>
-      ${regime.gInputs.map(regimeInputRow).join('')}
-    </div>
-    <div class="mu-rg-inp-col">
-      <span class="mu-rg-inp-head">Inflation</span>
-      ${regime.iInputs.map(regimeInputRow).join('')}
-    </div>
-  </div>
-
-  <div class="mu-rg-impl">
-    <div><span>Kostolany</span>Phase ${phaseCode} · consistent with ${esc(regime.name)}</div>
-    <div><span>Favor</span>${esc(regime.favor)}</div>
-    <div><span>Avoid</span>${esc(regime.avoid)}</div>
-    <div><span>Watch</span>${esc(regime.watch)}</div>
-  </div>
-</div>`;
-
 // ── Phase → portfolio bridge ──────────────────────────────────────────────────
 
 function phaseAlignment(h) {
@@ -1885,92 +1611,6 @@ const phaseBridge = allHoldings.length > 0 ? `<div class="mu-phase-bridge">
     </div>
   </div>
 </div>` : '';
-
-// ── Signal micro-dots (regime header) ────────────────────────────────────────
-
-const signalDotsHtml = signals.map(s => {
-  const bg = s.color === 'green' ? '#2a6b4a' : s.color === 'red' ? '#A4502F' : '#8a6a2c';
-  // display and label both derive from axis.state — collapse duplicates ("Firm Firm").
-  const stateText = s.display === s.label ? s.display : `${s.display} ${s.label}`;
-  return `<span class="mu-sdot" style="background:${bg}" title="${esc(s.name)}: ${esc(stateText.trim() || '—')}"></span>`;
-}).join('');
-
-const signalBarHtml = `<div class="mu-sigbar">
-  <div class="mu-sigbar-dots">${signalDotsHtml}</div>
-  <span class="mu-sigbar-label">${greens} confirm · ${ambers} watch · ${reds} block</span>
-</div>`;
-
-// ── Phase C tension + transition gates ────────────────────────────────────────
-
-function gateStatus(current, target, direction) {
-  if (current == null) return { icon: '—', col: 'rgba(26,23,20,.35)' };
-  const cleared = direction === 'below' ? current < target : current > target;
-  const near    = direction === 'below' ? current < target * 1.1 : current > target * 0.9;
-  if (cleared) return { icon: '✓', col: '#2a6b4a' };
-  if (near)    return { icon: '~', col: '#8a6a2c' };
-  return { icon: '✗', col: '#A4502F' };
-}
-
-const vixCur    = num(mvMap.vix?.value);
-const creditCur = num(mvMap.hy_oas?.value);
-const dgs10Cur  = num(mvMap.dgs10?.value);
-const rsiCur    = num(mvMap.rsi14?.value);
-
-const phaseGates = [
-  { label: '10Y Treasury', current: dgs10Cur,     target: 4.0,  unit: '%', direction: 'below', note: 'rate headwind clears'  },
-  { label: 'Fed Funds',    current: currentFedRate,target: 3.0,  unit: '%', direction: 'below', note: 'money loosening'       },
-  { label: 'VIX',          current: vixCur,        target: 15.0, unit: '',  direction: 'below', note: 'sustained calm'        },
-  { label: 'HY OAS',       current: creditCur,     target: 2.5,  unit: '',  direction: 'below', note: 'credit stress clear'   },
-  { label: 'RSI 14',       current: rsiCur,        target: 55.0, unit: '',  direction: 'above', note: 'trend sustained'       },
-];
-
-const gateRows = phaseGates.map(g => {
-  const gs      = gateStatus(g.current, g.target, g.direction);
-  const curStr  = g.current != null
-    ? (g.unit === '%' ? g.current.toFixed(2) + '%' : g.current.toFixed(1))
-    : '—';
-  const tgtStr  = g.direction === 'below' ? `&lt;${g.target}${g.unit}` : `&gt;${g.target}${g.unit}`;
-  return `<div class="mu-gate-row">
-    <span class="mu-gate-name">${esc(g.label)}</span>
-    <span class="mu-gate-cur">${curStr}</span>
-    <span class="mu-gate-tgt">${tgtStr}</span>
-    <span class="mu-gate-icon" style="color:${gs.col}">${gs.icon}</span>
-    <span class="mu-gate-note">${esc(g.note)}</span>
-  </div>`;
-}).join('');
-
-const confirmSignals = signals.filter(s => s.color === 'green');
-const blockSignals   = signals.filter(s => s.color === 'red');
-
-const tensionSub = s => (s.display === s.label ? '' : esc(s.label));
-const confirmRows = confirmSignals.map(s =>
-  `<div class="mu-tension-row">
-    <span class="mu-tension-name">${esc(s.name)}</span>
-    <span class="mu-tension-val">${s.display}</span>
-    <span class="mu-tension-sub mu-good">${tensionSub(s)}</span>
-  </div>`).join('');
-
-const blockRows = blockSignals.map(s =>
-  `<div class="mu-tension-row">
-    <span class="mu-tension-name">${esc(s.name)}</span>
-    <span class="mu-tension-val">${s.display}</span>
-    <span class="mu-tension-sub mu-bad">${tensionSub(s)}</span>
-  </div>`).join('');
-
-const tensionGatesHtml = `<div class="mu-tension-block">
-  <div class="mu-tension-col">
-    <div class="mu-tension-head mu-good">Confirming C <small>why this isn't Phase B anymore</small></div>
-    ${confirmRows}
-  </div>
-  <div class="mu-tension-col">
-    <div class="mu-tension-head mu-bad">Holding back D <small>what's still blocking expansion</small></div>
-    ${blockRows}
-  </div>
-  <div class="mu-tension-col mu-gates-col">
-    <div class="mu-tension-head">Gate to Phase D <small>measurable conditions</small></div>
-    ${gateRows}
-  </div>
-</div>`;
 
 // ── Sector heat map ───────────────────────────────────────────────────────────
 
@@ -2091,53 +1731,9 @@ const style = `<style id="macro-unified-style">
 /* ── Regime header ── */
 .mu-regime{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,.28fr);gap:18px;align-items:stretch;padding:22px 0 20px;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-regime>div:first-child{border:1px solid rgba(164,80,47,.26);background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(164,80,47,.055));padding:18px 20px 20px;min-width:0}
-.mu-phase-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:rgba(26,23,20,.38);margin:0 0 8px;font-family:var(--mono,monospace)}
-.mu-phase-title{font-size:clamp(40px,4.8vw,68px);line-height:.88;letter-spacing:-.075em;font-weight:560;margin:0 0 14px;color:#1A1714}
 .mu-narrative{font-size:clamp(13px,1.2vw,15px);line-height:1.55;color:rgba(26,23,20,.68);max-width:820px;margin:0 0 18px}
-.mu-action{border-left:3px solid #A4502F;padding:10px 0 10px 14px;background:#ffffff}
-.mu-action span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.4);margin-bottom:4px;font-family:var(--mono,monospace)}
-.mu-action b{display:block;font-size:clamp(18px,2vw,26px);font-weight:650;color:#1A1714;line-height:1.12;letter-spacing:-.035em}
-.mu-action small{display:block;font-size:12.5px;color:rgba(26,23,20,.58);margin-top:8px;line-height:1.42;max-width:740px}
-.mu-regime-meta{display:flex;flex-direction:column;align-items:stretch;gap:10px}
-.mu-conf{text-align:left;border:1px solid rgba(201,191,173,.56);background:rgba(255,255,255,.22);padding:16px;min-height:100%}
-.mu-conf span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.38);margin-bottom:4px;font-family:var(--mono,monospace)}
-.mu-conf b{display:block;font-size:clamp(42px,4.2vw,60px);line-height:.88;letter-spacing:-.07em;font-weight:560;color:#A4502F;margin-top:12px}
-.mu-conf small{font-size:11px;color:rgba(26,23,20,.48);display:block;text-align:left;margin-top:7px;line-height:1.35}
-.mu-stress-badge{display:inline-block;align-self:flex-start;padding:3px 9px;border:0.5px solid rgba(164,80,47,.35);background:rgba(164,80,47,.06);font-size:9px;color:#A4502F;letter-spacing:.10em;text-transform:uppercase;border-radius:2px}
-
-/* ── Cycle analysis ── */
-.mu-cycle-analysis{padding:24px 0 0;border-bottom:1px solid rgba(201,191,173,.45)}
-.mu-cycle-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin-top:16px;border:1px solid rgba(201,191,173,.45)}
-.mu-ca-col{padding:16px 16px 18px;border-right:1px solid rgba(201,191,173,.38)}
-.mu-ca-col:last-child{border-right:none}
-.mu-ca-head{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;margin-bottom:4px;font-family:var(--mono,monospace)}
-.mu-ca-desc{font-size:10px;color:rgba(26,23,20,.45);margin:0 0 10px;line-height:1.4}
-.mu-ca-list{margin:0;padding:0 0 0 14px;list-style:disc}
-.mu-ca-list li{font-size:11px;color:rgba(26,23,20,.7);line-height:1.5;margin-bottom:3px}
-.mu-ca-compare{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.mu-ca-then,.mu-ca-now{font-size:10.5px;line-height:1.55;color:rgba(26,23,20,.65)}
-.mu-ca-then span,.mu-ca-now span{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;font-family:var(--mono,monospace)}
-.mu-ca-then span{color:rgba(164,80,47,.7)}
-.mu-ca-now span{color:rgba(42,107,74,.7)}
-.mu-ca-then div,.mu-ca-now div{border-bottom:1px solid rgba(201,191,173,.3);padding:3px 0}
-.mu-ca-signals{display:flex;flex-direction:column;gap:4px}
-.mu-ca-sig{font-size:10.5px;padding:4px 8px;line-height:1.3}
-.mu-ca-sig-g{background:rgba(42,107,74,.08);color:#2a6b4a;border-left:2px solid #2a6b4a}
-.mu-ca-sig-a{background:rgba(138,106,44,.08);color:#8a6a2c;border-left:2px solid #8a6a2c}
-.mu-ca-sig-r{background:rgba(164,80,47,.08);color:#A4502F;border-left:2px solid #A4502F}
-.mu-ca-proj{display:flex;flex-direction:column;gap:8px}
-.mu-ca-proj-base,.mu-ca-proj-bear{padding:10px 12px}
-.mu-ca-proj-base{background:rgba(42,107,74,.07);border:1px solid rgba(42,107,74,.2)}
-.mu-ca-proj-bear{background:rgba(164,80,47,.06);border:1px solid rgba(164,80,47,.18)}
-.mu-ca-proj span{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;color:rgba(26,23,20,.4);margin-bottom:4px;font-family:var(--mono,monospace)}
-.mu-ca-proj b{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px;line-height:1.2}
-.mu-ca-proj-base b{color:#2a6b4a}
-.mu-ca-proj-bear b{color:#A4502F}
-.mu-ca-proj p{font-size:10.5px;color:rgba(26,23,20,.65);margin:0 0 4px;line-height:1.35}
-.mu-ca-proj .mu-ca-proj-read{display:block;margin:6px 0 5px;line-height:1.45}
-.mu-ca-proj small{display:block;font-size:9.5px;color:rgba(26,23,20,.45);line-height:1.4}
-@media(max-width:900px){.mu-regime{grid-template-columns:1fr}.mu-cycle-analysis-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.mu-wrap{width:min(100% - 28px,1280px)}.mu-regime{padding-top:18px}.mu-regime>div:first-child{padding:16px}.mu-cycle-analysis-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.mu-regime{grid-template-columns:1fr}}
+@media(max-width:560px){.mu-wrap{width:min(100% - 28px,1280px)}.mu-regime{padding-top:18px}.mu-regime>div:first-child{padding:16px}}
 
 /* ── Unified chart block ── */
 .mu-unified-chart-block{padding:24px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
@@ -2165,11 +1761,6 @@ const style = `<style id="macro-unified-style">
 .mu-pulse-bar-wrap{height:18px;background:rgba(201,191,173,.2);position:relative}
 .mu-pulse-bar{height:100%;min-width:2px;transition:width .3s}
 .mu-pulse-val{font-size:12px;font-weight:600;text-align:right;padding-left:8px}
-.mu-pulse-section{padding:20px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
-.mu-pulse-head{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:rgba(26,23,20,.38);margin:0 0 12px;font-family:var(--mono,monospace)}
-
-/* ── Scorecard strip ── */
-.mu-scorecard{padding:18px 0 16px;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-sc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .mu-sc-head h3{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:rgba(26,23,20,.38);font-weight:500;margin:0;font-family:var(--mono,monospace)}
 .mu-sc-summary{font-size:11px;color:rgba(26,23,20,.55)}
@@ -2178,9 +1769,6 @@ const style = `<style id="macro-unified-style">
 .mu-sig-name{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.09em;color:rgba(26,23,20,.45);margin-bottom:5px}
 .mu-sig-val{display:block;font-size:16px;letter-spacing:-.04em;font-weight:500;color:var(--c);line-height:1}
 .mu-sig-sub{display:block;font-size:9px;color:rgba(26,23,20,.45);margin-top:3px;white-space:nowrap;overflow:hidden}
-
-/* ── Cycle + Regime two-column ── */
-.mu-regime-row{padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-cycle-arc-det{grid-column:1/-1;border-bottom:none;padding:0}.mu-cycle-arc-det>.mu-arc-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.45);cursor:pointer;padding:8px 0;display:block;border-bottom:0.5px solid rgba(201,191,173,.3);margin-bottom:0;list-style:none}.mu-cycle-arc-det[open]>.mu-arc-sum{padding-bottom:14px}.mu-cycle-arc-det>.mu-arc-sum::-webkit-details-marker{display:none}.mu-cycle-arc-det>.mu-arc-sum::before{content:"▸ ";font-size:9px;color:rgba(44,42,37,.3)}.mu-cycle-arc-det[open]>.mu-arc-sum::before{content:"▾ "}.mu-cycle-arc-col{min-width:0}
 .mu-pb-det{padding:22px 0;border-bottom:1px solid rgba(201,191,173,.45)}.mu-pb-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.45);cursor:pointer;display:block;list-style:none;margin-bottom:0}.mu-pb-det[open]>.mu-pb-sum{margin-bottom:16px}.mu-pb-sum::-webkit-details-marker{display:none}.mu-pb-sum::before{content:"▸ ";font-size:9px;color:rgba(44,42,37,.3)}.mu-pb-det[open]>.mu-pb-sum::before{content:"▾ "}
 .mu-arc-wrap{display:flex;flex-direction:column;gap:0;min-width:0}
@@ -2198,35 +1786,7 @@ const style = `<style id="macro-unified-style">
 .mu-leg-neutral{width:22px;height:0;border-top:1.5px dashed rgba(122,158,130,.70)}
 .mu-leg-node{width:10px;height:10px;border-radius:50%;background:#b85c38;border:1.5px solid rgba(244,239,230,.80)}
 .mu-leg-today{width:10px;height:10px;border-radius:50%;background:#b85c38;box-shadow:0 0 0 2px rgba(184,92,56,.25),0 0 6px 2px rgba(184,92,56,.30);border:1.5px solid rgba(244,239,230,.90)}
-.mu-cycle-row{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;padding:24px 0;border-bottom:1px solid rgba(201,191,173,.45)}
-/* Regime column */
-.mu-regime-col{border:1px solid rgba(201,191,173,.45);border-radius:18px;padding:16px 15px;background:#ffffff;display:flex;flex-direction:column;gap:0}
-.mu-rg-eyebrow{font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block}
-.mu-rg-name{display:block;font-size:20px;font-weight:500;letter-spacing:-.04em;margin:3px 0 1px;color:rgba(26,23,20,.88)}
-.mu-rg-sub{font-size:10.5px;color:var(--muted);margin:0 0 13px;line-height:1.4}
-/* Quadrant grid — square-ish aspect ratio, no label crowding */
-.mu-rg-quad-wrap{margin-bottom:12px}
-.mu-rg-axis-y{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:rgba(26,23,20,.55);margin-bottom:4px;font-weight:600}
-.mu-rg-axis-x{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:rgba(26,23,20,.55);margin-top:4px;text-align:right;font-weight:600}
-.mu-rg-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;aspect-ratio:1.7/1;border:1px solid rgba(201,191,173,.38);border-radius:10px;overflow:hidden}
-.mu-rg-cell{padding:10px 12px;border:1px solid rgba(201,191,173,.22);box-sizing:border-box;min-width:0;overflow:hidden}
-.mu-rg-cell b{display:block;font-size:11px;font-weight:600;color:rgba(26,23,20,.35);line-height:1.25}
-.mu-rg-cell small{display:block;font-size:9px;color:rgba(26,23,20,.28);margin-top:2px}
-.mu-rg-on{background:rgba(47,111,78,.07)}
-.mu-rg-on b{color:rgba(47,111,78,.80)}
-.mu-rg-on small{color:rgba(47,111,78,.50)}
-/* Inputs */
-.mu-rg-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
-.mu-rg-inp-head{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px}
-.mu-rg-inp-row{display:flex;align-items:baseline;gap:4px;padding:2px 0;border-bottom:1px solid rgba(201,191,173,.18);font-size:9.5px}
-.mu-rg-inp-label{flex:1;color:rgba(26,23,20,.45)}
-.mu-rg-inp-val{font-weight:500;color:rgba(26,23,20,.68)}
-.mu-rg-inp-dir{font-style:normal;font-size:10px}
-/* Implications */
-.mu-rg-impl{border-top:1px solid rgba(201,191,173,.35);padding-top:10px;display:flex;flex-direction:column;gap:4px}
-.mu-rg-impl>div{font-size:9.5px;color:rgba(26,23,20,.62);line-height:1.4}
-.mu-rg-impl span{display:inline-block;font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);min-width:50px;margin-right:4px}
-@media(max-width:860px){.mu-regime-row{grid-template-columns:1fr}.mu-regime-col{margin-top:0}}
+@media(max-width:860px){}
 .mu-zone-label{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:rgba(26,23,20,.38);margin:0 0 14px;font-family:var(--mono,monospace)}
 .mu-sector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .mu-sector{border:1px solid var(--bd);background:var(--bg);border-left:2.5px solid var(--c);padding:8px 9px 7px;display:flex;flex-direction:column;gap:2px}
@@ -2261,35 +1821,11 @@ b.mu-db-metric-val{display:block;font-size:20px;font-weight:500;letter-spacing:-
 .mu-db-strat p{font-size:13px;line-height:1.58;color:rgba(26,23,20,.68)}
 @media(max-width:900px){.mu-db-strip{grid-template-columns:repeat(3,1fr)}.mu-db-body{grid-template-columns:1fr}}
 @media(max-width:560px){.mu-db-strip{grid-template-columns:1fr 1fr}}
-/* ── Signal bar (regime header) ── */
-.mu-sigbar{display:flex;align-items:center;gap:12px;margin-top:14px}
-.mu-sigbar-dots{display:flex;gap:5px;align-items:center}
-.mu-sdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
-.mu-sigbar-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(26,23,20,.38);font-family:var(--mono,monospace)}
-/* ── Tension + gates block ── */
-.mu-tension-block{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:0;border-bottom:1px solid rgba(201,191,173,.45);padding:20px 0}
-.mu-tension-col{padding-right:20px;border-right:1px solid rgba(201,191,173,.38);margin-right:0}
-.mu-tension-col:last-child{border-right:none;padding-right:0;padding-left:20px}
 .mu-gates-col{padding-left:20px!important;padding-right:0}
-.mu-tension-head{font-size:9px;text-transform:uppercase;letter-spacing:.13em;font-weight:600;margin-bottom:12px;font-family:var(--mono,monospace)}
 .mu-tension-head.mu-good{color:#2a6b4a}
 .mu-tension-head.mu-bad{color:#A4502F}
-.mu-tension-head{color:rgba(26,23,20,.45)}
-.mu-tension-head small{display:block;font-size:9px;font-weight:400;margin-top:2px;color:rgba(26,23,20,.38);text-transform:none;letter-spacing:0}
-.mu-tension-row{display:grid;grid-template-columns:90px minmax(72px,auto) 1fr;gap:6px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
-.mu-tension-row:last-child{border-bottom:none}
-.mu-tension-name{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
-.mu-tension-val{font-size:12px;font-weight:600;font-family:var(--mono,monospace);color:rgba(26,23,20,.8)}
-.mu-tension-sub{font-size:10px;letter-spacing:.04em}
-.mu-gate-row{display:grid;grid-template-columns:90px 52px 52px 16px 1fr;gap:5px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(201,191,173,.18)}
-.mu-gate-row:last-child{border-bottom:none}
-.mu-gate-name{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
-.mu-gate-cur{font-size:12px;font-weight:600;font-family:var(--mono,monospace);color:rgba(26,23,20,.8)}
-.mu-gate-tgt{font-size:10px;color:rgba(26,23,20,.4)}
-.mu-gate-icon{font-size:12px;font-weight:700;text-align:center}
-.mu-gate-note{font-size:10px;color:rgba(26,23,20,.4)}
-@media(max-width:960px){.mu-tension-block{grid-template-columns:1fr 1fr}.mu-gates-col{grid-column:1/-1;border-top:1px solid rgba(201,191,173,.38);padding-top:14px;margin-top:10px;padding-left:0!important;border-right:none}}
-@media(max-width:640px){.mu-tension-block{grid-template-columns:1fr}}
+@media(max-width:960px){.mu-gates-col{grid-column:1/-1;border-top:1px solid rgba(201,191,173,.38);padding-top:14px;margin-top:10px;padding-left:0!important;border-right:none}}
+@media(max-width:640px){}
 /* ── Phase bridge ── */
 .mu-phase-bridge{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-pb-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.35);margin-bottom:10px;font-family:var(--mono,monospace)}
@@ -2329,52 +1865,12 @@ details[open].mu-details summary:before{content:'↑'}
 .mu-analog-extra p{font-size:12px;line-height:1.4;margin:0;color:rgba(26,23,20,.62)}
 
 /* ── Responsive ── */
-@media(max-width:1100px){.mu-regime{grid-template-columns:1fr}.mu-regime-meta{flex-direction:row;align-items:center;flex-wrap:wrap}.mu-conf{text-align:left}}
-@media(max-width:960px){.mu-charts-row{grid-template-columns:1fr}.mu-chart-block{padding-right:0;border-right:none;border-bottom:1px solid rgba(201,191,173,.38);padding-bottom:20px}.mu-vix-block{padding-left:0;padding-top:20px}.mu-sc-strip{grid-template-columns:repeat(5,1fr)}.mu-cycle-row{grid-template-columns:1fr}}
+@media(max-width:1100px){.mu-regime{grid-template-columns:1fr}}
+@media(max-width:960px){.mu-charts-row{grid-template-columns:1fr}.mu-chart-block{padding-right:0;border-right:none;border-bottom:1px solid rgba(201,191,173,.38);padding-bottom:20px}.mu-vix-block{padding-left:0;padding-top:20px}.mu-sc-strip{grid-template-columns:repeat(5,1fr)}}
 @media(max-width:640px){.mu-sc-strip{grid-template-columns:repeat(3,1fr)}.mu-sector-grid{grid-template-columns:repeat(2,1fr)}}
-/* ── Axis evidence (Why Phase C) ── */
-.mu-axis-block{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
-.mu-axis-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.mu-axis-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;font-family:var(--mono,monospace)}
-.mu-axis-note-head{font-size:10.5px;color:rgba(164,80,47,.7)}
-.mu-axis-method{font-size:10px;color:rgba(26,23,20,.42);margin:0 0 12px;line-height:1.5}
-.mu-axis-list{display:flex;flex-direction:column;gap:10px}
-/* Ternary classification rows — no false-precision /100 numerals */
-.mu-axis-row{display:grid;grid-template-columns:118px minmax(90px,150px) auto 1fr;gap:10px;align-items:center}
-.mu-axis-label{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
-.mu-axis-seg{display:flex;gap:3px}
-.mu-axis-seg span{flex:1;height:6px;border-radius:3px;background:rgba(201,191,173,.28)}
-.mu-axis-class{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
-.mu-axis-read{font-size:10.5px;color:rgba(26,23,20,.5);line-height:1.35}
-.mu-axis-pending{font-size:10.5px;font-style:italic;color:rgba(26,23,20,.45);white-space:nowrap}
-.mu-axis-tension{font-size:12.5px;color:rgba(26,23,20,.65);margin:14px 0 0;padding:10px 14px;border-left:2.5px solid rgba(164,80,47,.45);background:rgba(164,80,47,.04);line-height:1.5}
-@media(max-width:700px){.mu-axis-row{grid-template-columns:96px 1fr auto}.mu-axis-read{grid-column:1/-1;margin-top:2px}}
-/* "How to read this" guide — plain-language phase + quadrant decoder */
-.mu-rg-guide-det{border-bottom:1px solid rgba(201,191,173,.45);padding:2px 0 14px}
-.mu-rg-guide-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.5);cursor:pointer;padding:10px 0;list-style:none}
-.mu-rg-guide-sum::-webkit-details-marker{display:none}
-.mu-rg-guide-sum::before{content:"▸ ";font-size:9px;color:rgba(44,42,37,.3)}
-.mu-rg-guide-det[open]>.mu-rg-guide-sum::before{content:"▾ "}
-.mu-rg-guide{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
-.mu-rg-guide-head{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.45);margin-bottom:8px;font-family:var(--mono,monospace)}
-.mu-rg-guide ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.mu-rg-guide li{font-size:12px;line-height:1.5;color:rgba(26,23,20,.68)}
-.mu-rg-guide li b{color:rgba(26,23,20,.88)}
-@media(max-width:700px){.mu-rg-guide{grid-template-columns:1fr}}
-/* ── Phase C history ── */
-.mu-phase-history{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
-.mu-ph-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.mu-ph-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;font-family:var(--mono,monospace)}
-.mu-ph-sub{font-size:10.5px;color:rgba(26,23,20,.42)}
-.mu-ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(201,191,173,.45)}
-.mu-ph-item{padding:16px 18px;border-right:1px solid rgba(201,191,173,.38)}
-.mu-ph-item:last-child{border-right:none}
-.mu-ph-period{font-size:16px;font-weight:600;letter-spacing:-.03em;color:#1A1714;margin-bottom:8px}
-.mu-ph-dur{font-size:11px;font-weight:400;color:rgba(26,23,20,.42);margin-left:6px;letter-spacing:0}
-.mu-ph-item p{font-size:12px;color:rgba(26,23,20,.6);margin:0 0 5px;line-height:1.5}
-.mu-ph-item p b{color:rgba(26,23,20,.75)}
-.mu-ph-today{color:#2a6b4a!important}
-@media(max-width:700px){.mu-ph-grid{grid-template-columns:1fr}.mu-ph-item{border-right:none;border-bottom:1px solid rgba(201,191,173,.38)}.mu-ph-item:last-child{border-bottom:none}}
+@media(max-width:700px){}
+@media(max-width:700px){}
+@media(max-width:700px){}
 /* ── Today's action: news strip + AI briefing ── */
 .mu-news-block{margin-top:20px;border-top:1px solid rgba(201,191,173,.45);padding-top:14px}
 .mu-news-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
@@ -2399,6 +1895,58 @@ details[open].mu-details summary:before{content:'↑'}
 .mu-10y-toggle{min-height:40px;padding:8px 15px;font-size:13px;font-weight:600;border:1px dashed rgba(138,106,44,.7);border-radius:9px;background:transparent;color:#8a6a2c;cursor:pointer;font-family:inherit}
 .mu-10y-toggle[aria-pressed="true"]{background:rgba(138,106,44,.14)}
 .mu-10y-note{font-size:11px;color:rgba(26,23,20,.5);margin:8px 0 0;line-height:1.5;font-style:italic}
+
+/* ── Unified Market Cycle ── */
+.mu-cycle{border:1px solid var(--rule);border-radius:24px;background:#ffffff;padding:22px;margin:0 0 18px;box-shadow:0 18px 60px rgba(36,35,31,.04)}
+.mu-cycle-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 14px}
+.mu-cycle-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.7fr);gap:14px;margin-bottom:18px}
+.mu-cycle-kicker{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.mu-cycle-title{font-size:clamp(30px,3.4vw,52px);line-height:1;letter-spacing:-.05em;font-weight:500;margin:0 0 8px;color:rgba(26,23,20,.92)}
+.mu-cycle-code{display:inline-block;background:#1A1714;color:#f4efe6;border-radius:10px;padding:2px 12px;margin-right:6px;font-size:.82em}
+.mu-cycle-sub{font-size:13px;color:rgba(26,23,20,.62);margin:0;line-height:1.5}
+.mu-regime-tag{display:inline-block;border:1px solid rgba(47,111,78,.4);color:#2a6b4a;border-radius:999px;padding:1px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.mu-cycle-actionbox{border:1px solid rgba(164,80,47,.32);border-radius:18px;background:rgba(164,80,47,.06);padding:16px;display:flex;flex-direction:column;justify-content:center}
+.mu-cycle-actionbox span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.mu-cycle-actionbox b{display:block;font-size:clamp(20px,2.2vw,30px);letter-spacing:-.03em;line-height:1.05;margin-bottom:8px;color:rgba(26,23,20,.9)}
+.mu-cycle-actionbox small{font-size:12px;color:rgba(26,23,20,.6);line-height:1.45}
+.mu-phasebar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:18px}
+.mu-pb-seg{border:1px solid rgba(201,191,173,.5);border-radius:10px;padding:8px 4px;text-align:center;background:rgba(201,191,173,.06);min-width:0}
+.mu-pb-seg b{display:block;font-size:13px;font-weight:700;color:rgba(26,23,20,.75)}
+.mu-pb-seg span{display:block;font-size:8.5px;color:var(--muted);margin-top:2px;line-height:1.25}
+.mu-pb-seg.mu-pb-cur{background:#1A1714;border-color:#1A1714}
+.mu-pb-seg.mu-pb-cur b,.mu-pb-seg.mu-pb-cur span{color:#f4efe6}
+.mu-pb-seg.mu-pb-cur i{display:block;font-style:normal;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#e8b04b;margin-top:4px;font-weight:700}
+.mu-ev-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 10px;font-weight:700}
+.mu-ev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.mu-ev-tile{border:1px solid var(--rule);border-radius:14px;padding:12px;background:#ffffff;min-width:0}
+.mu-ev-label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.mu-ev-value{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;color:rgba(26,23,20,.9)}
+.mu-ev-sub{display:block;font-size:10.5px;color:var(--muted);margin:4px 0 8px;line-height:1.35}
+.mu-ev-bar{position:relative;height:6px;border-radius:3px;background:rgba(201,191,173,.35);margin:8px 0 10px}
+.mu-ev-brk{position:absolute;top:-3px;bottom:-3px;width:2px;background:#A4502F;transform:translateX(-50%)}
+.mu-ev-dot{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:#2a6b4a;transform:translate(-50%,-50%);box-shadow:0 0 0 2px #ffffff}
+.mu-ev-foot{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.mu-ev-verdict{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-style:normal;white-space:nowrap}
+.mu-ev-good{color:#2a6b4a}.mu-ev-warn{color:#8a6a2c}
+.mu-ev-foot span{font-size:9.5px;color:var(--muted);text-align:right;line-height:1.3}
+.mu-ev-why{font-size:12.5px;color:rgba(26,23,20,.68);line-height:1.55;margin:0 0 16px;max-width:760px}
+.mu-break{border-top:1px solid var(--rule);padding-top:14px;margin-bottom:14px}
+.mu-break-list{margin:0 0 10px;padding-left:18px;font-size:13px;line-height:1.6;color:rgba(26,23,20,.78)}
+.mu-break-list li{margin-bottom:6px}
+.mu-break-list b{color:rgba(26,23,20,.92)}
+.mu-prob{font-size:11px;color:var(--muted);font-family:var(--mono,ui-monospace,monospace);margin:0;line-height:1.5}
+.mu-guide-det{border:1px solid var(--rule);border-radius:14px;background:rgba(201,191,173,.06)}
+.mu-guide-sum{padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(26,23,20,.8);list-style:none}
+.mu-guide-sum::-webkit-details-marker{display:none}
+.mu-guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 16px 16px}
+.mu-guide-item{border:1px solid rgba(201,191,173,.4);border-radius:10px;padding:10px 12px;background:#ffffff}
+.mu-guide-item b{display:block;font-size:12px;margin-bottom:4px;color:rgba(26,23,20,.88)}
+.mu-guide-item span{font-size:11.5px;color:rgba(26,23,20,.62);line-height:1.45}
+.mu-guide-item.mu-guide-cur{border-color:rgba(47,111,78,.55);background:rgba(47,111,78,.05)}
+.mu-arc-note{font-size:11px;color:rgba(26,23,20,.55);line-height:1.55;margin:10px 2px 0;font-style:italic}
+@media(max-width:860px){.mu-cycle-hero{grid-template-columns:1fr}.mu-ev-grid{grid-template-columns:repeat(2,1fr)}.mu-guide-grid{grid-template-columns:1fr}}
+@media(max-width:480px){.mu-pb-seg span{display:none}.mu-pb-seg{padding:8px 2px}.mu-pb-seg i{font-size:7px}.mu-cycle{padding:16px}.mu-ev-grid{grid-template-columns:1fr 1fr}}
+
 </style>`;
 
 // ── Today's action: market news strip + AI briefing ──────────────────────────
@@ -2494,127 +2042,125 @@ const addZoneStr  = Array.isArray(chart.add_zone)  ? chart.add_zone.map(v => v.t
 const trimZoneStr = Array.isArray(chart.trim_zone) ? chart.trim_zone.map(v => v.toLocaleString('en-US',{maximumFractionDigits:0})).join('–') : '—';
 const defStr      = chart.defense_below ? chart.defense_below.toLocaleString('en-US',{maximumFractionDigits:0}) : '—';
 
-// ── Axis evidence: Why Phase C ────────────────────────────────────────────────
-const AXIS_DEFS = [
-  { key: 'monetary_axis',         blocking: true  },
-  { key: 'liquidity_axis',        blocking: true  },
-  { key: 'psychology_axis',       blocking: false },
-  { key: 'market_structure_axis', blocking: false },
-  { key: 'valuation_axis',        blocking: false },
-];
-const eggAxis = egg.axis || {};
-const axisList = AXIS_DEFS.map(d => ({ key: d.key, ...eggAxis[d.key], blocking: d.blocking })).filter(a => a && a.label);
-
-// Axis scores are NOT measurements: monetary/liquidity/market-structure are
-// ternary buckets (weak → ~30, watch → ~55, supportive → ~74+). Psychology and
-// valuation are hardcoded per-phase constants (60/55 for Phase C) — shown as
-// "phase default", never as a measured score.
-const TERNARY_KEYS = new Set(['monetary_axis', 'liquidity_axis', 'market_structure_axis']);
-function axisClass(score) {
-  if (score == null) return null;
-  if (score <= 40)  return { word: 'Weak',       color: '#A4502F' };
-  if (score <= 64)  return { word: 'Watch',      color: '#8a6a2c' };
-  return                  { word: 'Supportive', color: '#2a6b4a' };
-}
-function axisBucketOf(ax) {
-  return TERNARY_KEYS.has(ax.key) ? 'ternary bucket (weak / watch / supportive)' : 'phase default (Phase ' + phaseCode + ' constant)';
-}
-
-const blockingFail = axisList.filter(a => a.blocking && (num(a.score) ?? 50) < 60).length;
-
-const axisEvidenceHtml = axisList.length > 0 ? `<div class="mu-axis-block">
-  <div class="mu-axis-head">
-    <span class="mu-axis-title">Why Phase ${phaseCode} — the evidence</span>
-    <span class="mu-axis-note-head">${blockingFail} of 2 monetary axes below Phase D threshold</span>
-  </div>
-  <p class="mu-axis-method">Axis scores are classifications, not measurements. Monetary, liquidity and market structure are ternary buckets — weak, watch, or supportive. Psychology and valuation are Phase ${phaseCode} defaults, not independently measured.</p>
-  <div class="mu-axis-list">
-    ${axisList.map(ax => {
-      const blockNote = ax.blocking && (num(ax.score) ?? 50) < 60 ? ' · blocking Phase D' : '';
-      if (!TERNARY_KEYS.has(ax.key)) {
-        // Psychology / valuation: hardcoded per-phase constants — no number, no bar.
-        return `<div class="mu-axis-row">
-          <div class="mu-axis-label">${esc(ax.label)}</div>
-          <div class="mu-axis-seg" aria-hidden="true"><span></span><span></span><span></span></div>
-          <span class="mu-axis-pending">Phase ${phaseCode} default</span>
-          <div class="mu-axis-read">${esc(ax.read || '')} (not independently measured)${esc(blockNote)}</div>
-        </div>`;
-      }
-      const score = num(ax.score) ?? 50;
-      const cls = axisClass(score);
-      const segs = ['Weak', 'Watch', 'Supportive'].map(w =>
-        `<span style="${w === cls.word ? `background:${cls.color}` : ''}"></span>`).join('');
-      return `<div class="mu-axis-row">
-        <div class="mu-axis-label">${esc(ax.label)}</div>
-        <div class="mu-axis-seg" aria-hidden="true">${segs}</div>
-        <span class="mu-axis-class" style="color:${cls.color}">${cls.word}</span>
-        <div class="mu-axis-read">${esc(ax.read || '')} — ${axisBucketOf(ax)}${esc(blockNote)}</div>
-      </div>`;
-    }).join('')}
-  </div>
-  <p class="mu-axis-tension">${(() => {
-    const byKey = k => axisList.find(a => a.key === k);
-    const ms = byKey('market_structure_axis'), mo = byKey('monetary_axis'), li = byKey('liquidity_axis');
-    const cOf = ax => ax && TERNARY_KEYS.has(ax.key) ? axisClass(num(ax.score) ?? 50) : null;
-    const msC = cOf(ms), moC = cOf(mo), liC = cOf(li);
-    const bits = [];
-    if (msC) bits.push(`Market structure is ${msC.word.toLowerCase()} — ${esc(ms.read || '')}`);
-    if (moC) bits.push(`monetary is ${moC.word.toLowerCase()} — ${esc(mo.read || '')}`);
-    if (liC) bits.push(`liquidity is ${liC.word.toLowerCase()} — ${esc(li.read || '')}`);
-    return `The tension: ${bits.join('; ')}. That gap is Phase ${phaseCode}.`;
-  })()}</p>
-</div>` : '';
-
-// ── Historical Phase C reference ──────────────────────────────────────────────
-const PHASE_C_PERIODS = [
-  {
-    period: '2019 Q1–Q2',
-    duration: '4 months',
-    context: 'Post-2018 Q4 selloff. Fed had hiked 9 times and then signaled a pause.',
-    resolved: 'Phase D unlocked when Fed pivoted — first rate cut signal in July 2019 broke the stall.',
-    pattern: 'SPX consolidated above 200D for months, then broke higher once cut narrative solidified.',
-    today: 'Same rate pressure dynamic: Fed has begun cutting but 10Y remains elevated above 4.2%.',
-  },
-  {
-    period: '2023 H2',
-    duration: '3 months',
-    context: 'Post-regional bank stress. Inflation moderating but Fed still restrictive at 5.25%.',
-    resolved: 'Phase D unlocked when market priced in 2024 cuts — 10Y peaked at ~5% in October 2023.',
-    pattern: 'SPX tested 200D twice and held both times. Rally began when rate expectations turned.',
-    today: 'Same resolution mechanism: watch for 10Y sustained move below 4.0% and VIX below 15.',
-  },
-];
-
-const historicalPhaseCHtml = `<div class="mu-phase-history">
-  <div class="mu-ph-head">
-    <span class="mu-ph-title">When we were here before — Phase C reference periods</span>
-    <span class="mu-ph-sub">Both resolved into Phase D when monetary conditions eased</span>
-  </div>
-  <div class="mu-ph-grid">
-    ${PHASE_C_PERIODS.map(h => `<div class="mu-ph-item">
-      <div class="mu-ph-period">${esc(h.period)} <span class="mu-ph-dur">${esc(h.duration)}</span></div>
-      <p>${esc(h.context)}</p>
-      <p><b>Resolved:</b> ${esc(h.resolved)}</p>
-      <p><b>Pattern:</b> ${esc(h.pattern)}</p>
-      <p class="mu-ph-today"><b>Today:</b> ${esc(h.today)}</p>
-    </div>`).join('')}
-  </div>
-</div>`;
-
 // ── Assemble section ──────────────────────────────────────────────────────────
 
-// Qualitative confidence driver — extractive: the strongest axis supports,
-// blocking axes below threshold hold the phase back.
-const confDriverLine = (() => {
-  const scored = axisList.filter(a => num(a.score) != null).sort((a, b) => (num(b.score) ?? 0) - (num(a.score) ?? 0));
-  const best = scored[0];
-  const blockers = axisList.filter(a => a.blocking && (num(a.score) ?? 50) < 60).map(a => String(a.label).toLowerCase());
-  const parts = [];
-  if (best && TERNARY_KEYS.has(best.key)) parts.push(`${best.label} ${axisClass(num(best.score)).word.toLowerCase()} — ${best.read || ''}`.trim());
-  else if (best) parts.push(`${best.label} — ${best.read || ''}`.trim());
-  if (blockers.length) parts.push(`${blockers.join(' + ')} still block${blockers.length > 1 ? '' : 's'} Phase D`);
-  return parts.length ? `Driven by ${parts.join('; ')}.` : `Confidence in Phase ${phaseCode}.`;
-})();
+// ── Unified Market Cycle hero ─────────────────────────────────────────────────
+// (a) Where are we? → phase bar + evidence strip · (b) book meaning → capital
+// action · (c) what breaks it → invalidation triggers with live distances.
+const PHASES7 = [
+  { code: 'A1', name: 'Capitulation', desc: 'Panic selling; prices bottom as the weak hands give up.' },
+  { code: 'A2', name: 'Accumulation', desc: 'Patient money buys quietly while the crowd stays scared.' },
+  { code: 'B',  name: 'Recovery',     desc: 'Prices start climbing; the worst looks over.' },
+  { code: 'C',  name: 'Verification', desc: 'The rally gets tested. Is the recovery real?' },
+  { code: 'D',  name: 'Expansion',    desc: 'Broad participation; new money flows in, leadership widens.' },
+  { code: 'E',  name: 'Euphoria',     desc: 'Everyone is bullish; the peak forms.' },
+  { code: 'F',  name: 'Distribution', desc: 'Smart money sells into strength; the decline begins.' },
+];
+const curPhase = PHASES7.find(pp => pp.code === phaseCode) || PHASES7[4];
+const regimeTag = regime && regime.name
+  ? String(regime.name).charAt(0).toUpperCase() + String(regime.name).slice(1).toLowerCase() : '';
+const phaseMeaning = esc(egg.phase_market_meaning || '');
+
+const evSpx   = num(mvMap.spx?.value);
+const evMa200 = num(chart.ma200);
+const evSpxDist = (evSpx != null && evMa200) ? (evSpx - evMa200) / evMa200 * 100 : null;
+const evSpxDrop = (evSpx != null && evMa200) ? (evSpx - evMa200) / evSpx * 100 : null;
+const evHy    = num(mvMap.hy_oas?.value);
+const evDgs10 = num(mvMap.dgs10?.value);
+const evVix   = vixCurRaw;
+
+const npp = egg.next_phase_probability || {};
+const pStay  = num(npp.expansion_risk_on) ?? 50;
+const pNext  = num(npp.euphoria_late_risk_on) ?? 30;
+const pPrev  = num(npp.transition_verification) ?? 10;
+const pOther = Math.max(0, 100 - pStay - pNext - pPrev);
+
+// Mini distance-bar: domain [lo,hi], red break-marker at brk, green dot at val.
+function distBar(lo, hi, brk, val) {
+  const pct = v => Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
+  return `<div class="mu-ev-bar" aria-hidden="true"><span class="mu-ev-brk" style="left:${pct(brk).toFixed(1)}%"></span><span class="mu-ev-dot" style="left:${pct(val).toFixed(1)}%"></span></div>`;
+}
+
+const phaseBarHtml = PHASES7.map(pp => `
+  <div class="mu-pb-seg${pp.code === curPhase.code ? ' mu-pb-cur' : ''}">
+    <b>${pp.code}</b><span>${pp.name}</span>${pp.code === curPhase.code ? '<i>You are here</i>' : ''}
+  </div>`).join('');
+
+const evTiles = [
+  {
+    label: 'S&P 500 vs 200-day', tone: 'good', verdict: 'supports D',
+    value: evSpxDist != null ? `+${evSpxDist.toFixed(1)}% above` : '—',
+    sub: (evSpx && evMa200) ? `${Math.round(evSpx).toLocaleString('en-US')} vs ${Math.round(evMa200).toLocaleString('en-US')}` : '',
+    bar: evSpxDist != null ? distBar(-3, 10, 0, evSpxDist) : '',
+    foot: 'Break: daily close below 200D',
+  },
+  {
+    label: 'HY credit spread', tone: 'good', verdict: 'supports D',
+    value: evHy != null ? evHy.toFixed(2) : '—',
+    sub: 'OAS · contained',
+    bar: evHy != null ? distBar(0, 8, 6, evHy) : '',
+    foot: 'Break: widens past 6.00',
+  },
+  {
+    label: '10Y Treasury', tone: 'warn', verdict: 'pressures D',
+    value: evDgs10 != null ? evDgs10.toFixed(2) + '%' : '—',
+    sub: 'elevated — the rate headwind', bar: '',
+    foot: 'Stress type: rate pressure',
+  },
+  {
+    label: 'Fed funds', tone: 'warn', verdict: 'pressures D',
+    value: '3.75–4.00%',
+    sub: `Sep 16 hike · 12–0 · DFF ${_dffRate}% (FRED ${_dffDateShort})`, bar: '',
+    foot: 'Restrictive stance',
+  },
+];
+const evidenceHtml = evTiles.map(t => `
+  <div class="mu-ev-tile">
+    <span class="mu-ev-label">${t.label}</span>
+    <b class="mu-ev-value">${t.value}</b>
+    <small class="mu-ev-sub">${t.sub}</small>
+    ${t.bar}
+    <div class="mu-ev-foot"><em class="mu-ev-verdict mu-ev-${t.tone}">${t.verdict}</em><span>${t.foot}</span></div>
+  </div>`).join('');
+
+const breakListHtml = `
+  <li><b>SPX daily close below 200D (${evMa200 ? Math.round(evMa200).toLocaleString('en-US') : '—'})</b> — ${evSpx && evMa200 ? `${Math.round(evSpx - evMa200).toLocaleString('en-US')} pts · ${evSpxDrop.toFixed(1)}% below ${Math.round(evSpx).toLocaleString('en-US')}` : 'live distance unavailable'} of clearance. Posture flips defensive.</li>
+  <li><b>VIX stress expansion</b> — VIX ${evVix != null ? evVix.toFixed(1) : '—'} now; a spike alongside a 200D break confirms the phase break.</li>
+  <li><b>HY OAS widens past 6.00</b> — ${evHy != null ? evHy.toFixed(2) : '—'} now; credit stress would end the expansion read.</li>`;
+
+const guideGridHtml = PHASES7.map(pp => `
+  <div class="mu-guide-item${pp.code === curPhase.code ? ' mu-guide-cur' : ''}">
+    <b>${pp.code} · ${pp.name}${pp.code === curPhase.code ? ' — we are here' : ''}</b><span>${pp.desc}</span>
+  </div>`).join('');
+
+const cycleHeroHtml = `
+<div class="mu-cycle" id="mu-market-cycle">
+  <p class="mu-cycle-eyebrow">Market Cycle · Kostolany framework</p>
+  <div class="mu-cycle-hero">
+    <div class="mu-cycle-phase">
+      <span class="mu-cycle-kicker">Where are we?</span>
+      <h2 class="mu-cycle-title"><span class="mu-cycle-code">${esc(curPhase.code)}</span> ${esc(curPhase.name)}</h2>
+      <p class="mu-cycle-sub">${phaseMeaning}${regimeTag ? ` · <span class="mu-regime-tag">Regime: ${esc(regimeTag)}</span>` : ''}</p>
+    </div>
+    <div class="mu-cycle-actionbox">
+      <span>What it means for your book</span>
+      <b>${action}</b>
+      <small>${changeRule}</small>
+    </div>
+  </div>
+  <div class="mu-phasebar" role="img" aria-label="Kostolany phases A1 through F — current phase ${esc(curPhase.code)} ${esc(curPhase.name)}">${phaseBarHtml}</div>
+  <div class="mu-evidence">
+    <p class="mu-ev-kicker">Why ${esc(curPhase.code)} — the evidence</p>
+    <div class="mu-ev-grid">${evidenceHtml}</div>
+    <p class="mu-ev-why">Price trend and contained credit confirm expansion; the headwind is rates. ${esc(curPhase.code)} holds while SPX stays above ${evMa200 ? Math.round(evMa200).toLocaleString('en-US') : 'its 200-day'} and spreads stay contained.</p>
+  </div>
+  <div class="mu-break">
+    <p class="mu-ev-kicker">What would change the call?</p>
+    <ul class="mu-break-list">${breakListHtml}</ul>
+    <p class="mu-prob">Next-phase odds — holds ${esc(curPhase.code)} ${pStay}% · advances to E ${pNext}% · slips to C ${pPrev}% · other ${pOther}%</p>
+  </div>
+  <details class="mu-guide-det"><summary class="mu-guide-sum">Full A1–F phase guide</summary><div class="mu-guide-grid">${guideGridHtml}</div></details>
+</div>`;
 
 const section = `<section id="decision-brief-section" class="macro-unified">
 <div class="mu-wrap">
@@ -2651,73 +2197,19 @@ const section = `<section id="decision-brief-section" class="macro-unified">
     ${newsStripHtml}
   </div>
 
-  <!-- 1. Regime header: diagnosis anchor -->
-  <div class="mu-regime">
-    <div>
-      <p class="mu-phase-eyebrow">Market permission - Phase ${phaseCode} - ${diagLabel}</p>
-      <h2 class="mu-phase-title">Why this is not a broad add signal</h2>
-      ${signalBarHtml}
-      <div class="mu-action">
-        <span>Capital action</span>
-        <b>${action}</b>
-        <small>${changeRule}</small>
-      </div>
-    </div>
-    <div class="mu-regime-meta">
-      <div class="mu-conf">
-        <span>Cycle confidence</span>
-        <b>${confWord}</b>
-        <small>${esc(confDriverLine)}</small>
-      </div>
-      <div class="mu-stress-badge">${stressType}</div>
-    </div>
-  </div>
+  <!-- 1. UNIFIED MARKET CYCLE: phase bar + evidence + three questions -->
+  ${cycleHeroHtml}
 
-  <!-- 2. Regime framework -->
-  <div class="mu-regime-row">${regimeCol}</div>
-  <!-- 2a. How to read this: phase + quadrant decoder -->
-  <details class="mu-rg-guide-det"><summary class="mu-rg-guide-sum">How to read this — phases &amp; quadrants</summary>
-    <div class="mu-rg-guide">
-      <div>
-        <b class="mu-rg-guide-head">Market cycle phases (Kostolany egg)</b>
-        <ul>
-          <li><b>A1 Capitulation</b> — panic selling; prices bottom as the weak hands give up.</li>
-          <li><b>A2 Accumulation</b> — patient money buys quietly while the crowd stays scared.</li>
-          <li><b>B Recovery</b> — prices start climbing; the worst looks over.</li>
-          <li><b>C Verification</b> — the rally gets tested. Is the recovery real? We are here now.</li>
-          <li><b>D Expansion</b> — broad participation; new money flows in, leadership widens.</li>
-          <li><b>E Euphoria</b> — everyone is bullish; the peak forms.</li>
-          <li><b>F Distribution</b> — smart money sells into strength; the decline begins.</li>
-        </ul>
-      </div>
-      <div>
-        <b class="mu-rg-guide-head">Macro regime quadrants (the 2×2 above)</b>
-        <ul>
-          <li><b>Goldilocks</b> — growth rising, inflation calm. Own quality and tech.</li>
-          <li><b>Reflation</b> — growth rising, inflation heating. Own cyclicals and energy.</li>
-          <li><b>Deflation</b> — growth slowing, inflation cooling. Own bonds and defensives.</li>
-          <li><b>Stagflation</b> — growth slowing, inflation hot. Hold cash and real assets.</li>
-        </ul>
-      </div>
-    </div>
-  </details>
-  <!-- 2b. Rate cycle (open by default) -->
-  <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Cycle position · Phase C · Verification</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
+  <!-- 2. Rate cycle (Fed diagram — chart geometry unchanged; annotations corrected Sep 2026) -->
+  <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Rate cycle · Fed funds vs Phase ${phaseCode}</summary><div class="mu-cycle-arc-col">${cycleHtml}</div>
+  <p class="mu-arc-note">Actual rate = FRED DFF, last-known-good ${_dffDateShort} (daily feed unavailable since Sep 18). Projected path = September 2026 FOMC SEP median: 4.1% end-2026, 4.1% end-2027, 3.2% longer-run.</p></details>
 
-  <!-- 3. Why Phase C: axis evidence -->
-  ${axisEvidenceHtml}
-
-  <!-- 4. What unlocks Phase D: forward triggers -->
-  ${tensionGatesHtml}
-
-  <!-- 5. When we were here before: historical Phase C reference -->
-  ${historicalPhaseCHtml}
 
   <!-- 6. SPX chart: price confirmation -->
   <div class="mu-unified-chart-block" id="mu-price-chart">
     <div class="mu-chart-head">
       <h3>S&amp;P 500 — price confirmation · add/trim/defense zones</h3>
-      <span>Above 200D · consolidating · consistent with Phase C thesis</span>
+      <span>Above 200D · consolidating · consistent with Phase ${phaseCode} thesis</span>
     </div>
     <div class="mu-chart-controls">
       <div class="mu-zoom-btns" role="group" aria-label="Chart range">

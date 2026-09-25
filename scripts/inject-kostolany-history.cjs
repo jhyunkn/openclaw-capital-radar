@@ -7,248 +7,6 @@ const requestedPath = process.argv[2] || 'index.html';
 const indexPath     = path.isAbsolute(requestedPath) ? requestedPath : path.join(root, requestedPath);
 if (!fs.existsSync(indexPath)) process.exit(0);
 
-// Load Kostolany egg state for cycle intelligence panel
-const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function readJson(p, fb = {}) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fb; } }
-const egg = readJson(path.join(root, 'outputs', 'kostolany-egg-state.json'));
-const macro = readJson(path.join(root, 'outputs', 'macro-cycle-state.json'));
-
-const phaseCode  = egg.phase_code   || 'C';
-const phaseLabel = egg.phase_label  || egg.macro_phase || 'Verification';
-const conf       = Number(egg.phase_confidence) || 83;
-const action     = egg.capital_action || 'Wait for confirmation';
-const invalidation = egg.invalidation || '—';
-
-const phaseMeaning   = macro.phase_meaning   || egg.phase_market_meaning || '';
-const rewarded       = macro.rewarded_behavior || '';
-const mistake        = macro.common_mistake    || '';
-const pressureRegime = macro.pressure_regime   || '';
-const nextWatch      = macro.next_phase_watch  || '';
-
-const axes = egg.axis || {};
-const mon  = axes.monetary_axis        || { score: 30, read: 'restrictive' };
-const liq  = axes.liquidity_axis       || { score: 72, read: 'supportive' };
-const psy  = axes.psychology_axis      || { score: 60, read: 'balanced' };
-const str  = axes.market_structure_axis|| { score: 84, read: 'above MAs' };
-const val  = axes.valuation_axis       || { score: 55, read: 'pressure building' };
-
-const probs = egg.next_phase_probability || {};
-
-// ── Phase-relative fork model (the old grid was hardcoded to a Phase-C frame) ──
-const PHASE_ORDER = [
-  { code:'A1', name:'Capitulation', probKey:'crisis_capitulation' },
-  { code:'A2', name:'Reset',        probKey:'contraction_reset' },
-  { code:'B',  name:'Recovery',     probKey:'recovery_early_easing' },
-  { code:'C',  name:'Verification', probKey:'transition_verification' },
-  { code:'D',  name:'Expansion',    probKey:'expansion_risk_on' },
-  { code:'E',  name:'Euphoria',     probKey:'euphoria_late_risk_on' },
-  { code:'F',  name:'Distribution', probKey:'distribution_defensive_reset' },
-];
-const phaseIdx = Math.max(0, PHASE_ORDER.findIndex(p => p.code === phaseCode));
-const phStay = PHASE_ORDER[phaseIdx];
-const phNext = PHASE_ORDER[(phaseIdx + 1) % PHASE_ORDER.length];
-const phPrev = PHASE_ORDER[(phaseIdx + PHASE_ORDER.length - 1) % PHASE_ORDER.length];
-const pStay = Number(probs[phStay.probKey]) || 0;
-const pNext = Number(probs[phNext.probKey]) || 0;
-const pPrev = Number(probs[phPrev.probKey]) || 0;
-const pOther = Math.max(0, 100 - pStay - pNext - pPrev);
-
-const GATE = {
-  A1:'Breakdown: SPX loses the 200-day with VIX stress and credit spreads widening.',
-  A2:'Forced selling exhausts or policy turns — panic clears.',
-  B:'Liquidity returns: M2 re-accelerates, HY spreads tighten from wide.',
-  C:'Prices rise off the bottom; sceptics question the move.',
-  D:'Fed eases or holds while earnings beat expectations and breadth expands.',
-  E:'Late buyers flood in; sentiment stretches; valuation hits records.',
-  F:'Smart money exits; volatility spikes; HY spreads widen.',
-};
-const POSTURE = {
-  A1:'Raise cash. Defense wins: TLT, gold, healthcare.',
-  A2:'Stay defensive; build a quality watchlist.',
-  B:'Add risk gradually; quality growth first.',
-  C:'Hold; wait for confirmation before adding.',
-  D:'Add SPX, quality growth, AI leaders. Reduce cash.',
-  E:'Trim beta into strength; raise cash; take profits.',
-  F:'Raise cash. TLT, gold, healthcare. Defense wins.',
-};
-
-const PHASE_GUIDE = [
-  ['A1','Capitulation','forced selling; max pessimism; bottom zone'],
-  ['A2','Reset','prices roll over; policy turn'],
-  ['B','Recovery','prices stabilise; early buyers accumulate quietly'],
-  ['C','Verification','prices rise; sceptics still cautious'],
-  ['D','Expansion','broad participation; clear uptrend; optimism grows'],
-  ['E','Euphoria','peak prices; max optimism; late buyers flood in'],
-  ['F','Distribution','smart money exits; volatility spikes; top zone'],
-];
-
-// ── False-precision fix: scores are ternary buckets / per-phase constants ──
-// Generator rules (honest provenance):
-//   monetary/liquidity: ternary bucket from TLT/BTC stance (e.g. TLT weak→30)
-//   market structure: average of SPX trend, QQQ leadership, VIX buckets
-//   psychology/valuation: hardcoded per-phase constants (60/55 in expansion)
-function axisClass(label, score) {
-  const s = Number(score), l = String(label).toLowerCase();
-  if (l.includes('monetary'))  return s <= 40 ? ['Restrictive','bad']  : s >= 70 ? ['Easing','good'] : ['Mixed','warn'];
-  if (l.includes('liquidity')) return s >= 70 ? ['Supportive','good'] : s <= 40 ? ['Weak','bad']     : ['Mixed','warn'];
-  if (l.includes('structure')) return s >= 70 ? ['Firm','good']       : s <= 40 ? ['Weak','bad']     : ['Mixed','warn'];
-  if (l.includes('psych'))     return s >= 72 ? ['Excess','warn']     : s <= 40 ? ['Fearful','bad']  : ['Balanced','warn'];
-  if (l.includes('valu'))      return s >= 70 ? ['Cheap','good']       : s <= 45 ? ['Stretched','bad']: ['Neutral','warn'];
-  return ['Mixed','warn'];
-}
-function axisRule(label, score) {
-  const s = Number(score), l = String(label).toLowerCase();
-  if (l.includes('monetary'))  return s <= 40 ? 'TLT weak → restrictive bucket' : s >= 70 ? 'TLT strong → supportive bucket' : 'TLT mixed → watch bucket';
-  if (l.includes('liquidity')) return s >= 70 ? 'BTC strong → supportive bucket' : s <= 40 ? 'BTC weak → soft bucket' : 'BTC mixed → watch bucket';
-  if (l.includes('structure')) return 'average of SPX-trend, QQQ-leadership, VIX buckets';
-  if (l.includes('psych'))     return 'phase default — no extreme read this phase';
-  if (l.includes('valu'))      return 'phase default — pressure not fully modeled';
-  return 'ternary bucket';
-}
-function axisRow(name, axis) {
-  const [cls, tone] = axisClass(axis.label || name, axis.score);
-  return `<div class="kci-axis-row"><span class="kci-axis-name">${esc(name)}</span><span class="kci-axis-class kci-tone-${tone}">${esc(cls)}</span><span class="kci-axis-rule">${esc(axisRule(axis.label || name, axis.score))}</span></div>`;
-}
-// Confidence is a weighted blend of buckets, not a measurement — render qualitative.
-function confLabel(c) {
-  if (c >= 80) return 'High';
-  if (c >= 60) return 'Moderate–high';
-  if (c >= 40) return 'Moderate';
-  return 'Low';
-}
-
-// Rate-side implied phase based on monetary + liquidity average
-const rateScore  = Math.round((Number(mon.score) + Number(liq.score)) / 2);
-const mktScore   = Math.round((Number(str.score) + Number(psy.score) + Number(val.score)) / 3);
-const gapPts     = mktScore - rateScore;
-const gapTxt = gapPts >= 20 || gapPts <= -20 ? 'wide divergence'
-  : gapPts >= 10 || gapPts <= -10 ? 'moderate divergence' : 'roughly aligned';
-const gapDir = gapPts >= 10 ? 'market ahead of rates'
-  : gapPts <= -10 ? 'rates ahead of market' : 'signals agree';
-const ratePhaseLbl = rateScore < 35 ? 'Phase A–B' : rateScore < 55 ? 'Phase B–C' : 'Phase C';
-const mktPhaseLbl  = mktScore  < 45 ? 'Phase B–C' : mktScore  < 65 ? 'Phase C'   : 'Phase C–D';
-
-// Plain-language: what the phase means / why we're here / what changes it
-const whatMeans = [phaseMeaning,
-  rewarded ? `Rewarded behavior: ${rewarded}` : '',
-  mistake  ? `Common mistake: ${mistake}` : ''].filter(Boolean).join(' ');
-const whyHere = [
-  `Rate side: ${mon.read || 'mixed'}.`,
-  `Liquidity side: ${(liq.read || 'mixed').replace(/^risk liquidity /, '')}.`,
-  str.read ? `${String(str.read).split(';')[0]}.` : '',
-  pressureRegime ? `Net regime: ${pressureRegime}.` : '',
-].filter(Boolean).join(' ');
-const invClean = String(invalidation).replace(/[.\s]+$/, '');
-const whatChanges = invClean && invClean !== '—'
-  ? `Plainly: ${invClean}. If that fires, the ${phaseLabel.toLowerCase()} read breaks and the framework flips toward distribution and defense.`
-  : 'No invalidation trigger published for this phase — treat the phase read as provisional.';
-const watchClean = String(nextWatch).replace(/^watch\s+/i, '');
-
-const guideHtml = PHASE_GUIDE.map(([code, name, desc]) =>
-  `<div class="kci-guide-item${code === phaseCode ? ' kci-guide-cur' : ''}"><b>${esc(code)}</b><span>${esc(name)}</span><i>${esc(desc)}</i></div>`
-).join('');
-
-const phaseIntelPanel = `<div class="kci-panel">
-  <div class="kci-top-row">
-    <div class="kci-phase-id">
-      <span class="kci-eyebrow">Cycle position · Kostolany framework</span>
-      <div class="kci-phase-head">
-        <span class="kci-phase-code">${esc(phaseCode)}</span>
-        <span class="kci-phase-name">${esc(phaseLabel)}</span>
-        <span class="kci-conf"><b>${confLabel(conf)} confidence</b><i>weighted blend: regime 35 · SPX trend 20 · QQQ leadership 15 · VIX 15 · trust 15</i></span>
-      </div>
-      <p class="kci-action-line"><b>Capital action:</b> ${esc(action)}</p>
-    </div>
-    <div class="kci-prob-stack">
-      <div class="kci-prob-label">Next phase probability</div>
-      <div class="kci-prob-bar-wrap">
-        <div class="kci-pb kci-pb-stay" style="width:${pStay}%" title="Holds ${esc(phStay.code)} (${esc(phStay.name)}): ${pStay}%">${esc(phStay.code)} · ${pStay}%</div>
-        <div class="kci-pb kci-pb-next" style="width:${pNext}%" title="Moves to ${esc(phNext.code)} (${esc(phNext.name)}): ${pNext}%">${esc(phNext.code)} · ${pNext}%</div>
-        <div class="kci-pb kci-pb-prev" style="width:${pPrev}%" title="Falls back to ${esc(phPrev.code)} (${esc(phPrev.name)}): ${pPrev}%">${esc(phPrev.code)} · ${pPrev}%</div>
-        ${pOther > 0 ? `<div class="kci-pb kci-pb-other" style="width:${pOther}%" title="Other paths: ${pOther}%">${pOther}%</div>` : ''}
-      </div>
-      <div class="kci-prob-sub">stays ${esc(phStay.code)} · advances to ${esc(phNext.code)} · slips to ${esc(phPrev.code)}</div>
-    </div>
-  </div>
-
-  <div class="kci-plain">
-    <div class="kci-plain-col">
-      <span class="kci-plain-label">What Phase ${esc(phaseCode)} means</span>
-      <p>${esc(whatMeans) || 'No phase description published for this cycle state.'}</p>
-    </div>
-    <div class="kci-plain-col">
-      <span class="kci-plain-label">Why we are here</span>
-      <p>${esc(whyHere)}</p>
-    </div>
-    <div class="kci-plain-col">
-      <span class="kci-plain-label">What would change it</span>
-      <p>${esc(whatChanges)}</p>
-    </div>
-  </div>
-
-  <div class="kci-guide">
-    <span class="kci-guide-label">Phase guide — the full cycle</span>
-    <div class="kci-guide-items">${guideHtml}</div>
-  </div>
-
-  <div class="kci-split-grid">
-    <div class="kci-split-col kci-col-rate">
-      <div class="kci-col-head">
-        <span class="kci-col-label">Rate cycle says</span>
-        <span class="kci-col-phase kci-phase-warn">${esc(ratePhaseLbl)}</span>
-      </div>
-      ${axisRow('Monetary', mon)}
-      ${axisRow('Liquidity', liq)}
-    </div>
-
-    <div class="kci-split-divider">
-      <div class="kci-gap-badge">${esc(gapTxt)}</div>
-      <div class="kci-gap-sub">${esc(gapDir)}</div>
-    </div>
-
-    <div class="kci-split-col kci-col-mkt">
-      <div class="kci-col-head">
-        <span class="kci-col-label">Market says</span>
-        <span class="kci-col-phase kci-phase-green">${esc(mktPhaseLbl)}</span>
-      </div>
-      ${axisRow('Mkt structure', str)}
-      ${axisRow('Psychology', psy)}
-      ${axisRow('Valuation', val)}
-    </div>
-  </div>
-
-  <div class="kci-fork-grid">
-    <div class="kci-fork-col kci-fork-next">
-      <div class="kci-fork-prob">${pNext}% probability</div>
-      <div class="kci-fork-title">→ ${esc(phNext.code)} ${esc(phNext.name)}</div>
-      <p class="kci-fork-trigger"><b>Watch for:</b> ${esc(GATE[phNext.code])}</p>
-      <p class="kci-fork-act"><b>Posture shifts to:</b> ${esc(POSTURE[phNext.code])}</p>
-    </div>
-    <div class="kci-fork-col kci-fork-stay">
-      <div class="kci-fork-prob">${pStay}% probability</div>
-      <div class="kci-fork-title">↔ Holds ${esc(phStay.code)} ${esc(phStay.name)}</div>
-      <p class="kci-fork-trigger">${esc(watchClean ? 'Watch ' + watchClean : 'Neither the gate above nor the invalidation below fires — the range holds.')}</p>
-      <p class="kci-fork-act"><b>Posture stays:</b> ${esc(action)}. No new positions until one scenario breaks out.</p>
-    </div>
-    <div class="kci-fork-col kci-fork-prev">
-      <div class="kci-fork-prob">${pPrev}% probability</div>
-      <div class="kci-fork-title">← Back to ${esc(phPrev.code)} ${esc(phPrev.name)}</div>
-      <p class="kci-fork-trigger"><b>Watch for:</b> ${esc(invalidation)}</p>
-      <p class="kci-fork-act"><b>Posture shifts to:</b> ${esc(POSTURE[phPrev.code])}</p>
-    </div>
-  </div>
-
-  <div class="kci-framework-connect">
-    <span class="kci-fc-label">Connects to</span>
-    <span class="kci-fc-item">Holdings: SPX HOLD until ${esc(phNext.code)} confirms</span>
-    <span class="kci-fc-sep">·</span>
-    <span class="kci-fc-item">Opportunities: asymmetric picks structured to work in ${esc(phNext.code)} or ${esc(phPrev.code)}</span>
-    <span class="kci-fc-sep">·</span>
-    <span class="kci-fc-item">Chart below: 56yr history shows how these divergences resolve</span>
-    <span class="kci-fc-sep">·</span>
-    <span class="kci-fc-item kci-fc-caveat">Reference periods are hand-picked illustrations, not a representative record</span>
-  </div>
-</div>`;
 
 let html = fs.readFileSync(indexPath, 'utf8');
 
@@ -387,6 +145,13 @@ const style = `<style id="kostolany-history-style">
 .kh-strip-scroll{overflow-x:auto;margin-top:6px;-webkit-overflow-scrolling:touch}
 .kh-phase-strip{min-width:620px;margin-top:0}
 .kh-pcell-now{box-shadow:inset 0 2px 0 #ba7517}
+/* ── Collapsed 56-year history ── */
+.kh-collapse{border:1px solid var(--rule,#dedbd2);background:#ffffff;margin-top:0}
+.kh-collapse-sum{padding:14px 18px;cursor:pointer;font-size:14px;font-weight:600;letter-spacing:-.01em;color:rgba(36,35,31,.85);list-style:none}
+.kh-collapse-sum::-webkit-details-marker{display:none}
+.kh-collapse-sum span{font-weight:400;color:var(--muted,#747168);font-size:12px}
+.kh-collapse-body{padding:0 18px 18px}
+@media(max-width:700px){.kh-collapse-sum{padding:14px}}
 </style>`;
 
 // ── Chart section HTML ────────────────────────────────────────────────────────
@@ -394,9 +159,9 @@ const section = `<!-- KH_HISTORY_START -->
 <div id="kostolany-history-section" class="kh-wrap">
 <div class="kh-inner">
 
-  ${phaseIntelPanel}
-
-  <div class="kh-head kh-head-history">
+  <details class="kh-collapse"><summary class="kh-collapse-sum">56-year rate cycle history · 1970–present <span>(expand for chart)</span></summary>
+<div class="kh-collapse-body">
+<div class="kh-head kh-head-history">
     <div>
       <span class="kh-eyebrow">Historical Rate Cycles · 1970 – Present</span>
       <h2 class="kh-title">56 Years of Cycle History</h2>
@@ -418,7 +183,7 @@ const section = `<!-- KH_HISTORY_START -->
   <div class="kh-chart-wrap"><canvas id="kh-main-chart" role="img" aria-label="Multi-indicator Kostolany historical chart 1970–2026"></canvas></div>
   <div class="kh-now-box">
     <span class="kh-now-tag">Now · Sep 2026 — where you are</span>
-    <p>Fed funds <b>3.75&ndash;4.00%</b> (Sep 16 hike; down from the 5.14% 2024 peak) · HY spreads <b>~278bps</b>, near the tightest in the post-1997 record · CAPE <b>41.6×</b>, second-highest since 1881 · SPX <b>~7,420</b>. The period to compare against is <b>1994–95</b> — the last time the Fed tightened aggressively while equities kept climbing (rates 4.2%→5.8%, SPX +34%, spreads calm). Key difference: CAPE was ~24× then vs 41.6× now. A slower-tightening alternative: <b>2015–19</b> (rates 0.1%→2.2%, SPX +58%, CAPE 24×→30×).</p>
+    <p>Fed funds <b>3.75&ndash;4.00%</b> (Sep 16 hike; down from the 5.14% 2024 peak) · HY spreads <b>~278bps</b>, near the tightest in the post-1997 record · CAPE <b>41.6×</b>, second-highest since 1881 · SPX <b>~7,704</b>. The period to compare against is <b>1994–95</b> — the last time the Fed tightened aggressively while equities kept climbing (rates 4.2%→5.8%, SPX +34%, spreads calm). Key difference: CAPE was ~24× then vs 41.6× now. A slower-tightening alternative: <b>2015–19</b> (rates 0.1%→2.2%, SPX +58%, CAPE 24×→30×).</p>
   </div>
   <div class="kh-pattern-box">
     <span class="kh-pattern-tag">Pattern emerging</span>
@@ -432,6 +197,7 @@ const section = `<!-- KH_HISTORY_START -->
     Shiller CAPE: Robert Shiller / multpl.com · M2 Growth: Federal Reserve H.6 / FRED (M2SL) ·
     HY OAS: ICE BofA / FRED from 1997; pre-1997 Moody's Baa approx · Recessions: NBER
   </div>
+</details></div>
 </div>
 </div>
 <script id="kh-init-script">
@@ -467,7 +233,7 @@ const phases=[
   {x1:2015,x2:2019,t:'hike',l:'A–B', s:'A–B'},
   {x1:2019,x2:2022,t:'cut', l:'F–D: COVID', s:'F–D'},
   {x1:2022,x2:2024,t:'hike',l:'B: fastest', s:'B'},
-  {x1:2024,x2:2026,t:'plat',l:'C: Verification — NOW', s:'NOW'},
+  {x1:2024,x2:2026,t:'plat',l:'D: Expansion — NOW', s:'NOW'},
 ];
 const pMsgs={
   hike:"<strong style='color:#a32d2d'>Hiking (A→B):</strong> Liquidity drains. M2 slows. HY spreads widen. CAPE compresses. Kostolany: rotate out of equities and long bonds into short-duration cash.",
@@ -607,11 +373,15 @@ document.querySelectorAll('[data-kh-view]').forEach(el=>{
   el.addEventListener('click',()=>setView(el.dataset.khView));
 });
 
-if(window.Chart&&window.Chart.register){
-  initChart();buildToggles();buildPhaseStrip();buildStats();
-} else {
-  window.addEventListener('load',()=>{initChart();buildToggles();buildPhaseStrip();buildStats();});
+let khBuilt=false;
+function khBuildAll(){if(khBuilt)return;khBuilt=true;initChart();buildToggles();buildPhaseStrip();buildStats();}
+function khBoot(){
+  if(!(window.Chart&&window.Chart.register)){window.addEventListener('load',khBoot);return;}
+  const det=document.querySelector('details.kh-collapse');
+  if(!det||det.open){khBuildAll();return;}
+  det.addEventListener('toggle',function(){if(det.open)khBuildAll();});
 }
+khBoot();
 })();
 </script>
 <!-- KH_HISTORY_END -->`;

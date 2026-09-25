@@ -43,21 +43,27 @@ function formatMonth(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
-// Group events by month, sorted chronologically
-const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
+// Group events by month, sorted chronologically.
+// An event with an `outcome` is decided → rendered in the "What happened"
+// group; everything else is upcoming.
+const sorted  = [...events].sort((a, b) => a.date.localeCompare(b.date));
+const decided = sorted.filter(ev => ev.outcome && (ev.outcome.decision || ev.outcome.reaction));
+const upcoming = sorted.filter(ev => !(ev.outcome && (ev.outcome.decision || ev.outcome.reaction)));
 const byMonth = {};
-for (const ev of sorted) {
+for (const ev of upcoming) {
   const monthKey = ev.date.slice(0, 7);
   if (!byMonth[monthKey]) byMonth[monthKey] = [];
   byMonth[monthKey].push(ev);
 }
 
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 function renderEventRow(ev) {
   const days = daysFrom(ev.date);
   const meta = TYPE_META[ev.type] || TYPE_META.cpi;
-  const isPast = days < 0;
   const isToday = days === 0;
-  const daysLabel = isPast
+  const daysLabel = days < 0
     ? `<span class="mc-days mc-past">${Math.abs(days)}d ago</span>`
     : isToday
     ? `<span class="mc-days mc-today">today</span>`
@@ -65,15 +71,35 @@ function renderEventRow(ev) {
     ? `<span class="mc-days">tomorrow</span>`
     : `<span class="mc-days">in ${days}d</span>`;
 
-  const rowCls = isPast ? ' mc-row-past' : '';
   const badge = `<span class="mc-badge" style="color:${meta.color};background:${meta.bg};border-color:${meta.border};">${meta.label}</span>`;
 
-  return `<div class="mc-row${rowCls}">
-  <span class="mc-date">${formatDate(ev.date)}</span>
-  ${badge}
-  <span class="mc-label">${ev.label}</span>
-  <span class="mc-detail">${ev.detail}</span>
-  ${daysLabel}
+  return `<div class="mc-event">
+  <div class="mc-row">
+    <span class="mc-date">${formatDate(ev.date)}</span>
+    ${badge}
+    <span class="mc-label">${esc(ev.label)}</span>
+    ${daysLabel}
+  </div>
+  ${ev.detail ? `<p class="mc-detail">${esc(ev.detail)}</p>` : ''}
+  ${ev.watch_out_for ? `<p class="mc-watchfor"><span>Watch for</span> ${esc(ev.watch_out_for)}</p>` : ''}
+</div>`;
+}
+
+function renderDecidedEvent(ev) {
+  const meta = TYPE_META[ev.type] || TYPE_META.cpi;
+  const badge = `<span class="mc-badge" style="color:${meta.color};background:${meta.bg};border-color:${meta.border};">${meta.label}</span>`;
+  const decision = esc(ev.outcome.decision);
+  const reaction = esc(ev.outcome.reaction);
+
+  return `<div class="mc-past-event">
+  <div class="mc-row">
+    <span class="mc-date">${formatDate(ev.date)}</span>
+    ${badge}
+    <span class="mc-label">${esc(ev.label)}</span>
+    <span class="mc-decided">decided</span>
+  </div>
+  ${decision ? `<p class="mc-outcome"><span>Outcome</span> ${decision}</p>` : ''}
+  ${reaction ? `<p class="mc-reaction"><span>Market reaction</span> ${reaction}</p>` : ''}
 </div>`;
 }
 
@@ -87,6 +113,11 @@ function renderSection() {
 </div>`;
   }).join('\n');
 
+  const pastBlock = decided.length ? `<div class="mc-past">
+  <div class="mc-past-head">What happened</div>
+  <div class="mc-past-events">${decided.map(renderDecidedEvent).join('\n')}</div>
+</div>` : '';
+
   return `<!-- MC_CALENDAR_START -->
 <section id="market-calendar-section" class="mc-section">
 <div class="mc-inner">
@@ -94,13 +125,14 @@ function renderSection() {
     <div>
       <p class="mc-eyebrow">Market Calendar</p>
       <h2 class="mc-title">Upcoming Events</h2>
-      <p class="mc-subtitle">FOMC · CPI · PCE · NFP · GDP · Major earnings — events that move the market.</p>
+      <p class="mc-subtitle">FOMC · CPI · PCE · NFP · GDP · Major earnings — what to watch next, plus what already happened.</p>
     </div>
   </div>
   <div class="mc-body">
     ${monthBlocks}
+    ${pastBlock}
   </div>
-  <p class="mc-source">Sources: Federal Reserve (fomc.org) · BLS · BEA · Earnings estimated from historical reporting patterns.</p>
+  <p class="mc-source">Sources: Federal Reserve (fomc.org) · BLS · BEA · Earnings estimated from historical reporting patterns. Outcomes recorded from public post-decision reporting; reactions are short-term price repricing, not forecasts.</p>
 </div>
 </section>
 <!-- MC_CALENDAR_END -->`;
@@ -118,19 +150,30 @@ function renderStyle() {
 .mc-month{display:flex;flex-direction:column;gap:0}
 .mc-month-head{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted,#747168);font-family:var(--mono,monospace);font-weight:600;padding:0 0 10px;border-bottom:1px solid var(--rule,#dedbd2);margin-bottom:2px}
 .mc-month-rows{display:flex;flex-direction:column}
-.mc-row{display:grid;grid-template-columns:52px 72px 1fr auto auto;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid rgba(201,191,173,.35);transition:background .15s}
-.mc-row:last-child{border-bottom:none}
-.mc-row-past{opacity:.45}
+.mc-event{padding:12px 0;border-bottom:1px solid rgba(201,191,173,.35)}
+.mc-event:last-child{border-bottom:none}
+.mc-row{display:grid;grid-template-columns:52px 72px 1fr auto;gap:12px;align-items:baseline}
 .mc-date{font-size:11px;font-family:var(--mono,monospace);color:var(--muted,#747168);white-space:nowrap}
 .mc-badge{font-size:9px;font-weight:700;letter-spacing:.07em;padding:2px 7px;border:1px solid;white-space:nowrap;font-family:var(--mono,monospace);border-radius:0}
 .mc-label{font-size:13px;font-weight:500;color:var(--ink,#24231f);letter-spacing:-.01em}
-.mc-detail{font-size:11.5px;color:var(--muted,#747168);line-height:1.4;min-width:0}
+.mc-detail{font-size:11.5px;color:var(--muted,#747168);line-height:1.5;margin:6px 0 0;padding-left:64px}
+.mc-watchfor{font-size:12px;color:rgba(36,35,31,.85);line-height:1.55;margin:8px 0 0;padding:9px 12px 9px 12px;background:rgba(64,95,159,.05);border-left:3px solid rgba(64,95,159,.45)}
+.mc-watchfor span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:rgba(64,95,159,.85);margin-right:7px}
 .mc-days{font-size:10px;font-family:var(--mono,monospace);color:var(--muted,#747168);white-space:nowrap;text-align:right}
 .mc-days.mc-past{color:rgba(36,35,31,.3)}
 .mc-days.mc-today{color:var(--green,#2f6f4e);font-weight:600}
+.mc-past{margin-top:4px;border:1px solid rgba(201,191,173,.4);background:rgba(116,113,104,.04);padding:20px 22px}
+.mc-past-head{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted,#747168);font-family:var(--mono,monospace);font-weight:600;margin-bottom:14px}
+.mc-past-events{display:flex;flex-direction:column;gap:18px}
+.mc-past-event{opacity:.92}
+.mc-past-event:last-child .mc-row{margin-bottom:0}
+.mc-decided{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-family:var(--mono,monospace);color:rgba(36,35,31,.45);border:1px solid rgba(201,191,173,.5);padding:2px 7px;white-space:nowrap}
+.mc-outcome,.mc-reaction{font-size:12px;line-height:1.55;color:rgba(36,35,31,.75);margin:7px 0 0;padding-left:64px}
+.mc-reaction{margin-top:5px}
+.mc-outcome span,.mc-reaction span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:rgba(36,35,31,.45);margin-right:7px}
 .mc-source{font-size:10px;color:rgba(36,35,31,.35);margin:24px 0 0;font-family:var(--mono,monospace);line-height:1.6}
-@media(max-width:760px){.mc-row{grid-template-columns:48px 64px 1fr auto}.mc-detail{display:none}}
-@media(max-width:520px){.mc-row{grid-template-columns:48px 60px 1fr}.mc-days{display:none}}
+@media(max-width:760px){.mc-row{grid-template-columns:48px 64px 1fr auto}.mc-detail,.mc-outcome,.mc-reaction{padding-left:0}}
+@media(max-width:520px){.mc-row{grid-template-columns:48px 60px 1fr}.mc-days,.mc-decided{display:none}.mc-past{padding:16px 14px}}
 </style>`;
 }
 
@@ -166,5 +209,5 @@ if (sectionRe.test(html)) {
 }
 
 fs.writeFileSync(indexPath, html);
-const upcoming = events.filter(e => daysFrom(e.date) >= 0).length;
-console.log(`injected market-calendar-section: ${events.length} events, ${upcoming} upcoming`);
+const upcomingCount = events.filter(e => daysFrom(e.date) >= 0).length;
+console.log(`injected market-calendar-section: ${events.length} events, ${upcomingCount} upcoming, ${decided.length} decided`);

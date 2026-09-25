@@ -35,8 +35,6 @@ const style = `<style id="kostolany-projection-style">
 .kp-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted,#747168);font-family:var(--mono,ui-monospace,monospace);display:block;margin-bottom:8px}
 .kp-title{font-size:clamp(22px,2.8vw,38px);font-weight:500;letter-spacing:-.05em;color:var(--ink,#24231f);margin:0 0 6px;line-height:.96}
 .kp-subtitle{font-size:14px;color:var(--muted,#747168);margin:0;line-height:1.45}
-.kp-method{background:#ffffff;border:1px solid var(--rule,#dedbd2);border-radius:0;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted,#747168);line-height:1.6}
-.kp-method strong{color:var(--ink,#24231f);font-weight:500}
 .kp-sc-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .kp-stab{padding:6px 14px;border-radius:999px;border:1px solid var(--rule,#dedbd2);cursor:pointer;font-size:12px;color:var(--muted,#747168);background:transparent;transition:all 0.12s;font-weight:400}
 .kp-stab.active{font-weight:500}
@@ -48,8 +46,13 @@ const style = `<style id="kostolany-projection-style">
 .kp-leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--muted,#747168);align-items:center}
 .kp-leg-item{display:flex;align-items:center;gap:5px}
 .kp-chart-wrap{position:relative;width:100%;height:420px;border:1px solid var(--rule,#dedbd2);background:var(--bg,#ffffff)}
-.kp-phase-strip{display:flex;width:100%;height:22px;gap:1px;margin-top:6px}
-.kp-pcell{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;border-radius:0;cursor:default;overflow:hidden;white-space:nowrap;padding:0 4px;text-align:center;font-family:var(--mono,ui-monospace,monospace);text-transform:uppercase;letter-spacing:.05em}
+.kp-read{background:#ffffff;border:1px solid var(--rule,#dedbd2);padding:12px 16px;margin-bottom:12px;font-size:12px;color:var(--ink,#24231f);line-height:1.6}
+.kp-read b{font-weight:600}
+.kp-method-row{display:flex;gap:10px;align-items:baseline;margin-top:8px}
+.kp-method-chip{flex:0 0 auto;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--rule,#dedbd2);padding:2px 8px;border-radius:999px;color:var(--ink,#24231f);background:#fff}
+.kp-method-row p{margin:0;font-size:12px;color:var(--muted,#747168);line-height:1.55}
+.kp-method-row p strong{color:var(--ink,#24231f);font-weight:500}
+.kp-leg-note{font-size:11px;color:var(--muted,#747168);margin:2px 0 10px;line-height:1.5}
 .kp-info-box{margin-top:8px;padding:10px 14px;border:1px solid var(--rule,#dedbd2);background:#ffffff;font-size:12px;color:var(--muted,#747168);line-height:1.6;min-height:44px;border-radius:0}
 .kp-table-head{font-size:11px;font-weight:500;color:var(--ink,#24231f);margin:16px 0 6px;letter-spacing:-.02em}
 .kp-model-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--rule,#dedbd2)}
@@ -85,15 +88,15 @@ const section = `<!-- KP_PROJECTION_START -->
     <div>
       <span class="kp-eyebrow">Phase C Projection · Three Models · 2026–2030</span>
       <h2 class="kp-title">S&amp;P 500 Projection</h2>
-      <p class="kp-subtitle">Three independent models — EPS × P/E, CAPE reversion, and institutional — across base, bull, and bear scenarios.</p>
+      <p class="kp-subtitle">Three independent models — EPS × P/E, CAPE reversion, and institutional — each drawn as a band from its bear to its bull scenario. The band is the honest part: one line to the moon would be a lie.</p>
     </div>
   </div>
-  <div class="kp-method" id="kp-method-bar">
-    <strong>How this projection is built:</strong> Three independent models, not analyst price targets.
-    <strong>Model 1 (EPS-driven):</strong> Price = EPS × P/E. FactSet consensus EPS + Goldman multiple assumption.
-    <strong>Model 2 (CAPE mean-reversion):</strong> Projects price if CAPE reverts toward its long-run average over the window.
-    <strong>Model 3 (Institutional range):</strong> Annualised return projections from Vanguard (4–5%), Research Affiliates (3.1%), GMO (−5.4% real) translated to price levels.
-    Rate path = FOMC SEP median (FRED FEDTARMD, Mar 2026).
+  <div class="kp-read">
+    <b>How to read this chart:</b> each shaded band is one model. Its <b>bottom edge = bear scenario</b>, its <b>top edge = bull scenario</b>, its <b>center line = the scenario selected below</b>. Where bands overlap, the models agree; where they don't, that's genuine uncertainty.
+    <div class="kp-method-row"><span class="kp-method-chip">Model 1 · EPS × P/E</span><p><strong>In:</strong> FactSet EPS trajectory × Goldman P/E path. <strong>Out:</strong> year-end S&P 500 price.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Model 2 · CAPE reversion</span><p><strong>In:</strong> current CAPE 41.6× pulled toward its long-run average at a chosen speed + EPS growth. <strong>Out:</strong> implied price level.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Model 3 · Institutional</span><p><strong>In:</strong> Vanguard / Research Affiliates / GMO annualized return forecasts. <strong>Out:</strong> price range from compounding today's level.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Rate path</span><p>FOMC SEP median (FRED FEDTARMD, Mar 2026) — context only, not a return driver.</p></div>
   </div>
   <div class="kp-sc-tabs" id="kp-sc-tabs">
     <div class="kp-stab active" data-kp-sc="base" style="background:#1d9e75;border-color:#1d9e75;color:#fff;">Base — EPS delivers, multiple flat</div>
@@ -102,16 +105,15 @@ const section = `<!-- KP_PROJECTION_START -->
   </div>
   <div class="kp-stat-grid" id="kp-stat-grid"></div>
   <div class="kp-leg-row">
-    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#24231f;display:inline-block;"></span>Rate (historical)</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #747168;display:inline-block;"></span>Rate (FOMC SEP)</div>
-    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#405f9f;display:inline-block;"></span>S&amp;P historical</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px solid #1d9e75;display:inline-block;"></span>Model 1: EPS × P/E</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #9f3f35;display:inline-block;"></span>Model 2: CAPE reversion</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dotted #8a6a2c;display:inline-block;"></span>Model 3: Institutional</div>
-    <div class="kp-leg-item"><span style="width:20px;height:10px;background:#aaa69b;display:inline-block;opacity:0.3;"></span>Institutional band</div>
+    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#24231f;display:inline-block;"></span>Fed funds (history)</div>
+    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #747168;display:inline-block;"></span>Fed funds (FOMC SEP)</div>
+    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#405f9f;display:inline-block;"></span>S&amp;P 500 (history)</div>
+    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#2563a822;border-top:2.5px solid #2563a8;"></span>M1 · EPS × P/E fan</div>
+    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#b45f0622;border-top:2.5px dashed #b45f06;"></span>M2 · CAPE reversion fan</div>
+    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#6d28d922;border-top:2.5px dotted #6d28d9;"></span>M3 · Institutional fan</div>
   </div>
+  <p class="kp-leg-note">Models are told apart by line style as well as color: M1 solid, M2 dashed, M3 dotted. Fan bottom edge = bear scenario, fan top edge = bull scenario, center line = the scenario tab you selected.</p>
   <div class="kp-chart-wrap"><canvas id="kp-proj-chart"></canvas></div>
-  <div class="kp-phase-strip" id="kp-phase-strip"></div>
   <div class="kp-info-box" id="kp-info-box">Select a scenario to see the model assumptions and outputs.</div>
   <div>
     <p class="kp-table-head">Model comparison — 2030 S&amp;P 500 implied price</p>
@@ -122,7 +124,7 @@ const section = `<!-- KP_PROJECTION_START -->
     <strong>Methodology transparency:</strong> Model 1 uses FactSet/Goldman EPS consensus × P/E — a structured calculation, not an analyst price target.
     Model 2 applies CAPE mean-reversion to current CAPE 41.6× with EPS growth — mathematically grounded valuation headwind.
     Model 3 translates Vanguard VCMM Mar 2026, Research Affiliates Jan 2026, GMO Q1 2026 10-year return forecasts into price levels.
-    All three models are shown simultaneously — the range represents genuine uncertainty.
+    Each model is drawn as a band across its bear/base/bull scenarios — the spread between the edges is genuine uncertainty, not decoration. Rate path is context only.
   </div>
 </div>
 </div>
@@ -181,7 +183,7 @@ const SC={
     // Model 3: Institutional return range (Vanguard/RA/GMO)
     m3:returnPath(0.038),m3h:returnPath(0.050),m3l:returnPath(-0.027),
     // FOMC SEP rate path (annual targets → interpolated monthly)
-    rateMo:rateMo([3.62,3.50,3.25,3.10,3.00]),
+    rateMo:rateMo([3.88,4.10,4.10,3.65,3.20]), // Sep 2026 SEP: 4.1% end-26/27, 3.2% LR; start = post-hike midpoint
     cards:[
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'EPS0 \xd7 PE0 validates start',src:'FactSet/Goldman'},
       {val:'+14% / +8% / +7% / +6%',lbl:'EPS growth (yr 1–4)',sub:'FactSet deceleration consensus',src:'FactSet Jun 2026'},
@@ -198,7 +200,7 @@ const SC={
     // Model 2: Structural new mean 32x over 10yr, 10% EPS
     m2:capePath(32.0,10,0.10),
     m3:returnPath(0.050),m3h:returnPath(0.080),m3l:returnPath(0.030),
-    rateMo:rateMo([3.62,3.25,2.75,2.50,2.50]),
+    rateMo:rateMo([3.88,3.50,3.00,2.75,2.75]),
     cards:[
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, higher path required',src:'FactSet'},
       {val:'+21% / +12% / +10% / +8%',lbl:'EPS growth (yr 1–4)',sub:'AI monetises — Goldman bull case',src:'Goldman bull'},
@@ -215,7 +217,7 @@ const SC={
     // Model 2: Full CAPE reversion to 145yr mean 17.3x over 7yr, 4% EPS
     m2:capePath(17.3,7,0.04),
     m3:returnPath(-0.027),m3h:returnPath(0.016),m3l:returnPath(-0.054),
-    rateMo:rateMo([3.62,4.25,4.75,5.00,4.25]),
+    rateMo:rateMo([3.88,4.25,4.75,5.00,4.25]),
     cards:[
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, CAPE headwind compresses path',src:'FactSet'},
       {val:'+8% / +4% / +3% / +3%',lbl:'EPS growth (yr 1–4)',sub:'AI not monetising (MIT <5% tasks)',src:'Bear/MIT'},
@@ -238,38 +240,51 @@ function buildChart(sc){
   const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
   // Projections: monthly paths 2026–2030 (49 pts).
   // Each path already starts at x=2026 / y=NOW_SP so lines connect seamlessly.
+  // Model identity: distinct hue AND distinct line style (color-blind safe).
+  const M1C='#2563a8',M2C='#b45f06',M3C='#6d28d9';
   const ann={
-    projBox:{type:'box',xMin:2026,xMax:2031,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:'rgba(240,192,64,0.05)',borderColor:'rgba(240,192,64,0.20)',borderWidth:1,label:{display:true,content:'← Projection (3 models)',position:{x:'start',y:'center'},font:{size:9},color:'rgba(160,130,20,0.55)',backgroundColor:'transparent'}},
+    projBox:{type:'box',xMin:2026,xMax:2031,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:'rgba(240,192,64,0.05)',borderColor:'rgba(240,192,64,0.20)',borderWidth:1,label:{display:true,content:'← Projection fan: 3 models × 3 scenarios',position:{x:'start',y:'center'},font:{size:9},color:'rgba(160,130,20,0.55)',backgroundColor:'transparent'}},
     nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'yRate',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3],label:{display:true,content:'Now',position:'start',font:{size:10,weight:'bold'},color:'#ba7517',backgroundColor:'transparent'}},
     neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'yRate',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
     capeWarn:{type:'label',xValue:2023.5,yValue:7.1,content:['CAPE 41.6× · 2nd highest since 1881','Implied 10yr return: 1.6%/yr'],font:{size:8.5},color:'rgba(196,97,58,0.65)',textAlign:'center',backgroundColor:'rgba(255,248,240,0.9)',borderRadius:3,padding:{top:3,bottom:3,left:6,right:6}},
   };
+  // Phase labels are drawn by Chart.js at the bottom of each phase column,
+  // so they always align with the x-axis years they describe (no separate strip).
   const phases=[
-    {x1:2015,x2:2019,t:'hike'},{x1:2019,x2:2022,t:'cut'},
-    {x1:2022,x2:2024,t:'hike'},{x1:2024,x2:2026,t:'cut'},
-    {x1:2026,x2:sc==='bear'?2027.5:2028,t:'cut'},
-    sc==='bear'?{x1:2027.5,x2:2031,t:'hike'}:{x1:2028,x2:2031,t:'plateau'},
+    {x1:2015,x2:2019,t:'hike',l:'A–B · trim'},
+    {x1:2019,x2:2022,t:'cut', l:'F–D · COVID'},
+    {x1:2022,x2:2024,t:'hike',l:'B · cash king'},
+    {x1:2024,x2:2026,t:'cut', l:'C · Verification ← now'},
+    {x1:2026,x2:sc==='bear'?2027.5:2028,t:'cut', l:'D · Expansion'},
+    sc==='bear'?{x1:2027.5,x2:2031,t:'hike',l:'A · re-hike'}:{x1:2028,x2:2031,t:'plateau',l:'E · Euphoria'},
   ];
-  phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5};});
+  phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5,label:{display:true,content:p.l,position:{x:'center',y:'end'},font:{size:9,weight:'600'},color:'#5b574e',backgroundColor:'rgba(255,255,255,0.85)',borderRadius:3,padding:{top:2,bottom:2,left:5,right:5}}};});
+  // ── Honest fan: each model is a band. Bottom edge = bear-scenario path,
+  // top edge = bull-scenario path, center line = the selected scenario. ──
+  function fan(lowPath,highPath,centerPath,color,dash,width,label){
+    return [
+      {label:'band:'+label+'-bear',data:lowPath,borderColor:'transparent',backgroundColor:'transparent',borderWidth:0,pointRadius:0,tension:0,showLine:true,fill:false,yAxisID:'ySP',spanGaps:false},
+      {label:'band:'+label+'-bull',data:highPath,borderColor:'transparent',backgroundColor:color+'22',borderWidth:0,pointRadius:0,tension:0,showLine:true,fill:'-1',yAxisID:'ySP',spanGaps:false},
+      {label:label+' · '+SC[sc].name+' case',data:centerPath,borderColor:color,backgroundColor:'transparent',borderWidth:width,borderDash:dash,pointRadius:0,tension:0,showLine:true,fill:false,yAxisID:'ySP',spanGaps:false},
+    ];
+  }
   const ds=[
     // Historical lines — annual, tension 0.35 for smooth look
-    {label:'Rate (hist)',data:histRate,borderColor:'#24231f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
+    {label:'Fed funds (history)',data:histRate,borderColor:'#24231f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
     // Projection rate — monthly, dashed
-    {label:'Rate (proj)',data:S.rateMo,borderColor:'#747168',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,showLine:true,yAxisID:'yRate',spanGaps:false},
-    {label:'S&P (hist)',data:histSP,borderColor:'#405f9f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'ySP',spanGaps:false},
-    // Projection lines — monthly derived paths, tension:0 (math already smooth)
-    {label:'Inst high',data:S.m3h,borderColor:'transparent',backgroundColor:'rgba(170,166,155,0.12)',borderWidth:0,pointRadius:0,tension:0,showLine:true,fill:'+1',yAxisID:'ySP',spanGaps:false},
-    {label:'Inst low',data:S.m3l,borderColor:'transparent',backgroundColor:'rgba(170,166,155,0.12)',borderWidth:0,pointRadius:0,tension:0,showLine:true,fill:false,yAxisID:'ySP',spanGaps:false},
-    {label:'Model 3 (Inst.)',data:S.m3,borderColor:'#8a6a2c',backgroundColor:'transparent',borderWidth:1.5,borderDash:[2,3],pointRadius:0,tension:0,showLine:true,yAxisID:'ySP',spanGaps:false},
-    {label:'Model 2 (CAPE rev.)',data:S.m2,borderColor:'#9f3f35',backgroundColor:'transparent',borderWidth:1.8,borderDash:[6,3],pointRadius:0,tension:0,showLine:true,yAxisID:'ySP',spanGaps:false},
-    {label:'Model 1 (EPS\xd7P/E)',data:S.m1,borderColor:S.color,backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0,showLine:true,yAxisID:'ySP',spanGaps:false},
+    {label:'Fed funds (FOMC SEP)',data:S.rateMo,borderColor:'#747168',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,showLine:true,yAxisID:'yRate',spanGaps:false},
+    {label:'S&P 500 (history)',data:histSP,borderColor:'#405f9f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0,showLine:true,yAxisID:'ySP',spanGaps:false},
+    // Fan bands — monthly derived paths, tension:0 (math already smooth)
+    ...fan(SC.bear.m1,SC.bull.m1,S.m1,M1C,[],2.6,'Model 1 · EPS\xd7P/E'),
+    ...fan(SC.bear.m2,SC.bull.m2,S.m2,M2C,[7,4],2.2,'Model 2 · CAPE reversion'),
+    ...fan(SC.bear.m3l,SC.bull.m3h,S.m3,M3C,[2,3],2.0,'Model 3 · Institutional'),
   ];
   if(kpChart)kpChart.destroy();
   kpChart=new Chart(document.getElementById('kp-proj-chart'),{
     type:'scatter',data:{datasets:ds},
     options:{
       responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
+      interaction:{mode:'nearest',axis:'x',intersect:false},
       layout:{padding:{top:6,right:8,bottom:4,left:4}},
       plugins:{
         legend:{display:false},
@@ -278,8 +293,8 @@ function buildChart(sc){
           title:items=>'Year: '+Math.round(items[0].parsed.x),
           label:item=>{
             const l=item.dataset.label;
-            if(!l||l.includes('high')||l.includes('low'))return null;
-            if(l.includes('Rate'))return l+': '+item.parsed.y?.toFixed(2)+'%';
+            if(!l||l.indexOf('band:')===0)return null;
+            if(l.includes('Fed funds'))return l+': '+item.parsed.y?.toFixed(2)+'%';
             if(item.parsed.y==null)return null;
             return l+': $'+Math.round(item.parsed.y).toLocaleString();
           }
@@ -301,28 +316,6 @@ function buildStats(sc){
 
 function buildInfo(sc){
   document.getElementById('kp-info-box').innerHTML=SC[sc].info;
-}
-
-function buildPhaseStrip(sc){
-  const strip=document.getElementById('kp-phase-strip');
-  if(!strip)return;
-  strip.innerHTML='';
-  const phases=[
-    {x1:2015,x2:2019,t:'hike',l:'A–B: trim'},
-    {x1:2019,x2:2022,t:'cut', l:'F–D: COVID'},
-    {x1:2022,x2:2024,t:'hike',l:'B: cash king'},
-    {x1:2024,x2:2026,t:'plateau',l:'C: Verification ← NOW'},
-    {x1:2026,x2:2028,t:'cut', l:'D: Expansion (proj.)'},
-    sc==='bear'?{x1:2028,x2:2030,t:'hike',l:'A: re-hike (proj.)'}:{x1:2028,x2:2030,t:'plateau',l:'E: Euphoria (proj.)'},
-  ];
-  const MIN=2015,MAX=2030,TOT=MAX-MIN;
-  phases.forEach(p=>{
-    const el=document.createElement('div');
-    el.className='kp-pcell';
-    el.style.cssText='width:'+((p.x2-p.x1)/TOT*100).toFixed(1)+'%;background:'+cmap[p.t]+'cc;color:#fff;border:0.5px solid '+cmap[p.t]+';';
-    el.textContent=p.l;
-    strip.appendChild(el);
-  });
 }
 
 function buildModelTable(sc){
@@ -358,14 +351,14 @@ function setSc(sc){
     if(s===sc){el.classList.add('active');el.style.background=SC[sc].color;el.style.color='#fff';el.style.borderColor='transparent';}
     else{el.classList.remove('active');el.style.background='';el.style.color=colors[s];el.style.borderColor=colors[s];}
   });
-  buildChart(sc);buildStats(sc);buildInfo(sc);buildPhaseStrip(sc);buildModelTable(sc);buildRiskGrid(sc);
+  buildChart(sc);buildStats(sc);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
 }
 
 document.querySelectorAll('[data-kp-sc]').forEach(el=>{
   el.addEventListener('click',()=>setSc(el.dataset.kpSc));
 });
 
-function init(){buildChart('base');buildStats('base');buildInfo('base');buildPhaseStrip('base');buildModelTable('base');buildRiskGrid('base');}
+function init(){buildChart('base');buildStats('base');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
 if(window.Chart&&window.Chart.register){init();}
 else{window.addEventListener('load',init);}
 })();

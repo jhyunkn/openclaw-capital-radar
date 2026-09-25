@@ -1875,18 +1875,19 @@ const gateRows = phaseGates.map(g => {
 const confirmSignals = signals.filter(s => s.color === 'green');
 const blockSignals   = signals.filter(s => s.color === 'red');
 
+const tensionSub = s => (s.display === s.label ? '' : esc(s.label));
 const confirmRows = confirmSignals.map(s =>
   `<div class="mu-tension-row">
     <span class="mu-tension-name">${esc(s.name)}</span>
     <span class="mu-tension-val">${s.display}</span>
-    <span class="mu-tension-sub mu-good">${esc(s.label)}</span>
+    <span class="mu-tension-sub mu-good">${tensionSub(s)}</span>
   </div>`).join('');
 
 const blockRows = blockSignals.map(s =>
   `<div class="mu-tension-row">
     <span class="mu-tension-name">${esc(s.name)}</span>
     <span class="mu-tension-val">${s.display}</span>
-    <span class="mu-tension-sub mu-bad">${esc(s.label)}</span>
+    <span class="mu-tension-sub mu-bad">${tensionSub(s)}</span>
   </div>`).join('');
 
 const tensionGatesHtml = `<div class="mu-tension-block">

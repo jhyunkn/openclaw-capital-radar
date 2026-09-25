@@ -1314,24 +1314,25 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.save();
     var fcX=xOf(12), fcY=yOf(RATE_DATA[12].r), fcW=166,fcH=17;
     var fcBL=badgeLeft(fcX,fcW);
-    rr(c,fcBL,fcY+10,fcW,fcH,3);
+    rr(c,fcBL,fcY+14,fcW,fcH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(90,140,110,0.40)";c.lineWidth=0.75;c.stroke();
     c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.88)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("First cut \xb7 Sep '24 \xb7 −50bp",fcBL+fcW/2,fcY+18.5);
+    c.fillText("First cut \xb7 Sep '24 \xb7 −50bp",fcBL+fcW/2,fcY+22.5);
     c.restore();
 
-    // "Phase D projected · ~Dec '26" badge above rate line in projected zone
+    // "Sep SEP median" badge BELOW the Dec '26 point — the above-line slot
+    // collides with the YOU ARE HERE badge at every width
     c.save();
     var pdX=xOf(21), pdY=yOf(RATE_DATA[21].r), pdW=166,pdH=17;
     var pdBL=badgeLeft(pdX,pdW);
-    rr(c,pdBL,pdY-pdH-8,pdW,pdH,3);
+    rr(c,pdBL,pdY+12,pdW,pdH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(90,140,110,0.35)";c.lineWidth=0.5;c.stroke();
     c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.82)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Sep SEP median \xb7 4.1% end-26/27",pdBL+pdW/2,pdY-pdH/2-8);
+    c.fillText("Sep SEP median \xb7 4.1% end-26/27",pdBL+pdW/2,pdY+12+pdH/2);
     c.restore();
 
     // ── PHASE IDENTIFICATION NODES (static markers — where each phase started) ─
@@ -1379,11 +1380,13 @@ const cycleHtml = `<div class="mu-arc-wrap">
     c.save();c.beginPath();c.moveTo(todayX,todayY+7);c.lineTo(todayX,pT+cH);
     c.strokeStyle=todayCol+"25";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);c.restore();
 
-    // "YOU ARE HERE" badge anchored above the TODAY dot, clamped within chart
+    // "YOU ARE HERE" badge pinned to the top band, clamped within chart.
+    // The old max(pT+26, todayY-50) anchor collided with the SEP-median,
+    // first-cut and plateau badges at every width.
     c.save();
     var bw=210,bh=34;
     var bBL=badgeLeft(todayX,bw);
-    var badgeY=Math.max(pT+26,todayY-50);
+    var badgeY=pT+26;
     rr(c,bBL,badgeY,bw,bh,4);
     c.fillStyle="rgba(251,250,246,0.97)";c.fill();
     c.strokeStyle=todayCol+"70";c.lineWidth=1;c.stroke();
@@ -1402,10 +1405,12 @@ const cycleHtml = `<div class="mu-arc-wrap">
 
     // Live metrics just below the TODAY dot
     c.save();
+    // Live metrics tucked left of the today dot, just below the "3%" grid label —
+    // the old centered slot collided with the SEP-median badge at narrow widths
     c.font="8px IBM Plex Mono,monospace";
     c.fillStyle="rgba(138,106,44,0.78)";
-    c.textAlign="center";c.textBaseline="top";
-    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,todayX,todayY+12);
+    c.textAlign="right";c.textBaseline="top";
+    c.fillText("RSI "+RSI+" \xb7 HY "+HY+" \xb7 VIX "+VIX+" \xb7 10Y "+DGS10,todayX-16,yOf(3)+10);
     c.restore();
 
     // ── PHASE ID ROW — colored labels at node positions ──────────────────────
@@ -1425,12 +1430,15 @@ const cycleHtml = `<div class="mu-arc-wrap">
     });
 
     // ── DATE AXIS — calendar milestones ──────────────────────────────────────
+    // Mar '22 sits 2 months after Jan '22: always staggers to a second row.
+    // Sep '24 staggers only when the Oct '23→Sep '24 gap compresses below ~80px.
     var dateY=pT+cH+28;
+    var sep24dy=(xOfMo(32)-xOfMo(21))<80?13:0;
     [
       {mo:0,  label:"Jan '22"},
-      {mo:2,  label:"Mar '22 ↑"},
+      {mo:2,  label:"Mar '22 ↑", dy:13},
       {mo:21, label:"Oct '23"},
-      {mo:32, label:"Sep '24"},
+      {mo:32, label:"Sep '24", dy:sep24dy},
       {mo:${_dffMonthIndex}, label:"${_dffMonthLabel} ▸"},
     ].forEach(function(tick){
       var tx=xOfMo(tick.mo);
@@ -1439,7 +1447,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
       c.font="8.5px IBM Plex Mono,monospace";
       c.fillStyle="rgba(42,37,32,0.72)";
       c.textAlign="center";c.textBaseline="top";
-      c.fillText(tick.label,tx,dateY);
+      c.fillText(tick.label,tx,dateY+(tick.dy||0));
     });
 
     

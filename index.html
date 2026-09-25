@@ -263,7 +263,7 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="assets/mandate-command.css"/>
+  <link rel="stylesheet" href="assets/mandate-command.css"/>
 <style id="macro-unified-style">
 .macro-unified{border-bottom:1px solid var(--macro-rule,rgba(201,191,173,.55));background:#ffffff}
 .mu-wrap{width:min(1280px,calc(100% - 48px));margin:0 auto}
@@ -1232,7 +1232,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <span class="mu-arc-meta">One of five inputs &middot; ~54 mo &middot; Next phase: Euphoria</span>
   </div>
   <div class="mu-arc-canvas-box">
-    <canvas id="mcc_mugypona"></canvas>
+    <canvas id="mcc_muh1rt8i"></canvas>
   </div>
   <div class="mu-arc-legend">
     <span><span class="mu-leg mu-leg-actual"></span>Actual rate · FRED DFF last-known-good</span>
@@ -1301,7 +1301,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
-  var canvas=document.getElementById("mcc_mugypona");
+  var canvas=document.getElementById("mcc_muh1rt8i");
   if(!canvas)return;
   var c=canvas.getContext("2d");
   var anim=0, raf;
@@ -1428,24 +1428,25 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     c.save();
     var fcX=xOf(12), fcY=yOf(RATE_DATA[12].r), fcW=166,fcH=17;
     var fcBL=badgeLeft(fcX,fcW);
-    rr(c,fcBL,fcY+10,fcW,fcH,3);
+    rr(c,fcBL,fcY+14,fcW,fcH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(90,140,110,0.40)";c.lineWidth=0.75;c.stroke();
     c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.88)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("First cut · Sep '24 · −50bp",fcBL+fcW/2,fcY+18.5);
+    c.fillText("First cut · Sep '24 · −50bp",fcBL+fcW/2,fcY+22.5);
     c.restore();
 
-    // "Phase D projected · ~Dec '26" badge above rate line in projected zone
+    // "Sep SEP median" badge BELOW the Dec '26 point — the above-line slot
+    // collides with the YOU ARE HERE badge at every width
     c.save();
     var pdX=xOf(21), pdY=yOf(RATE_DATA[21].r), pdW=166,pdH=17;
     var pdBL=badgeLeft(pdX,pdW);
-    rr(c,pdBL,pdY-pdH-8,pdW,pdH,3);
+    rr(c,pdBL,pdY+12,pdW,pdH,3);
     c.fillStyle="rgba(251,250,246,0.96)";c.fill();
     c.strokeStyle="rgba(90,140,110,0.35)";c.lineWidth=0.5;c.stroke();
     c.font="9px IBM Plex Mono,monospace";c.fillStyle="rgba(60,120,90,0.82)";
     c.textAlign="center";c.textBaseline="middle";
-    c.fillText("Sep SEP median · 4.1% end-26/27",pdBL+pdW/2,pdY-pdH/2-8);
+    c.fillText("Sep SEP median · 4.1% end-26/27",pdBL+pdW/2,pdY+12+pdH/2);
     c.restore();
 
     // ── PHASE IDENTIFICATION NODES (static markers — where each phase started) ─
@@ -1493,11 +1494,13 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     c.save();c.beginPath();c.moveTo(todayX,todayY+7);c.lineTo(todayX,pT+cH);
     c.strokeStyle=todayCol+"25";c.lineWidth=0.5;c.setLineDash([3,4]);c.stroke();c.setLineDash([]);c.restore();
 
-    // "YOU ARE HERE" badge anchored above the TODAY dot, clamped within chart
+    // "YOU ARE HERE" badge pinned to the top band, clamped within chart.
+    // The old max(pT+26, todayY-50) anchor collided with the SEP-median,
+    // first-cut and plateau badges at every width.
     c.save();
     var bw=210,bh=34;
     var bBL=badgeLeft(todayX,bw);
-    var badgeY=Math.max(pT+26,todayY-50);
+    var badgeY=pT+26;
     rr(c,bBL,badgeY,bw,bh,4);
     c.fillStyle="rgba(251,250,246,0.97)";c.fill();
     c.strokeStyle=todayCol+"70";c.lineWidth=1;c.stroke();
@@ -1516,10 +1519,12 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
 
     // Live metrics just below the TODAY dot
     c.save();
+    // Live metrics tucked left of the today dot, just below the "3%" grid label —
+    // the old centered slot collided with the SEP-median badge at narrow widths
     c.font="8px IBM Plex Mono,monospace";
     c.fillStyle="rgba(138,106,44,0.78)";
-    c.textAlign="center";c.textBaseline="top";
-    c.fillText("RSI "+RSI+" · HY "+HY+" · VIX "+VIX+" · 10Y "+DGS10,todayX,todayY+12);
+    c.textAlign="right";c.textBaseline="top";
+    c.fillText("RSI "+RSI+" · HY "+HY+" · VIX "+VIX+" · 10Y "+DGS10,todayX-16,yOf(3)+10);
     c.restore();
 
     // ── PHASE ID ROW — colored labels at node positions ──────────────────────
@@ -1539,12 +1544,15 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     });
 
     // ── DATE AXIS — calendar milestones ──────────────────────────────────────
+    // Mar '22 sits 2 months after Jan '22: always staggers to a second row.
+    // Sep '24 staggers only when the Oct '23→Sep '24 gap compresses below ~80px.
     var dateY=pT+cH+28;
+    var sep24dy=(xOfMo(32)-xOfMo(21))<80?13:0;
     [
       {mo:0,  label:"Jan '22"},
-      {mo:2,  label:"Mar '22 ↑"},
+      {mo:2,  label:"Mar '22 ↑", dy:13},
       {mo:21, label:"Oct '23"},
-      {mo:32, label:"Sep '24"},
+      {mo:32, label:"Sep '24", dy:sep24dy},
       {mo:56, label:"Sep '26 ▸"},
     ].forEach(function(tick){
       var tx=xOfMo(tick.mo);
@@ -1553,7 +1561,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
       c.font="8.5px IBM Plex Mono,monospace";
       c.fillStyle="rgba(42,37,32,0.72)";
       c.textAlign="center";c.textBaseline="top";
-      c.fillText(tick.label,tx,dateY);
+      c.fillText(tick.label,tx,dateY+(tick.dy||0));
     });
 
     
@@ -2917,7 +2925,7 @@ else{window.addEventListener('load',init);}
 <div class="rh-sync-strip">
   <div class="rh-sync-pill">
     <span class="rh-dot" style="background:#f59e0b"></span>
-    <span class="rh-pill-label">Robinhood · Stale (514h ago)</span>
+    <span class="rh-pill-label">Robinhood · Stale (516h ago)</span>
   </div>
   <div class="rh-sync-stats">
     <span class="rh-stat"><b>$92,526</b><small>Portfolio</small></span>

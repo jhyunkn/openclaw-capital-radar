@@ -67,6 +67,16 @@ const style = `<style id="kostolany-projection-style">
 @media(max-width:700px){.kp-stat-grid{grid-template-columns:repeat(2,1fr)}.kp-risk-grid{grid-template-columns:1fr;border-right:1px solid var(--rule,#dedbd2)}.kp-risk-card{border-bottom:1px solid var(--rule,#dedbd2)}.kp-wrap{padding:36px clamp(14px,3vw,28px)}}
 </style>`;
 
+// ── Anchor price: derive from the decision-brief market state, not a hardcoded constant ──
+// market-decision-brief-state.json -> chart_reference.current (e.g. 7747.71).
+// Falls back to the last-known constant only when the brief state is unavailable.
+let nowSp = 7420;
+try {
+  const brief = JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'market-decision-brief-state.json'), 'utf8'));
+  const cur = Number(brief?.chart_reference?.current);
+  if (Number.isFinite(cur) && cur > 0) nowSp = Math.round(cur);
+} catch { /* keep fallback */ }
+
 // ── Section HTML ──────────────────────────────────────────────────────────────
 const section = `<!-- KP_PROJECTION_START -->
 <div id="kostolany-projection-section" class="kp-wrap">
@@ -120,12 +130,12 @@ const section = `<!-- KP_PROJECTION_START -->
 (function(){
 if(typeof Chart==='undefined'||window.__kpInited)return;
 window.__kpInited=true;
-const NOW_SP=7420,NOW_CAPE=41.6;
+const NOW_SP=${nowSp},NOW_CAPE=41.6;   // build-time anchor from decision-brief market state
 const EPS0=338;                        // FactSet 2026 fwd EPS consensus
 const PE0=+(NOW_SP/EPS0).toFixed(1);   // ~22.0x — anchors to current price
 const HIST_YEARS=[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
 const HIST_RATES=[0.13,0.40,1.00,1.83,2.16,0.36,0.08,1.68,5.02,5.14,4.22,3.62];
-const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4769,5882,6350,7420];
+const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4769,5882,6350,${nowSp}];
 // ── monthly path generators (49 pts: m=0→2026.0 … m=48→2030.0) ───────────
 // Model 1: EPS₀×(1+g)^t × PE(t).  g decelerates by year; PE drifts linearly.
 function epsPath(epsRates,peTgts){

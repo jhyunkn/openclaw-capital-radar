@@ -310,17 +310,17 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   if (addLo != null && addHi != null) {
     const y1=pyP(addHi), y2=pyP(addLo);
     zones += `<rect x="${pL}" y="${y1.toFixed(1)}" width="${cW}" height="${Math.abs(y2-y1).toFixed(1)}" fill="rgba(42,107,74,.13)"/>`;
-    zones += `<text x="${(pL+6)}" y="${(y1+11).toFixed(1)}" font-size="8.5" fill="rgba(42,107,74,.8)" font-family="inherit">Add ${addLo.toFixed(0)}–${addHi.toFixed(0)}</text>`;
+    zones += `<text x="${(pL+6)}" y="${(y1+11).toFixed(1)}" font-size="8.5" fill="rgba(42,107,74,.8)" font-family="inherit">Add ${addLo.toFixed(0)}–${addHi.toFixed(0)} (SPY)</text>`;
   }
   if (trimLo != null && trimHi != null) {
     const y1=pyP(trimHi), y2=pyP(trimLo);
     zones += `<rect x="${pL}" y="${y1.toFixed(1)}" width="${cW}" height="${Math.abs(y2-y1).toFixed(1)}" fill="rgba(164,80,47,.09)"/>`;
-    zones += `<text x="${(pL+6)}" y="${(y1+11).toFixed(1)}" font-size="8.5" fill="rgba(164,80,47,.72)" font-family="inherit">Trim ${trimLo.toFixed(0)}–${trimHi.toFixed(0)}</text>`;
+    zones += `<text x="${(pL+6)}" y="${(y1+11).toFixed(1)}" font-size="8.5" fill="rgba(164,80,47,.72)" font-family="inherit">Trim ${trimLo.toFixed(0)}–${trimHi.toFixed(0)} (SPY)</text>`;
   }
   if (def != null) {
     const yd = pyP(def);
     zones += `<line x1="${pL}" y1="${yd.toFixed(1)}" x2="${(pL+cW)}" y2="${yd.toFixed(1)}" stroke="rgba(164,80,47,.5)" stroke-width="1" stroke-dasharray="4 2"/>`;
-    zones += `<text x="${(pL+cW-4)}" y="${(yd-4).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(164,80,47,.65)" font-family="inherit">Defense ${def.toFixed(0)}</text>`;
+    zones += `<text x="${(pL+cW-4)}" y="${(yd-4).toFixed(1)}" text-anchor="end" font-size="8.5" fill="rgba(164,80,47,.65)" font-family="inherit">Defense ${def.toFixed(0)} (SPY)</text>`;
   }
 
   // Grid lines
@@ -1002,7 +1002,8 @@ const axMap = Object.fromEntries((config.axes || []).map(a => [a.id, a]));
 const chart = brief.chart_reference || {};
 
 // SPX / SPY ratio for converting SPX zone levels to SPY chart prices
-const spxCurrent = num(mvMap.spx?.value) || 7554;
+// Fallback chain: market-values map -> decision-brief chart reference -> last-known constant.
+const spxCurrent = num(mvMap.spx?.value) || num(chart.current) || 7554;
 const spyCandles = loadCandles('SPY');
 const spyCurrent = spyCandles.length > 0 ? spyCandles[spyCandles.length-1].close : 755;
 const spxToSpy = spyCurrent / spxCurrent;
@@ -1822,7 +1823,9 @@ const phaseBridge = allHoldings.length > 0 ? `<div class="mu-phase-bridge">
 
 const signalDotsHtml = signals.map(s => {
   const bg = s.color === 'green' ? '#2a6b4a' : s.color === 'red' ? '#A4502F' : '#8a6a2c';
-  return `<span class="mu-sdot" style="background:${bg}" title="${esc(s.name)}: ${esc(s.display)} ${esc(s.label)}"></span>`;
+  // display and label both derive from axis.state — collapse duplicates ("Firm Firm").
+  const stateText = s.display === s.label ? s.display : `${s.display} ${s.label}`;
+  return `<span class="mu-sdot" style="background:${bg}" title="${esc(s.name)}: ${esc(stateText.trim() || '—')}"></span>`;
 }).join('');
 
 const signalBarHtml = `<div class="mu-sigbar">

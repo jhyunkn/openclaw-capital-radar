@@ -41,13 +41,23 @@ const positions = (rh.positions || []).map(pos => {
 
   const lh = liveHoldingsMap.get(sym);
   const wl = watchlist[sym] || watchlist.tickers?.[sym];
-  const livePrice = round(lh?.livePrice ?? wl?.currentPrice, 2);
+  // Price chain: live state first, then the broker snapshot's own price, then the
+  // watchlist cache. The broker snapshot is a last-known price, never a live quote —
+  // flag it so renderers mark it stale instead of presenting it as current.
+  // A non-positive or missing price is "unavailable": renderers must show '—',
+  // never $0.00 (a $0 price corrupts every total it touches).
+  const livePriceRaw = lh?.livePrice ?? pos.livePrice ?? wl?.currentPrice;
+  const livePrice = (Number(livePriceRaw) > 0) ? round(livePriceRaw, 2) : null;
+  const priceSource = lh?.livePrice != null ? 'live-state'
+    : pos.livePrice != null ? 'broker-snapshot'
+    : wl?.currentPrice != null ? 'watchlist' : 'unavailable';
+  const priceStale = priceSource !== 'live-state';
   const currentValue = (livePrice != null && shares != null) ? round(livePrice * shares, 2) : null;
   const unrealizedGain = (currentValue != null && totalCostBasis != null) ? round(currentValue - totalCostBasis, 2) : null;
   const unrealizedPct = (unrealizedGain != null && totalCostBasis != null && totalCostBasis !== 0)
     ? round((unrealizedGain / totalCostBasis) * 100, 2) : null;
 
-  return { symbol: sym, shares, avgCostPrice, totalCostBasis, livePrice, currentValue, unrealizedGain, unrealizedPct, signal: signalMap.get(sym) || null };
+  return { symbol: sym, shares, avgCostPrice, totalCostBasis, livePrice, currentValue, unrealizedGain, unrealizedPct, signal: signalMap.get(sym) || null, priceSource, priceStale };
 }).sort((a, b) => (b.totalCostBasis ?? 0) - (a.totalCostBasis ?? 0));
 
 const portfolio = rh.portfolio || {};

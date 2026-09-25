@@ -27,6 +27,29 @@ function fmtGain(gain, pct) {
   return `${sign}${fmt(gn, 0)}${pctStr}`;
 }
 
+// A price of 0 / negative / missing is "unavailable" — never render $0.00,
+// which silently corrupts every total it touches. Stale (last-known) prices
+// render with a marker so they can't be mistaken for live quotes.
+function fmtPrice(v, stale) {
+  const n = Number(v);
+  if (!Number.isFinite(n) || n <= 0) return '<span class="rh-stale-price">—</span>';
+  const s = '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return stale
+    ? `<span class="rh-stale-price" title="Last-known price from broker sync — not a live quote">${s} *</span>`
+    : s;
+}
+
+// The eyebrow must tell the truth about data age: a hardcoded "Live" badge on
+// an 18-day-old sync is how dashboards lie.
+function syncBadge(syncedAt) {
+  if (!syncedAt) return { text: 'Robinhood · Sync unknown', stale: true };
+  const ageH = (Date.now() - new Date(syncedAt).getTime()) / 3.6e6;
+  if (!Number.isFinite(ageH)) return { text: 'Robinhood · Sync unknown', stale: true };
+  if (ageH < 24) return { text: 'Robinhood · Live', stale: false };
+  const ageD = Math.max(1, Math.round(ageH / 24));
+  return { text: `Robinhood · Stale (${ageD}d)`, stale: true };
+}
+
 function signalTone(signal) {
   const s = String(signal || '').toLowerCase();
   if (/exit|loss/.test(s)) return 'exit';
@@ -62,7 +85,7 @@ function renderRobinhoodExecutionBridgeModule(state = {}) {
       <td class="num">${esc(fmtShares(pos.shares))}</td>
       <td class="num">${esc(fmt(pos.avgCostPrice, 2))}</td>
       <td class="num">${esc(fmt(pos.totalCostBasis))}</td>
-      <td class="num">${esc(fmt(pos.livePrice, 2))}</td>
+      <td class="num">${fmtPrice(pos.livePrice, pos.priceStale)}</td>
       <td class="num">${esc(fmt(pos.currentValue))}</td>
       <td class="num ${gainClass}">${esc(fmtGain(pos.unrealizedGain, pos.unrealizedPct))}</td>
       <td><span class="rh-lh-signal ${tone}">${esc(pos.signal || '—')}</span></td>
@@ -80,11 +103,12 @@ function renderRobinhoodExecutionBridgeModule(state = {}) {
   </tr>`;
 
   const footnote = syncedAt ? `Synced from Robinhood on ${esc(syncedAt)} · Prices from Capital Radar live state` : 'Prices from Capital Radar live state';
+  const badge = syncBadge(state.syncedAt);
 
   return `<div id="robinhood-execution-bridge-module" class="rh-live-holdings" aria-labelledby="rh-lh-title">
   <div class="rh-lh-head">
     <div>
-      <p class="eyebrow">Robinhood · Live</p>
+      <p class="eyebrow${badge.stale ? ' rh-stale-eyebrow' : ''}">${esc(badge.text)}</p>
       <h3 id="rh-lh-title">Proposal-only execution rail</h3>
       <p class="rh-lh-safety">Human approval required. Capital Radar remains the decision brain; this bridge does not place autonomous orders.</p>
     </div>
@@ -111,6 +135,8 @@ function renderRobinhoodExecutionBridgeStyle() {
 .rh-lh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap}
 .rh-live-holdings h3{margin:0;font-size:22px;line-height:1.14;letter-spacing:0;color:#171b17}
 .rh-live-holdings .eyebrow{margin:0 0 6px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(36,35,31,.5)}
+.rh-live-holdings .eyebrow.rh-stale-eyebrow{color:#A4502F;font-weight:600}
+.rh-stale-price{color:rgba(36,35,31,.45)}
 .rh-lh-safety{margin:8px 0 0;max-width:560px;font-size:12px;line-height:1.42;color:rgba(36,35,31,.58)}
 .rh-lh-portfolio{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
 .rh-lh-stat{display:flex;flex-direction:column;min-width:52px}

@@ -865,7 +865,7 @@ function renderContextBrief(brief) {
       <div class="opp-disc-row"><b>Fed-plateau base rates (SPX fwd 12m)</b>${(fp.plateau_episodes || []).map(plateauChip).join('')}</div>
       ${fp.calibration_finding ? `<p class="opp-fp-cal">${esc(fp.calibration_finding)}</p>` : ''}
       ${(fp.calibrated_top || []).length ? `<div class="opp-disc-row"><b>Calibrated wide-scan leaders (${esc(fp.scanned_at)})</b>${fp.calibrated_top.map(calChip).join('')}</div>` : ''}
-      <small class="opp-disc-note">${esc(fp.activation)}. Base rates from FRED/SPX history at test time; small samples — probabilities, not certainties.</small>
+      <small class="opp-disc-note">${esc(fp.activation)}. Base rates from FRED/SPX history at test time; limited history — probabilities, not certainties.</small>
     </div>` : '';
 
   const db = brief.durationBooks;

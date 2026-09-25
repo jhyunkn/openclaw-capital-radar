@@ -239,20 +239,33 @@ function loadRateHistory() {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
-function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLesson) {
+function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLesson, opts = {}) {
   // Single chart: full 5-year SPY journey + tactical zones + rate cycle sub-panel
+  // Zoom support: opts.startIdx slices the visible window (MAs stay anchored to full history).
+  // Macro overlay: opts.tenY = { value, asOf } draws a dashed current-level 10Y reference
+  // on a secondary (right) axis — no 10Y history exists, so only the current level is marked.
+  const tenY = opts.tenY || null;
   const W = 900, H_PRICE = 240, H_RATE = 110, GAP = 24, H_TOTAL = H_PRICE + GAP + H_RATE + 26;
-  const pL = 52, pR = 16, pT = 14, cW = W - pL - pR;
+  const pL = 52, pR = tenY ? 38 : 16, pT = 14, cW = W - pL - pR;
 
   if (spyCandles.length < 100) return `<div class="mu-chart-empty">No data</div>`;
 
-  const closes = spyCandles.map(c => c.close);
-  const dates  = spyCandles.map(c => c.time);
-  const n      = closes.length;
+  const fullCloses = spyCandles.map(c => c.close);
+  const fullDates  = spyCandles.map(c => c.time);
 
   // MAs (computed over full history for accuracy)
-  const ma50all  = computeMA(closes, 50);
-  const ma200all = computeMA(closes, 200);
+  const ma50full  = computeMA(fullCloses, 50);
+  const ma200full = computeMA(fullCloses, 200);
+
+  // Zoom slice — geometry below runs on the slice; MAs were pre-computed on full history
+  const startIdx = Math.max(0, Math.min(opts.startIdx || 0, spyCandles.length - 1));
+  const closes = fullCloses.slice(startIdx);
+  const dates  = fullDates.slice(startIdx);
+  const ma50all  = ma50full.slice(startIdx);
+  const ma200all = ma200full.slice(startIdx);
+  const n      = closes.length;
+  if (n < 20) return `<div class="mu-chart-empty">Not enough data for this range</div>`;
+  const idSfx = opts.idSuffix ? `-${opts.idSuffix}` : '';
 
   // Tactical zone levels (SPX → SPY conversion)
   const addLo  = chartRef?.add_zone?.[0]  != null ? chartRef.add_zone[0]  * spxRatio : null;
@@ -293,17 +306,19 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
     return d.trim();
   };
 
-  // 2022 bear band (Jan–Oct 2022)
-  const b22x1 = dToX('2022-01-03'), b22x2 = dToX('2022-10-13');
-  const bear22 = `<rect x="${b22x1.toFixed(1)}" y="${pT}" width="${(b22x2-b22x1).toFixed(1)}" height="${H_PRICE}" fill="rgba(164,80,47,.07)"/>
-  <text x="${((b22x1+b22x2)/2).toFixed(1)}" y="${(pT+13)}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.62)" font-weight="600" font-family="inherit" letter-spacing=".04em">2022 ANALOG</text>`;
+  // 2022 bear band (Jan–Oct 2022) — only when the zoom slice actually contains that window
+  const hasBear22 = dateIdx['2022-01-03'] !== undefined && dateIdx['2022-10-13'] !== undefined;
+  const show90 = n >= 91; // last-90-day highlight needs a full 90-day window
+  const b22x1 = hasBear22 ? dToX('2022-01-03') : 0, b22x2 = hasBear22 ? dToX('2022-10-13') : 0;
+  const bear22 = hasBear22 ? `<rect x="${b22x1.toFixed(1)}" y="${pT}" width="${(b22x2-b22x1).toFixed(1)}" height="${H_PRICE}" fill="rgba(164,80,47,.07)"/>
+  <text x="${((b22x1+b22x2)/2).toFixed(1)}" y="${(pT+13)}" text-anchor="middle" font-size="8.5" fill="rgba(164,80,47,.62)" font-weight="600" font-family="inherit" letter-spacing=".04em">2022 ANALOG</text>` : '';
 
   // Last-90-days highlight (subtle right panel)
   const idx90 = Math.max(0, n - 91);
   const x90 = px(idx90);
-  const last90 = `<rect x="${x90.toFixed(1)}" y="${pT}" width="${(pL+cW-x90).toFixed(1)}" height="${H_PRICE}" fill="rgba(26,23,20,.03)"/>
+  const last90 = show90 ? `<rect x="${x90.toFixed(1)}" y="${pT}" width="${(pL+cW-x90).toFixed(1)}" height="${H_PRICE}" fill="rgba(26,23,20,.03)"/>
   <line x1="${x90.toFixed(1)}" y1="${pT}" x2="${x90.toFixed(1)}" y2="${(pT+H_PRICE)}" stroke="rgba(201,191,173,.55)" stroke-width="0.5" stroke-dasharray="3 2"/>
-  <text x="${(x90+4)}" y="${(pT+13)}" font-size="8" fill="rgba(26,23,20,.32)" font-family="inherit">90D</text>`;
+  <text x="${(x90+4)}" y="${(pT+13)}" font-size="8" fill="rgba(26,23,20,.32)" font-family="inherit">90D</text>` : '';
 
   // Zone bands
   let zones = '';
@@ -360,16 +375,16 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
     const p = (b - a) / a * 100;
     return (p >= 0 ? '+' : '') + p.toFixed(1) + '%';
   }
-  const ib22s = idxFor('2022-01-03'), ib22e = Math.min(idxFor('2022-10-13'), n - 1);
-  const pBear    = phChg(closes[ib22s], closes[ib22e]);
-  const pRecov   = phChg(closes[ib22e], closes[idx90]);
-  const p90d     = phChg(closes[idx90], closes[n - 1]);
-  const midBear  = ((b22x1 + b22x2) / 2).toFixed(1);
-  const midRecov = ((b22x2 + x90) / 2).toFixed(1);
-  const mid90d   = ((x90 + pL + cW) / 2).toFixed(1);
+  const ib22s = hasBear22 ? idxFor('2022-01-03') : 0, ib22e = hasBear22 ? Math.min(idxFor('2022-10-13'), n - 1) : 0;
+  const pBear    = hasBear22 ? phChg(closes[ib22s], closes[ib22e]) : '';
+  const pRecov   = (hasBear22 && show90) ? phChg(closes[ib22e], closes[idx90]) : '';
+  const p90d     = show90 ? phChg(closes[idx90], closes[n - 1]) : '';
+  const midBear  = hasBear22 ? ((b22x1 + b22x2) / 2).toFixed(1) : 0;
+  const midRecov = (hasBear22 && show90) ? ((b22x2 + x90) / 2).toFixed(1) : 0;
+  const mid90d   = show90 ? ((x90 + pL + cW) / 2).toFixed(1) : 0;
   const bearPctColor  = '#a4502f';
   const recovPctColor = '#2a6b4a';
-  const p90dColor     = closes[n - 1] >= closes[idx90] ? '#2a6b4a' : '#a4502f';
+  const p90dColor     = show90 && closes[n - 1] >= closes[idx90] ? '#2a6b4a' : '#a4502f';
 
   // ── Rate panel ───────────────────────────────────────────────────────────────
   const rY0 = pT + H_PRICE + GAP, rH = H_RATE;
@@ -393,14 +408,15 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   const dffNow = dffObs.length ? dffObs[dffObs.length-1].value : null;
   const dffNowX = dffNow != null ? dToX(dffObs[dffObs.length-1].date) : null;
 
-  // Fed rate cycle phases (actual FOMC decision dates)
+  // Fed rate cycle phases (actual FOMC decision dates) — only meaningful on the full-history view
+  const showRatePhases = startIdx === 0;
   const rCycleDefs = [
     { name: 'ZIRP',    s: dates[0],     e: '2022-03-15', fill: 'rgba(64,95,159,.06)',  bdr: 'rgba(64,95,159,.4)'  },
     { name: 'HIKING',  s: '2022-03-16', e: '2023-07-26', fill: 'rgba(164,80,47,.07)',  bdr: 'rgba(164,80,47,.45)' },
     { name: 'PEAK',    s: '2023-07-27', e: '2024-09-17', fill: 'rgba(138,106,44,.07)', bdr: 'rgba(138,106,44,.45)'},
     { name: 'CUTTING', s: '2024-09-18', e: dates[n-1],   fill: 'rgba(42,107,74,.07)',  bdr: 'rgba(42,107,74,.4)'  },
   ];
-  const rCycles = rCycleDefs.map(ph => {
+  const rCycles = showRatePhases ? rCycleDefs.map(ph => {
     const rx1 = Math.max(dToX(ph.s), pL), rx2 = Math.min(dToX(ph.e), pL + cW);
     if (rx2 <= rx1 + 2) return null;
     const ia = idxFor(ph.s), ib = Math.min(idxFor(ph.e), n - 1);
@@ -409,7 +425,7 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
     const mid = ((rx1 + rx2) / 2).toFixed(1);
     const w = rx2 - rx1;
     return { ...ph, rx1, rx2, w, mid, spxChg, spxClr };
-  }).filter(Boolean);
+  }).filter(Boolean) : [];
 
   // Phase background bands (rate panel only)
   const ratePhaseBands = rCycles.map(c =>
@@ -434,13 +450,34 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
     ].join('');
   }).join('');
 
+  // ── 10Y macro overlay (toggleable) ─────────────────────────────────────────
+  // No 10Y history exists in the data — the toggle marks the CURRENT 10Y level
+  // as a dashed reference on a secondary (right-hand) yield axis, labeled honestly.
+  let tenYOverlay = '';
+  if (tenY && tenY.value != null) {
+    const YMAX = 7;
+    const y10 = v => pT + H_PRICE - (Math.min(v, YMAX) / YMAX) * H_PRICE;
+    const yT = y10(tenY.value);
+    const ticks = [0, 2, 4, 6].map(v => {
+      const gy = y10(v);
+      return `<line x1="${(pL+cW)}" y1="${gy.toFixed(1)}" x2="${(pL+cW+5)}" y2="${gy.toFixed(1)}" stroke="rgba(138,106,44,.4)" stroke-width="0.5"/>
+  <text x="${(pL+cW+7)}" y="${(gy+3).toFixed(1)}" font-size="8" fill="rgba(138,106,44,.65)" font-family="inherit">${v}%</text>`;
+    }).join('');
+    const asOfLbl = tenY.asOf ? ` · ${tenY.asOf}` : '';
+    tenYOverlay = `<g class="mu-10y-overlay" style="display:none">
+  ${ticks}
+  <line x1="${pL}" y1="${yT.toFixed(1)}" x2="${(pL+cW)}" y2="${yT.toFixed(1)}" stroke="#8a6a2c" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.85"/>
+  <text x="${(pL+cW-6)}" y="${(yT-6).toFixed(1)}" text-anchor="end" font-size="9" fill="#8a6a2c" font-weight="700" font-family="inherit">10Y ${Number(tenY.value).toFixed(2)}%${esc(asOfLbl)} — current level</text>
+</g>`;
+  }
+
   // ── Assemble SVG ─────────────────────────────────────────────────────────────
   return `<svg viewBox="0 0 ${W} ${H_TOTAL}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
   <defs>
-    <linearGradient id="ucGrad" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="ucGrad${idSfx}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(26,23,20,.09)"/><stop offset="100%" stop-color="rgba(26,23,20,.01)"/>
     </linearGradient>
-    <linearGradient id="rateGrad" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="rateGrad${idSfx}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="rgba(138,106,44,.2)"/><stop offset="100%" stop-color="rgba(138,106,44,.02)"/>
     </linearGradient>
   </defs>
@@ -459,8 +496,11 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   <!-- Grid + zones -->
   ${grid}${zones}
 
+  <!-- 10Y macro overlay (toggled from chart controls) -->
+  ${tenYOverlay}
+
   <!-- Area fill -->
-  <path d="${areaPts}" fill="url(#ucGrad)"/>
+  <path d="${areaPts}" fill="url(#ucGrad${idSfx})"/>
 
   <!-- MA200 -->
   <path d="${maPath(ma200all)}" fill="none" stroke="rgba(164,80,47,.55)" stroke-width="1.1" stroke-dasharray="5 2"/>
@@ -482,7 +522,7 @@ function buildUnifiedChart(spyCandles, rateSeries, chartRef, spxRatio, analogLes
   ${ratePhaseBands}
   ${rateGrid}
   <line x1="${pL}" y1="${(rY0+rH)}" x2="${(pL+cW)}" y2="${(rY0+rH)}" stroke="rgba(201,191,173,.4)" stroke-width="0.5"/>
-  ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad)"/>` : ''}
+  ${dffAreaPath ? `<path d="${dffAreaPath}" fill="url(#rateGrad${idSfx})"/>` : ''}
   ${dffPath ? `<path d="${dffPath}" fill="none" stroke="#8a6a2c" stroke-width="1.8" stroke-linejoin="round"/>` : ''}
   ${dffNow != null && dffNowX != null ? `<circle cx="${dffNowX.toFixed(1)}" cy="${pyR(dffNow).toFixed(1)}" r="3" fill="#8a6a2c"/>` : ''}
   <!-- Phase labels + SPX annotations on top of DFF fill -->
@@ -982,7 +1022,7 @@ function mktSignal(key, value, chart) {
   } else if (key === 'confirmation') {
     color   = n >= 75 ? 'green' : n >= 55 ? 'amber' : 'red';
     label   = n >= 75 ? 'Confirmed' : n >= 55 ? 'Mixed' : 'Failing';
-    display = n ? Math.round(n) + '/100' : '—';
+    display = n ? label : '—'; // no /100 numeral: classification only (false-precision fix)
     trend   = n >= 75 ? '↑' : '→';
   } else if (key === 'rsi14') {
     color   = n > 70 ? 'red' : n >= 55 ? 'green' : n >= 40 ? 'amber' : 'red';
@@ -1012,6 +1052,8 @@ const spxToSpy = spyCurrent / spxCurrent;
 const phaseCode  = esc(egg.phase_code || 'C');
 const phaseName  = esc(egg.phase_label || egg.macro_phase || 'Verification');
 const conf       = num(egg.phase_confidence) ?? 83;
+// Phase confidence is a qualitative read, not a measured probability — no /100 numerals.
+const confWord   = conf >= 80 ? 'High' : conf >= 60 ? 'Adequate' : 'Low';
 const action     = esc(egg.center_action || '—');
 const stressType = esc(egg.stress_type || '—');
 const diagLabel  = esc(config.diagnosis?.label || '—');
@@ -1060,7 +1102,32 @@ const cacheRates = (() => {
 })();
 
 const activeRateSeries  = (rateSeries && Object.keys(rateSeries).length) ? rateSeries : cacheRates;
-const unifiedChart      = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxToSpy, topAnalogLesson);
+// Current 10Y level (FRED DGS10) for the macro overlay — no 10Y history exists,
+// so the overlay marks the current level honestly rather than faking a series.
+const tenYNow = (() => {
+  try {
+    const c = JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'fred-rates-cache.json'), 'utf8'));
+    const d = (c.series || []).find(s => s.id === 'DGS10');
+    if (d && d.value != null) {
+      const asOf = d.latestDate
+        ? new Date(d.latestDate + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' })
+        : '';
+      return { value: Number(d.value), asOf };
+    }
+  } catch {}
+  return null;
+})();
+// Zoom slices: each rendered server-side from the same candle data (zones stay on all levels)
+const ZOOM_RANGES = [
+  { key: '1M', n: 22 }, { key: '3M', n: 66 }, { key: '6M', n: 132 },
+  { key: '1Y', n: 252 }, { key: '5Y', n: spyCandles.length },
+];
+const unifiedChart = ZOOM_RANGES.map(r => {
+  const startIdx = Math.max(0, spyCandles.length - r.n);
+  const svg = buildUnifiedChart(spyCandles, activeRateSeries, chart, spxToSpy, topAnalogLesson,
+    { startIdx, idSuffix: r.key, tenY: tenYNow });
+  return `<div class="mu-zoom-slice" data-range="${r.key}"${r.key === '5Y' ? '' : ' style="display:none"'}>${svg}</div>`;
+}).join('');
 const bearComparisonChart = buildBearComparisonChart(spyCandles);
 const dffSeries         = Array.isArray(activeRateSeries?.DFF) ? activeRateSeries.DFF : [];
 const currentFedRate    = dffSeries.length > 0 ? num(dffSeries[dffSeries.length - 1].value) : null;
@@ -1140,7 +1207,7 @@ function buildDailyBriefing() {
         context.push(`VIX pulling back toward 15 improves the mood signal. Sustained calm below 15 would open the VIX gate — one of five conditions for Phase D confirmation.`);
       }
     } else if (isFlat) {
-      context.push(`Consolidation. No regime change signal — the market is absorbing recent volatility. Phase C allows for this kind of sideways action while macro conditions remain unresolved. The longer-term framework remains Phase C at ${conf}% confidence.`);
+      context.push(`Consolidation. No regime change signal — the market is absorbing recent volatility. Phase C allows for this kind of sideways action while macro conditions remain unresolved. The longer-term framework remains Phase C at ${confWord.toLowerCase()} confidence.`);
     }
 
     // Portfolio-specific context
@@ -1200,7 +1267,7 @@ function buildDailyBriefing() {
       <span class="mu-db-date">${dateDisplay}</span>
       <span class="mu-db-badge">${esc(sessionLabel)}</span>
     </div>
-    <span class="mu-db-phase">Phase ${phaseCode} · ${conf}% confidence</span>
+    <span class="mu-db-phase">Phase ${phaseCode} · ${confWord} confidence</span>
   </div>
   <div class="mu-db-strip">${stripHtml}</div>
   <div class="mu-db-body">
@@ -1726,14 +1793,14 @@ const regimeCol = `<div class="mu-regime-col">
   <p class="mu-rg-sub">${esc(regime.sub)}</p>
 
   <div class="mu-rg-quad-wrap">
-    <div class="mu-rg-axis-y">Growth ↑</div>
+    <div class="mu-rg-axis-y">Growth ↑ — stronger at top</div>
     <div class="mu-rg-grid">
       <div class="mu-rg-cell ${regime.name === 'GOLDILOCKS'   ? 'mu-rg-on' : ''}"><b>Goldilocks</b><small>Tech · Quality</small></div>
       <div class="mu-rg-cell ${regime.name === 'REFLATION'    ? 'mu-rg-on' : ''}"><b>Reflation</b><small>Cyclicals · Energy</small></div>
       <div class="mu-rg-cell ${regime.name === 'DEFLATION'    ? 'mu-rg-on' : ''}"><b>Deflation</b><small>Bonds · Defensives</small></div>
       <div class="mu-rg-cell ${regime.name === 'STAGFLATION'  ? 'mu-rg-on' : ''}"><b>Stagflation</b><small>Cash · Real assets</small></div>
     </div>
-    <div class="mu-rg-axis-x">Inflation →</div>
+    <div class="mu-rg-axis-x">Inflation → — hotter to the right</div>
   </div>
 
   <div class="mu-rg-inputs">
@@ -2137,14 +2204,14 @@ const style = `<style id="macro-unified-style">
 .mu-rg-eyebrow{font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block}
 .mu-rg-name{display:block;font-size:20px;font-weight:500;letter-spacing:-.04em;margin:3px 0 1px;color:rgba(26,23,20,.88)}
 .mu-rg-sub{font-size:10.5px;color:var(--muted);margin:0 0 13px;line-height:1.4}
-/* Quadrant grid */
+/* Quadrant grid — square-ish aspect ratio, no label crowding */
 .mu-rg-quad-wrap{margin-bottom:12px}
-.mu-rg-axis-y{font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);opacity:.55;margin-bottom:3px}
-.mu-rg-axis-x{font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);opacity:.55;margin-top:3px;text-align:right}
-.mu-rg-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(201,191,173,.38);border-radius:10px;overflow:hidden}
-.mu-rg-cell{padding:9px 11px;border:1px solid rgba(201,191,173,.22);box-sizing:border-box}
-.mu-rg-cell b{display:block;font-size:9.5px;font-weight:600;color:rgba(26,23,20,.35);line-height:1.2}
-.mu-rg-cell small{font-size:8px;color:rgba(26,23,20,.28)}
+.mu-rg-axis-y{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:rgba(26,23,20,.55);margin-bottom:4px;font-weight:600}
+.mu-rg-axis-x{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:rgba(26,23,20,.55);margin-top:4px;text-align:right;font-weight:600}
+.mu-rg-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;aspect-ratio:1.7/1;border:1px solid rgba(201,191,173,.38);border-radius:10px;overflow:hidden}
+.mu-rg-cell{padding:10px 12px;border:1px solid rgba(201,191,173,.22);box-sizing:border-box;min-width:0;overflow:hidden}
+.mu-rg-cell b{display:block;font-size:11px;font-weight:600;color:rgba(26,23,20,.35);line-height:1.25}
+.mu-rg-cell small{display:block;font-size:9px;color:rgba(26,23,20,.28);margin-top:2px}
 .mu-rg-on{background:rgba(47,111,78,.07)}
 .mu-rg-on b{color:rgba(47,111,78,.80)}
 .mu-rg-on small{color:rgba(47,111,78,.50)}
@@ -2270,15 +2337,30 @@ details[open].mu-details summary:before{content:'↑'}
 .mu-axis-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:16px}
 .mu-axis-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;font-family:var(--mono,monospace)}
 .mu-axis-note-head{font-size:10.5px;color:rgba(164,80,47,.7)}
-.mu-axis-list{display:flex;flex-direction:column;gap:9px}
-.mu-axis-row{display:grid;grid-template-columns:130px 1fr 34px 1fr;gap:8px;align-items:center}
+.mu-axis-method{font-size:10px;color:rgba(26,23,20,.42);margin:0 0 12px;line-height:1.5}
+.mu-axis-list{display:flex;flex-direction:column;gap:10px}
+/* Ternary classification rows — no false-precision /100 numerals */
+.mu-axis-row{display:grid;grid-template-columns:118px minmax(90px,150px) auto 1fr;gap:10px;align-items:center}
 .mu-axis-label{font-size:11px;font-weight:500;color:rgba(26,23,20,.7)}
-.mu-axis-bar-track{height:5px;background:rgba(201,191,173,.25)}
-.mu-axis-bar-fill{height:100%}
-.mu-axis-score-num{font-size:11px;font-weight:600;font-family:var(--mono,monospace);text-align:right}
-.mu-axis-read{font-size:10.5px;color:rgba(26,23,20,.5);line-height:1.3}
+.mu-axis-seg{display:flex;gap:3px}
+.mu-axis-seg span{flex:1;height:6px;border-radius:3px;background:rgba(201,191,173,.28)}
+.mu-axis-class{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.mu-axis-read{font-size:10.5px;color:rgba(26,23,20,.5);line-height:1.35}
+.mu-axis-pending{font-size:10.5px;font-style:italic;color:rgba(26,23,20,.45);white-space:nowrap}
 .mu-axis-tension{font-size:12.5px;color:rgba(26,23,20,.65);margin:14px 0 0;padding:10px 14px;border-left:2.5px solid rgba(164,80,47,.45);background:rgba(164,80,47,.04);line-height:1.5}
-@media(max-width:700px){.mu-axis-row{grid-template-columns:90px 1fr 28px}.mu-axis-read{display:none}}
+@media(max-width:700px){.mu-axis-row{grid-template-columns:96px 1fr auto}.mu-axis-read{grid-column:1/-1;margin-top:2px}}
+/* "How to read this" guide — plain-language phase + quadrant decoder */
+.mu-rg-guide-det{border-bottom:1px solid rgba(201,191,173,.45);padding:2px 0 14px}
+.mu-rg-guide-sum{font-size:10px;font-family:var(--mono,monospace);text-transform:uppercase;letter-spacing:.1em;color:rgba(44,42,37,.5);cursor:pointer;padding:10px 0;list-style:none}
+.mu-rg-guide-sum::-webkit-details-marker{display:none}
+.mu-rg-guide-sum::before{content:"▸ ";font-size:9px;color:rgba(44,42,37,.3)}
+.mu-rg-guide-det[open]>.mu-rg-guide-sum::before{content:"▾ "}
+.mu-rg-guide{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
+.mu-rg-guide-head{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(26,23,20,.45);margin-bottom:8px;font-family:var(--mono,monospace)}
+.mu-rg-guide ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mu-rg-guide li{font-size:12px;line-height:1.5;color:rgba(26,23,20,.68)}
+.mu-rg-guide li b{color:rgba(26,23,20,.88)}
+@media(max-width:700px){.mu-rg-guide{grid-template-columns:1fr}}
 /* ── Phase C history ── */
 .mu-phase-history{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-ph-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -2293,15 +2375,116 @@ details[open].mu-details summary:before{content:'↑'}
 .mu-ph-item p b{color:rgba(26,23,20,.75)}
 .mu-ph-today{color:#2a6b4a!important}
 @media(max-width:700px){.mu-ph-grid{grid-template-columns:1fr}.mu-ph-item{border-right:none;border-bottom:1px solid rgba(201,191,173,.38)}.mu-ph-item:last-child{border-bottom:none}}
+/* ── Today's action: news strip + AI briefing ── */
+.mu-news-block{margin-top:20px;border-top:1px solid rgba(201,191,173,.45);padding-top:14px}
+.mu-news-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.mu-news-title{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.4);font-weight:600;font-family:var(--mono,monospace)}
+.mu-news-asof{font-size:10px;color:rgba(26,23,20,.45);font-family:var(--mono,monospace)}
+.mu-news-row{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(201,191,173,.18)}
+.mu-news-row:last-child{border-bottom:none}
+.mu-news-ticker{font-family:var(--mono,monospace);font-size:10px;font-weight:700;color:#A4502F;white-space:nowrap}
+.mu-news-htitle{font-size:12.5px;color:rgba(26,23,20,.78);line-height:1.4}
+.mu-news-date{font-size:10px;color:rgba(26,23,20,.42);white-space:nowrap;font-family:var(--mono,monospace)}
+.mu-ai-brief{font-size:12.5px;line-height:1.6;color:rgba(26,23,20,.72);margin:12px 0 0}
+.mu-ai-brief b{color:rgba(26,23,20,.9)}
+.mu-ai-desk{font-size:12.5px;line-height:1.6;color:rgba(26,23,20,.66);margin:8px 0 0;font-style:italic}
+.mu-ai-desk b{color:rgba(26,23,20,.85);font-style:normal}
+.mu-news-unavail{font-size:12px;color:rgba(164,80,47,.85);padding:10px 0;line-height:1.5}
+@media(max-width:640px){.mu-news-row{grid-template-columns:46px 1fr}.mu-news-date{grid-column:2}}
+/* ── Price chart: zoom controls + 10Y overlay toggle ── */
+.mu-chart-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:2px 0 10px}
+.mu-zoom-btns{display:flex;gap:6px;flex-wrap:wrap}
+.mu-zoom-btn{min-height:40px;padding:8px 15px;font-size:13px;font-weight:600;border:1px solid rgba(201,191,173,.6);border-radius:9px;background:#fff;color:rgba(26,23,20,.65);cursor:pointer;font-family:inherit}
+.mu-zoom-btn.mu-zoom-on{background:#1A1714;color:#f4efe6;border-color:#1A1714}
+.mu-10y-toggle{min-height:40px;padding:8px 15px;font-size:13px;font-weight:600;border:1px dashed rgba(138,106,44,.7);border-radius:9px;background:transparent;color:#8a6a2c;cursor:pointer;font-family:inherit}
+.mu-10y-toggle[aria-pressed="true"]{background:rgba(138,106,44,.14)}
+.mu-10y-note{font-size:11px;color:rgba(26,23,20,.5);margin:8px 0 0;line-height:1.5;font-style:italic}
 </style>`;
+
+// ── Today's action: market news strip + AI briefing ──────────────────────────
+const marketNews = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'market-news.json'), 'utf8')); } catch { return null; }
+})();
+const narrativeBrief = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'narrative-reality-brief.json'), 'utf8')); } catch { return null; }
+})();
+
+function fmtNewsDate(ds) {
+  const t = new Date(ds);
+  if (Number.isNaN(t.getTime())) return String(ds || '').slice(0, 16);
+  const d = t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+  const tm = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+  return `${d} · ${tm} ET`;
+}
+function humanSignal(s) {
+  const m = String(s).match(/^([A-Z_]+)\((\d+)\)$/);
+  if (!m) return String(s).toLowerCase().replace(/_/g, ' ');
+  const ACR = { IPO: 'IPO', MA: 'M&A', AI: 'AI' };
+  const name = m[1].split('_').map(w => ACR[w] || (w.charAt(0) + w.slice(1).toLowerCase())).join(' ');
+  return `${name} ×${m[2]}`;
+}
+
+const newsStripHtml = (() => {
+  const genAt = marketNews?.generatedAt ? new Date(marketNews.generatedAt) : null;
+  const fresh = genAt && !Number.isNaN(genAt.getTime()) && (Date.now() - genAt.getTime()) < 48 * 3600 * 1000;
+  if (!marketNews || !fresh) {
+    return `<div class="mu-news-block"><div class="mu-news-unavail">News feed unavailable — no fresh market-news build (older than 48h or missing). Not refreshed today.</div></div>`;
+  }
+  const heads = [];
+  const seen = new Set();
+  for (const [sym, info] of Object.entries(marketNews.tickers || {})) {
+    for (const h of (info.recent_headlines || [])) {
+      const title = String(h.title || '').trim();
+      if (!title || seen.has(title)) continue;
+      seen.add(title);
+      heads.push({ ticker: sym, title, date: h.date || '' });
+    }
+  }
+  heads.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const top = heads.slice(0, 6);
+  const rows = top.map(h => `<div class="mu-news-row">
+    <span class="mu-news-ticker">${esc(h.ticker)}</span>
+    <span class="mu-news-htitle">${esc(h.title)}</span>
+    <span class="mu-news-date">${esc(fmtNewsDate(h.date))}</span>
+  </div>`).join('');
+
+  const sigs = (marketNews.summary?.top_signals_this_build || []).map(humanSignal);
+  const evts = marketNews.summary?.active_events || [];
+  const briefBits = [];
+  if (sigs.length) briefBits.push(`Signals firing: ${sigs.join(' · ')}`);
+  if (evts.length) briefBits.push(`Active events: ${evts.join(' · ')}`);
+  const briefLine = briefBits.length
+    ? `<p class="mu-ai-brief"><b>AI briefing</b> — ${esc(briefBits.join('. '))}.</p>`
+    : '';
+
+  let deskLine = '';
+  const posture = narrativeBrief?.strategyPosture;
+  const briefAt = narrativeBrief?.generatedAt ? new Date(narrativeBrief.generatedAt) : null;
+  if (posture) {
+    const bAsof = briefAt && !Number.isNaN(briefAt.getTime()) ? fmtNewsDate(narrativeBrief.generatedAt) : 'date unknown';
+    deskLine = `<p class="mu-ai-desk"><b>AI desk read</b> (${esc(bAsof)}) — ${esc(posture)}</p>`;
+  }
+
+  return `<div class="mu-news-block">
+    <div class="mu-news-head">
+      <span class="mu-news-title">Today&apos;s market news</span>
+      <span class="mu-news-asof">as of ${esc(fmtNewsDate(marketNews.generatedAt))}</span>
+    </div>
+    ${rows}
+    ${briefLine}
+    ${deskLine}
+  </div>`;
+})();
 
 // ── Scorecard strip HTML ──────────────────────────────────────────────────────
 
-const scStrip = signals.map(s => `<div class="mu-sig mu-${s.color}">
+const scStrip = signals.map(s => {
+  const valHtml = s.display && s.display !== s.label ? `<span class="mu-sig-val">${s.display}</span>` : '';
+  return `<div class="mu-sig mu-${s.color}">
   <span class="mu-sig-name">${esc(s.name)}</span>
-  <span class="mu-sig-val">${s.display}</span>
+  ${valHtml}
   <span class="mu-sig-sub">${s.label} ${s.trend}</span>
-</div>`).join('');
+</div>`;}).join('');
 
 const scSummary = `${greens} green · ${ambers} amber · ${reds} red`;
 
@@ -2320,11 +2503,21 @@ const AXIS_DEFS = [
   { key: 'valuation_axis',        blocking: false },
 ];
 const eggAxis = egg.axis || {};
-const axisList = AXIS_DEFS.map(d => ({ ...eggAxis[d.key], blocking: d.blocking })).filter(a => a && a.label);
+const axisList = AXIS_DEFS.map(d => ({ key: d.key, ...eggAxis[d.key], blocking: d.blocking })).filter(a => a && a.label);
 
-function axisColor(score, blocking) {
-  if (blocking) return score < 40 ? '#A4502F' : score < 60 ? '#8a6a2c' : '#2a6b4a';
-  return score >= 65 ? '#2a6b4a' : score >= 45 ? '#8a6a2c' : '#A4502F';
+// Axis scores are NOT measurements: monetary/liquidity/market-structure are
+// ternary buckets (weak → ~30, watch → ~55, supportive → ~74+). Psychology and
+// valuation are hardcoded per-phase constants (60/55 for Phase C) — shown as
+// "phase default", never as a measured score.
+const TERNARY_KEYS = new Set(['monetary_axis', 'liquidity_axis', 'market_structure_axis']);
+function axisClass(score) {
+  if (score == null) return null;
+  if (score <= 40)  return { word: 'Weak',       color: '#A4502F' };
+  if (score <= 64)  return { word: 'Watch',      color: '#8a6a2c' };
+  return                  { word: 'Supportive', color: '#2a6b4a' };
+}
+function axisBucketOf(ax) {
+  return TERNARY_KEYS.has(ax.key) ? 'ternary bucket (weak / watch / supportive)' : 'phase default (Phase ' + phaseCode + ' constant)';
 }
 
 const blockingFail = axisList.filter(a => a.blocking && (num(a.score) ?? 50) < 60).length;
@@ -2334,20 +2527,42 @@ const axisEvidenceHtml = axisList.length > 0 ? `<div class="mu-axis-block">
     <span class="mu-axis-title">Why Phase ${phaseCode} — the evidence</span>
     <span class="mu-axis-note-head">${blockingFail} of 2 monetary axes below Phase D threshold</span>
   </div>
+  <p class="mu-axis-method">Axis scores are classifications, not measurements. Monetary, liquidity and market structure are ternary buckets — weak, watch, or supportive. Psychology and valuation are Phase ${phaseCode} defaults, not independently measured.</p>
   <div class="mu-axis-list">
     ${axisList.map(ax => {
+      const blockNote = ax.blocking && (num(ax.score) ?? 50) < 60 ? ' · blocking Phase D' : '';
+      if (!TERNARY_KEYS.has(ax.key)) {
+        // Psychology / valuation: hardcoded per-phase constants — no number, no bar.
+        return `<div class="mu-axis-row">
+          <div class="mu-axis-label">${esc(ax.label)}</div>
+          <div class="mu-axis-seg" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span class="mu-axis-pending">Phase ${phaseCode} default</span>
+          <div class="mu-axis-read">${esc(ax.read || '')} (not independently measured)${esc(blockNote)}</div>
+        </div>`;
+      }
       const score = num(ax.score) ?? 50;
-      const color = axisColor(score, ax.blocking);
-      const blockNote = ax.blocking && score < 60 ? ' · blocking Phase D' : '';
+      const cls = axisClass(score);
+      const segs = ['Weak', 'Watch', 'Supportive'].map(w =>
+        `<span style="${w === cls.word ? `background:${cls.color}` : ''}"></span>`).join('');
       return `<div class="mu-axis-row">
         <div class="mu-axis-label">${esc(ax.label)}</div>
-        <div class="mu-axis-bar-track"><div class="mu-axis-bar-fill" style="width:${score}%;background:${color}"></div></div>
-        <div class="mu-axis-score-num" style="color:${color}">${score}</div>
-        <div class="mu-axis-read">${esc(ax.read || '')}${esc(blockNote)}</div>
+        <div class="mu-axis-seg" aria-hidden="true">${segs}</div>
+        <span class="mu-axis-class" style="color:${cls.color}">${cls.word}</span>
+        <div class="mu-axis-read">${esc(ax.read || '')} — ${axisBucketOf(ax)}${esc(blockNote)}</div>
       </div>`;
     }).join('')}
   </div>
-  <p class="mu-axis-tension">The tension: Market Structure (${num(eggAxis.market_structure_axis?.score) ?? '—'}/100) has moved toward Phase D — price held above the 200D. Monetary (${num(eggAxis.monetary_axis?.score) ?? '—'}/100) and Liquidity (${num(eggAxis.liquidity_axis?.score) ?? '—'}/100) have not. That gap is Phase C.</p>
+  <p class="mu-axis-tension">${(() => {
+    const byKey = k => axisList.find(a => a.key === k);
+    const ms = byKey('market_structure_axis'), mo = byKey('monetary_axis'), li = byKey('liquidity_axis');
+    const cOf = ax => ax && TERNARY_KEYS.has(ax.key) ? axisClass(num(ax.score) ?? 50) : null;
+    const msC = cOf(ms), moC = cOf(mo), liC = cOf(li);
+    const bits = [];
+    if (msC) bits.push(`Market structure is ${msC.word.toLowerCase()} — ${esc(ms.read || '')}`);
+    if (moC) bits.push(`monetary is ${moC.word.toLowerCase()} — ${esc(mo.read || '')}`);
+    if (liC) bits.push(`liquidity is ${liC.word.toLowerCase()} — ${esc(li.read || '')}`);
+    return `The tension: ${bits.join('; ')}. That gap is Phase ${phaseCode}.`;
+  })()}</p>
 </div>` : '';
 
 // ── Historical Phase C reference ──────────────────────────────────────────────
@@ -2388,6 +2603,19 @@ const historicalPhaseCHtml = `<div class="mu-phase-history">
 
 // ── Assemble section ──────────────────────────────────────────────────────────
 
+// Qualitative confidence driver — extractive: the strongest axis supports,
+// blocking axes below threshold hold the phase back.
+const confDriverLine = (() => {
+  const scored = axisList.filter(a => num(a.score) != null).sort((a, b) => (num(b.score) ?? 0) - (num(a.score) ?? 0));
+  const best = scored[0];
+  const blockers = axisList.filter(a => a.blocking && (num(a.score) ?? 50) < 60).map(a => String(a.label).toLowerCase());
+  const parts = [];
+  if (best && TERNARY_KEYS.has(best.key)) parts.push(`${best.label} ${axisClass(num(best.score)).word.toLowerCase()} — ${best.read || ''}`.trim());
+  else if (best) parts.push(`${best.label} — ${best.read || ''}`.trim());
+  if (blockers.length) parts.push(`${blockers.join(' + ')} still block${blockers.length > 1 ? '' : 's'} Phase D`);
+  return parts.length ? `Driven by ${parts.join('; ')}.` : `Confidence in Phase ${phaseCode}.`;
+})();
+
 const section = `<section id="decision-brief-section" class="macro-unified">
 <div class="mu-wrap">
 
@@ -2420,6 +2648,7 @@ const section = `<section id="decision-brief-section" class="macro-unified">
         <small>${esc(riskRule.split('.')[0])}</small>
       </article>
     </div>
+    ${newsStripHtml}
   </div>
 
   <!-- 1. Regime header: diagnosis anchor -->
@@ -2437,8 +2666,8 @@ const section = `<section id="decision-brief-section" class="macro-unified">
     <div class="mu-regime-meta">
       <div class="mu-conf">
         <span>Cycle confidence</span>
-        <b>${conf}%</b>
-        <small>of being in ${phaseName}</small>
+        <b>${confWord}</b>
+        <small>${esc(confDriverLine)}</small>
       </div>
       <div class="mu-stress-badge">${stressType}</div>
     </div>
@@ -2446,6 +2675,32 @@ const section = `<section id="decision-brief-section" class="macro-unified">
 
   <!-- 2. Regime framework -->
   <div class="mu-regime-row">${regimeCol}</div>
+  <!-- 2a. How to read this: phase + quadrant decoder -->
+  <details class="mu-rg-guide-det"><summary class="mu-rg-guide-sum">How to read this — phases &amp; quadrants</summary>
+    <div class="mu-rg-guide">
+      <div>
+        <b class="mu-rg-guide-head">Market cycle phases (Kostolany egg)</b>
+        <ul>
+          <li><b>A1 Capitulation</b> — panic selling; prices bottom as the weak hands give up.</li>
+          <li><b>A2 Accumulation</b> — patient money buys quietly while the crowd stays scared.</li>
+          <li><b>B Recovery</b> — prices start climbing; the worst looks over.</li>
+          <li><b>C Verification</b> — the rally gets tested. Is the recovery real? We are here now.</li>
+          <li><b>D Expansion</b> — broad participation; new money flows in, leadership widens.</li>
+          <li><b>E Euphoria</b> — everyone is bullish; the peak forms.</li>
+          <li><b>F Distribution</b> — smart money sells into strength; the decline begins.</li>
+        </ul>
+      </div>
+      <div>
+        <b class="mu-rg-guide-head">Macro regime quadrants (the 2×2 above)</b>
+        <ul>
+          <li><b>Goldilocks</b> — growth rising, inflation calm. Own quality and tech.</li>
+          <li><b>Reflation</b> — growth rising, inflation heating. Own cyclicals and energy.</li>
+          <li><b>Deflation</b> — growth slowing, inflation cooling. Own bonds and defensives.</li>
+          <li><b>Stagflation</b> — growth slowing, inflation hot. Hold cash and real assets.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
   <!-- 2b. Rate cycle (open by default) -->
   <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Cycle position · Phase C · Verification</summary><div class="mu-cycle-arc-col">${cycleHtml}</div></details>
 
@@ -2459,13 +2714,47 @@ const section = `<section id="decision-brief-section" class="macro-unified">
   ${historicalPhaseCHtml}
 
   <!-- 6. SPX chart: price confirmation -->
-  <div class="mu-unified-chart-block">
+  <div class="mu-unified-chart-block" id="mu-price-chart">
     <div class="mu-chart-head">
       <h3>S&amp;P 500 — price confirmation · add/trim/defense zones</h3>
       <span>Above 200D · consolidating · consistent with Phase C thesis</span>
     </div>
+    <div class="mu-chart-controls">
+      <div class="mu-zoom-btns" role="group" aria-label="Chart range">
+        ${ZOOM_RANGES.map(r => `<button type="button" class="mu-zoom-btn${r.key === '5Y' ? ' mu-zoom-on' : ''}" data-range="${r.key}">${r.key}</button>`).join('')}
+      </div>
+      ${tenYNow ? `<button type="button" class="mu-10y-toggle" aria-pressed="false">10Y overlay</button>` : ''}
+    </div>
     ${unifiedChart}
+    <p class="mu-10y-note" hidden>10Y history unavailable — dashed line marks the current 10Y level${tenYNow ? ` (${tenYNow.value.toFixed(2)}%, ${tenYNow.asOf})` : ''} as reference only.</p>
   </div>
+<script>
+(function(){
+  var block = document.getElementById('mu-price-chart');
+  if (!block) return;
+  var btns = Array.prototype.slice.call(block.querySelectorAll('.mu-zoom-btn'));
+  var slices = Array.prototype.slice.call(block.querySelectorAll('.mu-zoom-slice'));
+  var toggle = block.querySelector('.mu-10y-toggle');
+  var note = block.querySelector('.mu-10y-note');
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var r = b.getAttribute('data-range');
+      btns.forEach(function(x){ x.classList.toggle('mu-zoom-on', x === b); });
+      slices.forEach(function(s){ s.style.display = (s.getAttribute('data-range') === r) ? '' : 'none'; });
+    });
+  });
+  if (toggle) {
+    toggle.addEventListener('click', function(){
+      var on = toggle.getAttribute('aria-pressed') === 'true';
+      toggle.setAttribute('aria-pressed', String(!on));
+      slices.forEach(function(s){
+        Array.prototype.forEach.call(s.querySelectorAll('.mu-10y-overlay'), function(g){ g.style.display = on ? 'none' : ''; });
+      });
+      if (note) note.hidden = on;
+    });
+  }
+})();
+</script>
 
   <!-- 7. Holdings alignment with phase -->
   <details class="mu-pb-det"><summary class="mu-pb-sum">Portfolio alignment · ${allHoldings.length} positions</summary>${phaseBridge}</details>

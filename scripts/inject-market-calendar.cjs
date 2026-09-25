@@ -24,6 +24,7 @@ const TYPE_META = {
   jobs:     { label: 'JOBS',     color: '#2f6f4e', bg: 'rgba(47,111,78,.09)',  border: 'rgba(47,111,78,.28)'  },
   gdp:      { label: 'GDP',      color: '#747168', bg: 'rgba(116,113,104,.07)',border: 'rgba(116,113,104,.25)' },
   earnings: { label: 'EARNINGS', color: '#9f3f35', bg: 'rgba(159,63,53,.08)',  border: 'rgba(159,63,53,.28)'  },
+  election: { label: 'VOTE',     color: '#6b4d9f', bg: 'rgba(107,77,159,.09)', border: 'rgba(107,77,159,.30)' },
 };
 
 function daysFrom(dateStr) {

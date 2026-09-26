@@ -149,8 +149,12 @@ function buildOperationalChartReport(html) {
   const chartContainerCount = (html.match(/id=["']opclaw-operational-lwc["']/g) || []).length;
   const runtimeCount = (html.match(/const payload=\{"series":/g) || []).length;
   const annotationLayerPresent = html.includes('decision-chart-v2-shell');
-  const decisionRailPresent = html.includes('decision-chart-rail');
-  const confirmationStripPresent = html.includes('decision-chart-confirmation-strip');
+  // The legacy v2 enhancer (enhance-decision-chart-v2.cjs) is retired and banned
+  // from the manifest (see bannedActiveCommands). The current operational-chart
+  // renderer emits the decision rail and rules strip as op-ladder-rail and
+  // op-rules-strip, so those are the markers this check looks for.
+  const decisionRailPresent = html.includes('op-ladder-rail');
+  const confirmationStripPresent = html.includes('op-rules-strip');
   const autoscalePolicyPresent = html.includes('actionable_spx_levels_only');
   const legacyPatchResiduePresent = html.includes('scenario path lines removed from main price pane');
   if (chartContainerCount !== 1) warnings.push(`chart_container_count=${chartContainerCount}`);
@@ -171,7 +175,7 @@ function buildOperationalChartReport(html) {
     autoscale_policy_present: autoscalePolicyPresent,
     legacy_patch_residue_present: legacyPatchResiduePresent,
     scale_affecting_items: ['candles', 'moving_averages', 'add_zone', 'trim_zone', 'hold_above', 'defense_below', 'hard_risk', 'target', 'current_price'],
-    scale_neutral_items: ['volume', 'scenario_paths', 'projection_paths', 'annotation_markers', 'decision_rail', 'confirmation_strip'],
+    scale_neutral_items: ['volume', 'scenario_paths', 'projection_paths', 'annotation_markers', 'op_ladder_rail', 'op_rules_strip'],
     warnings,
   };
 }

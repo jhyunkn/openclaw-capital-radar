@@ -14,9 +14,32 @@ const root = path.join(__dirname, '..');
 const write = (f, d) => fs.writeFileSync(path.join(root, f), JSON.stringify(d, null, 2) + '\n');
 const rnd = (v, d = 1) => (Number.isFinite(v) ? Number(v.toFixed(d)) : null);
 
+// FRED's public CSV endpoint is flaky from datacenter IPs (hangs until timeout;
+// see lib/capital-radar-live.cjs). Retry with backoff and a per-attempt timeout
+// so one dropped connection doesn't kill the whole build pipeline. Still fails
+// closed after all attempts — no silent stale data.
+const maxAttempts = Number(process.env.MACRO_THESIS_FETCH_RETRIES || 4);
+const timeoutMs = Number(process.env.MACRO_THESIS_FETCH_TIMEOUT_MS || 30000);
+
+async function fetchWithRetry(url, options = {}) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const signal = AbortSignal.timeout(timeoutMs);
+      const res = await fetch(url, { ...options, signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      return res;
+    } catch (e) {
+      lastError = e;
+      console.warn(`macro-thesis fetch attempt ${attempt}/${maxAttempts} failed: ${e.message}`);
+      if (attempt < maxAttempts) await new Promise(r => setTimeout(r, 1000 * attempt));
+    }
+  }
+  throw lastError;
+}
+
 async function fredCsv(id) {
-  const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}&cosd=1954-01-01`, { headers: { 'user-agent': 'OpenClaw Capital Radar research' } });
-  if (!res.ok) throw new Error(`FRED ${id} ${res.status}`);
+  const res = await fetchWithRetry(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}&cosd=1954-01-01`, { headers: { 'user-agent': 'OpenClaw Capital Radar research' } });
   const text = await res.text();
   return text.split('\n').slice(1).map(l => {
     const [d, v] = l.split(',');
@@ -26,7 +49,7 @@ async function fredCsv(id) {
 }
 async function yahooMax(sym) {
   // daily bars for full depth, downsampled to month-start; forward math is in months
-  const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?period1=0&period2=${Math.floor(Date.now()/1000)}&interval=1mo`, { headers: { 'user-agent': 'OpenClaw Capital Radar (public endpoint)', accept: 'application/json' } });
+  const res = await fetchWithRetry(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?period1=0&period2=${Math.floor(Date.now()/1000)}&interval=1mo`, { headers: { 'user-agent': 'OpenClaw Capital Radar (public endpoint)', accept: 'application/json' } });
   const r = (await res.json())?.chart?.result?.[0];
   const q = r?.indicators?.quote?.[0] || {};
   return (r?.timestamp || []).map((s, i) => ({ d: new Date(s * 1000).toISOString().slice(0, 10), v: q.close?.[i] })).filter(x => Number.isFinite(x.v));

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-25T14:57:07.008Z",
+  "generatedAt": "2026-09-26T16:20:38.798Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -7,29 +7,29 @@
       "id": "core",
       "label": "Core portfolio",
       "description": "Longer-horizon portfolio oversight, concentration control, thesis verification, and measured exposure changes.",
-      "state": "PAUSED_STALE",
+      "state": "READY_REVIEW",
       "actionAllowed": false,
-      "permission": "NO_ACTION",
-      "reason": "2 required dependency blocker(s).",
+      "permission": "HUMAN_REVIEW_REQUIRED",
+      "reason": "Evidence is current enough for human review; Capital Radar does not authorize execution.",
       "dependencies": [
         {
           "id": "positions",
           "label": "Positions",
           "required": true,
-          "status": "STALE",
-          "asOf": "2026-09-04T02:37:16.000000Z",
-          "ageMinutes": 30979.9,
+          "status": "OK",
+          "asOf": "2026-09-26T02:10:00.000Z",
+          "ageMinutes": 850.6,
           "maxMinutes": 4320,
           "source": "portfolio-live-state",
-          "reason": "Positions is 30980 minutes old; maximum is 4320."
+          "reason": null
         },
         {
           "id": "quotes",
           "label": "Holding prices",
           "required": true,
           "status": "OK",
-          "asOf": "2026-09-24T20:00:03.000Z",
-          "ageMinutes": 1137.1,
+          "asOf": "2026-09-26T02:10:00.000Z",
+          "ageMinutes": 850.6,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
           "reason": null
@@ -38,52 +38,41 @@
           "id": "data_health",
           "label": "Data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-09-25T14:56:46.608Z",
-          "ageMinutes": 0.3,
+          "status": "OK",
+          "asOf": "2026-09-26T16:20:37.759Z",
+          "ageMinutes": 0,
           "maxMinutes": 1440,
           "source": "data-health",
-          "reason": "Data health reports PARTIAL."
+          "reason": null
         },
         {
           "id": "calendar",
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-09-25",
-          "ageMinutes": 897.1,
+          "asOf": "2026-09-26",
+          "ageMinutes": 980.6,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
         }
       ],
-      "blockers": [
-        {
-          "id": "positions",
-          "status": "STALE",
-          "reason": "Positions is 30980 minutes old; maximum is 4320."
-        },
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports PARTIAL."
-        }
-      ],
+      "blockers": [],
       "portfolio": {
-        "totalValue": 92525.93,
-        "buyingPower": 5027.11,
+        "totalValue": 97051.23,
+        "buyingPower": 5967.23,
         "positionCount": 13,
-        "dayChange": 1271.07
+        "dayChange": -224.59
       }
     },
     {
       "id": "agentic",
       "label": "Agentic tactical",
       "description": "One-position tactical account. Monitoring never implies order authorization.",
-      "state": "PAUSED_STALE",
+      "state": "BLACKOUT",
       "actionAllowed": false,
       "permission": "NO_ACTION",
-      "reason": "6 required dependency blocker(s).",
+      "reason": "The active playbook expired.",
       "dependencies": [
         {
           "id": "account",
@@ -144,20 +133,20 @@
           "id": "data_health",
           "label": "Market data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-09-25T14:56:46.608Z",
-          "ageMinutes": 0.3,
+          "status": "OK",
+          "asOf": "2026-09-26T16:20:37.759Z",
+          "ageMinutes": 0,
           "maxMinutes": 15,
           "source": "data-health",
-          "reason": "Data health reports PARTIAL."
+          "reason": null
         },
         {
           "id": "calendar",
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-09-25",
-          "ageMinutes": 897.1,
+          "asOf": "2026-09-26",
+          "ageMinutes": 980.6,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -188,11 +177,6 @@
           "id": "gate_observations",
           "status": "MISSING",
           "reason": "No timestamped gate observation set is available."
-        },
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports PARTIAL."
         }
       ],
       "riskPolicy": {
@@ -278,9 +262,9 @@
     }
   ],
   "summary": {
-    "readyForReview": 0,
+    "readyForReview": 1,
     "armed": 0,
-    "paused": 2,
+    "paused": 0,
     "executionAuthorized": 0
   }
 }

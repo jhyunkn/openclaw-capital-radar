@@ -1,6 +1,6 @@
 # NXT Opportunity Dossier
 
-Generated: 2026-09-26T16:17:05.654Z
+Generated: 2026-09-27T16:53:26.616Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 

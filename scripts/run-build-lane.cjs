@@ -32,6 +32,10 @@ const lanes = {
     description: 'Render/package production surface from existing artifacts using the existing ship stage.',
     stages: ['ship']
   },
+  daily: {
+    description: 'Daily scheduled refresh: data/research rebuild plus workbench-hierarchy injectors, without rendering or validating (the scheduler runs ship and validation separately so a validation failure can block the commit).',
+    stages: ['base-data', 'ticker-workbenches', 'live-state-and-research', 'market-orientation', 'workbench-hierarchy']
+  },
   full: {
     description: 'Run every stage through the existing manifest-driven full pipeline.',
     stages: manifestStages

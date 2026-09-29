@@ -10,6 +10,42 @@ function writeJson(file, payload) {
   fs.writeFileSync(file, JSON.stringify(payload, null, 2) + '\n');
 }
 
+function readExistingJson(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return null; }
+}
+
+function existingSeriesCount(cache) {
+  const s = cache?.series || {};
+  return Object.values(s).filter(rows => Array.isArray(rows) && rows.some(row => row && row.date && Number.isFinite(Number(row.value)))).length;
+}
+
+// Graceful fallback: never overwrite a warm cache with an empty/degenerate
+// fetch. A full upstream outage (e.g. FRED website timeouts) must keep
+// last-good numbers with an honest stale marker instead of nuking the cache
+// that downstream artifacts and validators depend on.
+function writeCacheWithFallback(file, payload, errors) {
+  const freshCount = existingSeriesCount(payload);
+  const existing = readExistingJson(file);
+  const existingCount = existingSeriesCount(existing);
+  if (freshCount === 0 && existingCount > 0) {
+    const STALE_NOTE = 'Most recent live refresh failed; values may be stale until the next successful refresh.';
+    const prior = Array.isArray(existing.limitations) ? existing.limitations : [];
+    const fallback = {
+      ...existing,
+      cache_status: 'REFRESH_FAILED_USING_EXISTING_CACHE',
+      last_success_at: existing.last_success_at || existing.created_at || existing.fetched_at || null,
+      last_refresh_attempt_at: new Date().toISOString(),
+      last_refresh_status: 'FAILED_FALLBACK_USED',
+      last_refresh_errors: errors,
+      limitations: prior.includes(STALE_NOTE) ? prior : [...prior, STALE_NOTE]
+    };
+    writeJson(file, fallback);
+    console.warn(`refresh failed for ${path.basename(file)}; kept existing cache (${existingCount} series) with stale marker.`);
+    return;
+  }
+  writeJson(file, payload);
+}
+
 function round(value, digits = 4) {
   return Number.isFinite(Number(value)) ? Number(Number(value).toFixed(digits)) : null;
 }
@@ -123,6 +159,7 @@ function cachePayload({ artifact, sources, series, refreshMeta, errors, sourcePo
     version: 2,
     cache_status: errors.length ? 'PARTIAL_PUBLIC_REFRESHED' : 'PUBLIC_REFRESHED',
     created_at: new Date().toISOString(),
+    last_success_at: new Date().toISOString(),
     source_policy: sourcePolicy,
     ...(scope ? { scope } : {}),
     sources,
@@ -135,7 +172,7 @@ function cachePayload({ artifact, sources, series, refreshMeta, errors, sourcePo
 
 async function writeFredCache(file, artifact, defs, sourcePolicy, limitations) {
   const result = await collectSeries(defs, id => fredSeries(id));
-  writeJson(path.join(outDir, file), cachePayload({
+  writeCacheWithFallback(path.join(outDir, file), cachePayload({
     artifact,
     sources: sourceMap(defs),
     series: result.series,
@@ -143,12 +180,12 @@ async function writeFredCache(file, artifact, defs, sourcePolicy, limitations) {
     errors: result.errors,
     sourcePolicy,
     limitations
-  }));
+  }), result.errors);
 }
 
 async function writeYahooCache(file, artifact, defs, sourcePolicy, limitations, scope) {
   const result = await collectSeries(defs, (_, def) => yahooSeries(def.symbol, def.range, def.interval));
-  writeJson(path.join(outDir, file), cachePayload({
+  writeCacheWithFallback(path.join(outDir, file), cachePayload({
     artifact,
     sources: sourceMap(defs),
     series: result.series,
@@ -157,7 +194,7 @@ async function writeYahooCache(file, artifact, defs, sourcePolicy, limitations, 
     sourcePolicy,
     limitations,
     scope
-  }));
+  }), result.errors);
 }
 
 async function main() {
@@ -185,13 +222,15 @@ async function main() {
     'Default rates, HYG/LQD price trend, and private-credit stress remain missing evidence. Lending standards (DRTSCILM) added 2026-07-25.'
   ]);
 
-  await writeFredCache('money-cash-series.json', 'money-cash-series-cache', {
-    DTB3: { label: '3-Month Treasury Bill Secondary Market Rate', sourceUrl: 'https://fred.stlouisfed.org/series/DTB3' },
-    CPIAUCSL: { label: 'Consumer Price Index for All Urban Consumers', sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL' },
-    DFF: { label: 'Effective Federal Funds Rate', sourceUrl: 'https://fred.stlouisfed.org/series/DFF' }
-  }, 'Refreshed from FRED public CSV endpoints. Homepage build reads this cache and does not fetch FRED live.', [
-    'Money-market assets, bank reserves, M2, financial conditions, TGA, reverse repo, and SOFR remain pending.'
-  ]);
+  // Money / Cash is owned by scripts/refresh-money-cash-cache.cjs, which has its
+  // own graceful fallback (keeps last-good cache with an honest stale marker on
+  // FRED failure). Delegating here avoids two writers clobbering each other
+  // with different schemas on the same cache file.
+  {
+    const { spawnSync } = require('child_process');
+    const result = spawnSync(process.execPath, [path.join(__dirname, 'refresh-money-cash-cache.cjs')], { stdio: 'inherit', env: process.env });
+    if (result.status !== 0) console.warn('money-cash cache refresh exited non-zero; existing cache retained by its own fallback.');
+  }
 
   await writeYahooCache('volatility-series.json', 'volatility-series-cache', {
     VIX: { label: 'CBOE Volatility Index', symbol: '^VIX', sourceUrl: 'https://finance.yahoo.com/quote/%5EVIX' },
@@ -251,7 +290,7 @@ async function main() {
     if (id === 'INFRA') return yahooSeries('PAVE');
     throw new Error(`unknown real-assets series ${id}`);
   });
-  writeJson(path.join(outDir, 'real-assets-series.json'), cachePayload({
+  writeCacheWithFallback(path.join(outDir, 'real-assets-series.json'), cachePayload({
     artifact: 'real-assets-series-cache',
     sources: realSources,
     series: realResult.series,
@@ -269,7 +308,7 @@ async function main() {
       productive_land: ['farmland'],
       infrastructure: ['infrastructure_proxy']
     }
-  }));
+  }), realResult.errors);
 }
 
 main().catch(error => {

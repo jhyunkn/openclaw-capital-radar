@@ -57,9 +57,29 @@ async function yahooMax(sym) {
 
 (async () => {
   console.log('fetching long history: T10Y2Y, HY OAS, Fed funds, SPX...');
-  const [curve, hy, ff, spx] = await Promise.all([
-    fredCsv('T10Y2Y'), fredCsv('BAA10Y'), fredCsv('DFF'), yahooMax('^GSPC'),
-  ]);
+  let curve, hy, ff, spx;
+  try {
+    [curve, hy, ff, spx] = await Promise.all([
+      fredCsv('T10Y2Y'), fredCsv('BAA10Y'), fredCsv('DFF'), yahooMax('^GSPC'),
+    ]);
+  } catch (fetchError) {
+    // Graceful fallback: long-history FRED fetches hang from datacenter IPs.
+    // Keep the last-good thesis test with an honest stale marker instead of
+    // killing the whole market-orientation stage.
+    const existingPath = path.join(root, 'outputs', 'macro-thesis-test.json');
+    let existing = null;
+    try { existing = JSON.parse(fs.readFileSync(existingPath, 'utf8')); } catch (_) {}
+    if (existing) {
+      existing.stale = true;
+      existing.last_refresh_attempt_at = new Date().toISOString();
+      existing.last_refresh_error = `Long-history fetch failed: ${fetchError.message || fetchError}`;
+      existing.note = `${existing.note || ''} [STALE: long-history refresh failed; analysis below is from the last successful fetch.]`.trim();
+      write('outputs/macro-thesis-test.json', existing);
+      console.warn('macro-thesis long-history fetch failed; kept last-good outputs/macro-thesis-test.json with stale marker.');
+      return;
+    }
+    throw fetchError;
+  }
   console.log(`curve ${curve.length} rows since ${curve[0].d} | HY ${hy.length} since ${hy[0].d} | SPX ${spx.length} since ${spx[0].d}`);
   const spxDates = spx.map(r => r.d);
   function spxAtOrAfter(d) {

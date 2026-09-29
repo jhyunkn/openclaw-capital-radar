@@ -9,6 +9,11 @@ const nativeEvents = readJson('outputs/native-events.json', {});
 const opportunityPackets = readJson('outputs/opportunity-evidence-packets.json', {});
 const tickerGateAudit = readJson('outputs/ticker-gate-audit.json', {});
 const list = v => Array.isArray(v) ? v : [];
+// Honor the same manual-holdings age policy the build uses. The operating-loop
+// workflow sets CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS=168 because the Robinhood
+// snapshot is manual by design; the validator must not fail the loop on a
+// snapshot the build itself was configured to tolerate.
+const maxRobinhoodAgeHours = Number(process.env.CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS || 72);
 function pass(label, ok, evidence, blocker = null) { return { label, status: ok ? 'PASS' : 'FAIL', evidence, blocker }; }
 function get(obj, pathExpr) {
   return String(pathExpr).split('.').reduce((value, key) => value?.[key], obj);
@@ -34,17 +39,22 @@ function degradedPortfolioFreshnessCheck() {
   const artifact = readJson('outputs/portfolio-live-state.json', null);
   const timestamp = artifact?.fetchedAt;
   const age = ageHours(timestamp);
+  // Prefer the threshold the generator recorded in the artifact itself so the
+  // validator can never disagree with the policy the build ran under.
+  const maxAge = Number.isFinite(artifact?.freshness?.maxAgeHours)
+    ? artifact.freshness.maxAgeHours
+    : maxRobinhoodAgeHours;
   const visibleDegraded =
     artifact?.freshness?.status === 'STALE' &&
     artifact?.freshness?.degraded === true &&
     /data freshness stale|Holdings frozen|STALE/i.test(html + publicHtml);
-  const fresh = Number.isFinite(age) && age <= 72;
+  const fresh = Number.isFinite(age) && age <= maxAge;
   const ok = fresh || visibleDegraded;
   return pass(
     'Portfolio freshness',
     ok,
     timestamp
-      ? `outputs/portfolio-live-state.json fetchedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=72h; visibleDegraded=${visibleDegraded}`
+      ? `outputs/portfolio-live-state.json fetchedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxAge}h; visibleDegraded=${visibleDegraded}`
       : 'outputs/portfolio-live-state.json missing fetchedAt',
     ok ? null : 'Portfolio data is stale or missing without a visible degraded-state badge.'
   );
@@ -58,13 +68,13 @@ function robinhoodFreshnessCheck() {
     portfolio?.freshness?.status === 'STALE' &&
     portfolio?.freshness?.degraded === true &&
     /data freshness stale|Holdings frozen|STALE/i.test(html + publicHtml);
-  const fresh = Number.isFinite(age) && age <= 72;
+  const fresh = Number.isFinite(age) && age <= maxRobinhoodAgeHours;
   const ok = fresh || visibleDegraded;
   return pass(
     'Robinhood raw freshness',
     ok,
     timestamp
-      ? `outputs/robinhood-positions.json syncedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=72h; visibleDegraded=${visibleDegraded}`
+      ? `outputs/robinhood-positions.json syncedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxRobinhoodAgeHours}h; visibleDegraded=${visibleDegraded}`
       : 'outputs/robinhood-positions.json missing syncedAt',
     ok ? null : 'Robinhood data is stale or missing without a visible degraded portfolio state.'
   );

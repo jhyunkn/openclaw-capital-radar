@@ -1,6 +1,6 @@
 # HIMS Opportunity Dossier
 
-Generated: 2026-09-30T18:20:06.932Z
+Generated: 2026-09-30T18:54:10.310Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 72
 - Portfolio role: non-correlated health/medical infrastructure lane
-- Current price: 30.4
+- Current price: 30.2
 - Price read: relative strength / momentum; avoid chasing until base or catalyst confirmed
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 
 ## Why Now
 
-- HIMS positive 5.94% while broad tape is weak.
+- HIMS positive 5.23% while broad tape is weak.
 
 ## Evidence Refs
 
@@ -60,7 +60,7 @@ Experimental consumer-health platform candidate: potentially interesting if dire
 ## Action Framework
 
 Observation:
-HIMS positive 5.94% while broad tape is weak.
+HIMS positive 5.23% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

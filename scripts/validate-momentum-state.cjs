@@ -215,7 +215,7 @@ if (top) {
 }
 
 if (reb) {
-  for (const f of ['lastRebalanceDate', 'nextRebalanceDate', 'tradingDaysRemaining', 'turnover', 'frequency', 'rule']) {
+  for (const f of ['generatedAt', 'lastRebalanceDate', 'nextRebalanceDate', 'tradingDaysRemaining', 'turnover', 'frequency', 'rule']) {
     if (reb[f] === undefined || reb[f] === null) errors.push(`momentum-rebalance.json missing field ${f}`);
   }
   if (reb.lastRebalanceDate && reb.nextRebalanceDate && reb.nextRebalanceDate <= reb.lastRebalanceDate) {

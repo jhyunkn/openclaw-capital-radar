@@ -88,11 +88,35 @@ function extractAnnual(facts, conceptNames, taxonomies = ['us-gaap']) {
         .filter(r => r.form === '10-K' && (r.fp === 'FY' || r.fp === 'Q4') && r.end)
         .sort((a, b) => b.end.localeCompare(a.end));
       if (annuals.length === 0) continue;
+      // Deduplicate by (end, fp): some filers (e.g. BWXT) submit both a
+      // quarterly and an annual value under the same end+fp. For cumulative
+      // concepts the full-year figure is the max — keep it.
+      const byPeriod = new Map();
+      for (const r of annuals) {
+        const key = r.end + '|' + r.fp;
+        if (!byPeriod.has(key) || r.val > byPeriod.get(key).val) byPeriod.set(key, r);
+      }
+      const deduped = [...byPeriod.values()].sort((a, b) => b.end.localeCompare(a.end));
+      // Keep only rows whose (month, day) matches the most recent row's.
+      // Quarterly rows mislabeled as FY (e.g. BWXT's 2025-09-30 fp=FY) have a
+      // different month/day and must not serve as the "prior year".
+      const fyMonthDay = deduped[0].end.slice(5);
+      const annualOnly = deduped.filter(r => r.end.slice(5) === fyMonthDay);
       // Prefer the concept with the most recent data
-      if (!best || annuals[0].end > best.rows[0].end) {
-        best = { name, rows: annuals.slice(0, 3) };
+      if (!best || annualOnly[0].end > best.rows[0].end) {
+        best = { name, rows: annualOnly.slice(0, 3) };
       }
     }
+  }
+  // Period-align the prior rows: rows[1] must be the same period type (fp)
+  // as rows[0]. A Q4-only row sorted after an FY row is a single quarter, not
+  // a prior year — comparing them inflates growth (BWXT: 261% vs true ~26%).
+  // If no period-aligned prior exists, drop rows[1+] so growth is null
+  // instead of wrong.
+  if (best && best.rows.length >= 2) {
+    const latestFp = best.rows[0].fp;
+    const aligned = best.rows.filter(r => r.fp === latestFp);
+    best.rows = aligned.length >= 2 ? aligned.slice(0, 3) : [best.rows[0]];
   }
   return best;
 }

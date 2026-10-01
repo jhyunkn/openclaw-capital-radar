@@ -80,7 +80,12 @@ for (const stage of lane.stages) {
     cwd: root,
     shell: false,
     stdio: 'inherit',
-    env: { ...process.env, BUILD_STAGE: stage, CAPITAL_RADAR_BUILD_LANE: arg }
+    env: { ...process.env, BUILD_STAGE: stage, CAPITAL_RADAR_BUILD_LANE: arg,
+      // Fast-failover for FRED fetches: ensure these propagate to all child
+      // exec sessions (the money-cash refresh hung ~12min on 2026-10-01
+      // because they were absent). Values match the money-cash workflow design.
+      FRED_FETCH_TIMEOUT_MS: process.env.FRED_FETCH_TIMEOUT_MS || '8000',
+      FRED_FETCH_RETRIES: process.env.FRED_FETCH_RETRIES || '1' }
   });
   const durationMs = Date.now() - t0;
   report.stages.push({ stage, durationMs, status: result.status === 0 ? 'PASS' : 'FAIL' });

@@ -29,7 +29,7 @@ const COVERAGE_FLOOR = 0.9;
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function fetchJson(url, attempt = 0) {
-  const res = await fetch(url, { headers: { 'user-agent': UA } });
+  const res = await fetch(url, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(30000) });
   if (res.status === 429 && attempt < MAX_RETRIES) {
     const backoff = 2000 * Math.pow(2, attempt);
     console.log(`  429 throttled — backing off ${(backoff / 1000).toFixed(0)}s`);

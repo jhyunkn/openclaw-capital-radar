@@ -1595,7 +1595,7 @@ const pbGroups = {
 };
 
 const phaseBridge = allHoldings.length > 0 ? `<div class="mu-phase-bridge">
-  <div class="mu-pb-label">Phase ${phaseCode} → portfolio alignment · ${allHoldings.length} positions</div>
+  <div class="mu-pb-label">Phase ${phaseCode} → portfolio alignment · ${allHoldings.length} positions <span class="mu-pb-legend">· % = 3M total return</span></div>
   <div class="mu-pb-grid">
     <div class="mu-pb-col mu-pb-aligned">
       <div class="mu-pb-head">
@@ -1838,6 +1838,7 @@ b.mu-db-metric-val{display:block;font-size:20px;font-weight:500;letter-spacing:-
 /* ── Phase bridge ── */
 .mu-phase-bridge{padding:20px 0;border-bottom:1px solid rgba(201,191,173,.45)}
 .mu-pb-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(26,23,20,.35);margin-bottom:10px;font-family:var(--mono,monospace)}
+.mu-pb-legend{text-transform:none;letter-spacing:.02em;opacity:.8}
 .mu-pb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid rgba(201,191,173,.45)}
 .mu-pb-col{padding:14px 16px;border-right:1px solid rgba(201,191,173,.38)}
 .mu-pb-col:last-child{border-right:none}

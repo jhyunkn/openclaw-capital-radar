@@ -179,6 +179,7 @@ function computeRebalance(lastDataDateIso, prevTopDecile, currentList) {
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   const result = {
+    generatedAt: new Date().toISOString(),
     frequency: 'monthly',
     rule: 'Rebalance on the first trading day of each calendar month. Next date is a weekday estimate — exchange holidays not modeled.',
     lastRebalanceDate: isoDate(lastReb),
@@ -257,6 +258,7 @@ function main() {
   included.forEach((row, i) => { row.rank = i + 1; });
 
   const n = included.length;
+  if (n === 0) throw new Error('generate-momentum-state: zero symbols in the ranked universe — refusing to write an empty state');
   const decileCut = Math.ceil(n / 10);
   for (const row of included) row.inTopDecile = row.rank <= decileCut;
 
@@ -424,7 +426,12 @@ function main() {
 
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, 'momentum-state.json'), JSON.stringify(stateDoc));
-  fs.writeFileSync(path.join(outDir, 'momentum-top-decile.json'), JSON.stringify(topDecileDoc));
+  // Snapshot the existing top-decile file BEFORE overwriting, so the turnover
+  // comparison below has a baseline (previously the .prev file was read but
+  // nothing ever wrote it — turnover was dead code).
+  const topDecilePath = path.join(outDir, 'momentum-top-decile.json');
+  if (fs.existsSync(topDecilePath)) fs.copyFileSync(topDecilePath, topDecilePath + '.prev');
+  fs.writeFileSync(topDecilePath, JSON.stringify(topDecileDoc));
   fs.writeFileSync(path.join(outDir, 'momentum-gate.json'), JSON.stringify(gateDoc, null, 2));
 
   const lastDataDate = spx.asOf || new Date().toISOString().slice(0, 10);

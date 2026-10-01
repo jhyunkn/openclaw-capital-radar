@@ -19,11 +19,11 @@ function mergeCachedFred(state) {
   const liveById = Object.fromEntries((state.liveRatesCredit || []).map(r => [r.id, r]));
   for (const cached of existing.liveRatesCredit) {
     if (!liveById[cached.id]) {
-      state.liveRatesCredit.push({ ...cached, fromCache: true, cacheWarning: 'FRED unavailable; using cached value' });
+      state.liveRatesCredit.push({ ...cached, fetchedFromCache: true, cacheWarning: 'FRED unavailable; using cached value' });
     }
   }
   state.meta.dataStatus = 'PARTIAL_LIVE_FRED_FROM_CACHE';
-  console.warn(`FRED degraded: merged ${state.liveRatesCredit.length} series (${(state.liveRatesCredit).filter(r=>r.fromCache).length} from cache)`);
+  console.warn(`FRED degraded: merged ${state.liveRatesCredit.length} series (${(state.liveRatesCredit).filter(r=>r.fetchedFromCache).length} from cache)`);
 }
 
 function failLoudIfDegraded(state) {

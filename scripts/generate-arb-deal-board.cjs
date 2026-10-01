@@ -289,13 +289,24 @@ async function main() {
   deals.sort((a, b) => (b.annualizedSpreadPct == null ? -Infinity : b.annualizedSpreadPct) - (a.annualizedSpreadPct == null ? -Infinity : a.annualizedSpreadPct));
 
   const priceStale = deals.some(d => d.tradeable && (!d.targetPriceAsOf || (Date.now() - new Date(d.targetPriceAsOf).getTime()) > 36 * 3600 * 1000));
+  // SEC coverage errors were previously dropped: the miner records them at
+  // top level (mined.errors), but the board only spread mined.coverage.
+  const secErrors = Array.isArray(mined.errors) ? mined.errors : [];
+  const reasons = [];
+  if (yahooFail > 0 && yahooOk === 0) reasons.push('Yahoo price fetch failed for all symbols — spreads not computed');
+  else if (yahooFail > 0) reasons.push(`${yahooFail} symbol(s) without price; affected deals marked not tradeable`);
+  if (secErrors.length > 0) reasons.push(`SEC submissions unavailable for ${secErrors.length} symbol(s): ${secErrors.map(e => e.symbol).join(', ')} — 8-K coverage incomplete`);
+  if (priceStale) reasons.push('one or more tradeable deals has a stale price (>36h)');
   const dataHealth = {
-    status: priceStale ? 'STALE' : (yahooFail > 0 && yahooOk === 0 ? 'DOWN' : 'PARTIAL'),
+    status: priceStale ? 'STALE'
+      : (yahooFail > 0 && yahooOk === 0) ? 'DOWN'
+      : (yahooFail > 0 || secErrors.length > 0) ? 'PARTIAL'
+      : 'OK',
     yahooPricesOk: yahooOk, yahooPricesFailed: yahooFail,
     symbolsRequested: symbols.length,
-    note: yahooFail > 0 && yahooOk === 0
-      ? 'Yahoo price fetch failed for all symbols — spreads not computed'
-      : (yahooFail > 0 ? `${yahooFail} symbol(s) without price; affected deals marked not tradeable` : 'all requested prices resolved'),
+    secCoverageErrors: secErrors.length,
+    reasons,
+    note: reasons.length ? reasons.join(' · ') : 'all requested prices resolved; full SEC coverage',
   };
 
   const board = {
@@ -305,6 +316,7 @@ async function main() {
     verdictCriteria: VERDICT_CRITERIA,
     coverage: {
       ...(mined.coverage || {}),
+      secErrors: secErrors.slice(0, 100),
       manualDeals: manualDeals.length,
       manualSupersededMined: superseded,
       boardDeals: deals.length,

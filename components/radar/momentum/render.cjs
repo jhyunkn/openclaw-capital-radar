@@ -105,7 +105,15 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
     : `<p class="mom-empty">No active momentum names — engine data unavailable.</p>`}
 
     <div class="mom-foot">
-      <span class="mom-rebal">Next rebalance: <strong>${esc(rebalance.nextRebalanceDate || '—')}</strong>${rebalance.tradingDaysRemaining !== undefined ? ` · ${esc(rebalance.tradingDaysRemaining)} trading days away` : ''}</span>
+      <span class="mom-rebal">Next rebalance: <strong>${esc(rebalance.nextRebalanceDate || '—')}</strong>${(() => {
+        const d = rebalance.tradingDaysRemaining;
+        if (d === undefined || d === null) return '';
+        // On rebalance day itself the countdown reads "1 trading days away"
+        // for a date that is today — say "today" instead. Also fix singular.
+        const todayIso = new Date().toISOString().slice(0, 10);
+        if (rebalance.nextRebalanceDate && rebalance.nextRebalanceDate <= todayIso) return ' · today';
+        return ` · ${esc(d)} trading day${d === 1 ? '' : 's'} away`;
+      })()}</span>
       <span class="mom-health ${esc(healthCls)}">Data: ${esc(health)}${state?.coverageCount ? ` · ${esc(state.coverageCount)}/${esc(state.universeCount)} symbols` : ''}</span>
     </div>
     ${state?.excludedCount ? `<p class="mom-note">${esc(state.excludedCount)} symbols excluded (insufficient history). Universe is current S&amp;P 500 members — historical ranks carry survivorship bias.</p>` : ''}

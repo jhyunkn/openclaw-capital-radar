@@ -117,11 +117,11 @@ function removeElementById(h, id) {
 function insertInsideSectionEnd(h, anchorId, newSection) {
   const token = `id="${anchorId}"`;
   const idx   = h.indexOf(token);
-  if (idx < 0) return h;
+  if (idx < 0) throw new Error(`inject-momentum-home: anchor id="${anchorId}" not found — refusing silent drop`);
   const start = h.lastIndexOf('<section', idx);
-  if (start < 0) return h;
+  if (start < 0) throw new Error(`inject-momentum-home: no <section> wraps anchor id="${anchorId}"`);
   const end = findMatchingSection(h, start);
-  if (end < 0) return h;
+  if (end < 0) throw new Error(`inject-momentum-home: unmatched <section> at anchor id="${anchorId}"`);
   return h.slice(0, end) + '\n' + newSection + '\n' + h.slice(end);
 }
 

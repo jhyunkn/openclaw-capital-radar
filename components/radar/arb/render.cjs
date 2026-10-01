@@ -66,7 +66,7 @@ function renderArbDealBoardSection(board, options = {}) {
   const asOf = board.generatedAt
     ? new Date(board.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : '';
-  const healthCls = health.status === 'PARTIAL' ? 'arb-health-partial' : health.status === 'STALE' ? 'arb-health-stale' : 'arb-health-down';
+  const healthCls = health.status === 'OK' ? 'arb-health-ok' : health.status === 'PARTIAL' ? 'arb-health-partial' : health.status === 'STALE' ? 'arb-health-stale' : 'arb-health-down';
 
   const moduleMode = options.module === true;
   const shellOpen = moduleMode
@@ -100,6 +100,7 @@ function renderArbDealBoardStyle() {
 .arb-section { margin: 1.5rem 0; }
 .arb-wrap { max-width: 1100px; }
 .arb-health { font-size: .75rem; padding: .25rem .6rem; border-radius: 999px; border: 1px solid #888; }
+.arb-health-ok { color: #2a6b4a; border-color: #2a6b4a; }
 .arb-health-partial { color: #b8860b; border-color: #b8860b; }
 .arb-health-stale { color: #a33; border-color: #a33; }
 .arb-health-down { color: #fff; background: #a33; border-color: #a33; }

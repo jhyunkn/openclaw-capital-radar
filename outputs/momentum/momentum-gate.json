@@ -1,13 +1,29 @@
 {
-  "generatedAt": "2026-10-01T05:04:14.160Z",
-  "gate": "GREEN",
-  "reason": "SPX above 200-day, HY OAS < 4.0, no breadth stress — top-decile list active",
+  "generatedAt": "2026-10-01T11:01:49.608Z",
+  "gateVersion": "v2",
+  "score": 0,
+  "legs": {
+    "spxBelow200d": false,
+    "hyOasStress": false,
+    "vixStress": false
+  },
+  "legsAvailable": 3,
+  "targetTier": 0,
+  "targetTierLabel": "FULL",
+  "targetExposure": 1,
+  "tier": 0,
+  "tierLabel": "FULL",
+  "exposure": 1,
+  "reason": "Stress score 0/3 (SPX above 200D (+6.02%); HY OAS 3.02%; VIX 16.4). Target FULL (100% exposure) — effective FULL (100% exposure). Top decile scaled by exposure; remainder cash.",
   "thresholds": {
-    "hyOasRed": 4,
-    "hyOasYellow": 3.5,
-    "vixYellow": 25,
-    "spxThinMarginPct": 2,
-    "rule": "RED if SPX below 200-day OR HY OAS >= 4.0 (list EMPTY / cash). YELLOW if HY OAS >= 3.5 OR VIX >= 25 OR SPX within 2% of 200D (top 5% only, cautious). Else GREEN (top decile active)."
+    "hyOasStress": 4,
+    "vixStress": 30,
+    "exposureByTier": {
+      "FULL": 1,
+      "REDUCED": 0.6,
+      "DEFENSIVE": 0.25
+    },
+    "rule": "Stress score S = (SPX below 200d ? 1:0) + (HY OAS >= 4.0 ? 1:0) + (VIX >= 30 ? 1:0). Exposure tiers: S=0 -> 100% (FULL), S=1 -> 60% (REDUCED), S>=2 -> 25% (DEFENSIVE, floor — never 0%). Target list is always the top decile scaled by exposure; remainder is cash. Asymmetric hysteresis: de-risk applies immediately when S rises; re-risk moves at most one tier per rebalance and only when the lower S has held for 2 consecutive rebalances (current + prior)."
   },
   "inputs": {
     "spxVs200d": {
@@ -19,14 +35,14 @@
       "source": "cached ^GSPC Yahoo adjclose (same series family as engine history)"
     },
     "hyOas": {
-      "value": 3.08,
+      "value": 3.02,
       "source": "outputs/current-market-state.json groups.credit.metrics[hy_oas]",
-      "freshness": "PUBLIC_REFRESHED 2026-09-29"
+      "freshness": "PUBLIC_REFRESHED 2026-09-28"
     },
     "vix": {
-      "value": 16.3,
+      "value": 16.4,
       "source": "outputs/current-market-state.json groups.volatility.metrics[vix]",
-      "freshness": "PUBLIC_REFRESHED 2026-09-30"
+      "freshness": "PUBLIC_REFRESHED 2026-10-01"
     }
   },
   "checks": [
@@ -38,24 +54,21 @@
     {
       "name": "hy_oas_ge_4",
       "value": false,
-      "detail": "HY OAS 3.08 (outputs/current-market-state.json groups.credit.metrics[hy_oas], PUBLIC_REFRESHED 2026-09-29)"
+      "detail": "HY OAS 3.02 (outputs/current-market-state.json groups.credit.metrics[hy_oas], PUBLIC_REFRESHED 2026-09-28)"
     },
     {
-      "name": "hy_oas_ge_3_5",
+      "name": "vix_ge_30",
       "value": false,
-      "detail": "HY OAS 3.08 vs yellow threshold 3.5"
-    },
-    {
-      "name": "vix_ge_25",
-      "value": false,
-      "detail": "VIX 16.3 (outputs/current-market-state.json groups.volatility.metrics[vix], PUBLIC_REFRESHED 2026-09-30)"
-    },
-    {
-      "name": "spx_200d_margin_lt_2pct",
-      "value": false,
-      "detail": "margin 6.02%"
+      "detail": "VIX 16.4 (outputs/current-market-state.json groups.volatility.metrics[vix], PUBLIC_REFRESHED 2026-10-01)"
     }
   ],
+  "scoreHistory": [
+    {
+      "date": "2026-10-01",
+      "score": 0
+    }
+  ],
+  "hysteresisNote": "Live hysteresis is approximated on a monthly score history (one entry per calendar month, latest run wins; last 12 kept) using the same shared module as the backtest. A leg with an unavailable input contributes 0 to the score (same substitution the backtest uses for HY OAS before 2023-09-30).",
   "activeCount": 50,
   "dataHealth": "FULL"
 }

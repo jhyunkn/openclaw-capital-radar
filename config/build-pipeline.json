@@ -1,5 +1,5 @@
 {
-  "version": 31,
+  "version": 33,
   "policy": "Capital Radar builds decision-grade artifacts, keeps temporary compatibility artifacts non-authoritative, then renders production through the canonical manifest-driven ship orchestrator. The public homepage is now a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Homepage validation belongs to the final ship stage after render, not the pre-ship compatibility stage. The Macro chain is required: diagnosis -> configuration -> relationships -> historical memory -> portfolio translation -> evidence audit. Decision Chart is restored immediately before legacy operating-brain validation, then homepage order is normalized so the four-section surface remains Macro -> Decision chart -> Holdings -> Opportunity.",
   "stages": [
     {
@@ -123,6 +123,17 @@
       ]
     },
     {
+      "name": "systematic-engines",
+      "description": "Phase 1 systematic engines: momentum universe fetch + signal/ranking/gate/rebalance generation.",
+      "commands": [
+        "node scripts/fetch-momentum-history.cjs",
+        "node scripts/generate-momentum-state.cjs",
+        "node scripts/run-momentum-backtest.cjs",
+        "node scripts/mine-arb-deals.cjs",
+        "node scripts/generate-arb-deal-board.cjs"
+      ]
+    },
+    {
       "name": "compatibility-artifact-prep",
       "description": "Temporary bridge for legacy validators/artifacts only. This stage is not production homepage authority; ship overwrites final index.html.",
       "commands": [
@@ -168,7 +179,10 @@
         "node scripts/validate-native-research-engine.cjs",
         "node scripts/validate-ticker-gate-audit.cjs",
         "node scripts/validate-opportunity-evidence-engine.cjs",
-        "node scripts/validate-opportunity-dossiers.cjs"
+        "node scripts/validate-opportunity-dossiers.cjs",
+        "node scripts/validate-arb-deal-board.cjs",
+        "node scripts/validate-momentum-state.cjs",
+        "node scripts/validate-momentum-backtest.cjs"
       ]
     },
     {
@@ -178,6 +192,8 @@
         "node scripts/render-capital-radar-home.cjs",
         "node scripts/inject-operational-chart-home.cjs",
         "node scripts/inject-narrative-reality-home.cjs",
+        "node scripts/inject-arb-deal-board-home.cjs",
+        "node scripts/inject-momentum-home.cjs",
         "node scripts/normalize-homepage-sections.cjs",
         "node scripts/inject-market-calendar.cjs",
         "node scripts/generate-robinhood-execution-bridge-state.cjs",

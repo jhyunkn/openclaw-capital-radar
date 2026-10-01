@@ -1,6 +1,6 @@
 # GOOGL Opportunity Dossier
 
-Generated: 2026-10-01T10:54:40.780Z
+Generated: 2026-10-01T12:43:26.425Z
 Run mode: LOCAL_OPPORTUNITY_DOSSIER_NO_WEB_SEARCH
 Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 
@@ -11,7 +11,7 @@ Action permission: RESEARCH_ONLY_NO_BUY_PERMISSION
 - Stage: BUILD_EVIDENCE_PACKET
 - Opportunity score: 74
 - Portfolio role: power/grid infrastructure opportunity lane
-- Current price: 351.7
+- Current price: 349.04
 - Price read: neutral price context; compare against thesis and valuation evidence
 
 ## Why Interesting
@@ -20,7 +20,7 @@ Potential quality compounder if search/cloud/AI investment remains durable and v
 
 ## Why Now
 
-- GOOGL positive 3.16% while broad tape is weak.
+- GOOGL positive 2.38% while broad tape is weak.
 - GOOGL: Potential quality compounder if search/cloud/AI investment remains durable and valuation offers a cleaner margin of safety than hotter AI infrastructure names.
 
 ## Evidence Refs
@@ -60,7 +60,7 @@ Potential quality compounder if search/cloud/AI investment remains durable and v
 ## Action Framework
 
 Observation:
-GOOGL positive 3.16% while broad tape is weak.
+GOOGL positive 2.38% while broad tape is weak.
 
 Interpretation:
 Research-only lead. Treat as an investable question, not a buy signal.

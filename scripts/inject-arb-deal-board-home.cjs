@@ -115,5 +115,5 @@ html = removeElementById(html, MODULE_ID);
 html = insertInsideSectionEnd(html, ANCHOR_ID, section);
 
 fs.writeFileSync(indexPath, html);
-const tradeable = board.deals.filter(d => d.tradeable).length;
-console.log(`injected arb deal board module: ${board.deals.length} deals (${tradeable} tradeable), ${board.watchlist.length} watchlist, generated ${board.generatedAt?.slice(0, 10) || '?'}`);
+const tradeable = board.deals.filter(d => String(d.verdict || '').startsWith('TRADEABLE')).length;
+console.log(`injected arb deal board module: ${board.deals.length} deals (${tradeable} TRADEABLE by verdict), ${board.watchlist.length} watchlist, generated ${board.generatedAt?.slice(0, 10) || '?'}`);

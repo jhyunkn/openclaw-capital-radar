@@ -17,6 +17,11 @@
  * annualized spread is under 8% — thin spreads are the norm and the board
  * says so honestly.
  *
+ * The `tradeable` boolean on each deal is a loose pre-filter (terms + price +
+ * not closed). The VERDICT is the single source of truth: the homepage
+ * renderer counts and cards only verdicts starting with "TRADEABLE". The
+ * verdict rules are documented in the verdictCriteria block of the output.
+ *
  * Output: outputs/arb/arb-deal-board.json
  */
 const fs = require('fs');
@@ -33,6 +38,45 @@ const YAHOO_UA = 'Mozilla/5.0 (compatible; CapitalRadar/1.0)';
 const TRADEABLE_CONF = new Set(['HIGH', 'MEDIUM', 'MANUAL']);
 const NOTIONALS = [10000, 25000, 50000];
 const THIN_THRESHOLD = 0.08;
+
+// Single source of truth for what "tradeable" means on the board.
+// The homepage renderer counts and cards ONLY deals whose verdict starts with
+// "TRADEABLE" — the `tradeable` boolean on each deal is a loose pre-filter
+// (terms + price + not closed), not the display count. This block is written
+// into the JSON so the rules travel with the data.
+const VERDICT_CRITERIA = {
+  version: 1,
+  tradeablePreFilter: [
+    'confidence in {HIGH, MEDIUM, MANUAL} (LOW-confidence items go to the watchlist)',
+    'deal not completed (includes cross-filing completion notices)',
+    'target price resolvable via Yahoo Finance with a priceAsOf timestamp',
+    'consideration terms extracted: cash -> offerPricePerShare; stock/collar -> exchangeRatio + acquirer price; mixed -> cash leg at minimum (stock leg added when exchangeRatio + acquirer price resolve)',
+    'expectedCloseDate not in the past',
+  ],
+  spreadFormulas: {
+    cash: 'spreadPct = offerPricePerShare / targetPrice - 1',
+    stockOrCollar: 'impliedValue = exchangeRatio * acquirerPrice; spreadPct = impliedValue / targetPrice - 1',
+    mixed: 'impliedValue = offerPricePerShare + exchangeRatio * acquirerPrice when both legs resolve, else cash leg only (flagged in tradeableNote)',
+    annualized: 'annualizedSpreadPct = (1 + spreadPct) ^ (252 / tradingDaysToClose) - 1; tradingDaysToClose ~= calendarDays * 5/7',
+  },
+  verdictLadder: [
+    'NOT TRADEABLE — pre-filter failed (reason in tradeableReason)',
+    'NO EDGE — merger of equals — no directional spread for this engine',
+    'NEGATIVE — target above offer — spreadPct < 0',
+    'NO TIMELINE — cannot annualize — spread computed but no expectedCloseDate',
+    'THIN — no romance — annualizedSpreadPct < THIN_THRESHOLD',
+    'TRADEABLE — {x}% annualized — annualizedSpreadPct >= THIN_THRESHOLD',
+  ],
+  thinThreshold: THIN_THRESHOLD,
+  thinThresholdRationale: 'Annualized gross spread must clear 8% to compensate for binary deal-break downside (targets typically fall 20-40% on a break), opportunity cost vs ~4% T-bills, and unmodeled frictions (borrow cost on stock legs, taxes). Sub-8% spreads are the historical norm for announced deals; the board marks them THIN honestly rather than lowering the bar to manufacture TRADEABLEs.',
+  capacityMath: 'Expected gross at $10k / $25k / $50k notionals, $0 commissions, gross of borrow costs and taxes. annualizedGross = notional * annualizedSpreadPct.',
+  knownDataGaps: [
+    'Borrow cost/availability for stock-deal short legs is not modeled (borrowData: unavailable).',
+    'SEC 8-K coverage is PARTIAL: S&P 500 universe, ~120-day lookback; expected-close guidance often lives in press-release exhibits the miner only fetches when 8-K body terms are missing.',
+    'Timeline gaps are filled via manual deals (data/arb-deals.manual.json) with the source language quoted in each deal thesis.',
+  ],
+  displayRule: 'The homepage renderer counts and cards only deals whose verdict starts with "TRADEABLE". The `tradeable` boolean is a pre-filter, not the display count.',
+};
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const r2 = v => (v == null || !isFinite(v) ? null : Math.round(v * 100) / 100);
@@ -258,6 +302,7 @@ async function main() {
     generatedAt: now,
     universe: mined.universe || null,
     minerGeneratedAt: mined.generatedAt || null,
+    verdictCriteria: VERDICT_CRITERIA,
     coverage: {
       ...(mined.coverage || {}),
       manualDeals: manualDeals.length,
@@ -270,8 +315,8 @@ async function main() {
     watchlist,
   };
   fs.writeFileSync(OUT_PATH, JSON.stringify(board, null, 2) + '\n');
-  const tradeable = deals.filter(d => d.tradeable).length;
-  console.log(`arb deal board: deals=${deals.length} tradeable=${tradeable} watchlist=${watchlist.length} yahoo ok=${yahooOk} fail=${yahooFail}`);
+  const tradeable = deals.filter(d => String(d.verdict).startsWith('TRADEABLE')).length;
+  console.log(`arb deal board: deals=${deals.length} TRADEABLE(verdict)=${tradeable} watchlist=${watchlist.length} yahoo ok=${yahooOk} fail=${yahooFail}`);
   console.log(`wrote ${path.relative(root, OUT_PATH)}`);
 }
 main().catch(e => { console.error(e); process.exit(1); });

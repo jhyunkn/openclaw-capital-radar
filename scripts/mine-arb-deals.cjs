@@ -303,19 +303,27 @@ function extractTerms(text) {
   if (/\bcollar\b/i.test(text) && t.considerationType === 'stock') t.considerationType = 'collar';
   // expected close
   const qmap = { Q1: '03-31', Q2: '06-30', Q3: '09-30', Q4: '12-31' };
-  let m = text.match(/(?:expected|anticipated|targeted)[^.]{0,120}?(Q[1-4])\s*(?:of\s*)?(?:'?\s*)?(\d{4})/i) ||
-      text.match(/closing[^.]{0,120}?is\s+expected[^.]{0,80}?(Q[1-4])\s*(?:of\s*)?(\d{4})/i);
+  let m = text.match(/(?:expected|anticipated|anticipates|targeted)[^.]{0,120}?(Q[1-4])\s*(?:of\s*)?(?:calendar\s+year\s+)?(?:'?\s*)?(\d{4})/i) ||
+      text.match(/closing[^.]{0,120}?is\s+expected[^.]{0,80}?(Q[1-4])\s*(?:of\s*)?(?:calendar\s+year\s+)?(\d{4})/i);
   if (m) {
     t.expectedCloseDate = `${m[2]}-${qmap[m[1].toUpperCase()]}`;
     t.expectedCloseLabel = `${m[1].toUpperCase()} ${m[2]}`;
   } else {
-    m = text.match(/(?:expected|anticipated)[^.]{0,120}?(first|second|third|fourth)\s+(quarter|half)\s+of\s+(\d{4})/i);
+    m = text.match(/(?:expected|anticipated|anticipates|targeted)[^.]{0,120}?(first|second|third|fourth)\s+(quarter|half)\s+of\s+(?:calendar\s+year\s+)?(\d{4})/i);
     if (m) {
       const qend = m[2] === 'half'
         ? ({ first: '06-30', second: '12-31' })[m[1]]
         : ({ first: '03-31', second: '06-30', third: '09-30', fourth: '12-31' })[m[1]];
       t.expectedCloseDate = `${m[3]}-${qend}`;
       t.expectedCloseLabel = `${m[1]} ${m[2]} ${m[3]}`;
+    } else {
+      // "expected to close by (calendar) year-end YYYY" -> Dec 31 of that year.
+      // Conservative endpoint: a later close date understates the annualized spread.
+      m = text.match(/(?:expected|anticipated|anticipates)[^.]{0,120}?close\s+by\s+(?:calendar\s+)?year[\s-]?end\s+(\d{4})/i);
+      if (m) {
+        t.expectedCloseDate = `${m[1]}-12-31`;
+        t.expectedCloseLabel = `year-end ${m[1]}`;
+      }
     }
   }
   // termination fee

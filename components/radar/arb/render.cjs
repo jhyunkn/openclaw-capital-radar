@@ -56,7 +56,10 @@ function renderDealCard(d) {
 }
 
 function renderArbDealBoardSection(board, options = {}) {
-  const deals = arr(board.deals).filter(d => d.tradeable).slice(0, 5);
+  // Single source of truth: display counts and cards derive from the VERDICT,
+  // not the loose `tradeable` pre-filter boolean on each deal.
+  const isTradeableVerdict = d => String(d.verdict || '').startsWith('TRADEABLE');
+  const deals = arr(board.deals).filter(isTradeableVerdict).slice(0, 5);
   const allDeals = arr(board.deals);
   const watchlist = arr(board.watchlist);
   const health = board.dataHealth || {};
@@ -73,7 +76,7 @@ function renderArbDealBoardSection(board, options = {}) {
 
   const cards = deals.length
     ? deals.map(renderDealCard).join('')
-    : `<p class="arb-empty">No tradeable merger-arb spreads on the board right now. ${allDeals.length ? `${allDeals.length} mined deal(s) failed the tradeable bar (no terms, no price, or already closed).` : 'The 8-K miner found no qualifying deals in the lookback window.'} Empty is an honest answer — thin spreads are the norm.</p>`;
+    : `<p class="arb-empty">No tradeable merger-arb spreads on the board right now. ${allDeals.length ? `${allDeals.length} mined deal(s) cleared none of the verdict bars (thin spread, no timeline, negative spread, no terms, no price, or already closed).` : 'The 8-K miner found no qualifying deals in the lookback window.'} Empty is an honest answer — thin spreads are the norm.</p>`;
 
   return `${shellOpen}
   <div class="arb-wrap">

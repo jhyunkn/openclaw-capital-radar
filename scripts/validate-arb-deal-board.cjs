@@ -109,5 +109,27 @@ for (const d of board.deals) {
   prevAnn = cur;
 }
 
-const tradeable = board.deals.filter(d => d.tradeable).length;
-console.log(`arb deal board validated: ${board.deals.length} deals (${tradeable} tradeable), ${board.watchlist.length} watchlist, generated ${ageH.toFixed(1)}h ago, health=${board.dataHealth.status}`);
+// verdictCriteria auditability block: the verdict rules must travel with the data
+ok(board.verdictCriteria && typeof board.verdictCriteria === 'object', 'verdictCriteria block missing');
+ok(board.verdictCriteria.thinThreshold === 0.08, `verdictCriteria.thinThreshold is ${board.verdictCriteria.thinThreshold}, expected 0.08 (the value the verdict ladder enforces)`);
+ok(Array.isArray(board.verdictCriteria.verdictLadder) && board.verdictCriteria.verdictLadder.length >= 6, 'verdictCriteria.verdictLadder incomplete');
+ok(typeof board.verdictCriteria.displayRule === 'string' && board.verdictCriteria.displayRule.length > 0, 'verdictCriteria.displayRule missing');
+
+// single source of truth: the renderer must count and card by VERDICT,
+// never by the loose `tradeable` pre-filter boolean. Render the section and
+// assert the displayed headline and cards match the verdict count exactly.
+const { renderArbDealBoardSection } = require('../components/radar/arb/render.cjs');
+const sectionHtml = renderArbDealBoardSection(board, { module: true });
+const verdictTradeableCount = board.deals.filter(d => String(d.verdict || '').startsWith('TRADEABLE')).length;
+const summaryMatch = sectionHtml.match(/arb-summary[^>]*>\s*(\d+) mined deal\(s\) · (\d+) tradeable/);
+ok(summaryMatch, 'renderer summary line not found in rendered section');
+ok(parseInt(summaryMatch[1], 10) === board.deals.length, `renderer summary deals ${summaryMatch[1]} != board deals ${board.deals.length}`);
+ok(parseInt(summaryMatch[2], 10) === verdictTradeableCount, `renderer tradeable count ${summaryMatch[2]} != verdict TRADEABLE count ${verdictTradeableCount}`);
+const cardCount = (sectionHtml.match(/<article class="arb-deal-card">/g) || []).length;
+ok(cardCount === Math.min(verdictTradeableCount, 5), `renderer cards ${cardCount} != expected ${Math.min(verdictTradeableCount, 5)} (verdict TRADEABLE count, max 5)`);
+const cardVerdicts = [...sectionHtml.matchAll(/<div class="arb-verdict[^"]*">([^<]*)<\/div>/g)].map(m => m[1]);
+ok(cardVerdicts.length === cardCount, 'rendered card verdict count mismatch');
+for (const v of cardVerdicts) ok(v.startsWith('TRADEABLE'), `rendered card carries non-TRADEABLE verdict: ${v}`);
+
+const tradeable = verdictTradeableCount;
+console.log(`arb deal board validated: ${board.deals.length} deals (${tradeable} TRADEABLE by verdict), ${board.watchlist.length} watchlist, generated ${ageH.toFixed(1)}h ago, health=${board.dataHealth.status}`);

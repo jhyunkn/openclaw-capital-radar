@@ -1,1 +1,144 @@
-{"_schema":{"description":"Manual merger-arb deal entries. Merged with SEC-mined deals in generate-arb-deal-board.cjs; manual entries take precedence on conflicts (same targetSymbol).","fields":{"acquirer":"Acquirer company name (required).","acquirerSymbol":"Acquirer ticker, required for stock/collar deals (used for implied-value math).","addedAt":"ISO date the entry was added (required).","considerationType":"One of: cash | stock | collar | mixed (required).","exchangeRatio":"Acquirer shares per target share (stock/collar deals).","expectedCloseDate":"Expected closing date, YYYY-MM-DD (required for annualization; use quarter-end for 'Qn YYYY' guidance).","expectedCloseLabel":"Human label, e.g. 'Q1 2027'.","offerPricePerShare":"Cash consideration per target share in USD (cash/mixed deals).","target":"Target company ticker symbol (required). Used for the Yahoo price fetch.","thesis":"Why this deal is on the board (required)."},"notes":["confidence is set to MANUAL by the board generator; manual entries are tradeable if terms and prices resolve.","Short-sale borrow data is unavailable: stock deals always carry shortRequired=true, borrowData='unavailable'.","A verdict of 'THIN — no romance' is applied when annualizedSpreadPct < 8%.","Timeline conventions for expectedCloseDate: 'Qn YYYY' -> quarter-end; 'H1/H2 YYYY' -> Jun 30 / Dec 31; 'by (calendar) year-end YYYY' -> Dec 31; 'late YYYY or early YYYY+1' -> Mar 31 YYYY+1 (conservative: a later date understates the annualized spread). Always quote the source language in the thesis."]},"deals":[{"acquirer":"Copart, Inc.","acquirerSymbol":"CPRT","addedAt":"2026-10-01","considerationType":"cash","dealValueUSD":1900000000,"exchangeRatio":null,"expectedCloseDate":"2026-12-31","expectedCloseLabel":"year-end 2026","offerPricePerShare":10.5,"target":"ACVA","targetName":"ACV Auctions Inc","terminationFeeUSD":57700000,"thesis":"Copart acquiring ACV Auctions at $10.50/share cash via tender offer (8-K filed Sept 10, 2026, ~$1.9B implied equity value). The 8-K body carries no quarter-level close guidance; the joint press release (Ex. 99.1) states the transaction 'is expected to close by calendar year-end 2026' — timeline added manually (miner gap: guidance lived in the exhibit, which the miner only fetches when 8-K body terms are missing). Gross spread ~0.7%."},{"acquirer":"Intercontinental Exchange, Inc.","acquirerSymbol":"ICE","addedAt":"2026-10-01","considerationType":"cash","dealValueUSD":6000000000,"exchangeRatio":null,"expectedCloseDate":"2027-06-30","expectedCloseLabel":"H1 2027","offerPricePerShare":167,"target":"MKTX","targetName":"MarketAxess Holdings Inc","terminationFeeUSD":null,"thesis":"Intercontinental Exchange acquiring MarketAxess at $167/share cash (8-K filed July 30, 2026, ~$6.0B equity value). The 8-K body carries no close-date guidance; ICE's debt-offering prospectus and press materials state the transaction 'is expected to close in the first half of 2027' — timeline added manually. Shareholder vote scheduled Oct 29, 2026; HSR waiting period refiled Sept 29, 2026. Gross spread ~1.9%."},{"acquirer":"Paramount Skydance Corporation","acquirerSymbol":"PSKY","addedAt":"2026-10-01","considerationType":"cash","dealValueUSD":null,"exchangeRatio":null,"expectedCloseDate":"2026-10-06","expectedCloseLabel":"Oct 6, 2026","offerPricePerShare":31.01666668,"target":"WBD","targetName":"Warner Bros. Discovery, Inc.","terminationFeeUSD":null,"thesis":"Paramount Skydance acquiring Warner Bros. Discovery (Feb 27, 2026 merger agreement, ~$110B). Consideration is $31.00 cash plus a $0.00277778/share/day ticking fee for each day after Sept 30 through closing; the companies' Sept 30, 2026 PR announced an anticipated close of Oct 6, 2026 (subject to customary closing conditions; state-AG settlement approved, removing the final legal hurdle). Offer price set to the Oct-6 ticking-fee value $31.01666668 — this understates consideration if close slips (conservative). Timeline and ticking-fee terms added manually. Very short fuse: re-check before any use."},{"acquirer":"Merck KGaA, Darmstadt, Germany","acquirerSymbol":null,"addedAt":"2026-10-01","considerationType":"cash","dealValueUSD":11300000000,"exchangeRatio":null,"expectedCloseDate":"2027-03-31","expectedCloseLabel":"early 2027 (by end of Q1)","offerPricePerShare":73,"target":"TECH","targetName":"BIO-TECHNE Corporation","terminationFeeUSD":230500000,"thesis":"Merck KGaA acquiring Bio-Techne at $73/share cash (announced June 2026, ~$11.3B enterprise value). Company guidance is 'expected to close by late 2026 or early 2027' (Merck press release; repeated in Bio-Techne's FY2026 10-K) — no quarter-level date exists, so using end of Q1 2027 as the conservative endpoint per the timeline conventions (a later date understates the annualized spread). Timeline added manually. Gross spread ~0.7%."},{"acquirer":"Fox Corporation","acquirerSymbol":"FOXA","addedAt":"2026-10-01","considerationType":"mixed","dealValueUSD":null,"exchangeRatio":0.9693,"expectedCloseDate":"2027-06-30","expectedCloseLabel":"H1 2027","offerPricePerShare":96,"target":"ROKU","targetName":"Roku, Inc.","terminationFeeUSD":866084000,"thesis":"Fox acquiring Roku: $96 cash PLUS 0.9693 FOX Class A shares per Roku share (June 14, 2026 agreement, ~$22-23B). CORRECTED vs the mined entry: the miner resolved the acquirer to FOX (Class B, ~$56); the merger agreement specifies Class A shares, so implied value and spread are recomputed on FOXA (~$62.65) — the mined 'NEGATIVE' verdict was an artifact of the wrong share class. Companies still guide close in H1 calendar 2027 despite the DOJ second request (Sept 8, 2026); S-4 effective Sept 1, 2026. Stock leg requires shorting FOXA; borrow data unavailable. Timeline added manually."}]}
+{
+  "_schema": {
+    "description": "Manual merger-arb deal entries. Merged with SEC-mined deals in generate-arb-deal-board.cjs; manual entries take precedence on conflicts (same targetSymbol).",
+    "fields": {
+      "acquirer": "Acquirer company name (required).",
+      "acquirerSymbol": "Acquirer ticker, required for stock/collar deals (used for implied-value math).",
+      "addedAt": "ISO date the entry was added (required).",
+      "considerationType": "One of: cash | stock | collar | mixed (required).",
+      "exchangeRatio": "Acquirer shares per target share (stock/collar deals).",
+      "expectedCloseDate": "Expected closing date, YYYY-MM-DD (required for annualization; use quarter-end for 'Qn YYYY' guidance).",
+      "expectedCloseLabel": "Human label, e.g. 'Q1 2027'.",
+      "offerPricePerShare": "Cash consideration per target share in USD (cash/mixed deals).",
+      "target": "Target company ticker symbol (required). Used for the Yahoo price fetch.",
+      "thesis": "Why this deal is on the board (required)."
+    },
+    "notes": [
+      "confidence is set to MANUAL by the board generator; manual entries are tradeable if terms and prices resolve.",
+      "Short-sale borrow data is unavailable: stock deals always carry shortRequired=true, borrowData='unavailable'.",
+      "A verdict of 'THIN — no romance' is applied when annualizedSpreadPct < 8%.",
+      "Timeline conventions for expectedCloseDate: 'Qn YYYY' -> quarter-end; 'H1/H2 YYYY' -> Jun 30 / Dec 31; 'by (calendar) year-end YYYY' -> Dec 31; 'late YYYY or early YYYY+1' -> Mar 31 YYYY+1 (conservative: a later date understates the annualized spread). Always quote the source language in the thesis."
+    ]
+  },
+  "deals": [
+    {
+      "acquirer": "Copart, Inc.",
+      "acquirerSymbol": "CPRT",
+      "addedAt": "2026-10-01",
+      "considerationType": "cash",
+      "dealValueUSD": 1900000000,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2026-12-31",
+      "expectedCloseLabel": "year-end 2026",
+      "offerPricePerShare": 10.5,
+      "target": "ACVA",
+      "targetName": "ACV Auctions Inc",
+      "terminationFeeUSD": 57700000,
+      "thesis": "Copart acquiring ACV Auctions at $10.50/share cash via tender offer (8-K filed Sept 10, 2026, ~$1.9B implied equity value). The 8-K body carries no quarter-level close guidance; the joint press release (Ex. 99.1) states the transaction 'is expected to close by calendar year-end 2026' — timeline added manually (miner gap: guidance lived in the exhibit, which the miner only fetches when 8-K body terms are missing). Gross spread ~0.7%."
+    },
+    {
+      "acquirer": "Intercontinental Exchange, Inc.",
+      "acquirerSymbol": "ICE",
+      "addedAt": "2026-10-01",
+      "considerationType": "cash",
+      "dealValueUSD": 6000000000,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "offerPricePerShare": 167,
+      "target": "MKTX",
+      "targetName": "MarketAxess Holdings Inc",
+      "terminationFeeUSD": null,
+      "thesis": "Intercontinental Exchange acquiring MarketAxess at $167/share cash (8-K filed July 30, 2026, ~$6.0B equity value). The 8-K body carries no close-date guidance; ICE's debt-offering prospectus and press materials state the transaction 'is expected to close in the first half of 2027' — timeline added manually. Shareholder vote scheduled Oct 29, 2026; HSR waiting period refiled Sept 29, 2026. Gross spread ~1.9%."
+    },
+    {
+      "acquirer": "Paramount Skydance Corporation",
+      "acquirerSymbol": "PSKY",
+      "addedAt": "2026-10-01",
+      "considerationType": "cash",
+      "dealValueUSD": null,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2026-10-06",
+      "expectedCloseLabel": "Oct 6, 2026",
+      "offerPricePerShare": 31.01666668,
+      "target": "WBD",
+      "targetName": "Warner Bros. Discovery, Inc.",
+      "terminationFeeUSD": null,
+      "thesis": "Paramount Skydance acquiring Warner Bros. Discovery (Feb 27, 2026 merger agreement, ~$110B). Consideration is $31.00 cash plus a $0.00277778/share/day ticking fee for each day after Sept 30 through closing; the companies' Sept 30, 2026 PR announced an anticipated close of Oct 6, 2026 (subject to customary closing conditions; state-AG settlement approved, removing the final legal hurdle). Offer price set to the Oct-6 ticking-fee value $31.01666668 — this understates consideration if close slips (conservative). Timeline and ticking-fee terms added manually. Very short fuse: re-check before any use."
+    },
+    {
+      "acquirer": "Merck KGaA, Darmstadt, Germany",
+      "acquirerSymbol": null,
+      "addedAt": "2026-10-01",
+      "considerationType": "cash",
+      "dealValueUSD": 11300000000,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-03-31",
+      "expectedCloseLabel": "early 2027 (by end of Q1)",
+      "offerPricePerShare": 73,
+      "target": "TECH",
+      "targetName": "BIO-TECHNE Corporation",
+      "terminationFeeUSD": 230500000,
+      "thesis": "Merck KGaA acquiring Bio-Techne at $73/share cash (announced June 2026, ~$11.3B enterprise value). Company guidance is 'expected to close by late 2026 or early 2027' (Merck press release; repeated in Bio-Techne's FY2026 10-K) — no quarter-level date exists, so using end of Q1 2027 as the conservative endpoint per the timeline conventions (a later date understates the annualized spread). Timeline added manually. Gross spread ~0.7%."
+    },
+    {
+      "acquirer": "Fox Corporation",
+      "acquirerSymbol": "FOXA",
+      "addedAt": "2026-10-01",
+      "considerationType": "mixed",
+      "dealValueUSD": null,
+      "exchangeRatio": 0.9693,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "offerPricePerShare": 96,
+      "target": "ROKU",
+      "targetName": "Roku, Inc.",
+      "terminationFeeUSD": 866084000,
+      "thesis": "Fox acquiring Roku: $96 cash PLUS 0.9693 FOX Class A shares per Roku share (June 14, 2026 agreement, ~$22-23B). CORRECTED vs the mined entry: the miner resolved the acquirer to FOX (Class B, ~$56); the merger agreement specifies Class A shares, so implied value and spread are recomputed on FOXA (~$62.65) — the mined 'NEGATIVE' verdict was an artifact of the wrong share class. Companies still guide close in H1 calendar 2027 despite the DOJ second request (Sept 8, 2026); S-4 effective Sept 1, 2026. Stock leg requires shorting FOXA; borrow data unavailable. Timeline added manually."
+    },
+    {
+      "target": "MGLD",
+      "targetName": "Marygold Companies, Inc.",
+      "acquirer": "Madison Dearborn Partners",
+      "acquirerSymbol": null,
+      "considerationType": "cash",
+      "offerPricePerShare": 2.0,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "dealValueUSD": null,
+      "terminationFeeUSD": null,
+      "addedAt": "2026-10-01",
+      "confidenceReason": "research-hunt 2026-10-01 (announcement press + Finnhub snapshot), not 8-K-mined — verify proxy/8-K before sizing",
+      "riskFlags": {
+        "regulatory": "standard",
+        "financing": "not-stated",
+        "goShop": false,
+        "shareholderVote": "written-consent-75pct"
+      },
+      "thesis": "Madison Dearborn Partners acquiring Marygold Companies at $2.00/share cash (announced Sept 25, 2026). Company guides close in H1 2027 — using Jun 30 per timeline conventions (conservative: later date understates annualized spread). De-riskers: holders of ~75% of voting power delivered written consent (shareholder vote effectively done), unanimous board. Risks: fund-management change-of-control / regulatory consents; 5-cent absolute spread demands limit-order discipline (slippage eats it); small-cap liquidity. Source: 2026-10-01 research hunt."
+    },
+    {
+      "target": "ARX",
+      "targetName": "Accelerant Holdings",
+      "acquirer": "Thoma Bravo",
+      "acquirerSymbol": null,
+      "considerationType": "cash",
+      "offerPricePerShare": 20.25,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "dealValueUSD": null,
+      "terminationFeeUSD": null,
+      "addedAt": "2026-10-01",
+      "confidenceReason": "research-hunt 2026-10-01 (announcement press + Finnhub snapshot), not 8-K-mined — verify proxy/8-K before sizing",
+      "riskFlags": {
+        "regulatory": "elevated",
+        "financing": "none-mentioned",
+        "goShop": false,
+        "shareholderVote": "committed-82pct"
+      },
+      "thesis": "Thoma Bravo acquiring Accelerant Holdings at $20.25/share cash (announced Aug 13, 2026). Company guides close in H1 2027 — using Jun 30 per timeline conventions. De-riskers: Altamont Capital (82% voting) committed; no financing condition; 6% annualized ticking fee if regulatory delays push close (delay compensates). Risks: state insurance-commissioner approvals are the real overhang (insurance deals always carry this tail); outside-date extensions possible. Source: 2026-10-01 research hunt."
+    }
+  ]
+}

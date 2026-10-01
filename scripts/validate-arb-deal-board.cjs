@@ -36,7 +36,7 @@ ok(board.dataHealth && typeof board.dataHealth.status === 'string', 'dataHealth 
 
 const CONSIDERATION = new Set(['cash', 'stock', 'collar', 'mixed']);
 const CONFIDENCE = new Set(['HIGH', 'MEDIUM', 'LOW', 'MANUAL']);
-const VERDICTS = [/^TRADEABLE — /, /^THIN — no romance$/, /^NEGATIVE — target above offer$/, /^NO TIMELINE — cannot annualize$/, /^NOT TRADEABLE$/, /^NO EDGE — merger of equals$/];
+const VERDICTS = [/^TRADEABLE — /, /^THIN — no romance$/, /^NEGATIVE — target above offer$/, /^NO TIMELINE — cannot annualize$/, /^STUB — sailed/, /^NOT TRADEABLE$/, /^NO EDGE — merger of equals$/];
 
 for (const w of board.watchlist) {
   ok(CONFIDENCE.has(w.confidence), `watchlist ${w.target}: bad confidence ${w.confidence}`);
@@ -95,7 +95,11 @@ for (const d of board.deals) {
       ok(Math.abs((row.expectedGross ?? 0) - eg) <= 1, `${id}: capacityTable expectedGross mismatch at $${row.notional}`);
     }
     // verdict honesty rules
-    if (d.annualizedSpreadPct != null && d.annualizedSpreadPct < 0.08 && d.spreadPct >= 0) {
+    const isStubShape = d.spreadPct != null && d.spreadPct >= 0 && d.spreadPct < 0.01 && d.tradingDaysToClose != null && d.tradingDaysToClose <= 10;
+    if (isStubShape) {
+      ok(/^STUB — sailed/.test(d.verdict), `${id}: spread ${(d.spreadPct * 100).toFixed(2)}% with ${d.tradingDaysToClose} trading days left must carry STUB verdict, got '${d.verdict}'`);
+    }
+    if (d.annualizedSpreadPct != null && d.annualizedSpreadPct < 0.08 && d.spreadPct >= 0 && !isStubShape) {
       ok(/^THIN — no romance$/.test(d.verdict), `${id}: annualized ${(d.annualizedSpreadPct * 100).toFixed(1)}% must carry THIN verdict`);
     }
     if (d.spreadPct < 0) ok(/^NEGATIVE/.test(d.verdict), `${id}: negative spread must carry NEGATIVE verdict`);

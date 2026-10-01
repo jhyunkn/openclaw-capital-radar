@@ -38,6 +38,12 @@ const YAHOO_UA = 'Mozilla/5.0 (compatible; CapitalRadar/1.0)';
 const TRADEABLE_CONF = new Set(['HIGH', 'MEDIUM', 'MANUAL']);
 const NOTIONALS = [10000, 25000, 50000];
 const THIN_THRESHOLD = 0.08;
+// STUB auto-detection: a deal whose remaining absolute spread is <1% with
+// <=10 trading days to close is sailed — the stub cannot compensate binary
+// break risk or retail frictions no matter how high it annualizes. Stubs are
+// excluded from TRADEABLE counts/cards (they never start with "TRADEABLE").
+const STUB_SPREAD_MAX = 0.01;
+const STUB_DAYS_MAX = 10;
 
 // Single source of truth for what "tradeable" means on the board.
 // The homepage renderer counts and cards ONLY deals whose verdict starts with
@@ -45,7 +51,7 @@ const THIN_THRESHOLD = 0.08;
 // (terms + price + not closed), not the display count. This block is written
 // into the JSON so the rules travel with the data.
 const VERDICT_CRITERIA = {
-  version: 1,
+  version: 2,
   tradeablePreFilter: [
     'confidence in {HIGH, MEDIUM, MANUAL} (LOW-confidence items go to the watchlist)',
     'deal not completed (includes cross-filing completion notices)',
@@ -64,9 +70,16 @@ const VERDICT_CRITERIA = {
     'NO EDGE — merger of equals — no directional spread for this engine',
     'NEGATIVE — target above offer — spreadPct < 0',
     'NO TIMELINE — cannot annualize — spread computed but no expectedCloseDate',
+    'STUB — sailed — spreadPct < 1% with <=10 trading days to close (excluded from TRADEABLE counts/cards)',
     'THIN — no romance — annualizedSpreadPct < THIN_THRESHOLD',
     'TRADEABLE — {x}% annualized — annualizedSpreadPct >= THIN_THRESHOLD',
   ],
+  stubRule: {
+    spreadPctBelow: STUB_SPREAD_MAX,
+    tradingDaysToCloseAtMost: STUB_DAYS_MAX,
+    verdict: 'STUB — sailed (spread <1%, ≤10 trading days left)',
+  },
+  stubRationale: 'A stub annualizes impressively (e.g. 14.8% on 5 days) but the absolute spread — cents per share — cannot compensate binary deal-break downside (targets typically fall 20-40% on a break) or retail frictions (bid/ask, settlement). Flagging stubs as sailed keeps the board from presenting a closed-out opportunity as TRADEABLE.',
   thinThreshold: THIN_THRESHOLD,
   thinThresholdRationale: 'Annualized gross spread must clear 8% to compensate for binary deal-break downside (targets typically fall 20-40% on a break), opportunity cost vs ~4% T-bills, and unmodeled frictions (borrow cost on stock legs, taxes). Sub-8% spreads are the historical norm for announced deals; the board marks them THIN honestly rather than lowering the bar to manufacture TRADEABLEs.',
   capacityMath: 'Expected gross at $10k / $25k / $50k notionals, $0 commissions, gross of borrow costs and taxes. annualizedGross = notional * annualizedSpreadPct.',
@@ -145,9 +158,9 @@ async function main() {
     exchangeRatio: d.exchangeRatio ?? null,
     expectedCloseDate: d.expectedCloseDate || null, expectedCloseLabel: d.expectedCloseLabel || d.expectedCloseDate || null,
     terminationFeeUSD: d.terminationFeeUSD ?? null, dealValueUSD: d.dealValueUSD ?? null,
-    confidence: 'MANUAL', confidenceReason: 'user-entered manual deal',
+    confidence: 'MANUAL', confidenceReason: d.confidenceReason || 'user-entered manual deal',
     status: 'pending', thesis: d.thesis || null, addedAt: d.addedAt || null,
-    riskFlags: { regulatory: 'standard', financing: 'not-stated', goShop: false, shareholderVote: 'not-stated' },
+    riskFlags: d.riskFlags || { regulatory: 'standard', financing: 'not-stated', goShop: false, shareholderVote: 'not-stated' },
     filingUrl: null, exhibitUrl: null, source: 'manual', minedAt: null,
   }));
 
@@ -281,6 +294,7 @@ async function main() {
     if (!out.tradeable) out.verdict = 'NOT TRADEABLE';
     else if (out.spreadPct < 0) out.verdict = 'NEGATIVE — target above offer';
     else if (out.annualizedSpreadPct == null) out.verdict = 'NO TIMELINE — cannot annualize';
+    else if (out.spreadPct < STUB_SPREAD_MAX && out.tradingDaysToClose != null && out.tradingDaysToClose <= STUB_DAYS_MAX) out.verdict = 'STUB — sailed (spread <1%, ≤10 trading days left)';
     else if (out.annualizedSpreadPct < THIN_THRESHOLD) out.verdict = 'THIN — no romance';
     else out.verdict = `TRADEABLE — ${(out.annualizedSpreadPct * 100).toFixed(1)}% annualized`;
     return out;
@@ -326,9 +340,50 @@ async function main() {
     deals,
     watchlist,
   };
+  // Alert diffing: compare against the previously committed board so the
+  // refresh crons can surface genuinely new developments (new TRADEABLEs,
+  // newly sailed stubs, newly closed deals) instead of re-announcing the
+  // same board twice a day.
+  let prevBoard = null;
+  try { prevBoard = JSON.parse(fs.readFileSync(OUT_PATH, 'utf8')); } catch { /* first run */ }
+  const alertRow = d => ({
+    targetSymbol: d.targetSymbol, targetName: d.targetName,
+    acquirer: d.acquirer, acquirerSymbol: d.acquirerSymbol,
+    verdict: d.verdict, spreadPct: d.spreadPct,
+    annualizedSpreadPct: d.annualizedSpreadPct,
+    expectedCloseDate: d.expectedCloseDate, expectedCloseLabel: d.expectedCloseLabel,
+    targetPrice: d.targetPrice, targetPriceAsOf: d.targetPriceAsOf,
+  });
+  const prevDeals = new Map((prevBoard?.deals || []).map(d => [d.targetSymbol, d]));
+  const alerts = {
+    generatedAt: now,
+    previousGeneratedAt: prevBoard?.generatedAt || null,
+    newTradeables: [],
+    newStubs: [],
+    closedSince: [],
+  };
+  if (prevBoard) {
+    const prevTradeable = new Set((prevBoard.deals || []).filter(d => String(d.verdict || '').startsWith('TRADEABLE')).map(d => d.targetSymbol));
+    const prevStub = new Set((prevBoard.deals || []).filter(d => String(d.verdict || '').startsWith('STUB')).map(d => d.targetSymbol));
+    for (const d of deals) {
+      const v = String(d.verdict || '');
+      if (v.startsWith('TRADEABLE') && !prevTradeable.has(d.targetSymbol)) alerts.newTradeables.push(alertRow(d));
+      if (v.startsWith('STUB') && !prevStub.has(d.targetSymbol)) alerts.newStubs.push(alertRow(d));
+    }
+    const curSymbols = new Set(deals.map(d => d.targetSymbol));
+    for (const d of (prevBoard.deals || [])) {
+      if (!curSymbols.has(d.targetSymbol) && String(d.verdict || '').startsWith('TRADEABLE')) {
+        alerts.closedSince.push({ ...alertRow(d), note: 'was TRADEABLE, no longer on board (closed or terms changed)' });
+      }
+    }
+  }
+  fs.writeFileSync(path.join(OUT_DIR, 'arb-alerts.json'), JSON.stringify(alerts, null, 2) + '\n');
+
   fs.writeFileSync(OUT_PATH, JSON.stringify(board, null, 2) + '\n');
   const tradeable = deals.filter(d => String(d.verdict).startsWith('TRADEABLE')).length;
-  console.log(`arb deal board: deals=${deals.length} TRADEABLE(verdict)=${tradeable} watchlist=${watchlist.length} yahoo ok=${yahooOk} fail=${yahooFail}`);
+  const stubs = deals.filter(d => String(d.verdict).startsWith('STUB')).length;
+  console.log(`arb deal board: deals=${deals.length} TRADEABLE(verdict)=${tradeable} STUB=${stubs} watchlist=${watchlist.length} yahoo ok=${yahooOk} fail=${yahooFail}`);
+  console.log(`alerts: newTradeables=${alerts.newTradeables.length} newStubs=${alerts.newStubs.length} closedSince=${alerts.closedSince.length}`);
   console.log(`wrote ${path.relative(root, OUT_PATH)}`);
 }
 main().catch(e => { console.error(e); process.exit(1); });

@@ -82,6 +82,9 @@ const excluded = [];
 for (const row of (momState.table || [])) {
   if (!row.inTopDecile) continue;
   const sym = row.symbol;
+  // Jun's explicit order (2026-10-01): WBD must not enter Opportunity at all —
+  // actual removal, not hiding. Hard exclusion before any tier logic.
+  if (sym === 'WBD') { excluded.push({ symbol: sym, reason: 'explicit exclusion per Jun 2026-10-01 — WBD must not be ingested into Opportunity' }); continue; }
   const mc = mcapBySym[sym];
   if (!mc || mc.rank > RECOGNIZABLE_MAX_RANK) { excluded.push({ symbol: sym, reason: `market-cap rank ${mc ? mc.rank : 'unknown'} — outside top-200 recognizability gate` }); continue; }
   const closes = closesBySym[sym];

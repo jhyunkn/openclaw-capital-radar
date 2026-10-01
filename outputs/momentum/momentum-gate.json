@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-10-01T04:20:23.164Z",
+  "gate": "GREEN",
+  "reason": "SPX above 200-day, HY OAS < 4.0, no breadth stress — top-decile list active",
+  "thresholds": {
+    "hyOasRed": 4,
+    "hyOasYellow": 3.5,
+    "vixYellow": 25,
+    "spxThinMarginPct": 2,
+    "rule": "RED if SPX below 200-day OR HY OAS >= 4.0 (list EMPTY / cash). YELLOW if HY OAS >= 3.5 OR VIX >= 25 OR SPX within 2% of 200D (top 5% only, cautious). Else GREEN (top decile active)."
+  },
+  "inputs": {
+    "spxVs200d": {
+      "above": true,
+      "marginPct": 0.0602,
+      "price": 7651.54,
+      "sma200": 7217.0921610000005,
+      "asOf": "2026-09-30",
+      "source": "cached ^GSPC Yahoo adjclose (same series family as engine history)"
+    },
+    "hyOas": {
+      "value": 3.02,
+      "source": "outputs/current-market-state.json groups.credit.metrics[hy_oas]",
+      "freshness": "PUBLIC_REFRESHED 2026-09-28"
+    },
+    "vix": {
+      "value": 16.3,
+      "source": "outputs/current-market-state.json groups.volatility.metrics[vix]",
+      "freshness": "PUBLIC_REFRESHED 2026-09-30"
+    }
+  },
+  "checks": [
+    {
+      "name": "spx_below_200d",
+      "value": false,
+      "detail": "SPX 7651.54 vs 200D 7217.09 (margin 6.02%) as of 2026-09-30"
+    },
+    {
+      "name": "hy_oas_ge_4",
+      "value": false,
+      "detail": "HY OAS 3.02 (outputs/current-market-state.json groups.credit.metrics[hy_oas], PUBLIC_REFRESHED 2026-09-28)"
+    },
+    {
+      "name": "hy_oas_ge_3_5",
+      "value": false,
+      "detail": "HY OAS 3.02 vs yellow threshold 3.5"
+    },
+    {
+      "name": "vix_ge_25",
+      "value": false,
+      "detail": "VIX 16.3 (outputs/current-market-state.json groups.volatility.metrics[vix], PUBLIC_REFRESHED 2026-09-30)"
+    },
+    {
+      "name": "spx_200d_margin_lt_2pct",
+      "value": false,
+      "detail": "margin 6.02%"
+    }
+  ],
+  "activeCount": 50,
+  "dataHealth": "FULL"
+}

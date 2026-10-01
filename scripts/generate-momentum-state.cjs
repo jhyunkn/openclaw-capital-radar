@@ -32,6 +32,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const gateV2 = require('./momentum-gate-v2.cjs'); // shared v2 gate: live + backtest use one implementation
 
 const root = path.join(__dirname, '..');
 const cachePath = path.join(root, 'outputs', 'cache', 'momentum', 'price-history.json');
@@ -257,62 +258,103 @@ function main() {
 
   const n = included.length;
   const decileCut = Math.ceil(n / 10);
-  const vigintileCut = Math.ceil(n / 20);
   for (const row of included) row.inTopDecile = row.rank <= decileCut;
 
-  /* ----- regime gate ----- */
+  /* ----- regime gate v2 (shared module with the backtest) -----
+   *
+   * Stress score S = (SPX below 200d ? 1:0) + (HY OAS >= 4.0 ? 1:0) + (VIX >= 30 ? 1:0).
+   * Exposure tiers: S=0 -> 100% (FULL), S=1 -> 60% (REDUCED), S>=2 -> 25%
+   * (DEFENSIVE, floor — never 0%). Target list is ALWAYS the top decile,
+   * scaled by exposure; remainder is cash. Asymmetric hysteresis: de-risk
+   * immediate when S rises; re-risk at most one tier per rebalance and only
+   * when the lower S has held for 2 consecutive rebalances.
+   *
+   * Live approximation: the backtest applies hysteresis on the monthly
+   * rebalance score sequence; the live gate keeps a monthly score history
+   * (one entry per calendar month, latest run wins, last 12 kept) and runs
+   * the same shared applyHysteresis over it.
+   */
   const hy = readHyOas();
   const vix = readVix();
   const spx = spx200d(cache.benchmark);
 
-  const T = { hyOasRed: 4.0, hyOasYellow: 3.5, vixYellow: 25, spxThinMargin: 0.02 };
-  let gate, gateReason;
-  const checks = [];
   const spxKnown = spx.ok && spx.above !== null;
-  const redBySpx = spxKnown && !spx.above;
-  const redByHy = hy.value !== null && hy.value >= T.hyOasRed;
-  checks.push({ name: 'spx_below_200d', value: redBySpx, detail: spxKnown ? `SPX ${spx.price.toFixed(2)} vs 200D ${spx.sma200.toFixed(2)} (margin ${(spx.marginPct * 100).toFixed(2)}%) as of ${spx.asOf}` : 'SPX benchmark unavailable' });
-  checks.push({ name: 'hy_oas_ge_4', value: redByHy, detail: hy.value !== null ? `HY OAS ${hy.value} (${hy.source}, ${hy.freshness})` : 'HY OAS unavailable' });
+  const scored = gateV2.scoreFromLegs({
+    spxBelow200d: spxKnown ? !spx.above : null,
+    hyOas: hy.value,
+    vix: vix.value,
+  });
+  const target = gateV2.tierFromScore(scored.score);
 
-  if (redBySpx || redByHy) {
-    gate = 'RED';
-    gateReason = redBySpx && redByHy ? 'SPX below 200-day AND HY OAS >= 4.0'
-      : redBySpx ? 'SPX below 200-day' : 'HY OAS >= 4.0 — credit stress';
-  } else {
-    const yellowByHy = hy.value !== null && hy.value >= T.hyOasYellow;
-    const yellowByVix = vix.value !== null && vix.value >= T.vixYellow;
-    const yellowByMargin = spxKnown && spx.marginPct < T.spxThinMargin;
-    checks.push({ name: 'hy_oas_ge_3_5', value: yellowByHy, detail: `HY OAS ${hy.value} vs yellow threshold ${T.hyOasYellow}` });
-    checks.push({ name: 'vix_ge_25', value: yellowByVix, detail: `VIX ${vix.value} (${vix.source}, ${vix.freshness})` });
-    checks.push({ name: 'spx_200d_margin_lt_2pct', value: yellowByMargin, detail: spxKnown ? `margin ${(spx.marginPct * 100).toFixed(2)}%` : 'unknown' });
-    if (yellowByHy || yellowByVix || yellowByMargin) {
-      gate = 'YELLOW';
-      const why = [];
-      if (yellowByHy) why.push(`HY OAS ${hy.value} in yellow band [3.5, 4.0)`);
-      if (yellowByVix) why.push(`VIX ${vix.value} >= 25`);
-      if (yellowByMargin) why.push(`SPX only ${(spx.marginPct * 100).toFixed(2)}% above 200D (< 2% margin)`);
-      gateReason = 'Mixed: ' + why.join('; ') + ' — list halved, cautious';
-    } else {
-      gate = 'GREEN';
-      gateReason = 'SPX above 200-day, HY OAS < 4.0, no breadth stress — top-decile list active';
-    }
-  }
+  const checks = [
+    {
+      name: 'spx_below_200d',
+      value: scored.legs.spxBelow200d,
+      detail: spxKnown
+        ? `SPX ${spx.price.toFixed(2)} vs 200D ${spx.sma200.toFixed(2)} (margin ${(spx.marginPct * 100).toFixed(2)}%) as of ${spx.asOf}`
+        : 'SPX benchmark unavailable',
+    },
+    {
+      name: 'hy_oas_ge_4',
+      value: scored.legs.hyOasStress,
+      detail: hy.value !== null ? `HY OAS ${hy.value} (${hy.source}, ${hy.freshness})` : 'HY OAS unavailable',
+    },
+    {
+      name: 'vix_ge_30',
+      value: scored.legs.vixStress,
+      detail: vix.value !== null ? `VIX ${vix.value} (${vix.source}, ${vix.freshness})` : 'VIX unavailable',
+    },
+  ];
 
-  const activeCut = gate === 'GREEN' ? decileCut : gate === 'YELLOW' ? vigintileCut : 0;
+  // Monthly score history for the live hysteresis approximation.
+  const prevGate = readJson(path.join(outDir, 'momentum-gate.json'), null);
+  const prevHistory = Array.isArray(prevGate?.scoreHistory) ? prevGate.scoreHistory : [];
+  const todayIso = generatedAt.slice(0, 10);
+  const thisMonth = todayIso.slice(0, 7);
+  const scoreHistory = [
+    ...prevHistory.filter(h =>
+      h && /^\d{4}-\d{2}-\d{2}$/.test(h.date || '') && h.date.slice(0, 7) !== thisMonth &&
+      Number.isInteger(h.score) && h.score >= 0 && h.score <= 3),
+    { date: todayIso, score: scored.score },
+  ].slice(-12);
+  const effSeq = gateV2.applyHysteresis(scoreHistory, { fast: false });
+  const eff = effSeq[effSeq.length - 1];
+
+  const legBits = [
+    spxKnown ? (spx.above ? `SPX above 200D (+${(spx.marginPct * 100).toFixed(2)}%)` : `SPX BELOW 200D (${(spx.marginPct * 100).toFixed(2)}%)`) : 'SPX 200D unknown',
+    hy.value !== null ? `HY OAS ${hy.value}%${hy.value >= gateV2.THRESHOLDS.hyOasStress ? ' — stress leg ON (≥ 4.0)' : ''}` : 'HY OAS n/a',
+    vix.value !== null ? `VIX ${vix.value}${vix.value >= gateV2.THRESHOLDS.vixStress ? ' — stress leg ON (≥ 30)' : ''}` : 'VIX n/a',
+  ];
+  const gateReason = `Stress score ${scored.score}/3 (${legBits.join('; ')}). ` +
+    `Target ${target.tierLabel} (${Math.round(target.exposure * 100)}% exposure)` +
+    (eff.tier !== target.tier
+      ? ` — held at ${eff.tierLabel} (${Math.round(eff.exposure * 100)}%) by re-risk hysteresis: the lower score must hold 2 consecutive months before stepping exposure back up.`
+      : ` — effective ${eff.tierLabel} (${Math.round(eff.exposure * 100)}% exposure). `) +
+    `Top decile scaled by exposure; remainder cash.` +
+    (scored.legsAvailable < 3 ? ' NOTE: a gate leg is unavailable — score computed on available legs only; treat exposure as provisional.' : '');
+
   const activeList = included
-    .filter(r => r.rank <= activeCut)
+    .filter(r => r.rank <= decileCut)
     .map(r => ({ symbol: r.symbol, rank: r.rank, composite: r.composite, price: r.price, asOf: r.asOf }));
 
   const gateDoc = {
     generatedAt,
-    gate,
+    gateVersion: 'v2',
+    score: scored.score,
+    legs: scored.legs,
+    legsAvailable: scored.legsAvailable,
+    targetTier: target.tier,
+    targetTierLabel: target.tierLabel,
+    targetExposure: target.exposure,
+    tier: eff.tier,
+    tierLabel: eff.tierLabel,
+    exposure: eff.exposure,
     reason: gateReason,
     thresholds: {
-      hyOasRed: T.hyOasRed,
-      hyOasYellow: T.hyOasYellow,
-      vixYellow: T.vixYellow,
-      spxThinMarginPct: T.spxThinMargin * 100,
-      rule: 'RED if SPX below 200-day OR HY OAS >= 4.0 (list EMPTY / cash). YELLOW if HY OAS >= 3.5 OR VIX >= 25 OR SPX within 2% of 200D (top 5% only, cautious). Else GREEN (top decile active).',
+      hyOasStress: gateV2.THRESHOLDS.hyOasStress,
+      vixStress: gateV2.THRESHOLDS.vixStress,
+      exposureByTier: { FULL: 1.0, REDUCED: 0.6, DEFENSIVE: 0.25 },
+      rule: 'Stress score S = (SPX below 200d ? 1:0) + (HY OAS >= 4.0 ? 1:0) + (VIX >= 30 ? 1:0). Exposure tiers: S=0 -> 100% (FULL), S=1 -> 60% (REDUCED), S>=2 -> 25% (DEFENSIVE, floor — never 0%). Target list is always the top decile scaled by exposure; remainder is cash. Asymmetric hysteresis: de-risk applies immediately when S rises; re-risk moves at most one tier per rebalance and only when the lower S has held for 2 consecutive rebalances (current + prior).',
     },
     inputs: {
       spxVs200d: { above: spx.above, marginPct: spx.marginPct === null ? null : Math.round(spx.marginPct * 10000) / 10000, price: spx.price, sma200: spx.sma200, asOf: spx.asOf, source: 'cached ^GSPC Yahoo adjclose (same series family as engine history)' },
@@ -320,6 +362,8 @@ function main() {
       vix,
     },
     checks,
+    scoreHistory,
+    hysteresisNote: 'Live hysteresis is approximated on a monthly score history (one entry per calendar month, latest run wins; last 12 kept) using the same shared module as the backtest. A leg with an unavailable input contributes 0 to the score (same substitution the backtest uses for HY OAS before 2023-09-30).',
     activeCount: activeList.length,
     dataHealth,
   };
@@ -366,11 +410,16 @@ function main() {
 
   const topDecileDoc = {
     generatedAt,
-    gate,
-    gateReason,
+    gateVersion: 'v2',
+    tier: eff.tier,
+    tierLabel: eff.tierLabel,
+    score: scored.score,
+    exposure: eff.exposure,
+    targetExposure: target.exposure,
+    reason: gateReason,
     activeCount: activeList.length,
-    list: gate === 'RED' ? [] : activeList,
-    ...(gate === 'RED' ? { reasonEmpty: 'Gate is RED — momentum list is intentionally empty (cash). ' + gateReason } : {}),
+    list: activeList,
+    note: 'v2: the target list is ALWAYS the full top decile, scaled by exposure; the remainder is cash. No vigintile concentration.',
   };
 
   fs.mkdirSync(outDir, { recursive: true });
@@ -384,7 +433,7 @@ function main() {
   const rebFinal = computeRebalance(lastDataDate, prevTopDecile, activeList.map(e => e.symbol));
   fs.writeFileSync(path.join(outDir, 'momentum-rebalance.json'), JSON.stringify(rebFinal, null, 2));
 
-  console.log(`generate-momentum-state: ${n} ranked, ${excluded.length} excluded, gate=${gate}, active=${activeList.length}, dataHealth=${dataHealth}`);
+  console.log(`generate-momentum-state: ${n} ranked, ${excluded.length} excluded, v2 score=${scored.score} tier=${eff.tierLabel} exposure=${Math.round(eff.exposure * 100)}%, active=${activeList.length}, dataHealth=${dataHealth}`);
   console.log(`Wrote ${path.relative(root, outDir)}/*.json (4 committed artifacts)`);
 }
 

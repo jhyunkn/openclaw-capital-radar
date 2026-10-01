@@ -12,12 +12,16 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const arr = v => Array.isArray(v) ? v : [];
 
-function gateMeta(gate) {
-  switch (gate) {
-    case 'GREEN':  return { label: 'GREEN — list active',      cls: 'mom-green' };
-    case 'YELLOW': return { label: 'YELLOW — cautious',        cls: 'mom-yellow' };
-    case 'RED':    return { label: 'RED — cash',               cls: 'mom-red' };
-    default:       return { label: String(gate || 'unknown'), cls: '' };
+function tierMeta(tierLabel, score, exposure) {
+  // v2 gate: the badge must show tier/score/exposure, not just a color.
+  const pct = exposure === null || exposure === undefined || !Number.isFinite(exposure)
+    ? '—' : `${Math.round(exposure * 100)}%`;
+  const s = Number.isInteger(score) ? score : '—';
+  switch (tierLabel) {
+    case 'FULL':     return { label: `FULL · stress ${s} · ${pct} exposure`,      cls: 'mom-green' };
+    case 'REDUCED':  return { label: `REDUCED · stress ${s} · ${pct} exposure`,    cls: 'mom-yellow' };
+    case 'DEFENSIVE':return { label: `DEFENSIVE · stress ${s}+ · ${pct} exposure`, cls: 'mom-red' };
+    default:         return { label: `${tierLabel || 'unknown'} · stress ${s} · ${pct} exposure`, cls: '' };
   }
 }
 
@@ -45,7 +49,7 @@ function renderRow(e) {
 function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) {
   if (!topDecile || !gate || !rebalance) return '';
 
-  const meta  = gateMeta(gate.gate);
+  const meta  = tierMeta(gate.tierLabel, gate.score, gate.exposure);
   const list  = arr(topDecile.list).slice(0, 10);
   const rows  = list.map(e => {
     const full = (state?.table || []).find(t => t.symbol === e.symbol) || {};
@@ -69,7 +73,7 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
 
   const topCount = topDecile.activeCount;
   const universeN = state?.includedCount || '';
-  const scope = gate.gate === 'GREEN' ? `top decile of ${universeN}` : gate.gate === 'YELLOW' ? `top 5% of ${universeN}` : '—';
+  const scope = `top decile of ${universeN} · ${Math.round((topDecile.exposure ?? gate.exposure ?? 1) * 100)}% invested, rest cash`;
 
   const moduleMode = options.module === true;
   const shellOpen = moduleMode
@@ -98,7 +102,7 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
       <tbody>${rows}</tbody>
     </table>
     <p class="mom-scope">Showing top 10 of ${esc(topCount)} active names (${esc(scope)})</p>`
-    : `<p class="mom-empty">${esc(topDecile.reasonEmpty || 'No active momentum names.')}</p>`}
+    : `<p class="mom-empty">No active momentum names — engine data unavailable.</p>`}
 
     <div class="mom-foot">
       <span class="mom-rebal">Next rebalance: <strong>${esc(rebalance.nextRebalanceDate || '—')}</strong>${rebalance.tradingDaysRemaining !== undefined ? ` · ${esc(rebalance.tradingDaysRemaining)} trading days away` : ''}</span>

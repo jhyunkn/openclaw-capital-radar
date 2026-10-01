@@ -130,4 +130,4 @@ html = removeElementById(html, MODULE_ID);
 html = insertInsideSectionEnd(html, MACRO_ID, section);
 
 fs.writeFileSync(indexPath, html);
-console.log(`injected momentum macro module: gate=${gate.gate}, active=${topDecile.activeCount}, generated ${gate.generatedAt?.slice(0, 10) || '?'}`);
+console.log(`injected momentum macro module: v2 score=${gate.score} tier=${gate.tierLabel} exposure=${Math.round((gate.exposure ?? 1) * 100)}%, active=${topDecile.activeCount}, generated ${gate.generatedAt?.slice(0, 10) || '?'}`);

@@ -14,11 +14,20 @@
 
 const fs = require('fs');
 const path = require('path');
+const gateV2 = require('./momentum-gate-v2.cjs'); // verify hysteresis with the shared implementation
 
 const root = path.join(__dirname, '..');
 const dir = path.join(root, 'outputs', 'momentum');
 const errors = [];
 const warnings = [];
+
+const EXPOSURE_BY_TIER = [1.0, 0.6, 0.25];
+const TIER_LABELS = ['FULL', 'REDUCED', 'DEFENSIVE'];
+
+function tierOk(tier, label, exposure) {
+  return Number.isInteger(tier) && tier >= 0 && tier <= 2 &&
+    TIER_LABELS[tier] === label && exposure === EXPOSURE_BY_TIER[tier];
+}
 
 function readJson(name) {
   const file = path.join(dir, name);
@@ -101,45 +110,105 @@ if (state) {
 }
 
 if (gate) {
-  for (const f of ['generatedAt', 'gate', 'reason', 'thresholds', 'inputs', 'checks', 'activeCount']) {
+  for (const f of ['generatedAt', 'gateVersion', 'score', 'legs', 'legsAvailable', 'targetTier', 'targetTierLabel', 'targetExposure', 'tier', 'tierLabel', 'exposure', 'reason', 'thresholds', 'inputs', 'checks', 'scoreHistory', 'activeCount']) {
     if (gate[f] === undefined || gate[f] === null) errors.push(`momentum-gate.json missing field ${f}`);
   }
-  if (!['GREEN', 'YELLOW', 'RED'].includes(gate.gate)) errors.push(`momentum-gate.json invalid gate ${gate.gate}`);
+  if (gate.gateVersion !== 'v2') errors.push(`momentum-gate.json gateVersion ${gate.gateVersion} != 'v2'`);
+  // score <-> legs consistency
+  if (gate.legs) {
+    const legKeys = ['spxBelow200d', 'hyOasStress', 'vixStress'];
+    for (const k of legKeys) {
+      if (!(gate.legs[k] === true || gate.legs[k] === false || gate.legs[k] === null)) {
+        errors.push(`momentum-gate.json legs.${k} must be boolean|null`);
+      }
+    }
+    const availCount = legKeys.filter(k => gate.legs[k] !== null).length;
+    if (gate.legsAvailable !== availCount) errors.push(`momentum-gate.json legsAvailable ${gate.legsAvailable} != non-null leg count ${availCount}`);
+    const trueCount = legKeys.filter(k => gate.legs[k] === true).length;
+    if (gate.score !== trueCount) errors.push(`momentum-gate.json score ${gate.score} != true-leg count ${trueCount}`);
+  }
+  if (!Number.isInteger(gate.score) || gate.score < 0 || gate.score > 3) errors.push(`momentum-gate.json invalid score ${gate.score}`);
+  if (Number.isInteger(gate.score) && Number.isInteger(gate.legsAvailable) && gate.score > gate.legsAvailable) {
+    errors.push(`momentum-gate.json score ${gate.score} > legsAvailable ${gate.legsAvailable}`);
+  }
+  // target tier from score (no hysteresis)
+  if (Number.isInteger(gate.score)) {
+    const t = gateV2.tierFromScore(gate.score);
+    if (gate.targetTier !== t.tier || gate.targetTierLabel !== t.tierLabel || gate.targetExposure !== t.exposure) {
+      errors.push(`momentum-gate.json target tier/exposure inconsistent with score ${gate.score} (expected tier ${t.tier}/${t.tierLabel}/${t.exposure})`);
+    }
+  }
+  if (!tierOk(gate.tier, gate.tierLabel, gate.exposure)) {
+    errors.push(`momentum-gate.json tier/tierLabel/exposure inconsistent (tier=${gate.tier}, label=${gate.tierLabel}, exposure=${gate.exposure})`);
+  }
+  // score history sanity + hysteresis verification via the shared module
+  if (Array.isArray(gate.scoreHistory)) {
+    if (!gate.scoreHistory.length) errors.push('momentum-gate.json scoreHistory empty');
+    let prevDate = '';
+    for (const h of gate.scoreHistory) {
+      if (!h || !/^\d{4}-\d{2}-\d{2}$/.test(h.date || '')) { errors.push('momentum-gate.json scoreHistory entry missing/invalid date'); break; }
+      if (h.date <= prevDate) { errors.push('momentum-gate.json scoreHistory dates not strictly ascending'); break; }
+      prevDate = h.date;
+      if (!Number.isInteger(h.score) || h.score < 0 || h.score > 3) { errors.push(`momentum-gate.json scoreHistory invalid score at ${h.date}`); break; }
+    }
+    const lastH = gate.scoreHistory[gate.scoreHistory.length - 1];
+    if (lastH && lastH.score !== gate.score) errors.push(`momentum-gate.json scoreHistory last score ${lastH.score} != current score ${gate.score}`);
+    if (gate.generatedAt && lastH) {
+      const ageD = Math.abs(new Date(gate.generatedAt).getTime() - new Date(lastH.date + 'T12:00:00Z').getTime()) / 86400000;
+      if (!(ageD <= 2)) errors.push(`momentum-gate.json scoreHistory last entry ${lastH.date} not within 2d of generatedAt`);
+    }
+    // independent hysteresis replay: final effective tier/exposure must match
+    const replay = gateV2.applyHysteresis(gate.scoreHistory.map(h => ({ date: h.date, score: h.score })), { fast: false });
+    const fin = replay[replay.length - 1];
+    if (fin && (fin.tier !== gate.tier || fin.exposure !== gate.exposure)) {
+      errors.push(`momentum-gate.json hysteresis replay gives tier ${fin.tier}/${fin.exposure} != recorded ${gate.tier}/${gate.exposure}`);
+    }
+  } else {
+    errors.push('momentum-gate.json scoreHistory must be an array');
+  }
   if (!gate.inputs?.spxVs200d || !gate.inputs?.hyOas || !gate.inputs?.vix) errors.push('momentum-gate.json inputs must include spxVs200d, hyOas, vix');
   if (!Array.isArray(gate.checks) || !gate.checks.length) errors.push('momentum-gate.json checks must be non-empty');
+  const checkNames = (gate.checks || []).map(c => c.name);
+  for (const n of ['spx_below_200d', 'hy_oas_ge_4', 'vix_ge_30']) {
+    if (!checkNames.includes(n)) errors.push(`momentum-gate.json checks missing ${n}`);
+  }
   if (!gate.reason || !String(gate.reason).trim()) errors.push('momentum-gate.json reason empty');
+  const rule = String(gate.thresholds?.rule || '');
+  if (!/never 0|floor/i.test(rule)) warnings.push('momentum-gate.json thresholds.rule does not state the never-0% floor');
   noNonFinite(gate, 'momentum-gate');
 }
 
 if (top) {
-  for (const f of ['generatedAt', 'gate', 'gateReason', 'activeCount', 'list']) {
+  for (const f of ['generatedAt', 'gateVersion', 'tier', 'tierLabel', 'score', 'exposure', 'reason', 'activeCount', 'list']) {
     if (top[f] === undefined || top[f] === null) errors.push(`momentum-top-decile.json missing field ${f}`);
   }
   if (!Array.isArray(top.list)) errors.push('momentum-top-decile.json list must be an array');
-  if (gate && top.gate !== gate.gate) errors.push(`momentum-top-decile gate ${top.gate} != momentum-gate ${gate.gate}`);
+  if (top.gateVersion !== 'v2') errors.push(`momentum-top-decile.json gateVersion ${top.gateVersion} != 'v2'`);
+  // cross-file consistency with the gate
+  if (gate) {
+    if (top.tier !== gate.tier) errors.push(`momentum-top-decile tier ${top.tier} != momentum-gate ${gate.tier}`);
+    if (top.tierLabel !== gate.tierLabel) errors.push(`momentum-top-decile tierLabel ${top.tierLabel} != momentum-gate ${gate.tierLabel}`);
+    if (top.score !== gate.score) errors.push(`momentum-top-decile score ${top.score} != momentum-gate ${gate.score}`);
+    if (top.exposure !== gate.exposure) errors.push(`momentum-top-decile exposure ${top.exposure} != momentum-gate ${gate.exposure}`);
+    if (top.activeCount !== gate.activeCount) errors.push(`momentum-top-decile activeCount ${top.activeCount} != momentum-gate ${gate.activeCount}`);
+  }
+  if (!tierOk(top.tier, top.tierLabel, top.exposure)) {
+    errors.push(`momentum-top-decile.json tier/tierLabel/exposure inconsistent (tier=${top.tier}, label=${top.tierLabel}, exposure=${top.exposure})`);
+  }
   if (top.list && top.activeCount !== top.list.length) errors.push(`momentum-top-decile activeCount ${top.activeCount} != list length ${top.list.length}`);
 
   if (state && Array.isArray(state.table)) {
     const n = state.table.length;
     const rankOf = new Map(state.table.map(r => [r.symbol, r.rank]));
-    if (top.gate === 'RED') {
-      if (top.list.length !== 0) errors.push('gate RED but top-decile list non-empty');
-      if (!top.reasonEmpty) errors.push('gate RED but reasonEmpty missing');
-    } else if (top.gate === 'GREEN') {
-      const cut = Math.ceil(n / 10);
-      if (top.list.length !== cut) errors.push(`gate GREEN but list length ${top.list.length} != top-decile cut ${cut}`);
-    } else if (top.gate === 'YELLOW') {
-      const cut = Math.ceil(n / 20);
-      if (top.list.length !== cut) errors.push(`gate YELLOW but list length ${top.list.length} != top-5% cut ${cut}`);
-    }
-    if (top.gate !== 'RED') {
-      const ranks = top.list.map(e => e.rank);
-      const sorted = [...ranks].sort((a, b) => a - b);
-      if (ranks.some((r, i) => r !== sorted[i])) errors.push('momentum-top-decile list not sorted by rank ascending');
-      for (const e of top.list) {
-        if (rankOf.get(e.symbol) !== e.rank) errors.push(`top-decile ${e.symbol} rank ${e.rank} not in state table`);
-        if (!finiteNum(e.composite) || !finiteNum(e.price)) errors.push(`top-decile ${e.symbol} non-finite composite/price`);
-      }
+    // v2: the target list is ALWAYS the full top decile (scaled by exposure, never emptied).
+    const cut = Math.ceil(n / 10);
+    if (top.list.length !== cut) errors.push(`v2 gate but list length ${top.list.length} != top-decile cut ${cut}`);
+    const ranks = top.list.map(e => e.rank);
+    const sorted = [...ranks].sort((a, b) => a - b);
+    if (ranks.some((r, i) => r !== sorted[i])) errors.push('momentum-top-decile list not sorted by rank ascending');
+    for (const e of top.list) {
+      if (rankOf.get(e.symbol) !== e.rank) errors.push(`top-decile ${e.symbol} rank ${e.rank} not in state table`);
+      if (!finiteNum(e.composite) || !finiteNum(e.price)) errors.push(`top-decile ${e.symbol} non-finite composite/price`);
     }
   }
   noNonFinite(top, 'momentum-top-decile');

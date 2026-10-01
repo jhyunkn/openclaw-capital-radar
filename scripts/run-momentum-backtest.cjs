@@ -15,9 +15,20 @@
  *     <= T; latest VIX / HY OAS observation with date <= T).
  *
  * Variants:
- *   (a) gated   — RED month: all cash (0% return). YELLOW: top 5% only.
+ *   (a) gated   — v1: RED month: all cash (0% return). YELLOW: top 5% only.
  *                 GREEN: top decile, equal weight.
- *   (b) ungated — always fully invested, top decile, equal weight.
+ *   (b) gated_v2 — v2 regime gate (shared module scripts/momentum-gate-v2.cjs):
+ *                 stress score S = (SPX below 200d) + (HY OAS >= 4.0) +
+ *                 (VIX >= 30); exposure tiers S=0 -> 100%, S=1 -> 60%,
+ *                 S>=2 -> 25% (floor, never 0%); target list ALWAYS the top
+ *                 decile scaled by exposure, remainder cash; asymmetric
+ *                 hysteresis — de-risk immediate on S rise, re-risk at most
+ *                 one tier per rebalance and only when the lower S has held
+ *                 for 2 consecutive rebalances (current + prior).
+ *   (c) gated_v2_fast — identical to gated_v2 but re-risk needs only 1
+ *                 rebalance of confirmation (sensitivity variant; reported,
+ *                 not selected on).
+ *   (d) ungated — always fully invested, top decile, equal weight.
  *   Benchmark: ^GSPC buy-and-hold total return over the same window (adj close).
  *
  * Costs: 10 bps per side on traded notional (buys + sells), share-count
@@ -28,6 +39,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const gateV2 = require('./momentum-gate-v2.cjs'); // shared v2 gate: backtest + live use one implementation
 
 const root = path.join(__dirname, '..');
 const cachePath = path.join(root, 'outputs', 'cache', 'momentum', 'price-history.json');
@@ -259,11 +271,18 @@ function main() {
     const g = gateAsOf(m.index, m.date);
     const activeCut = g.gate === 'GREEN' ? decileCut : g.gate === 'YELLOW' ? vigintileCut : 0;
     const targetList = ranked.filter(r => r.rank <= activeCut).map(r => r.symbol);
+    // v2 stress score from the SAME gate inputs (shared module; hysteresis applied after the loop).
+    const v2score = gateV2.scoreFromLegs({
+      spxBelow200d: g.inputs.spxAbove200d === true ? false : g.inputs.spxAbove200d === false ? true : null,
+      hyOas: g.inputs.hyOas,
+      vix: g.inputs.vix,
+    });
     rebalanceLog.push({
       date: m.date,
       benchmarkIndex: m.index,
       gate: g.gate,
       gateInputs: g.inputs,
+      gateV2Score: v2score, // replaced below by gateV2/gateV2Fast after hysteresis
       eligibleCount: n,
       ineligibleCount: ineligible.length,
       decileCut,
@@ -274,10 +293,42 @@ function main() {
     });
   }
 
+  // ---- v2 hysteresis: one pass over the score sequence (standard + fast) ----
+  // De-risk is immediate; re-risk needs 2 consecutive rebalances at the lower
+  // score (standard) or 1 (fast). First rebalance initializes the tier.
+  const v2ScoreSeq = rebalanceLog.map(e => ({ date: e.date, score: e.gateV2Score.score }));
+  const v2Hyst = gateV2.applyHysteresis(v2ScoreSeq, { fast: false });
+  const v2HystFast = gateV2.applyHysteresis(v2ScoreSeq, { fast: true });
+  rebalanceLog.forEach((e, i) => {
+    const s = v2Hyst[i], f = v2HystFast[i];
+    e.gateV2 = {
+      score: e.gateV2Score.score,
+      legs: e.gateV2Score.legs,
+      legsAvailable: e.gateV2Score.legsAvailable,
+      tier: s.tier, tierLabel: s.tierLabel, exposure: s.exposure, tierChanged: s.tierChanged,
+    };
+    e.gateV2Fast = {
+      score: e.gateV2Score.score,
+      legs: e.gateV2Score.legs,
+      legsAvailable: e.gateV2Score.legsAvailable,
+      tier: f.tier, tierLabel: f.tierLabel, exposure: f.exposure, tierChanged: f.tierChanged,
+    };
+    delete e.gateV2Score;
+  });
+
   // ---- portfolio simulation ----
   const rebByIndex = new Map(rebalanceLog.map(e => [e.benchmarkIndex, e]));
   const i0 = firstEligible.index;
   const iEnd = bDates.length - 1;
+
+  function targetForVariant(variant, entry) {
+    // v1 gated: gate's active list (cash on RED). ungated + v2 variants: always
+    // the full top decile; v2 scales it by the hysteresis-adjusted exposure.
+    if (variant === 'gated_v2') return { list: entry.rankedUniverse.slice(0, entry.decileCut), exposure: entry.gateV2.exposure };
+    if (variant === 'gated_v2_fast') return { list: entry.rankedUniverse.slice(0, entry.decileCut), exposure: entry.gateV2Fast.exposure };
+    if (variant === 'ungated') return { list: entry.rankedUniverse.slice(0, entry.decileCut), exposure: 1.0 };
+    return { list: entry.targetList, exposure: 1.0 }; // 'gated' (v1)
+  }
 
   function simulate(variant) {
     const shares = new Map(); // symbol -> share count
@@ -305,10 +356,7 @@ function main() {
       const entry = rebByIndex.get(i);
       if (entry) {
         nReb++;
-        // ungated: full top decile regardless of gate; gated: gate's active list (cash on RED).
-        const targetList = variant === 'ungated'
-          ? entry.rankedUniverse.slice(0, entry.decileCut)
-          : entry.targetList;
+        const { list: targetList, exposure } = targetForVariant(variant, entry);
         const targetSet = new Set(targetList);
         // nav before trades, at T's close
         let nav = cash;
@@ -331,7 +379,9 @@ function main() {
         if (targetList.length > 0) {
           let avail = cash;
           for (const s of shares.keys()) if (targetSet.has(s)) avail += shares.get(s) * px[s];
-          const targetVal = avail / targetList.length;
+          // v2: invest exposure x avail across the decile; the rest stays cash.
+          // v1/ungated exposure is 1.0, so this reduces to the old behavior.
+          const targetVal = (avail * exposure) / targetList.length;
           for (const s of targetList) {
             const cur = (shares.get(s) || 0) * px[s];
             const delta = targetVal - cur;
@@ -372,6 +422,8 @@ function main() {
   }
 
   const gated = simulate('gated');
+  const gatedV2 = simulate('gated_v2');
+  const gatedV2Fast = simulate('gated_v2_fast');
   const ungated = simulate('ungated');
 
   // benchmark buy-and-hold over the same window
@@ -380,8 +432,27 @@ function main() {
   for (let i = i0; i <= iEnd; i++) benchCurve.push({ date: bDateIso[i], nav: bAdj[i] / bhBase });
 
   const gatedStats = statsFromCurve(gated.curve);
+  const gatedV2Stats = statsFromCurve(gatedV2.curve);
+  const gatedV2FastStats = statsFromCurve(gatedV2Fast.curve);
   const ungatedStats = statsFromCurve(ungated.curve);
   const benchStats = statsFromCurve(benchCurve);
+
+  function simSummary(sim, stats) {
+    return {
+      ...stats,
+      nRebalances: sim.nRebalances,
+      turnoverAvg: sim.turnoverAvg,
+      totalCostPaid: sim.totalCostPaid,
+      totalTradedNotional: sim.totalTradedNotional,
+    };
+  }
+
+  // gate/tier change counts over the 59 rebalances
+  function countChanges(arr) { let c = 0; for (let i = 1; i < arr.length; i++) if (arr[i] !== arr[i - 1]) c++; return c; }
+  const v1GateFlips = countChanges(rebalanceLog.map(e => e.gate));
+  const v2ScoreChanges = countChanges(rebalanceLog.map(e => e.gateV2.score));
+  const v2TierChanges = countChanges(rebalanceLog.map(e => e.gateV2.tier));
+  const v2FastTierChanges = countChanges(rebalanceLog.map(e => e.gateV2Fast.tier));
 
   // crash episodes
   function episodeReturn(curve, startIso, endIso) {
@@ -396,9 +467,11 @@ function main() {
       inSample: true,
       ...(() => {
         const g = episodeReturn(gated.curve, '2022-01-03', '2022-10-12');
+        const g2 = episodeReturn(gatedV2.curve, '2022-01-03', '2022-10-12');
+        const gf = episodeReturn(gatedV2Fast.curve, '2022-01-03', '2022-10-12');
         const u = episodeReturn(ungated.curve, '2022-01-03', '2022-10-12');
         const b = episodeReturn(benchCurve, '2022-01-03', '2022-10-12');
-        return { period: g.period, gatedReturn: g.ret, ungatedReturn: u.ret, benchmarkReturn: b.ret };
+        return { period: g.period, gatedReturn: g.ret, gatedV2Return: g2.ret, gatedV2FastReturn: gf.ret, ungatedReturn: u.ret, benchmarkReturn: b.ret };
       })(),
       note: 'In-sample: SPX fell -25.4% peak (2022-01-03) to trough (2022-10-12). VIX leg active (weekly obs); HY OAS unavailable before 2023-09-30, so the 2022 gate ran on SPX-200d + VIX only.',
     },
@@ -407,9 +480,11 @@ function main() {
       inSample: true,
       ...(() => {
         const g = episodeReturn(gated.curve, '2025-02-19', '2025-04-08');
+        const g2 = episodeReturn(gatedV2.curve, '2025-02-19', '2025-04-08');
+        const gf = episodeReturn(gatedV2Fast.curve, '2025-02-19', '2025-04-08');
         const u = episodeReturn(ungated.curve, '2025-02-19', '2025-04-08');
         const b = episodeReturn(benchCurve, '2025-02-19', '2025-04-08');
-        return { period: g.period, gatedReturn: g.ret, ungatedReturn: u.ret, benchmarkReturn: b.ret };
+        return { period: g.period, gatedReturn: g.ret, gatedV2Return: g2.ret, gatedV2FastReturn: gf.ret, ungatedReturn: u.ret, benchmarkReturn: b.ret };
       })(),
       note: 'In-sample: second-worst drawdown in window (SPX -10.1% from 2025-02-19 peak; trough 2025-04-08 bar). Full gate (SPX-200d + VIX + HY OAS) active.',
     },
@@ -417,14 +492,14 @@ function main() {
       name: '2008-09 Global Financial Crisis',
       inSample: false,
       period: '2007-10-09 -> 2009-03-09 (reference)',
-      gatedReturn: null, ungatedReturn: null, benchmarkReturn: null,
+      gatedReturn: null, gatedV2Return: null, gatedV2FastReturn: null, ungatedReturn: null, benchmarkReturn: null,
       note: 'OUT OF SAMPLE — cannot test: 6-year cache starts 2020-10-01. The engine has never seen a -50%+ systemic drawdown; momentum crash risk (e.g. 2009 reversal) is untested.',
     },
     {
       name: '2020 COVID crash',
       inSample: false,
       period: '2020-02-19 -> 2020-03-23 (reference)',
-      gatedReturn: null, ungatedReturn: null, benchmarkReturn: null,
+      gatedReturn: null, gatedV2Return: null, gatedV2FastReturn: null, ungatedReturn: null, benchmarkReturn: null,
       note: 'OUT OF SAMPLE — cannot test: cache starts 2020-10-01, after the crash. Fast -34% drawdown with violent rebound is exactly the regime where monthly momentum whipsaws; untested.',
     },
   ];
@@ -440,7 +515,9 @@ function main() {
     windowStart,
     windowEnd: lastBarIso,
     variants: {
-      gated: 'Gate at T: RED (SPX below 200-day OR HY OAS >= 4.0) -> 100% cash (0% return). YELLOW (HY OAS >= 3.5 OR VIX >= 25 OR SPX 200-day margin < 2%) -> top 5% (vigintile) only. GREEN -> top decile.',
+      gated: 'Gate at T: RED (SPX below 200-day OR HY OAS >= 4.0) -> 100% cash (0% return). YELLOW (HY OAS >= 3.5 OR VIX >= 25 OR SPX 200-day margin < 2%) -> top 5% (vigintile) only. GREEN -> top decile. (v1 — superseded by gated_v2; retained for comparison.)',
+      gated_v2: 'v2 stress score S = (SPX below 200-day ? 1:0) + (HY OAS >= 4.0 ? 1:0) + (VIX >= 30 ? 1:0), computed on available legs only (HY OAS history starts 2023-09-30; before that the score runs on SPX-200d + VIX only, same substitution as v1). Exposure tiers: S=0 -> 100% (FULL), S=1 -> 60% (REDUCED), S>=2 -> 25% (DEFENSIVE, floor — never 0%). Target list is ALWAYS the top decile scaled by exposure; remainder is cash; no vigintile concentration. Asymmetric hysteresis: de-risk applies immediately when S rises; re-risk moves at most one tier per rebalance and only when the lower S has held for 2 consecutive rebalances (current + prior). Single implementation shared with the live gate: scripts/momentum-gate-v2.cjs.',
+      gated_v2_fast: 'Sensitivity variant of gated_v2: identical score/tiers/target list, but re-risk needs only 1 rebalance of confirmation (no hold requirement), still at most one tier per rebalance. Reported, not selected on.',
       ungated: 'Gate ignored — always fully invested in the top decile, equal weight.',
       benchmark: '^GSPC buy-and-hold total return (adjusted close, i.e. dividends included) over the same window.',
     },
@@ -459,7 +536,51 @@ function main() {
       'GATE INPUT SUBSTITUTION: HY OAS history (BAMLH0A0HYM2) exists only from 2023-09-30. For rebalance dates before that, the gate ran on the SPX-200d + VIX legs only (no credit leg) — including the entire 2022 bear market. VIX series is weekly-sampled (median 5-day gaps); the gate uses the latest observation dated <= T.',
       'First trading day of month = first bar of the month in the cache (actual trading days); exchange-holiday edge cases are handled exactly by the data.',
       'Cash earns 0% (no T-bill yield credited); benchmark is total return including dividends via adjusted close.',
+      'V2 HYSTERESIS INITIALIZATION: the first rebalance initializes the effective tier to the target tier (no history to confirm against); the asymmetric confirmation rule applies from the second rebalance on.',
+      'V2 LIVE PARITY: the live gate (scripts/generate-momentum-state.cjs) uses the same shared module (scripts/momentum-gate-v2.cjs); live hysteresis is approximated on a monthly score history, documented in momentum-gate.json.',
     ],
+  };
+
+  const gateComparison = {
+    note: 'Head-to-head of the v1 gate, the v2 gate (standard + fast sensitivity), and ungated, on identical window/costs/universe. Flips = consecutive-rebalance gate changes (v1); tierChanges = consecutive-rebalance effective-exposure changes (v2).',
+    rows: [
+      {
+        variant: 'gated (v1)', cagr: gatedStats.cagr, maxDrawdown: gatedStats.maxDrawdown,
+        sharpe: gatedStats.sharpe, annVol: gatedStats.annVol, totalReturn: gatedStats.totalReturn,
+        gateFlips: v1GateFlips, scoreChanges: null, tierChanges: null,
+        note: 'Binary RED->cash + YELLOW vigintile concentration. Suffers the re-risk lag documented in the diagnosis.',
+      },
+      {
+        variant: 'gated_v2', cagr: gatedV2Stats.cagr, maxDrawdown: gatedV2Stats.maxDrawdown,
+        sharpe: gatedV2Stats.sharpe, annVol: gatedV2Stats.annVol, totalReturn: gatedV2Stats.totalReturn,
+        gateFlips: null, scoreChanges: v2ScoreChanges, tierChanges: v2TierChanges,
+        note: 'Stress score + exposure tiers (100/60/25%) + asymmetric hysteresis; always top decile.',
+      },
+      {
+        variant: 'gated_v2_fast', cagr: gatedV2FastStats.cagr, maxDrawdown: gatedV2FastStats.maxDrawdown,
+        sharpe: gatedV2FastStats.sharpe, annVol: gatedV2FastStats.annVol, totalReturn: gatedV2FastStats.totalReturn,
+        gateFlips: null, scoreChanges: v2ScoreChanges, tierChanges: v2FastTierChanges,
+        note: 'Sensitivity variant: 1-rebalance re-risk confirmation. Reported, not selected on.',
+      },
+      {
+        variant: 'ungated', cagr: ungatedStats.cagr, maxDrawdown: ungatedStats.maxDrawdown,
+        sharpe: ungatedStats.sharpe, annVol: ungatedStats.annVol, totalReturn: ungatedStats.totalReturn,
+        gateFlips: 0, scoreChanges: 0, tierChanges: 0,
+        note: 'No gate — always fully invested in the top decile.',
+      },
+    ],
+    crashEpisodeReturns: {
+      '2022 bear market': {
+        gated: crashEpisodes[0].gatedReturn, gated_v2: crashEpisodes[0].gatedV2Return,
+        gated_v2_fast: crashEpisodes[0].gatedV2FastReturn, ungated: crashEpisodes[0].ungatedReturn,
+        benchmark: crashEpisodes[0].benchmarkReturn,
+      },
+      '2025 tariff drawdown': {
+        gated: crashEpisodes[1].gatedReturn, gated_v2: crashEpisodes[1].gatedV2Return,
+        gated_v2_fast: crashEpisodes[1].gatedV2FastReturn, ungated: crashEpisodes[1].ungatedReturn,
+        benchmark: crashEpisodes[1].benchmarkReturn,
+      },
+    },
   };
 
   const doc = {
@@ -467,10 +588,13 @@ function main() {
     methodology,
     window: { start: windowStart, end: lastBarIso, rebalanceCount: rebDates.length },
     variants: {
-      gated: { ...gatedStats, nRebalances: gated.nRebalances, turnoverAvg: gated.turnoverAvg, totalCostPaid: gated.totalCostPaid, totalTradedNotional: gated.totalTradedNotional },
-      ungated: { ...ungatedStats, nRebalances: ungated.nRebalances, turnoverAvg: ungated.turnoverAvg, totalCostPaid: ungated.totalCostPaid, totalTradedNotional: ungated.totalTradedNotional },
+      gated: simSummary(gated, gatedStats),
+      gated_v2: simSummary(gatedV2, gatedV2Stats),
+      gated_v2_fast: simSummary(gatedV2Fast, gatedV2FastStats),
+      ungated: simSummary(ungated, ungatedStats),
       benchmark: { ...benchStats, note: '^GSPC buy-and-hold, no costs' },
     },
+    gateComparison,
     crashEpisodes,
     rebalanceLog,
     droppedSymbols: [...droppedSymbols].sort(),
@@ -482,9 +606,11 @@ function main() {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(doc));
   console.log(`wrote ${path.relative(root, outPath)}`);
-  console.log(`gated   CAGR ${(gatedStats.cagr * 100).toFixed(2)}%  maxDD ${(gatedStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${gatedStats.sharpe}`);
-  console.log(`ungated CAGR ${(ungatedStats.cagr * 100).toFixed(2)}%  maxDD ${(ungatedStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${ungatedStats.sharpe}`);
-  console.log(`bench   CAGR ${(benchStats.cagr * 100).toFixed(2)}%  maxDD ${(benchStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${benchStats.sharpe}`);
+  console.log(`gated    CAGR ${(gatedStats.cagr * 100).toFixed(2)}%  maxDD ${(gatedStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${gatedStats.sharpe}  flips ${v1GateFlips}`);
+  console.log(`gated_v2 CAGR ${(gatedV2Stats.cagr * 100).toFixed(2)}%  maxDD ${(gatedV2Stats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${gatedV2Stats.sharpe}  scoreChg ${v2ScoreChanges} tierChg ${v2TierChanges}`);
+  console.log(`v2_fast  CAGR ${(gatedV2FastStats.cagr * 100).toFixed(2)}%  maxDD ${(gatedV2FastStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${gatedV2FastStats.sharpe}  scoreChg ${v2ScoreChanges} tierChg ${v2FastTierChanges}`);
+  console.log(`ungated  CAGR ${(ungatedStats.cagr * 100).toFixed(2)}%  maxDD ${(ungatedStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${ungatedStats.sharpe}`);
+  console.log(`bench    CAGR ${(benchStats.cagr * 100).toFixed(2)}%  maxDD ${(benchStats.maxDrawdown * 100).toFixed(2)}%  Sharpe ${benchStats.sharpe}`);
 }
 
 main();

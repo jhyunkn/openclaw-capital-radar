@@ -34,7 +34,7 @@ const lanes = {
   },
   daily: {
     description: 'Daily scheduled refresh: data/research rebuild plus workbench-hierarchy injectors, without rendering or validating (the scheduler runs ship and validation separately so a validation failure can block the commit).',
-    stages: ['base-data', 'ticker-workbenches', 'live-state-and-research', 'market-orientation', 'workbench-hierarchy']
+    stages: ['base-data', 'ticker-workbenches', 'live-state-and-research', 'market-orientation', 'workbench-hierarchy', 'systematic-engines']
   },
   full: {
     description: 'Run every stage through the existing manifest-driven full pipeline.',

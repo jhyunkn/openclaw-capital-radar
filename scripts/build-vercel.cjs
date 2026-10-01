@@ -238,6 +238,8 @@ runFinalInjector('inject-macro-unified.cjs', 'Unified macro section injection fa
 runFinalInjector('generate-macro-prices-state.cjs', 'Macro prices state generation failed before Vercel copy');
 runFinalInjector('inject-operational-chart-home.cjs', 'Operational chart injection failed before Vercel copy');
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
+runFinalInjector('inject-momentum-home.cjs', 'Momentum macro module injection failed before Vercel copy');
+runFinalInjector('inject-arb-deal-board-home.cjs', 'Arb deal board module injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed before Vercel copy');

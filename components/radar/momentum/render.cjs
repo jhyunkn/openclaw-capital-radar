@@ -34,11 +34,13 @@ function fmtNum(v, digits = 2) {
   return Number(v).toFixed(digits);
 }
 
-function renderRow(e) {
+function renderRow(e, changes) {
   const s = e.signals || {};
   return `<tr>
     <td class="mom-num">${esc(e.rank)}</td>
     <td class="mom-sym">${esc(e.symbol)}</td>
+    <td>${entryBadge(e.entryQuality)}</td>
+    <td class="mom-num">${changeChip(e.symbol, changes)}</td>
     <td class="mom-num">${fmtNum(e.composite, 3)}</td>
     <td class="mom-num">$${fmtNum(e.price)}</td>
     <td class="mom-num">${fmtPct(s.ret12m1m)}</td>
@@ -46,14 +48,44 @@ function renderRow(e) {
   </tr>`;
 }
 
+function entryBadge(eq) {
+  const rating = eq && eq.rating;
+  const cls = rating === 'GOOD' ? 'mom-eq-good'
+    : rating === 'POOR' ? 'mom-eq-poor' : 'mom-eq-fair';
+  const reasons = eq && Array.isArray(eq.reasons) ? eq.reasons.join('; ') : '';
+  const earn = eq && eq.earningsTiming === 'unknown' ? ' · earnings timing unknown' : '';
+  const label = rating === 'GOOD' ? 'GOOD — constructive entry zone'
+    : rating === 'POOR' ? 'POOR — chasing, wait'
+    : rating === 'FAIR' ? 'FAIR — extended or consolidating, scale or wait' : '—';
+  return `<span class="mom-eq ${cls}" title="${esc(reasons)}${esc(earn)}">${esc(label)}</span>`;
+}
+
+function changeChip(sym, changes) {
+  if (!changes) return '—';
+  if ((changes.newIn || []).includes(sym)) return '<span class="mom-new">NEW</span>';
+  const rc = (changes.rankChanges || []).find(r => r.symbol === sym);
+  if (rc && rc.change) {
+    const up = rc.change > 0;
+    return `<span class="mom-delta ${up ? 'mom-up' : 'mom-down'}" title="rank ${esc(rc.prevRank)} → ${esc(rc.rank)} since ${esc(changes.vsRebalanceDate || '')} rebalance">${up ? '▲' : '▼'}${esc(Math.abs(rc.change))}</span>`;
+  }
+  return '—';
+}
+
+function fmtRebalanceDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00Z');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) {
   if (!topDecile || !gate || !rebalance) return '';
 
   const meta  = tierMeta(gate.tierLabel, gate.score, gate.exposure);
   const list  = arr(topDecile.list).slice(0, 10);
+  const changes = rebalance.changes || null;
   const rows  = list.map(e => {
     const full = (state?.table || []).find(t => t.symbol === e.symbol) || {};
-    return renderRow({ ...e, signals: full.signals });
+    return renderRow({ ...e, signals: full.signals, entryQuality: full.entryQuality }, changes);
   }).join('');
   const health = state?.dataHealth || gate.dataHealth || 'UNKNOWN';
   const healthCls = health === 'FULL' ? 'mom-health-full' : 'mom-health-partial';
@@ -94,14 +126,24 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
     <p class="mom-reason">${esc(gate.reason || '')}</p>
     <p class="mom-inputs">${esc(gateInputsLine)}</p>
 
-    ${list.length ? `<table class="mom-table">
+    ${list.length ? `<div class="mom-tablewrap"><table class="mom-table">
       <thead><tr>
-        <th class="mom-num">#</th><th>Symbol</th><th class="mom-num">Composite</th>
+        <th class="mom-num">#</th><th>Symbol</th><th>Entry</th><th class="mom-num" title="Rank change vs previous monthly rebalance">Δ</th><th class="mom-num">Composite</th>
         <th class="mom-num">Price</th><th class="mom-num">12m−1m</th><th class="mom-num">vs 52wH</th>
       </tr></thead>
       <tbody>${rows}</tbody>
-    </table>
-    <p class="mom-scope">Showing top 10 of ${esc(topCount)} active names (${esc(scope)})</p>`
+    </table></div>
+    <p class="mom-scope">Showing top 10 of ${esc(topCount)} active names (${esc(scope)})</p>
+    ${(() => {
+      if (!changes) return '';
+      const base = fmtRebalanceDate(changes.vsRebalanceDate);
+      const fromBacktest = /backtest/i.test(changes.baselineSource || '');
+      const baseNote = fromBacktest ? ' <span class="mom-baseline" title="' + esc(changes.baselineSource || '') + '">(baseline: the actual Sep 1 rebalance list)</span>' : '';
+      let out = '';
+      if (changes.newIn && changes.newIn.length) out += `<p class="mom-changes">New in since ${esc(base)} rebalance: <strong>${changes.newIn.map(esc).join(', ')}</strong>${baseNote}</p>`;
+      if (changes.newOut && changes.newOut.length) out += `<p class="mom-changes">Out since ${esc(base)} rebalance: <strong>${changes.newOut.map(esc).join(', ')}</strong></p>`;
+      return out;
+    })()}`
     : `<p class="mom-empty">No active momentum names — engine data unavailable.</p>`}
 
     <div class="mom-foot">
@@ -117,6 +159,7 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
       <span class="mom-health ${esc(healthCls)}">Data: ${esc(health)}${state?.coverageCount ? ` · ${esc(state.coverageCount)}/${esc(state.universeCount)} symbols` : ''}</span>
     </div>
     ${state?.excludedCount ? `<p class="mom-note">${esc(state.excludedCount)} symbols excluded (insufficient history). Universe is current S&amp;P 500 members — historical ranks carry survivorship bias.</p>` : ''}
+    <p class="mom-note">Entry reads are display-only — they never change the mechanical monthly portfolio. Earnings timing is unknown for every name (no feed; never guessed).</p>
   </div>
 ${shellClose}`;
 }
@@ -133,7 +176,8 @@ function renderMomentumStyle() {
 .mom-red{color:#a4502f;border-color:rgba(164,80,47,.5);background:rgba(164,80,47,.08)}
 .mom-reason{font-size:14px;color:#24231f;margin:10px 0 4px}
 .mom-inputs{font-size:12px;color:#6b675c;margin:0 0 16px}
-.mom-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.mom-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;min-width:640px}
+.mom-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mom-table th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b675c;text-align:left;padding:6px 10px;border-bottom:1px solid rgba(201,191,173,.6)}
 .mom-table td{padding:7px 10px;border-bottom:1px solid rgba(201,191,173,.25)}
 .mom-table .mom-num{text-align:right;font-variant-numeric:tabular-nums}
@@ -145,6 +189,16 @@ function renderMomentumStyle() {
 .mom-health-full{color:var(--green,#2f6f4e)}
 .mom-health-partial{color:#8a6a1f}
 .mom-note{font-size:11px;color:#8a8578;margin:8px 0 0}
+.mom-eq{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:999px;border:1px solid;white-space:nowrap}
+.mom-eq-good{color:var(--green,#2f6f4e);border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.07)}
+.mom-eq-fair{color:#8a6a1f;border-color:rgba(138,106,44,.5);background:rgba(138,106,44,.08)}
+.mom-eq-poor{color:#a4502f;border-color:rgba(164,80,47,.5);background:rgba(164,80,47,.08)}
+.mom-new{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:4px;color:#2f6f4e;background:rgba(47,111,78,.1);border:1px solid rgba(47,111,78,.35)}
+.mom-delta{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mom-up{color:var(--green,#2f6f4e)}
+.mom-down{color:#a4502f}
+.mom-changes{font-size:12px;color:#4a463c;margin:8px 0 0}
+.mom-baseline{color:#8a8578;font-size:11px}
 </style>`;
 }
 

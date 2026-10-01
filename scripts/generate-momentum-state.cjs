@@ -28,6 +28,13 @@
  *   outputs/momentum/momentum-top-decile.json
  *   outputs/momentum/momentum-gate.json
  *   outputs/momentum/momentum-rebalance.json
+ *   outputs/momentum/momentum-rebalance-snapshot.json (rebalance-anchored list)
+ *
+ * Display-only additions (never touch the backtested engine):
+ *   - per-row entryQuality: GOOD / FAIR / POOR purchase-now read + reasons;
+ *     earningsTiming is always 'unknown' (no feed — never guessed)
+ *   - rebalance.changes: NEW IN / NEW OUT / rank changes vs the previous
+ *     monthly rebalance
  */
 
 const fs = require('fs');
@@ -49,6 +56,70 @@ function sma(values, n, t) {
   let sum = 0;
   for (let i = t - n + 1; i <= t; i++) sum += values[i];
   return sum / n;
+}
+
+const r4 = v => Math.round(v * 10000) / 10000;
+
+/* ---------- entry-quality read (DISPLAY-ONLY) ----------
+ *
+ * Answers Jun's "should I buy it now" per ranked name. Heuristic, auditable,
+ * and deliberately NOT part of the backtested engine: it never changes the
+ * mechanical monthly top-decile portfolio, the gate, or any backtest number.
+ *
+ * Inputs (all from the same Yahoo adjclose series; t = last bar):
+ *   ret20d     = price / adj[t-20] - 1        (trailing-month thrust)
+ *   distSMA20  = price / sma20 - 1            (stretch above short-term mean)
+ *   distSMA50  = price / sma50 - 1            (stretch above medium-term mean)
+ *   off20dHigh = price / max(adj[t-20..t]) - 1 (pullback depth, <= 0)
+ *
+ * Ratings:
+ *   POOR — chasing: parabolic trailing month (ret20d > 25%) or severely
+ *            stretched above the 20-day mean (distSMA20 > 12%). Wait.
+ *   GOOD — constructive: above the 50-day, within 8% of the 20-day high,
+ *            not stretched vs the 20-day mean (<= 6%) or 50-day mean (<= 15%).
+ *            Pullback inside an intact trend.
+ *   FAIR — everything else: extended, consolidating, or soft trend.
+ *            Scale in or wait — no clean entry.
+ *
+ * earningsTiming is ALWAYS 'unknown': no earnings-date feed exists for the
+ * momentum universe, and the rule is unknown-not-guessed.
+ */
+function computeEntryQuality(adj) {
+  const t = adj.length - 1;
+  const price = adj[t];
+  const sma20 = sma(adj, 20, t);
+  const sma50 = sma(adj, 50, t);
+  const ret20d = price / adj[t - 20] - 1;
+  const distSMA20 = price / sma20 - 1;
+  const distSMA50 = price / sma50 - 1;
+  let hi20 = -Infinity;
+  for (let i = t - 20; i <= t; i++) if (adj[i] > hi20) hi20 = adj[i];
+  const off20dHigh = price / hi20 - 1;
+  const above50 = price > sma50;
+
+  const reasons = [];
+  let rating;
+  if (ret20d > 0.25 || distSMA20 > 0.12) {
+    rating = 'POOR';
+    if (ret20d > 0.25) reasons.push(`+${(ret20d * 100).toFixed(0)}% trailing 20d — parabolic, chasing`);
+    if (distSMA20 > 0.12) reasons.push(`${(distSMA20 * 100).toFixed(0)}% above 20-day mean — severely stretched`);
+  } else if (above50 && off20dHigh >= -0.08 && distSMA20 <= 0.06 && distSMA50 <= 0.15) {
+    rating = 'GOOD';
+    reasons.push(`above 50-day, ${(off20dHigh * 100).toFixed(1)}% off 20-day high — constructive pullback in intact trend`);
+  } else {
+    rating = 'FAIR';
+    if (!above50) reasons.push('below 50-day mean — trend soft, wait for repair');
+    else if (distSMA20 > 0.06) reasons.push(`${(distSMA20 * 100).toFixed(1)}% above 20-day mean — extended, scale or wait`);
+    else if (distSMA50 > 0.15) reasons.push(`${(distSMA50 * 100).toFixed(1)}% above 50-day mean — extended, scale or wait`);
+    else reasons.push('consolidating — no clean pullback yet, scale or wait');
+  }
+
+  return {
+    rating,
+    reasons,
+    earningsTiming: 'unknown',
+    inputs: { ret20d: r4(ret20d), distSMA20: r4(distSMA20), distSMA50: r4(distSMA50), off20dHigh: r4(off20dHigh), above50 },
+  };
 }
 
 function computeSignals(adj) {
@@ -210,6 +281,87 @@ function computeRebalance(lastDataDateIso, prevTopDecile, currentList) {
   return result;
 }
 
+/* ---------- rebalance-anchored change tracking ----------
+ *
+ * NEW IN / NEW OUT / rank changes are measured against the top-decile list
+ * as of the PREVIOUS monthly rebalance — not against the last twice-daily
+ * run (that drift is noise). A persistent snapshot
+ * (outputs/momentum/momentum-rebalance-snapshot.json) holds the list from
+ * the most recent rebalance; it rolls forward only when a new rebalance
+ * month takes effect.
+ *
+ * Seeding: the momentum artifacts were first committed 2026-10-01, so no
+ * prior snapshot exists. The backtest's rebalanceLog preserves the true
+ * 2026-09-01 rebalance list (rankedUniverse, rank order) — the honest
+ * baseline, not the current list relabeled.
+ */
+const SNAPSHOT_FILE = 'momentum-rebalance-snapshot.json';
+
+function seedSnapshotFromBacktest() {
+  try {
+    const bt = readJson(path.join(root, 'outputs', 'momentum', 'momentum-backtest.json'), null);
+    const log = bt && Array.isArray(bt.rebalanceLog) ? bt.rebalanceLog : [];
+    const sep = log.find(e => e.date === '2026-09-01');
+    if (!sep || !Array.isArray(sep.rankedUniverse)) return null;
+    const cut = sep.decileCut || Math.ceil(sep.rankedUniverse.length / 10);
+    return {
+      rebalanceDate: '2026-09-01',
+      seededAt: new Date().toISOString(),
+      seedSource: 'outputs/momentum/momentum-backtest.json rebalanceLog[2026-09-01].rankedUniverse (rank order) — the actual September rebalance list',
+      seedNote: 'Backtest universe may differ slightly from the live universe (recent listings such as APP/COIN were dropped from the backtest for insufficient history); names absent live for that reason still read as OUT vs the September list.',
+      list: sep.rankedUniverse.slice(0, cut).map((symbol, i) => ({ symbol, rank: i + 1 })),
+    };
+  } catch { return null; }
+}
+
+function computeRebalanceChanges(currentRanked, lastRebalanceDate) {
+  // currentRanked: full top-decile list [{symbol, rank}] in rank order
+  const snapPath = path.join(outDir, SNAPSHOT_FILE);
+  let snap = readJson(snapPath, null);
+  if (!snap || !Array.isArray(snap.list) || !snap.rebalanceDate) {
+    snap = seedSnapshotFromBacktest();
+    if (!snap) {
+      snap = {
+        rebalanceDate: lastRebalanceDate,
+        seededAt: new Date().toISOString(),
+        seedSource: 'current list — no backtest baseline available; true rebalance-anchored history starts at the next monthly rebalance',
+        list: currentRanked.map(e => ({ symbol: e.symbol, rank: e.rank })),
+      };
+    }
+    fs.writeFileSync(snapPath, JSON.stringify(snap, null, 2));
+  }
+  const prevRank = new Map(snap.list.map(e => [e.symbol, e.rank]));
+  const curSyms = new Set(currentRanked.map(e => e.symbol));
+  const newIn = currentRanked.filter(e => !prevRank.has(e.symbol)).map(e => e.symbol).sort();
+  const newOut = snap.list.filter(e => !curSyms.has(e.symbol)).map(e => e.symbol).sort();
+  const rankChanges = currentRanked
+    .filter(e => prevRank.has(e.symbol))
+    .map(e => ({ symbol: e.symbol, prevRank: prevRank.get(e.symbol), rank: e.rank, change: prevRank.get(e.symbol) - e.rank }))
+    .filter(r => r.change !== 0)
+    .sort((a, b) => b.change - a.change || (a.symbol < b.symbol ? -1 : 1));
+
+  const result = {
+    vsRebalanceDate: snap.rebalanceDate,
+    baselineSource: snap.seedSource || 'rebalance snapshot',
+    newIn,
+    newOut,
+    rankChanges,
+    newInCount: newIn.length,
+    newOutCount: newOut.length,
+  };
+  if (snap.rebalanceDate < lastRebalanceDate) {
+    // A new monthly rebalance took effect — diff first, then roll forward.
+    fs.writeFileSync(snapPath, JSON.stringify({
+      rebalanceDate: lastRebalanceDate,
+      seededAt: new Date().toISOString(),
+      seedSource: `rolled forward from ${snap.rebalanceDate} snapshot at the ${lastRebalanceDate} rebalance`,
+      list: currentRanked.map(e => ({ symbol: e.symbol, rank: e.rank })),
+    }, null, 2));
+    result.snapshotRolledTo = lastRebalanceDate;
+  }
+  return result;
+}
+
 /* ---------- main ---------- */
 
 function main() {
@@ -242,6 +394,7 @@ function main() {
       price: s.adj[s.adj.length - 1],
       asOf: new Date(s.dates[s.dates.length - 1] * 1000).toISOString().slice(0, 10),
       signals,
+      entryQuality: computeEntryQuality(s.adj),
     });
   }
 
@@ -397,6 +550,9 @@ function main() {
         'First-run rebalance has no prior top-decile file, so turnover is null.',
         'Next-rebalance date is a weekday estimate; exchange holidays are not modeled.',
       ],
+      entryQuality: 'Per-symbol purchase-now read: GOOD (constructive pullback/support inside an intact trend), FAIR (extended, consolidating, or soft trend — scale in or wait), POOR (parabolic trailing month or severely stretched above the 20-day mean — chasing, wait). Inputs: trailing-20d return, distance vs 20-day and 50-day means, distance off the 20-day high. Heuristic and DISPLAY-ONLY: it never changes the mechanical monthly top-decile portfolio, the regime gate, or any backtest number.',
+      earningsTiming: 'No earnings-date feed exists for the momentum universe. earningsTiming is "unknown" for every name — never guessed.',
+      rebalanceChanges: 'NEW IN / NEW OUT / rank changes are measured against the top-decile list as of the previous monthly rebalance (persistent snapshot seeded from the backtest 2026-09-01 list), not against the last twice-daily run.',
     },
     table: included.map(r => ({
       symbol: r.symbol,
@@ -407,6 +563,7 @@ function main() {
       composite: r.composite,
       rank: r.rank,
       inTopDecile: r.inTopDecile,
+      entryQuality: r.entryQuality,
     })),
   };
 
@@ -438,6 +595,10 @@ function main() {
   // Turnover compares against the previously COMMITTED top-decile file.
   const prevTopDecile = readJson(path.join(outDir, 'momentum-top-decile.json.prev')) || null;
   const rebFinal = computeRebalance(lastDataDate, prevTopDecile, activeList.map(e => e.symbol));
+  // Rebalance-anchored NEW IN / NEW OUT / rank changes vs the previous
+  // monthly rebalance (persistent snapshot; seeded from the backtest's true
+  // 2026-09-01 list on first run).
+  rebFinal.changes = computeRebalanceChanges(activeList, rebFinal.lastRebalanceDate);
   fs.writeFileSync(path.join(outDir, 'momentum-rebalance.json'), JSON.stringify(rebFinal, null, 2));
 
   console.log(`generate-momentum-state: ${n} ranked, ${excluded.length} excluded, v2 score=${scored.score} tier=${eff.tierLabel} exposure=${Math.round(eff.exposure * 100)}%, active=${activeList.length}, dataHealth=${dataHealth}`);

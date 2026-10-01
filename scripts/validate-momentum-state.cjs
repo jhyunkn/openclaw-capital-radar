@@ -8,8 +8,12 @@
  *   outputs/momentum/momentum-top-decile.json
  *   outputs/momentum/momentum-gate.json
  *   outputs/momentum/momentum-rebalance.json
+ *   outputs/momentum/momentum-rebalance-snapshot.json
  *
- * Exit non-zero with a clear message on any failure.
+ * Enforces the display-only contracts: every table row carries an
+ * entryQuality read (GOOD/FAIR/POOR + reasons, earningsTiming always
+ * 'unknown' — never guessed), and the rebalance artifact carries
+ * rebalance-anchored NEW IN / NEW OUT / rank changes.
  */
 
 const fs = require('fs');
@@ -88,6 +92,15 @@ if (state) {
         if (!finiteNum(row.percentiles?.[p]) || row.percentiles[p] <= 0 || row.percentiles[p] > 1) errors.push(`momentum-state invalid percentile ${p} for ${row.symbol}`);
       }
       if (typeof row.inTopDecile !== 'boolean') errors.push(`momentum-state inTopDecile not boolean for ${row.symbol}`);
+      // Display-only entry-quality contract: rating + reasons + unknown-not-guessed earnings.
+      const eq = row.entryQuality;
+      if (!eq || !['GOOD', 'FAIR', 'POOR'].includes(eq.rating)) errors.push(`momentum-state entryQuality.rating invalid for ${row.symbol}`);
+      if (!eq || !Array.isArray(eq.reasons) || !eq.reasons.length || !eq.reasons.every(r => typeof r === 'string' && r.length)) errors.push(`momentum-state entryQuality.reasons invalid for ${row.symbol}`);
+      if (!eq || eq.earningsTiming !== 'unknown') errors.push(`momentum-state entryQuality.earningsTiming must be 'unknown' for ${row.symbol} (never guessed)`);
+      for (const k of ['ret20d', 'distSMA20', 'distSMA50', 'off20dHigh']) {
+        if (!finiteNum(eq?.inputs?.[k])) errors.push(`momentum-state entryQuality.inputs.${k} non-finite for ${row.symbol}`);
+      }
+      if (typeof eq?.inputs?.above50 !== 'boolean') errors.push(`momentum-state entryQuality.inputs.above50 not boolean for ${row.symbol}`);
     }
     if (seen.size !== n) errors.push(`momentum-state ranks are not a clean 1..${n} permutation (got ${seen.size} distinct)`);
     const cut = Math.ceil(n / 10);
@@ -106,6 +119,7 @@ if (state) {
   if (state.dataHealth === 'PARTIAL' && !(state.coverageCount > 0)) errors.push('momentum-state PARTIAL but no coverageCount');
   const meth = String(JSON.stringify(state.methodology || ''));
   if (!/survivorship/i.test(meth)) warnings.push('momentum-state methodology does not disclose survivorship bias');
+  if (!/display-only/i.test(meth)) warnings.push('momentum-state methodology does not state entryQuality is display-only');
   noNonFinite(state, 'momentum-state');
 }
 
@@ -227,7 +241,44 @@ if (reb) {
       errors.push('momentum-rebalance churn cost inconsistent with 10 bps per side');
     }
   }
+  // Rebalance-anchored change contract: NEW IN / NEW OUT / rank changes vs
+  // the previous monthly rebalance (not vs the last twice-daily run).
+  const ch = reb.changes;
+  if (!ch || typeof ch !== 'object') {
+    errors.push('momentum-rebalance.json missing changes (rebalance-anchored NEW IN/OUT/rank changes)');
+  } else {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ch.vsRebalanceDate || '')) errors.push('momentum-rebalance changes.vsRebalanceDate invalid');
+    for (const k of ['newIn', 'newOut']) {
+      if (!Array.isArray(ch[k]) || !ch[k].every(s => typeof s === 'string')) errors.push(`momentum-rebalance changes.${k} must be a string array`);
+    }
+    if (!Array.isArray(ch.rankChanges)) errors.push('momentum-rebalance changes.rankChanges must be an array');
+    else for (const r of ch.rankChanges) {
+      if (!r || typeof r.symbol !== 'string') { errors.push('momentum-rebalance rankChanges entry missing symbol'); continue; }
+      if (!Number.isInteger(r.change) || r.change === 0) errors.push(`momentum-rebalance rankChanges invalid change for ${r.symbol}`);
+      if (!Number.isInteger(r.prevRank) || !Number.isInteger(r.rank)) errors.push(`momentum-rebalance rankChanges invalid ranks for ${r.symbol}`);
+    }
+    if (ch.newInCount !== (ch.newIn || []).length || ch.newOutCount !== (ch.newOut || []).length) {
+      errors.push('momentum-rebalance changes newInCount/newOutCount inconsistent with array lengths');
+    }
+  }
   noNonFinite(reb, 'momentum-rebalance');
+}
+
+const snap = readJson('momentum-rebalance-snapshot.json');
+if (snap) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(snap.rebalanceDate || '')) errors.push('momentum-rebalance-snapshot.json invalid rebalanceDate');
+  if (!snap.seedSource) errors.push('momentum-rebalance-snapshot.json missing seedSource (baseline must be documented)');
+  if (!Array.isArray(snap.list) || !snap.list.length) {
+    errors.push('momentum-rebalance-snapshot.json list empty/missing');
+  } else {
+    const seen = new Set();
+    snap.list.forEach((e, i) => {
+      if (!e || !e.symbol || seen.has(e.symbol)) errors.push(`momentum-rebalance-snapshot duplicate/missing symbol at index ${i}`);
+      seen.add(e && e.symbol);
+      if (e && e.rank !== i + 1) errors.push(`momentum-rebalance-snapshot rank ${e && e.rank} != position ${i + 1} for ${e && e.symbol}`);
+    });
+  }
+  noNonFinite(snap, 'momentum-rebalance-snapshot');
 }
 
 for (const w of warnings) console.log(`WARN: ${w}`);

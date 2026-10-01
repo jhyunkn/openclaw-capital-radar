@@ -256,7 +256,8 @@
 .mom-red{color:#a4502f;border-color:rgba(164,80,47,.5);background:rgba(164,80,47,.08)}
 .mom-reason{font-size:14px;color:#24231f;margin:10px 0 4px}
 .mom-inputs{font-size:12px;color:#6b675c;margin:0 0 16px}
-.mom-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.mom-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;min-width:640px}
+.mom-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mom-table th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b675c;text-align:left;padding:6px 10px;border-bottom:1px solid rgba(201,191,173,.6)}
 .mom-table td{padding:7px 10px;border-bottom:1px solid rgba(201,191,173,.25)}
 .mom-table .mom-num{text-align:right;font-variant-numeric:tabular-nums}
@@ -268,6 +269,16 @@
 .mom-health-full{color:var(--green,#2f6f4e)}
 .mom-health-partial{color:#8a6a1f}
 .mom-note{font-size:11px;color:#8a8578;margin:8px 0 0}
+.mom-eq{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:999px;border:1px solid;white-space:nowrap}
+.mom-eq-good{color:var(--green,#2f6f4e);border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.07)}
+.mom-eq-fair{color:#8a6a1f;border-color:rgba(138,106,44,.5);background:rgba(138,106,44,.08)}
+.mom-eq-poor{color:#a4502f;border-color:rgba(164,80,47,.5);background:rgba(164,80,47,.08)}
+.mom-new{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:4px;color:#2f6f4e;background:rgba(47,111,78,.1);border:1px solid rgba(47,111,78,.35)}
+.mom-delta{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mom-up{color:var(--green,#2f6f4e)}
+.mom-down{color:#a4502f}
+.mom-changes{font-size:12px;color:#4a463c;margin:8px 0 0}
+.mom-baseline{color:#8a8578;font-size:11px}
 </style><style>.duration-evidence-banner{border:1px solid rgba(164,80,47,.55);border-radius:20px;background:rgba(164,80,47,.09);padding:14px;margin:10px 0}.duration-evidence-banner span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.1em}.duration-evidence-banner b{display:block;font-size:18px;font-weight:500;margin-top:4px}.duration-evidence-banner ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px;margin:10px 0 0;padding:0;list-style:none}.duration-evidence-banner li{border-top:1px solid var(--rule);padding-top:7px;font-size:12px}.duration-evidence-banner small{display:block;color:var(--muted);font-size:10px;margin-top:2px}</style><style id="market-calendar-style">
 .mc-section{background:#ffffff;border-top:1px solid var(--rule,#dedbd2);padding:56px 0}
 .mc-inner{width:min(1240px,calc(100% - 48px));margin:0 auto}
@@ -2476,6 +2487,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </div>
 </div>
 
+
+
 <div id="momentum-module" class="mom-section mom-module">
   <div class="mom-wrap">
     <div class="section-head">
@@ -2489,14 +2502,16 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <p class="mom-reason">Stress score 0/3 (SPX above 200D (+6.02%); HY OAS 3.02%; VIX 16.3). Target FULL (100% exposure) — effective FULL (100% exposure). Top decile scaled by exposure; remainder cash.</p>
     <p class="mom-inputs">SPX above 200D (6.0%) · HY OAS 3.02% · VIX 16</p>
 
-    <table class="mom-table">
+    <div class="mom-tablewrap"><table class="mom-table">
       <thead><tr>
-        <th class="mom-num">#</th><th>Symbol</th><th class="mom-num">Composite</th>
+        <th class="mom-num">#</th><th>Symbol</th><th>Entry</th><th class="mom-num" title="Rank change vs previous monthly rebalance">Δ</th><th class="mom-num">Composite</th>
         <th class="mom-num">Price</th><th class="mom-num">12m−1m</th><th class="mom-num">vs 52wH</th>
       </tr></thead>
       <tbody><tr>
     <td class="mom-num">1</td>
     <td class="mom-sym">MRNA</td>
+    <td><span class="mom-eq mom-eq-poor" title="18% above 20-day mean — severely stretched · earnings timing unknown">POOR — chasing, wait</span></td>
+    <td class="mom-num"><span class="mom-new">NEW</span></td>
     <td class="mom-num">0.963</td>
     <td class="mom-num">$192.57</td>
     <td class="mom-num">454.0%</td>
@@ -2504,6 +2519,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">2</td>
     <td class="mom-sym">ILMN</td>
+    <td><span class="mom-eq mom-eq-poor" title="+32% trailing 20d — parabolic, chasing; 16% above 20-day mean — severely stretched · earnings timing unknown">POOR — chasing, wait</span></td>
+    <td class="mom-num"><span class="mom-delta mom-up" title="rank 13 → 2 since 2026-09-01 rebalance">▲11</span></td>
     <td class="mom-num">0.961</td>
     <td class="mom-num">$273.68</td>
     <td class="mom-num">132.5%</td>
@@ -2511,6 +2528,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">3</td>
     <td class="mom-sym">PANW</td>
+    <td><span class="mom-eq mom-eq-fair" title="9.1% above 20-day mean — extended, scale or wait · earnings timing unknown">FAIR — extended or consolidating, scale or wait</span></td>
+    <td class="mom-num"><span class="mom-delta mom-up" title="rank 10 → 3 since 2026-09-01 rebalance">▲7</span></td>
     <td class="mom-num">0.957</td>
     <td class="mom-num">$397.31</td>
     <td class="mom-num">87.4%</td>
@@ -2518,6 +2537,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">4</td>
     <td class="mom-sym">HPE</td>
+    <td><span class="mom-eq mom-eq-poor" title="+26% trailing 20d — parabolic, chasing · earnings timing unknown">POOR — chasing, wait</span></td>
+    <td class="mom-num"><span class="mom-delta mom-up" title="rank 20 → 4 since 2026-09-01 rebalance">▲16</span></td>
     <td class="mom-num">0.956</td>
     <td class="mom-num">$63.89</td>
     <td class="mom-num">119.8%</td>
@@ -2525,6 +2546,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">5</td>
     <td class="mom-sym">FTNT</td>
+    <td><span class="mom-eq mom-eq-fair" title="6.2% above 20-day mean — extended, scale or wait · earnings timing unknown">FAIR — extended or consolidating, scale or wait</span></td>
+    <td class="mom-num"><span class="mom-delta mom-up" title="rank 6 → 5 since 2026-09-01 rebalance">▲1</span></td>
     <td class="mom-num">0.953</td>
     <td class="mom-num">$178.76</td>
     <td class="mom-num">101.9%</td>
@@ -2532,6 +2555,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">6</td>
     <td class="mom-sym">VLO</td>
+    <td><span class="mom-eq mom-eq-good" title="above 50-day, -6.2% off 20-day high — constructive pullback in intact trend · earnings timing unknown">GOOD — constructive entry zone</span></td>
+    <td class="mom-num"><span class="mom-delta mom-down" title="rank 1 → 6 since 2026-09-01 rebalance">▼5</span></td>
     <td class="mom-num">0.951</td>
     <td class="mom-num">$387.61</td>
     <td class="mom-num">112.9%</td>
@@ -2539,6 +2564,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">7</td>
     <td class="mom-sym">AMD</td>
+    <td><span class="mom-eq mom-eq-poor" title="+33% trailing 20d — parabolic, chasing · earnings timing unknown">POOR — chasing, wait</span></td>
+    <td class="mom-num"><span class="mom-new">NEW</span></td>
     <td class="mom-num">0.945</td>
     <td class="mom-num">$611.76</td>
     <td class="mom-num">191.7%</td>
@@ -2546,6 +2573,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">8</td>
     <td class="mom-sym">CRL</td>
+    <td><span class="mom-eq mom-eq-good" title="above 50-day, -0.3% off 20-day high — constructive pullback in intact trend · earnings timing unknown">GOOD — constructive entry zone</span></td>
+    <td class="mom-num"><span class="mom-delta mom-up" title="rank 31 → 8 since 2026-09-01 rebalance">▲23</span></td>
     <td class="mom-num">0.939</td>
     <td class="mom-num">$295.01</td>
     <td class="mom-num">96.1%</td>
@@ -2553,6 +2582,8 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">9</td>
     <td class="mom-sym">DELL</td>
+    <td><span class="mom-eq mom-eq-poor" title="+27% trailing 20d — parabolic, chasing · earnings timing unknown">POOR — chasing, wait</span></td>
+    <td class="mom-num"><span class="mom-new">NEW</span></td>
     <td class="mom-num">0.933</td>
     <td class="mom-num">$537.95</td>
     <td class="mom-num">244.9%</td>
@@ -2560,19 +2591,23 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   </tr><tr>
     <td class="mom-num">10</td>
     <td class="mom-sym">CRWD</td>
+    <td><span class="mom-eq mom-eq-fair" title="12.0% above 20-day mean — extended, scale or wait · earnings timing unknown">FAIR — extended or consolidating, scale or wait</span></td>
+    <td class="mom-num"><span class="mom-delta mom-up" title="rank 12 → 10 since 2026-09-01 rebalance">▲2</span></td>
     <td class="mom-num">0.932</td>
     <td class="mom-num">$264.75</td>
     <td class="mom-num">89.2%</td>
     <td class="mom-num">0.0%</td>
   </tr></tbody>
-    </table>
+    </table></div>
     <p class="mom-scope">Showing top 10 of 50 active names (top decile of 499 · 100% invested, rest cash)</p>
+    <p class="mom-changes">New in since Sep 1 rebalance: <strong>AMD, AMGN, ANET, BDX, BE, DDOG, DE, DELL, DXCM, FFIV, IFF, INTC, KEYS, LRCX, MRNA, MRVL, MU, SNDK, STX, TER, TMO, TXN, VRTX, WBD, WST, ZBRA</strong> <span class="mom-baseline" title="outputs/momentum/momentum-backtest.json rebalanceLog[2026-09-01].rankedUniverse (rank order) — the actual September rebalance list">(baseline: the actual Sep 1 rebalance list)</span></p><p class="mom-changes">Out since Sep 1 rebalance: <strong>AIZ, ALL, APA, APH, BAC, BMY, BNY, CAH, CF, DGX, FANG, FDX, GM, HUM, INCY, IVZ, JNJ, JPM, KO, MET, NTRS, NUE, PFG, TRV, WELL, XOM</strong></p>
 
     <div class="mom-foot">
-      <span class="mom-rebal">Next rebalance: <strong>2026-10-01</strong> · 1 trading days away</span>
+      <span class="mom-rebal">Next rebalance: <strong>2026-10-01</strong> · today</span>
       <span class="mom-health mom-health-full">Data: FULL · 502/502 symbols</span>
     </div>
     <p class="mom-note">3 symbols excluded (insufficient history). Universe is current S&amp;P 500 members — historical ranks carry survivorship bias.</p>
+    <p class="mom-note">Entry reads are display-only — they never change the mechanical monthly portfolio. Earnings timing is unknown for every name (no feed; never guessed).</p>
   </div>
 </div>
 </section><!-- MC_CALENDAR_START -->

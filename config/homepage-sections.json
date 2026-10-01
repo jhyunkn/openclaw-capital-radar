@@ -114,12 +114,10 @@
       "name": "Opportunity",
       "enabled": true,
       "required": true,
-      "description": "Asymmetric research queue. Ideas are research candidates, not automatic capital allocations.",
+      "description": "Decision surface fed only by the momentum and arb engines. Every card is a complete trade: entry, ceiling, invalidation, duration, catalyst. Top-200 S&P 500 names by market cap.",
       "commands": [
-        "node scripts/generate-opportunity-band-state.cjs",
-        "node scripts/refine-opportunity-asymmetry-filter.cjs",
-        "node scripts/apply-strategy-route-to-opportunities.cjs",
-        "node scripts/enrich-opportunity-near-miss-diagnostics.cjs",
+        "node scripts/generate-opportunity-state.cjs",
+        "node scripts/validate-opportunity-state.cjs",
         "node scripts/inject-opportunities-home-modular.cjs"
       ]
     }

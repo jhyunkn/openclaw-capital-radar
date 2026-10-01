@@ -122,7 +122,7 @@ const registry = [
     manifestId: 'opportunities-section',
     navLabel: 'Opportunity',
     previewOrder: 60,
-    states: [state('outputs/opportunity-asymmetry-state.json', { key: 'state' })],
+    states: [state('outputs/opportunity/opportunity-state.json', { key: 'state' })],
     renderer: renderer('components/radar/opportunities/render.cjs', 'renderOpportunitiesSection', 'renderOpportunitiesStyle'),
     buildArgs({ states }) {
       return [states.state];

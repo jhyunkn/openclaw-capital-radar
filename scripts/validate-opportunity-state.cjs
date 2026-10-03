@@ -83,9 +83,11 @@ for (const w of watch) {
   if (w.state !== 'WAIT') fail(`${tag}: watchlist item state must be WAIT, got ${w.state}`);
   if (!['FAIR', 'POOR', 'GOOD'].includes(w.entryRating)) fail(`${tag}: watchlist entryRating must be FAIR, POOR, or GOOD-at-peak, got ${w.entryRating}`);
   // GOOD-rated names may only wait if they are parked at/near the 20-day
-  // ceiling (no lower-end entry). FAIR/POOR wait on a rating flip.
-  if (w.entryRating === 'GOOD' && !(w.current && w.current.offHighPct > -0.5)) {
-    fail(`${tag}: GOOD-rated watchlist item must be at/near its 20-day high (offHighPct > -0.5)`);
+  // ceiling (no lower-end entry) or are potential-gated (good entry, but the
+  // board's upside bar — 4%+ ceiling room and reward/risk ≥ 2 — is not met).
+  // FAIR/POOR wait on a rating flip.
+  if (w.entryRating === 'GOOD' && !(w.current && (w.current.offHighPct > -0.5 || w.potentialGated === true))) {
+    fail(`${tag}: GOOD-rated watchlist item must be at/near its 20-day high (offHighPct > -0.5) or potential-gated`);
   }
   if (!nonEmpty(w.waitingFor)) fail(`${tag}: watchlist item missing waitingFor — must say what flips it to actionable`);
 }

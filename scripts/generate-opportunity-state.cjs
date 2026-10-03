@@ -7,7 +7,9 @@
  * It is fed ONLY by:
  *   - momentum-fit: recognizable (top-200 S&P 500 by market cap) momentum
  *     leaders with GOOD entries (lower end of recent range, not the peak)
- *   - arb-fit:      TRADEABLE merger-arb deals
+ *     AND real upside: 4%+ room to the 20-day ceiling with reward/risk ≥ 2.
+ *     The board means "good buy now with great potential" (Jun 2026-10-03).
+ *   - arb-fit:      TRADEABLE merger-arb deals with ≥ 8% annualized spread.
  * No dislocation/quality leg. No hand-picked names. No BWXT-style drift.
  *
  * Two tiers:
@@ -15,8 +17,9 @@
  *               entry / ceiling (→ approx margin) / invalidation (→ approx risk)
  *               / duration / catalyst / strategy / evidence.
  *               A card missing any field does not render (fail-closed in validator).
- *   watchlist — recognizable momentum names with FAIR/POOR entries.
- *               WAIT state: what we're waiting for (entry flips to GOOD).
+ *   watchlist — recognizable momentum names with FAIR/POOR entries, names parked
+ *               at their ceiling, or GOOD entries gated on potential (upside bar
+ *               not met). WAIT state: what we're waiting for.
  *
  * Mechanical engine outputs are untouched; this file only reads them.
  */
@@ -130,8 +133,17 @@ for (const row of (momState.table || [])) {
   if (rating === 'GOOD' && onLowerEnd) {
     const marginPct = (ceiling - price) / price * 100;
     const riskPct = (price - sma50) / price * 100;
+    const rewardRisk = riskPct > 0 ? marginPct / riskPct : -1;
     const durationThrough = nextRebalanceAfter(TODAY);
     if (!durationThrough) { excluded.push({ symbol: sym, reason: 'rebalance calendar unavailable — duration cannot be set, card disqualified' }); continue; }
+    // Potential gate (Jun 2026-10-03): the board means "good buy now with great
+    // potential". A GOOD lower-end entry alone is not enough — require real room
+    // to the ceiling and upside at least 2x the downside. Names that fail sit on
+    // the watchlist with a written promotion condition.
+    const POTENTIAL_MIN_MARGIN_PCT = 4.0;
+    const POTENTIAL_MIN_REWARD_RISK = 2.0;
+    const hasPotential = marginPct >= POTENTIAL_MIN_MARGIN_PCT && rewardRisk >= POTENTIAL_MIN_REWARD_RISK;
+    if (hasPotential) {
     board.push({
       ...common,
       state: 'ACTIONABLE',
@@ -141,6 +153,15 @@ for (const row of (momState.table || [])) {
       duration: { through: durationThrough, basis: 'next monthly momentum rebalance' },
       catalyst: `Price reclaims the $${r2(ceiling).toLocaleString()} ceiling (20-day high)`,
     });
+    } else {
+      watchlist.push({
+        ...common,
+        state: 'WAIT',
+        potentialGated: true,
+        current: { price: r2(price), offHighPct: r1(offHighPct), ceiling20d: r2(ceiling), sma50: r2(sma50), marginPct: r1(marginPct), rewardRisk: r2(rewardRisk) },
+        waitingFor: `Good trend, but not a good buy now — the board requires ${POTENTIAL_MIN_MARGIN_PCT}%+ room to the ceiling with reward/risk ≥ ${POTENTIAL_MIN_REWARD_RISK} (now ${r1(marginPct)}% room, R/R ${r2(rewardRisk)}). Becomes actionable on a pullback that opens real upside or a breakout that resets the ceiling higher.`,
+      });
+    }
   } else if (rating === 'GOOD' && !onLowerEnd) {
     watchlist.push({
       ...common,
@@ -177,6 +198,10 @@ if (!arbBoard) {
     if (d.verdict !== 'TRADEABLE') continue;
     const entry = d.targetPrice, ceiling = d.offerPricePerShare;
     if (!Number.isFinite(entry) || !Number.isFinite(ceiling) || entry <= 0 || ceiling <= 0) continue;
+    // Potential gate (Jun 2026-10-03): the board means "good buy now with great
+    // potential" — an arb leg must clear a minimum annualized spread, not just
+    // the TRADEABLE verdict.
+    if (!Number.isFinite(d.annualizedSpreadPct) || d.annualizedSpreadPct < 8) continue;
     arbCards.push({
       symbol: d.targetSymbol || d.target,
       name: d.targetName || d.target,

@@ -1,5 +1,5 @@
 {
-  "version": 45,
+  "version": 46,
   "policy": "The Capital Radar homepage is a four-section decision surface: Macro, Decision chart, Holdings, and Opportunity. Macro must begin with observed market data before interpretation. Visible Macro information must follow: current market state -> detected anomalies -> relationship overlays -> historical memory -> portfolio implication -> evidence audit. Visualization is part of the analytical structure, not a later polish layer. Every Macro layer must expose data, visual form, and analytical implication together.",
   "baseline": {
     "description": "Create clean four-section operational HTML shell before sections are injected.",
@@ -114,8 +114,10 @@
       "name": "Opportunity",
       "enabled": true,
       "required": true,
-      "description": "Decision surface fed only by the momentum and arb engines. Every card is a complete trade: entry, ceiling, invalidation, duration, catalyst. Top-200 S&P 500 names by market cap.",
+      "description": "Decision surface fed by momentum, arb, and the fail-closed anticipatory probe calibrator. Confirmed cards remain separate from small, probability-gated probes.",
       "commands": [
+        "node scripts/generate-anticipatory-entry-state.cjs",
+        "node scripts/validate-anticipatory-entry-state.cjs",
         "node scripts/generate-opportunity-state.cjs",
         "node scripts/validate-opportunity-state.cjs",
         "node scripts/inject-opportunities-home-modular.cjs"

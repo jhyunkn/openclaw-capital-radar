@@ -62,6 +62,22 @@ function watchRow(w) {
   </div>`;
 }
 
+function anticipatoryCard(c) {
+  const p21 = c.calibration?.pPositive21 == null ? 'n/a' : `${(c.calibration.pPositive21 * 100).toFixed(1)}%`;
+  const v21 = c.validation?.pPositive21 == null ? 'n/a' : `${(c.validation.pPositive21 * 100).toFixed(1)}%`;
+  const oneMonth = c.projectedPath?.oneMonthPct || {};
+  return `<article class="opp-card opp-probe-card">
+    <div class="opp-cardhead"><div><span class="opp-sym">${esc(c.symbol)}</span><span class="opp-name">anticipatory probe</span></div><div class="opp-tags"><span class="opp-strat probe">PROBE</span><span class="opp-rank">${esc(c.confidence)} confidence</span></div></div>
+    <div class="opp-row"><span class="opp-k">Entry band</span><span class="opp-v"><b>${fmt$(c.entry.low)}–${fmt$(c.entry.high)}</b></span></div>
+    <div class="opp-row"><span class="opp-k">Invalidation</span><span class="opp-v">${fmt$(c.invalidation.price)} → <b class="opp-risk">−${Number(c.invalidation.riskPct).toFixed(1)}%</b> risk</span></div>
+    <div class="opp-row"><span class="opp-k">Target</span><span class="opp-v">${fmt$(c.target.price)} → <b class="opp-margin">${fmtPct(c.target.rewardPct)}</b> · R/R ${Number(c.rewardRisk).toFixed(2)}</span></div>
+    <div class="opp-row"><span class="opp-k">Probability</span><span class="opp-v">${p21} calibrated · ${v21} held-out validation <span class="opp-sub">(${esc(c.calibration?.n)} / ${esc(c.validation?.n)} observations)</span></span></div>
+    <div class="opp-row"><span class="opp-k">1m path</span><span class="opp-v">p10 ${fmtPct(oneMonth.p10)} · median ${fmtPct(oneMonth.median)} · p90 ${fmtPct(oneMonth.p90)}</span></div>
+    <div class="opp-row"><span class="opp-k">Risk budget</span><span class="opp-v">max ${Number(c.sizing.maxPortfolioRiskPct).toFixed(2)}% portfolio risk · max ${Number(c.sizing.maxPositionPct).toFixed(2)}% position</span></div>
+    <div class="opp-ev">Forecast is scored after 21 bars · no ADD without confirmation · ${esc(c.cohort)}</div>
+  </article>`;
+}
+
 function renderOpportunitiesSection(state) {
   const shellOpen = '<section id="opportunities-section" class="cr-section opp-section">';
   const shellClose = '</section>';
@@ -74,6 +90,9 @@ function renderOpportunitiesSection(state) {
   }
 
   const board = state.board, watch = state.watchlist, alerts = state.alerts || {};
+  const anticipatory = state.anticipatory || {};
+  const probes = (anticipatory.candidates || []).filter(c => c.state === 'PROBE_ELIGIBLE');
+  const probeBlocked = (anticipatory.candidates || []).filter(c => c.state === 'BLOCKED');
   const asOf = state.asOf ? ` · prices ${esc(state.asOf)}` : '';
   const gate = state.recognitionGate || {};
 
@@ -105,11 +124,13 @@ function renderOpportunitiesSection(state) {
         <h2>Opportunity</h2>
       </div>
     </div>
-    <p class="opp-lede">Every card is a complete trade: entry, ceiling, invalidation, duration, catalyst. Fed only by the momentum and arb engines — top-200 S&amp;P 500 names by market cap. Evidence on every card.</p>
+    <p class="opp-lede">Confirmed entries, small anticipatory probes, and waiting names remain separate. A probe requires calibrated history, held-out validation, a ruled band and invalidation, and a capped risk budget; it never grants ADD authority.</p>
     ${alertsHtml}
     <h3 class="opp-tier">Actionable <span class="opp-count">${board.length}</span> <span class="opp-tiersub">${momCount} momentum-fit · ${arbCount} arb-fit</span></h3>
     ${boardHtml}
     ${arbNote}
+    <h3 class="opp-tier">Anticipatory probes <span class="opp-count">${probes.length}</span> <span class="opp-tiersub">pre-confirmation · probability-gated · max 0.25% portfolio risk each</span></h3>
+    ${probes.length ? `<div class="opp-grid">${probes.map(anticipatoryCard).join('')}</div>` : `<p class="opp-empty">Unavailable this cycle. ${probeBlocked.length ? `${probeBlocked.length} candidate(s) failed calibration, validation, reward/risk, or regime gates.` : 'No qualified pullback candidates entered the calibration gate.'}</p>`}
     <h3 class="opp-tier">Watchlist <span class="opp-count">${watch.length}</span> <span class="opp-tiersub">momentum candidates waiting on entry — POOR stays visible, never hidden</span></h3>
     ${watchHtml}
     <p class="opp-foot">Recognizability gate: top 200 S&amp;P 500 by market cap${gate.asOf ? ` (ranks ${esc(gate.asOf)})` : ''} — the momentum engine itself is unfiltered. Entry reads are display-only; they never change the mechanical monthly portfolio. Earnings timing unknown for every name (no feed; never guessed).</p>
@@ -131,6 +152,8 @@ function renderOpportunitiesStyle() {
 .opp-name{font-size:12px;color:rgba(44,42,37,.55)}
 .opp-tags{display:flex;gap:6px;flex-wrap:wrap}
 .opp-strat{font-family:var(--mono,monospace);font-size:10px;padding:2px 8px;border-radius:3px;background:rgba(30,90,60,.08);color:#1e5a3c;border:1px solid rgba(30,90,60,.2)}
+.opp-strat.probe{background:rgba(37,88,145,.08);color:#255891;border-color:rgba(37,88,145,.25)}
+.opp-probe-card{border-color:rgba(37,88,145,.28);background:rgba(37,88,145,.025)}
 .opp-rank{font-family:var(--mono,monospace);font-size:10px;padding:2px 8px;border-radius:3px;background:rgba(44,42,37,.05);color:rgba(44,42,37,.6);border:1px solid rgba(44,42,37,.12)}
 .opp-row{display:flex;gap:10px;padding:5px 0;border-top:1px solid rgba(201,191,173,.25);font-size:12.5px}
 .opp-row:first-of-type{border-top:none}

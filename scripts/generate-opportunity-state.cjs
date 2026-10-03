@@ -30,6 +30,7 @@ const PRICE_CACHE = path.join(root, 'outputs', 'cache', 'momentum', 'price-histo
 const MCAP_RANK   = path.join(root, 'data', 'sp500-marketcap-rank.json');
 const ARB_BOARD   = path.join(root, 'outputs', 'arb', 'arb-deal-board.json');
 const REBALANCE   = path.join(root, 'outputs', 'momentum', 'momentum-rebalance.json');
+const ANTICIPATORY = path.join(root, 'outputs', 'anticipatory', 'anticipatory-entry-state.json');
 const OUT_DIR     = path.join(root, 'outputs', 'opportunity');
 const OUT_PATH    = path.join(OUT_DIR, 'opportunity-state.json');
 
@@ -51,6 +52,7 @@ const cache    = readJson(PRICE_CACHE);
 const mcapRank = readJson(MCAP_RANK);
 const arbBoard = fs.existsSync(ARB_BOARD) ? readJson(ARB_BOARD) : null;
 const rebal    = fs.existsSync(REBALANCE) ? readJson(REBALANCE) : null;
+const anticipatory = fs.existsSync(ANTICIPATORY) ? readJson(ANTICIPATORY) : null;
 
 const mcapBySym = {};
 for (const e of (mcapRank.ranked || [])) mcapBySym[e.symbol] = { rank: e.rank, name: unesc(e.name) };
@@ -239,6 +241,7 @@ const state = {
   board,
   watchlist,
   excluded,
+  anticipatory,
   alerts,
   emptyReasons: {
     momentum: board.filter(c => c.strategy === 'momentum-fit').length === 0

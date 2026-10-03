@@ -40,6 +40,13 @@ if (!nonEmpty(gate.source)) fail('recognitionGate.source missing');
 
 const board = Array.isArray(st.board) ? st.board : (fail('board must be an array'), []);
 const watch = Array.isArray(st.watchlist) ? st.watchlist : (fail('watchlist must be an array'), []);
+const anticipatory = st.anticipatory;
+if (!anticipatory || anticipatory.artifact !== 'anticipatory-entry-state') fail('embedded anticipatory-entry-state missing');
+if (!['PROBE_AVAILABLE', 'UNAVAILABLE'].includes(anticipatory?.permission)) fail('embedded anticipatory permission invalid');
+for (const c of anticipatory?.candidates || []) {
+  if (!['PROBE_ELIGIBLE', 'BLOCKED'].includes(c.state)) fail(`${c.symbol || 'anticipatory candidate'}: invalid anticipatory state`);
+  if (c.sizing?.action === 'ADD' || c.sizing?.action === 'BUY') fail(`${c.symbol}: anticipatory path cannot authorize ADD/BUY`);
+}
 
 const seen = new Set();
 for (const c of board) {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T18:28:30.203Z",
+  "generatedAt": "2026-10-04T12:53:14.771Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -10,7 +10,7 @@
       "state": "PAUSED_STALE",
       "actionAllowed": false,
       "permission": "NO_ACTION",
-      "reason": "2 required dependency blocker(s).",
+      "reason": "3 required dependency blocker(s).",
       "dependencies": [
         {
           "id": "positions",
@@ -18,28 +18,28 @@
           "required": true,
           "status": "STALE",
           "asOf": "2026-09-26T02:10:00.000Z",
-          "ageMinutes": 11058.5,
+          "ageMinutes": 12163.2,
           "maxMinutes": 4320,
           "source": "portfolio-live-state",
-          "reason": "Positions is 11059 minutes old; maximum is 4320."
+          "reason": "Positions is 12163 minutes old; maximum is 4320."
         },
         {
           "id": "quotes",
           "label": "Holding prices",
           "required": true,
-          "status": "OK",
+          "status": "STALE",
           "asOf": "2026-10-02T23:14:27.000Z",
-          "ageMinutes": 1154.1,
+          "ageMinutes": 2258.8,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
-          "reason": null
+          "reason": "Holding prices is 2259 minutes old; maximum is 1440."
         },
         {
           "id": "data_health",
           "label": "Data health",
           "required": true,
           "status": "INVALID",
-          "asOf": "2026-10-03T18:28:17.396Z",
+          "asOf": "2026-10-04T12:53:00.728Z",
           "ageMinutes": 0.2,
           "maxMinutes": 1440,
           "source": "data-health",
@@ -50,8 +50,8 @@
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-10-03",
-          "ageMinutes": 1108.5,
+          "asOf": "2026-10-04",
+          "ageMinutes": 773.2,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -61,7 +61,12 @@
         {
           "id": "positions",
           "status": "STALE",
-          "reason": "Positions is 11059 minutes old; maximum is 4320."
+          "reason": "Positions is 12163 minutes old; maximum is 4320."
+        },
+        {
+          "id": "quotes",
+          "status": "STALE",
+          "reason": "Holding prices is 2259 minutes old; maximum is 1440."
         },
         {
           "id": "data_health",
@@ -145,7 +150,7 @@
           "label": "Market data health",
           "required": true,
           "status": "INVALID",
-          "asOf": "2026-10-03T18:28:17.396Z",
+          "asOf": "2026-10-04T12:53:00.728Z",
           "ageMinutes": 0.2,
           "maxMinutes": 15,
           "source": "data-health",
@@ -156,8 +161,8 @@
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-10-03",
-          "ageMinutes": 1108.5,
+          "asOf": "2026-10-04",
+          "ageMinutes": 773.2,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null

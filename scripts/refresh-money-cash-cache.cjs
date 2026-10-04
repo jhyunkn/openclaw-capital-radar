@@ -74,6 +74,14 @@ function curlGet(url) {
 
 function nodeGet(url, redirectsRemaining = 4) {
   return new Promise((resolve, reject) => {
+    // Watchdog covers DNS stalls: req.setTimeout only starts after socket
+    // assignment, so a pre-socket hang never fires it (seen 2026-10-04: ~25min
+    // hang on FRED DNS). This timer starts immediately.
+    const watchdog = setTimeout(() => {
+      try { if (req) req.destroy(); } catch (_) {}
+      reject(new Error(`watchdog timeout after ${timeoutMs}ms (pre-socket stall) for ${url}`));
+    }, timeoutMs);
+    const settle = (fn, val) => { clearTimeout(watchdog); fn(val); };
     const requestOptions = {
       headers: {
         'User-Agent': 'CapitalRadar/1.0',
@@ -85,19 +93,19 @@ function nodeGet(url, redirectsRemaining = 4) {
     const req = https.get(url, requestOptions, res => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         res.resume();
-        if (redirectsRemaining <= 0) return reject(new Error(`too many redirects for ${url}`));
-        return resolve(nodeGet(res.headers.location, redirectsRemaining - 1));
+        if (redirectsRemaining <= 0) return settle(reject, new Error(`too many redirects for ${url}`));
+        return settle(resolve, nodeGet(res.headers.location, redirectsRemaining - 1));
       }
       if (res.statusCode !== 200) {
         res.resume();
-        return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+        return settle(reject, new Error(`HTTP ${res.statusCode} for ${url}`));
       }
       let body = '';
       res.setEncoding('utf8');
       res.on('data', d => { body += d; });
-      res.on('end', () => resolve(body));
+      res.on('end', () => settle(resolve, body));
     });
-    req.on('error', reject);
+    req.on('error', err => settle(reject, err));
     req.setTimeout(timeoutMs, () => req.destroy(new Error(`timeout after ${timeoutMs}ms for ${url}`)));
   });
 }

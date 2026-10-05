@@ -1,15 +1,40 @@
 {
-  "generatedAt": "2026-10-05T13:37:45.453Z",
-  "lane": "ship",
-  "description": "Render/package production surface from existing artifacts using the existing ship stage.",
+  "generatedAt": "2026-10-05T18:11:35.832Z",
+  "lane": "daily",
+  "description": "Daily scheduled refresh: data/research rebuild plus workbench-hierarchy injectors, without rendering or validating (the scheduler runs ship and validation separately so a validation failure can block the commit).",
   "stages": [
     {
-      "stage": "ship",
-      "durationMs": 73007,
+      "stage": "base-data",
+      "durationMs": 586916,
+      "status": "PASS"
+    },
+    {
+      "stage": "ticker-workbenches",
+      "durationMs": 676,
+      "status": "PASS"
+    },
+    {
+      "stage": "live-state-and-research",
+      "durationMs": 11474,
+      "status": "PASS"
+    },
+    {
+      "stage": "market-orientation",
+      "durationMs": 421490,
+      "status": "PASS"
+    },
+    {
+      "stage": "workbench-hierarchy",
+      "durationMs": 1405,
+      "status": "PASS"
+    },
+    {
+      "stage": "systematic-engines",
+      "durationMs": 168570,
       "status": "PASS"
     }
   ],
   "policy": "Lane runner is additive. It does not change npm run build or Vercel production behavior unless package/build settings are explicitly changed later.",
-  "totalMs": 73009,
+  "totalMs": 1190533,
   "status": "PASS"
 }

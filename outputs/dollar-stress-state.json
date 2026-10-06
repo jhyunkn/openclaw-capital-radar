@@ -1,0 +1,185 @@
+{
+  "artifact": "dollar-stress-state",
+  "version": 1,
+  "generatedAt": "2026-10-06T18:54:34.455Z",
+  "generatedBy": "scripts/generate-dollar-stress-state.cjs",
+  "anchorDate": "2026-10-06",
+  "coverage": "FULL",
+  "partial": false,
+  "staleInputs": [],
+  "verdict": "DOLLAR_STRENGTH_RIGHT_SIDE",
+  "verdictLabel": "Dollar strength — right side of the smile",
+  "dollarHaven": "NOT_TESTED",
+  "implication": "Dollar strength here is the growth/rates kind, not a panic bid: equities are not in stress. It pressures foreign-earnings translation and EM, but it is not a crisis signal — cash is not yet a crisis asset.",
+  "whatWouldChange": "Turns defensive if SPY breaks down (5d <= -1.0%) while the dollar keeps rising — that reclassifies to NORMAL_RISK_OFF or DOLLAR_LIQUIDITY_STRESS.",
+  "thresholds": {
+    "spyDown5": -1,
+    "spyDown20": -3,
+    "dxyMove": 0.3,
+    "dxySpike5": 2,
+    "vixExtreme": 35,
+    "hyWiden5Bp": 50,
+    "yieldMoveBp": 10,
+    "staleLagDays": 7
+  },
+  "inputs": {
+    "dxy": {
+      "level": 101.808,
+      "asOf": "2026-10-06",
+      "change5dPct": 0.353,
+      "change20dPct": 1.493,
+      "window5d": {
+        "fromDate": "2026-09-30",
+        "fromValue": 101.45,
+        "toDate": "2026-10-06",
+        "toValue": 101.808,
+        "pctChange": 0.353,
+        "delta": 0.358,
+        "deltaBp": 35.8,
+        "spanDays": 6,
+        "windowDays": 5
+      },
+      "window20d": {
+        "fromDate": "2026-09-16",
+        "fromValue": 100.31,
+        "toDate": "2026-10-06",
+        "toValue": 101.808,
+        "pctChange": 1.493,
+        "delta": 1.498,
+        "deltaBp": 149.8,
+        "spanDays": 20,
+        "windowDays": 20
+      }
+    },
+    "spy": {
+      "level": 780.15,
+      "asOf": "2026-10-06",
+      "change5dPct": 2.116,
+      "change20dPct": 3.462,
+      "window5d": {
+        "fromDate": "2026-10-01",
+        "fromValue": 763.99,
+        "toDate": "2026-10-06",
+        "toValue": 780.1525,
+        "pctChange": 2.116,
+        "delta": 16.1625,
+        "deltaBp": 1616.3,
+        "spanDays": 5,
+        "windowDays": 5
+      },
+      "window20d": {
+        "fromDate": "2026-09-16",
+        "fromValue": 754.05,
+        "toDate": "2026-10-06",
+        "toValue": 780.1525,
+        "pctChange": 3.462,
+        "delta": 26.1025,
+        "deltaBp": 2610.3,
+        "spanDays": 20,
+        "windowDays": 20
+      }
+    },
+    "vix": {
+      "level": 15.06,
+      "asOf": "2026-10-06",
+      "change5dDelta": -1.28,
+      "window5d": {
+        "fromDate": "2026-09-30",
+        "fromValue": 16.34,
+        "toDate": "2026-10-06",
+        "toValue": 15.06,
+        "pctChange": -7.834,
+        "delta": -1.28,
+        "deltaBp": -128,
+        "spanDays": 6,
+        "windowDays": 5
+      }
+    },
+    "dgs10": {
+      "levelPct": 5.28,
+      "asOf": "2026-10-02",
+      "lagDays": 4,
+      "cacheStatus": "REFRESH_FAILED_USING_EXISTING_CACHE",
+      "change5dBp": 45,
+      "change20dBp": 45,
+      "window5d": {
+        "fromDate": "2026-09-09",
+        "fromValue": 4.83,
+        "toDate": "2026-10-02",
+        "toValue": 5.28,
+        "pctChange": 9.317,
+        "delta": 0.45,
+        "deltaBp": 45,
+        "spanDays": 23,
+        "windowDays": 5
+      },
+      "window20d": {
+        "fromDate": "2026-09-09",
+        "fromValue": 4.83,
+        "toDate": "2026-10-02",
+        "toValue": 5.28,
+        "pctChange": 9.317,
+        "delta": 0.45,
+        "deltaBp": 45,
+        "spanDays": 23,
+        "windowDays": 20
+      }
+    },
+    "hyOas": {
+      "levelPct": 3.1,
+      "asOf": "2026-10-02",
+      "lagDays": 4,
+      "cacheStatus": "REFRESH_FAILED_USING_EXISTING_CACHE",
+      "change5dBp": 17,
+      "change20dBp": 45,
+      "window5d": {
+        "fromDate": "2026-09-25",
+        "fromValue": 2.93,
+        "toDate": "2026-10-02",
+        "toValue": 3.1,
+        "pctChange": 5.802,
+        "delta": 0.17,
+        "deltaBp": 17,
+        "spanDays": 7,
+        "windowDays": 5
+      },
+      "window20d": {
+        "fromDate": "2026-09-11",
+        "fromValue": 2.65,
+        "toDate": "2026-10-02",
+        "toValue": 3.1,
+        "pctChange": 16.981,
+        "delta": 0.45,
+        "deltaBp": 45,
+        "spanDays": 21,
+        "windowDays": 20
+      }
+    },
+    "gold": {
+      "level": 4192.6,
+      "asOf": "2026-10-06",
+      "change5dPct": 0.141
+    }
+  },
+  "rules": [
+    "SELL_AMERICA_STRESS: SPY down (5d <= -1% or 20d <= -3% with 5d < 0) AND DXY 5d <= -0.3% AND 10Y yield +>= 10bp over its 5d window.",
+    "DOLLAR_LIQUIDITY_STRESS: risk-off with dollar bid AND (DXY 5d >= +2.0% OR VIX >= 35 OR HY OAS 5d widening >= +50bp).",
+    "NORMAL_RISK_OFF: SPY down with DXY 5d >= +0.3% (haven working), or equity stress without a confirmed dollar pattern.",
+    "DOLLAR_STRENGTH_RIGHT_SIDE: DXY up (5d >= +0.3%, or 20d >= +1.0% with 5d not falling) while SPY is not in stress.",
+    "NO_STRESS: none of the above patterns.",
+    "PARTIAL label (not a verdict override) when DGS10 or HY OAS latest date lags the anchor date by > 7 days."
+  ],
+  "limitations": [
+    "Windows are calendar windows over committed caches; sparse FRED sampling means the 5d yield/OAS windows can span more calendar days — actual from-dates are recorded per input.",
+    "Cross-currency basis and offshore dollar funding spreads remain missing evidence; DXY/VIX/HY are proxies.",
+    "Yahoo chart API is public/unofficial. Cross-currency basis, dollar funding spreads, reserves, and offshore dollar liquidity remain missing evidence."
+  ],
+  "sources": [
+    "data/cache/fx-dollar-series.json",
+    "data/market-candles/SPY.json",
+    "data/cache/volatility-series.json",
+    "data/cache/duration-series.json",
+    "data/cache/credit-series.json",
+    "data/cache/commodities-series.json"
+  ]
+}

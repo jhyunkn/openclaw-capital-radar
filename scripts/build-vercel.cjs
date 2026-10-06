@@ -239,6 +239,7 @@ runFinalInjector('generate-macro-prices-state.cjs', 'Macro prices state generati
 runFinalInjector('inject-operational-chart-home.cjs', 'Operational chart injection failed before Vercel copy');
 runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro module injection failed before Vercel copy');
 runFinalInjector('inject-momentum-home.cjs', 'Momentum macro module injection failed before Vercel copy');
+runFinalInjector('inject-dollar-stress-home.cjs', 'Dollar stress check injection failed before Vercel copy');
 runFinalInjector('inject-arb-deal-board-home.cjs', 'Arb deal board module injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
@@ -259,6 +260,7 @@ runFinalInjector('inject-macro-design-language.cjs', 'Macro design language inje
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed after Vercel copy', ['public/index.html']);
+runFinalInjector('inject-dollar-stress-home.cjs', 'Dollar stress check injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed after Vercel copy', ['public/index.html']);
 runFinalInjector('harden-homepage-chrome.cjs', 'Homepage chrome hardening failed after Vercel copy', ['public/index.html']);
 verifyFinalOutput();

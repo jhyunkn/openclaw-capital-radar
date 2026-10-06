@@ -293,8 +293,8 @@ async function main() {
 
     if (!out.tradeable) out.verdict = 'NOT TRADEABLE';
     else if (out.spreadPct < 0) out.verdict = 'NEGATIVE — target above offer';
+    else if (out.spreadPct >= 0 && out.spreadPct < STUB_SPREAD_MAX && out.tradingDaysToClose != null && out.tradingDaysToClose <= STUB_DAYS_MAX) out.verdict = 'STUB — sailed (spread <1%, ≤10 trading days left)';
     else if (out.annualizedSpreadPct == null) out.verdict = 'NO TIMELINE — cannot annualize';
-    else if (out.spreadPct < STUB_SPREAD_MAX && out.tradingDaysToClose != null && out.tradingDaysToClose <= STUB_DAYS_MAX) out.verdict = 'STUB — sailed (spread <1%, ≤10 trading days left)';
     else if (out.annualizedSpreadPct < THIN_THRESHOLD) out.verdict = 'THIN — no romance';
     else out.verdict = `TRADEABLE — ${(out.annualizedSpreadPct * 100).toFixed(1)}% annualized`;
     return out;

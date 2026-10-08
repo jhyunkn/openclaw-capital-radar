@@ -1,72 +1,72 @@
 {
   "artifact": "market-concentration-state",
   "version": 1,
-  "generatedAt": "2026-10-08T13:04:58.222Z",
+  "generatedAt": "2026-10-08T18:32:30.783Z",
   "methodology": "Compares Magnificent 7 (AAPL/MSFT/GOOGL/AMZN/NVDA/META/TSLA) average distance from 52-week high and 1-month trend against SPY, cross-referenced with the SLOOS bank-lending-tightening zone from credit-state.json. Concentration risk in a cap-weighted index shows up first as leader weakness while the index itself stays calm — this makes that divergence a permanent, numeric check instead of a one-off observation.",
   "source_credit": "Cross-checked against a market-narrative video (Bravos Research) that proposed this same divergence-plus-credit framework; the underlying SLOOS and price data were independently verified against FRED and live market data before being encoded here — this artifact reflects the verified data, not the video itself.",
   "mag7": {
     "constituents": [
       {
         "ticker": "AAPL",
-        "current_price": 336.67,
-        "pct_from_52w_high": -2.5,
-        "trend_1m_pct": 6.5
+        "current_price": 339.6,
+        "pct_from_52w_high": -1.7,
+        "trend_1m_pct": 7.7
       },
       {
         "ticker": "MSFT",
-        "current_price": 529.76,
-        "pct_from_52w_high": -4.3,
-        "trend_1m_pct": 7.2
+        "current_price": 522.625,
+        "pct_from_52w_high": -5.6,
+        "trend_1m_pct": 6.3
       },
       {
         "ticker": "GOOGL",
-        "current_price": 350.5,
-        "pct_from_52w_high": -14.2,
-        "trend_1m_pct": 3.6
+        "current_price": 347.15,
+        "pct_from_52w_high": -15,
+        "trend_1m_pct": 5
       },
       {
         "ticker": "AMZN",
-        "current_price": 259.92,
-        "pct_from_52w_high": -9.5,
-        "trend_1m_pct": 1.1
+        "current_price": 255.335,
+        "pct_from_52w_high": -11.1,
+        "trend_1m_pct": 1.2
       },
       {
         "ticker": "NVDA",
-        "current_price": 237.47,
-        "pct_from_52w_high": -2.4,
-        "trend_1m_pct": 5.2
+        "current_price": 230.98,
+        "pct_from_52w_high": -5.1,
+        "trend_1m_pct": 3.3
       },
       {
         "ticker": "META",
-        "current_price": 721.31,
-        "pct_from_52w_high": -7.5,
-        "trend_1m_pct": 17.6
+        "current_price": 718.95,
+        "pct_from_52w_high": -7.8,
+        "trend_1m_pct": 10
       },
       {
         "ticker": "TSLA",
-        "current_price": 377.81,
-        "pct_from_52w_high": -24.3,
-        "trend_1m_pct": 2.6
+        "current_price": 371.8,
+        "pct_from_52w_high": -25.5,
+        "trend_1m_pct": 1.1
       }
     ],
-    "avg_pct_from_52w_high": -9.24,
-    "avg_trend_1m_pct": 6.26,
+    "avg_pct_from_52w_high": -10.26,
+    "avg_trend_1m_pct": 4.94,
     "strongest": {
-      "ticker": "NVDA",
-      "pct_from_52w_high": -2.4
+      "ticker": "AAPL",
+      "pct_from_52w_high": -1.7
     },
     "weakest": {
       "ticker": "TSLA",
-      "pct_from_52w_high": -24.3
+      "pct_from_52w_high": -25.5
     }
   },
   "spy": {
-    "pct_from_52w_high": -0.6,
-    "trend_1m_pct": 1.5
+    "pct_from_52w_high": -1.1,
+    "trend_1m_pct": 1.4
   },
   "divergence": {
-    "pct_from_52w_high_gap": -8.64,
-    "trend_1m_gap": 4.76,
+    "pct_from_52w_high_gap": -9.16,
+    "trend_1m_gap": 3.54,
     "floor_used": -8,
     "is_diverging": true
   },
@@ -75,6 +75,6 @@
     "lending_standards_value": 0
   },
   "read_state": "ROTATION_NOT_ROLLOVER",
-  "interpretation": "Mag7 is underperforming SPY by 8.64 points on distance from 52-week highs, but bank lending standards are LOOSE (SLOOS 0%, well below the ~40% stress threshold). Historically this combination reads as index-leadership rotation, not a confirmed broad rollover — but the divergence itself is real and worth tracking, since credit conditions can flip.",
+  "interpretation": "Mag7 is underperforming SPY by 9.16 points on distance from 52-week highs, but bank lending standards are LOOSE (SLOOS 0%, well below the ~40% stress threshold). Historically this combination reads as index-leadership rotation, not a confirmed broad rollover — but the divergence itself is real and worth tracking, since credit conditions can flip.",
   "invalidation": "This read flips from ROTATION_NOT_ROLLOVER to CONCENTRATION_UNWIND_RISK if SLOOS net tightening rises back above ~40% while the Mag7/SPY divergence persists — re-run after each quarterly SLOOS release and any meaningful market move."
 }

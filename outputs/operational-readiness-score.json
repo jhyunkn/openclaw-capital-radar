@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-08T18:52:35.655Z",
+  "generatedAt": "2026-10-08T19:50:13.306Z",
   "name": "CROS — Capital Radar Operational Score",
   "score": 59,
-  "rawScore": 83,
+  "rawScore": 87,
   "target": 80,
   "stage": "Structured but fragile",
   "capsApplied": [
@@ -18,11 +18,11 @@
   "categories": [
     {
       "label": "Live Data Integrity",
-      "score": 15,
+      "score": 19,
       "max": 20,
-      "pct": 75,
+      "pct": 95,
       "evidence": [
-        "PARTIAL data health",
+        "OK data health",
         "13/13 holdings have live freshness status",
         "1-minute live quote endpoint exists",
         "Main API cache set to no-store"
@@ -203,23 +203,6 @@
       ]
     },
     {
-      "label": "Live Data Integrity",
-      "score": 15,
-      "max": 20,
-      "pct": 75,
-      "evidence": [
-        "PARTIAL data health",
-        "13/13 holdings have live freshness status",
-        "1-minute live quote endpoint exists",
-        "Main API cache set to no-store"
-      ],
-      "gaps": [
-        "Wire live quote endpoint into visible dashboard auto-refresh.",
-        "Add explicit market-hours stale action blocker to UI.",
-        "Add secondary quote source fallback if Yahoo public endpoint degrades."
-      ]
-    },
-    {
       "label": "Visual Decision Surface",
       "score": 12,
       "max": 15,
@@ -233,6 +216,23 @@
         "Add dashboard panel for live reaction state table.",
         "Add visible stale/fresh badges beside every holding card price.",
         "Add candidate visual funnel."
+      ]
+    },
+    {
+      "label": "Alert / Human Judgment Queue",
+      "score": 8,
+      "max": 10,
+      "pct": 80,
+      "evidence": [
+        "2 action-now items",
+        "1 review-soon items",
+        "3 human review rules in report"
+      ],
+      "gaps": [
+        "Run a second delta pass after market movement to prove change detection.",
+        "Add alert rules only for state changes.",
+        "Add human judgment queue to dashboard.",
+        "Suppress repeated no-action alerts."
       ]
     }
   ],

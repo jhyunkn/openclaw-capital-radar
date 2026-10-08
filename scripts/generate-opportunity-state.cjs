@@ -128,7 +128,10 @@ for (const row of (momState.table || [])) {
   // sit below the recent ceiling with real room to it. A name parked at its
   // 20-day high is "momentum stock, but no pullback/no trade" — it waits.
   const LOWER_END_MAX_OFFHIGH_PCT = -0.5;
-  const onLowerEnd = offHighPct <= LOWER_END_MAX_OFFHIGH_PCT;
+  // Decide on the stored (r1-rounded) value: the validator re-checks the
+  // rounded artifact, so deciding on full precision diverges at the boundary
+  // (e.g. -0.4548% stores as -0.5 but tested as > -0.5 — XOM, 2026-10-08).
+  const onLowerEnd = r1(offHighPct) <= LOWER_END_MAX_OFFHIGH_PCT;
 
   if (rating === 'GOOD' && onLowerEnd) {
     const marginPct = (ceiling - price) / price * 100;

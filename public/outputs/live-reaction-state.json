@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-11T18:01:32.332Z",
-  "sourceStateGeneratedAt": "2026-10-11T17:39:16.522Z",
+  "generatedAt": "2026-10-11T18:10:07.877Z",
+  "sourceStateGeneratedAt": "2026-10-11T18:00:11.007Z",
   "posture": "HOLD",
   "freshnessPolicy": {
     "staleBlockedAfterMinutes": 1440,
@@ -8,6 +8,13 @@
     "cadence": "daily refresh / generate:live"
   },
   "actionNow": [
+    {
+      "ticker": "UBER",
+      "state": "DATA_BLOCKED",
+      "permission": "NO ACTION",
+      "price": 71.37,
+      "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+    },
     {
       "ticker": "CONL",
       "state": "DATA_BLOCKED",
@@ -27,13 +34,6 @@
       "state": "DATA_BLOCKED",
       "permission": "NO ACTION",
       "price": 161.02,
-      "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-    },
-    {
-      "ticker": "UBER",
-      "state": "DATA_BLOCKED",
-      "permission": "NO ACTION",
-      "price": 71.37,
       "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
     },
     {
@@ -103,12 +103,62 @@
   "reviewSoon": [],
   "all": [
     {
+      "ticker": "UBER",
+      "price": 71.37,
+      "asOf": "2026-10-09T23:59:59.000Z",
+      "freshness": {
+        "status": "stale_blocked",
+        "minutesOld": 2530.1,
+        "actionAllowed": false,
+        "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
+      },
+      "signal": "REVIEW",
+      "computedSignal": "REVIEW",
+      "levels": {
+        "current": 71.37,
+        "entryLow": 65.66,
+        "entryHigh": 68.52,
+        "addBelow": 64.23,
+        "trimLow": 79.93,
+        "trimHigh": 85.64,
+        "stop": 61.38,
+        "hardExit": 58.52,
+        "target": 84.22,
+        "horizon": "weeks to quarters",
+        "basis": "core dynamic band from current price"
+      },
+      "reaction": {
+        "state": "DATA_BLOCKED",
+        "permission": "NO ACTION",
+        "priority": 1,
+        "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
+      },
+      "strategy": {
+        "posture": "Needs strategy",
+        "holdUntil": "Define thesis first.",
+        "addWhen": "Do not add until thesis is documented.",
+        "trimWhen": "Trim if risk exceeds conviction.",
+        "exitWhen": "Exit review if thesis cannot be verified.",
+        "invalidation": "Unknown.",
+        "review": "Review manually."
+      },
+      "confirmation": [
+        "price zone",
+        "thesis confirmation",
+        "portfolio fit"
+      ],
+      "context": null,
+      "weightPct": 2.75,
+      "healthScore": 70,
+      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
+    },
+    {
       "ticker": "CONL",
       "price": 5.27,
       "asOf": "2026-10-09T23:59:57.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2521.6,
+        "minutesOld": 2530.2,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -147,7 +197,7 @@
         "BTC risk tone not breaking down",
         "CONL reclaims stop/entry level with volume"
       ],
-      "context": "COIN 180 (4.65%), BTC 84003.95 (1.32%).",
+      "context": "COIN 180 (4.65%), BTC 83757.13 (1.02%).",
       "weightPct": 0.27,
       "healthScore": 52,
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
@@ -158,7 +208,7 @@
       "asOf": "2026-10-09T23:59:58.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2521.6,
+        "minutesOld": 2530.2,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -208,7 +258,7 @@
       "asOf": "2026-10-09T23:59:56.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2521.6,
+        "minutesOld": 2530.2,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -253,62 +303,12 @@
       "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
     },
     {
-      "ticker": "UBER",
-      "price": 71.37,
-      "asOf": "2026-10-09T23:59:59.000Z",
-      "freshness": {
-        "status": "stale_blocked",
-        "minutesOld": 2521.6,
-        "actionAllowed": false,
-        "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
-      },
-      "signal": "REVIEW",
-      "computedSignal": "REVIEW",
-      "levels": {
-        "current": 71.37,
-        "entryLow": 65.66,
-        "entryHigh": 68.52,
-        "addBelow": 64.23,
-        "trimLow": 79.93,
-        "trimHigh": 85.64,
-        "stop": 61.38,
-        "hardExit": 58.52,
-        "target": 84.22,
-        "horizon": "weeks to quarters",
-        "basis": "core dynamic band from current price"
-      },
-      "reaction": {
-        "state": "DATA_BLOCKED",
-        "permission": "NO ACTION",
-        "priority": 1,
-        "read": "Quote is older than the daily refresh cadence or missing. Refresh before reaction."
-      },
-      "strategy": {
-        "posture": "Needs strategy",
-        "holdUntil": "Define thesis first.",
-        "addWhen": "Do not add until thesis is documented.",
-        "trimWhen": "Trim if risk exceeds conviction.",
-        "exitWhen": "Exit review if thesis cannot be verified.",
-        "invalidation": "Unknown.",
-        "review": "Review manually."
-      },
-      "confirmation": [
-        "price zone",
-        "thesis confirmation",
-        "portfolio fit"
-      ],
-      "context": null,
-      "weightPct": 2.75,
-      "healthScore": 70,
-      "source": "Yahoo Finance chart API (public/unofficial; 1m intraday when available)"
-    },
-    {
       "ticker": "AMZN",
       "price": 262.53,
       "asOf": "2026-10-09T23:59:45.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2521.8,
+        "minutesOld": 2530.4,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -358,7 +358,7 @@
       "asOf": "2026-10-09T23:59:40.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2521.9,
+        "minutesOld": 2530.5,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -408,7 +408,7 @@
       "asOf": "2026-10-09T23:59:38.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2521.9,
+        "minutesOld": 2530.5,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -458,7 +458,7 @@
       "asOf": "2026-10-09T23:58:58.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2522.6,
+        "minutesOld": 2531.2,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -508,7 +508,7 @@
       "asOf": "2026-10-09T23:58:04.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2523.5,
+        "minutesOld": 2532.1,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -558,7 +558,7 @@
       "asOf": "2026-10-09T23:57:46.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2523.8,
+        "minutesOld": 2532.4,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -608,7 +608,7 @@
       "asOf": "2026-10-09T23:53:10.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2528.4,
+        "minutesOld": 2537,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -657,7 +657,7 @@
       "asOf": "2026-10-09T23:51:19.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2530.2,
+        "minutesOld": 2538.8,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },
@@ -707,7 +707,7 @@
       "asOf": "2026-10-09T23:10:26.000Z",
       "freshness": {
         "status": "stale_blocked",
-        "minutesOld": 2571.1,
+        "minutesOld": 2579.7,
         "actionAllowed": false,
         "note": "Older than 24h daily-refresh cadence; block action until generate:live refreshes."
       },

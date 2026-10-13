@@ -8,12 +8,13 @@ const score = readJson('outputs/operational-readiness-score.json', { score: 0, t
 const nativeEvents = readJson('outputs/native-events.json', {});
 const opportunityPackets = readJson('outputs/opportunity-evidence-packets.json', {});
 const tickerGateAudit = readJson('outputs/ticker-gate-audit.json', {});
+const mandateConfig = readJson('config/mandates.json', { mandates: [] });
 const list = v => Array.isArray(v) ? v : [];
-// Honor the same manual-holdings age policy the build uses. The operating-loop
-// workflow sets CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS=168 because the Robinhood
-// snapshot is manual by design; the validator must not fail the loop on a
-// snapshot the build itself was configured to tolerate.
-const maxRobinhoodAgeHours = Number(process.env.CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS || 72);
+// Honor the same broker-snapshot age policy the mandate uses. Manual unchanged
+// attestations have their own explicit 30-day policy in the generated portfolio
+// artifact and never silently rewrite the underlying broker-sync timestamp.
+const coreFreshness = mandateConfig.mandates?.find(row => row.id === 'core')?.freshness || {};
+const maxRobinhoodAgeHours = Number(process.env.CAPITAL_RADAR_MAX_ROBINHOOD_AGE_HOURS || Number(coreFreshness.positionsMaxMinutes || 4320) / 60);
 function pass(label, ok, evidence, blocker = null) { return { label, status: ok ? 'PASS' : 'FAIL', evidence, blocker }; }
 function get(obj, pathExpr) {
   return String(pathExpr).split('.').reduce((value, key) => value?.[key], obj);
@@ -37,7 +38,7 @@ function freshnessCheck(label, rel, pathExpr, maxHours) {
 }
 function degradedPortfolioFreshnessCheck() {
   const artifact = readJson('outputs/portfolio-live-state.json', null);
-  const timestamp = artifact?.fetchedAt;
+  const timestamp = artifact?.ownership?.asOf || artifact?.fetchedAt;
   const age = ageHours(timestamp);
   // Prefer the threshold the generator recorded in the artifact itself so the
   // validator can never disagree with the policy the build ran under.
@@ -54,8 +55,8 @@ function degradedPortfolioFreshnessCheck() {
     'Portfolio freshness',
     ok,
     timestamp
-      ? `outputs/portfolio-live-state.json fetchedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxAge}h; visibleDegraded=${visibleDegraded}`
-      : 'outputs/portfolio-live-state.json missing fetchedAt',
+      ? `outputs/portfolio-live-state.json ownership.asOf=${timestamp}; method=${artifact?.ownership?.method || 'legacy'}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxAge}h; visibleDegraded=${visibleDegraded}`
+      : 'outputs/portfolio-live-state.json missing ownership timestamp',
     ok ? null : 'Portfolio data is stale or missing without a visible degraded-state badge.'
   );
 }

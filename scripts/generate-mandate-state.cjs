@@ -73,9 +73,13 @@ const observationById = new Map((observations.observations || []).map(row => [ro
 const mandates = (config.mandates || []).map(mandate => {
   if (mandate.id === 'core') {
     const quoteTimestamp = oldestTimestamp((portfolio?.positions || []).map(position => position.priceAsOf || portfolio?.fetchedAt));
+    const ownershipTimestamp = portfolio?.ownership?.asOf || portfolio?.fetchedAt;
+    const ownershipMaxMinutes = portfolio?.ownership?.method === 'MANUAL_UNCHANGED_ATTESTATION'
+      ? (mandate.freshness.attestedPositionsMaxMinutes || mandate.freshness.positionsMaxMinutes)
+      : mandate.freshness.positionsMaxMinutes;
     const dependencies = [
-      dependency('positions', 'Positions', portfolio?.fetchedAt, mandate.freshness.positionsMaxMinutes, {
-        available: Boolean(portfolio), source: 'portfolio-live-state'
+      dependency('positions', 'Positions', ownershipTimestamp, ownershipMaxMinutes, {
+        available: Boolean(portfolio), source: `portfolio-live-state.${portfolio?.ownership?.method || 'legacy'}`
       }),
       dependency('quotes', 'Holding prices', quoteTimestamp, mandate.freshness.quotesMaxMinutes, {
         available: Boolean(portfolio?.positions?.length && quoteTimestamp), source: 'portfolio-live-state.positions'

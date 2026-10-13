@@ -17,7 +17,13 @@ function writeStatus(status) {
   console.log(JSON.stringify(status, null, 2));
 }
 
-const maxAgeHours = Number(arg('max-age-hours', '24'));
+let configuredMaxAgeHours = 72;
+try {
+  const config = JSON.parse(fs.readFileSync(path.join(root, 'config', 'mandates.json'), 'utf8'));
+  const minutes = config.mandates?.find(row => row.id === 'core')?.freshness?.positionsMaxMinutes;
+  if (Number.isFinite(Number(minutes))) configuredMaxAgeHours = Number(minutes) / 60;
+} catch (_) {}
+const maxAgeHours = Number(arg('max-age-hours', String(configuredMaxAgeHours)));
 const checkedAt = new Date().toISOString();
 
 if (!fs.existsSync(rhPath)) {

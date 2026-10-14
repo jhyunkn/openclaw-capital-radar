@@ -1,27 +1,27 @@
 {
-  "as_of": "2026-10-14T17:37:14.554Z",
+  "as_of": "2026-10-14T18:38:20.621Z",
   "artifact": "strategy-routing-state",
-  "route_id": "rate_constrained_growth",
-  "route": "rate-constrained growth",
-  "risk_budget": "constrained",
-  "add_permission": "quality_only",
-  "trim_permission": "duration_beta",
-  "opportunity_permission": "quality_discount_only",
-  "confirmation_score": 93,
+  "route_id": "transition_verify",
+  "route": "transition / verify",
+  "risk_budget": "neutral",
+  "add_permission": "blocked",
+  "trim_permission": "selective",
+  "opportunity_permission": "research_only",
+  "confirmation_score": 81,
   "market_lens_regime": "risk-on confirmation",
   "inputs": {
-    "SPX": "SUPPORTIVE",
+    "SPX": "VERIFY",
     "QQQ": "SUPPORTIVE",
     "TLT": "DEFENSIVE",
     "BTC": "SUPPORTIVE",
     "VIX": "CONTAINED",
-    "operational_chart": "Near upper resistance"
+    "operational_chart": "Trend weakening above 200D"
   },
   "permissions": [
     {
       "domain": "Core index / broad equity",
-      "permission": "HOLD / SELECTIVE ADD",
-      "driver": "SPX SUPPORTIVE"
+      "permission": "VERIFY",
+      "driver": "SPX VERIFY"
     },
     {
       "domain": "AI / growth compounders",
@@ -40,15 +40,14 @@
     },
     {
       "domain": "Opportunity promotion",
-      "permission": "QUALITY DISCOUNT ONLY",
-      "driver": "route rate-constrained growth"
+      "permission": "RESEARCH ONLY",
+      "driver": "route transition / verify"
     }
   ],
   "blocks": [
     "Rate pressure constrains duration/growth multiple expansion."
   ],
   "promotes": [
-    "Broad market trend supports holding core exposure.",
     "Growth leadership supports AI-linked holdings and candidates.",
     "Speculative liquidity confirms risk appetite.",
     "Contained volatility supports staying invested."
@@ -56,8 +55,8 @@
   "action_protocol": [
     {
       "rule": "ADD",
-      "permission": "quality_only",
-      "condition": "Only inside ruled buy zones with source tier AUTH/PARTIAL and evidence score high."
+      "permission": "blocked",
+      "condition": "No adds until route improves."
     },
     {
       "rule": "HOLD",
@@ -66,12 +65,12 @@
     },
     {
       "rule": "TRIM",
-      "permission": "duration_beta",
+      "permission": "selective",
       "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
     },
     {
       "rule": "PROMOTE OPPORTUNITY",
-      "permission": "quality_discount_only",
+      "permission": "research_only",
       "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
     },
     {

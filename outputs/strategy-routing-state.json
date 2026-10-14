@@ -1,16 +1,16 @@
 {
-  "as_of": "2026-10-14T18:38:20.621Z",
+  "as_of": "2026-10-14T19:19:28.955Z",
   "artifact": "strategy-routing-state",
-  "route_id": "transition_verify",
-  "route": "transition / verify",
-  "risk_budget": "neutral",
-  "add_permission": "blocked",
-  "trim_permission": "selective",
-  "opportunity_permission": "research_only",
+  "route_id": "rate_constrained_growth",
+  "route": "rate-constrained growth",
+  "risk_budget": "constrained",
+  "add_permission": "quality_only",
+  "trim_permission": "duration_beta",
+  "opportunity_permission": "quality_discount_only",
   "confirmation_score": 81,
   "market_lens_regime": "risk-on confirmation",
   "inputs": {
-    "SPX": "VERIFY",
+    "SPX": "SUPPORTIVE",
     "QQQ": "SUPPORTIVE",
     "TLT": "DEFENSIVE",
     "BTC": "SUPPORTIVE",
@@ -20,8 +20,8 @@
   "permissions": [
     {
       "domain": "Core index / broad equity",
-      "permission": "VERIFY",
-      "driver": "SPX VERIFY"
+      "permission": "HOLD / SELECTIVE ADD",
+      "driver": "SPX SUPPORTIVE"
     },
     {
       "domain": "AI / growth compounders",
@@ -40,14 +40,15 @@
     },
     {
       "domain": "Opportunity promotion",
-      "permission": "RESEARCH ONLY",
-      "driver": "route transition / verify"
+      "permission": "QUALITY DISCOUNT ONLY",
+      "driver": "route rate-constrained growth"
     }
   ],
   "blocks": [
     "Rate pressure constrains duration/growth multiple expansion."
   ],
   "promotes": [
+    "Broad market trend supports holding core exposure.",
     "Growth leadership supports AI-linked holdings and candidates.",
     "Speculative liquidity confirms risk appetite.",
     "Contained volatility supports staying invested."
@@ -55,8 +56,8 @@
   "action_protocol": [
     {
       "rule": "ADD",
-      "permission": "blocked",
-      "condition": "No adds until route improves."
+      "permission": "quality_only",
+      "condition": "Only inside ruled buy zones with source tier AUTH/PARTIAL and evidence score high."
     },
     {
       "rule": "HOLD",
@@ -65,12 +66,12 @@
     },
     {
       "rule": "TRIM",
-      "permission": "selective",
+      "permission": "duration_beta",
       "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
     },
     {
       "rule": "PROMOTE OPPORTUNITY",
-      "permission": "research_only",
+      "permission": "quality_discount_only",
       "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
     },
     {

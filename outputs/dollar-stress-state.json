@@ -1,17 +1,17 @@
 {
   "artifact": "dollar-stress-state",
   "version": 1,
-  "generatedAt": "2026-10-14T18:37:56.546Z",
+  "generatedAt": "2026-10-14T19:18:32.871Z",
   "generatedBy": "scripts/generate-dollar-stress-state.cjs",
   "anchorDate": "2026-10-14",
   "coverage": "FULL",
   "partial": false,
   "staleInputs": [],
   "verdict": "NORMAL_RISK_OFF",
-  "verdictLabel": "Normal risk-off — haven bid working",
-  "dollarHaven": "WORKING",
-  "implication": "Equities down with a dollar bid, but Treasury yields have not confirmed (no yield decline). Haven is working on the FX leg only — size accordingly.",
-  "whatWouldChange": "Escalates to DOLLAR_LIQUIDITY_STRESS on a DXY 5d spike >= +2.0%, VIX >= 35, or HY OAS widening >= +50bp in 5d. Flips to SELL_AMERICA_STRESS if the dollar starts falling while yields rise into equity weakness.",
+  "verdictLabel": "Equity stress — dollar bid not confirmed",
+  "dollarHaven": "NOT_CONFIRMED",
+  "implication": "Equities are selling off but the dollar is not bid and yields are not rising — this is equity stress first, not a dollar-liquidity event and not a Sell-America pattern.",
+  "whatWouldChange": "A dollar bid (DXY 5d >= +0.3%) confirms NORMAL_RISK_OFF; a falling dollar with yields up >= +10bp flips it to SELL_AMERICA_STRESS.",
   "thresholds": {
     "spyDown5": -1,
     "spyDown20": -3,
@@ -24,18 +24,18 @@
   },
   "inputs": {
     "dxy": {
-      "level": 102.597,
+      "level": 102.537,
       "asOf": "2026-10-14",
-      "change5dPct": 0.349,
-      "change20dPct": 1.481,
+      "change5dPct": 0.29,
+      "change20dPct": 1.421,
       "window5d": {
         "fromDate": "2026-10-07",
         "fromValue": 102.24,
         "toDate": "2026-10-14",
-        "toValue": 102.597,
-        "pctChange": 0.349,
-        "delta": 0.357,
-        "deltaBp": 35.7,
+        "toValue": 102.537,
+        "pctChange": 0.29,
+        "delta": 0.297,
+        "deltaBp": 29.7,
         "spanDays": 7,
         "windowDays": 5
       },
@@ -43,27 +43,27 @@
         "fromDate": "2026-09-23",
         "fromValue": 101.1,
         "toDate": "2026-10-14",
-        "toValue": 102.597,
-        "pctChange": 1.481,
-        "delta": 1.497,
-        "deltaBp": 149.7,
+        "toValue": 102.537,
+        "pctChange": 1.421,
+        "delta": 1.437,
+        "deltaBp": 143.7,
         "spanDays": 21,
         "windowDays": 20
       }
     },
     "spy": {
-      "level": 768.11,
+      "level": 767.88,
       "asOf": "2026-10-14",
-      "change5dPct": -1.343,
-      "change20dPct": 0.121,
+      "change5dPct": -1.373,
+      "change20dPct": 0.091,
       "window5d": {
         "fromDate": "2026-10-09",
         "fromValue": 778.57,
         "toDate": "2026-10-14",
-        "toValue": 768.11,
-        "pctChange": -1.343,
-        "delta": -10.46,
-        "deltaBp": -1046,
+        "toValue": 767.88,
+        "pctChange": -1.373,
+        "delta": -10.69,
+        "deltaBp": -1069,
         "spanDays": 5,
         "windowDays": 5
       },
@@ -71,26 +71,26 @@
         "fromDate": "2026-09-24",
         "fromValue": 767.18,
         "toDate": "2026-10-14",
-        "toValue": 768.11,
-        "pctChange": 0.121,
-        "delta": 0.93,
-        "deltaBp": 93,
+        "toValue": 767.88,
+        "pctChange": 0.091,
+        "delta": 0.7,
+        "deltaBp": 70,
         "spanDays": 20,
         "windowDays": 20
       }
     },
     "vix": {
-      "level": 17.03,
+      "level": 17.11,
       "asOf": "2026-10-14",
-      "change5dDelta": 1.62,
+      "change5dDelta": 1.7,
       "window5d": {
         "fromDate": "2026-10-08",
         "fromValue": 15.41,
         "toDate": "2026-10-14",
-        "toValue": 17.03,
-        "pctChange": 10.513,
-        "delta": 1.62,
-        "deltaBp": 162,
+        "toValue": 17.11,
+        "pctChange": 11.032,
+        "delta": 1.7,
+        "deltaBp": 170,
         "spanDays": 6,
         "windowDays": 5
       }
@@ -99,7 +99,7 @@
       "levelPct": 5.24,
       "asOf": "2026-10-09",
       "lagDays": 5,
-      "cacheStatus": "PUBLIC_REFRESHED",
+      "cacheStatus": "REFRESH_FAILED_USING_EXISTING_CACHE",
       "change5dBp": -2,
       "change20dBp": 41,
       "window5d": {
@@ -129,7 +129,7 @@
       "levelPct": 3.16,
       "asOf": "2026-10-13",
       "lagDays": 1,
-      "cacheStatus": "PUBLIC_REFRESHED",
+      "cacheStatus": "REFRESH_FAILED_USING_EXISTING_CACHE",
       "change5dBp": 1,
       "change20dBp": 43,
       "window5d": {
@@ -156,9 +156,9 @@
       }
     },
     "gold": {
-      "level": 4114.4,
+      "level": 4114.9,
       "asOf": "2026-10-14",
-      "change5dPct": -0.635
+      "change5dPct": -0.623
     }
   },
   "rules": [

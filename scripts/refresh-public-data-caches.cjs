@@ -103,8 +103,21 @@ function parseFredCsv(csv, seriesId) {
 
 async function fredSeries(seriesId) {
   const csvUrl = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${encodeURIComponent(seriesId)}`;
-  const csv = await fetchText(csvUrl);
-  return compactRows(parseFredCsv(csv, seriesId), 1200);
+  // Same retry policy as the live FRED path (owner-approved 2026-10-16):
+  // FRED timeouts from this host are intermittent per-request, so a single
+  // attempt drops series that a retry would land.
+  const maxAttempts = Number(process.env.FRED_FETCH_RETRIES || 5);
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const csv = await fetchText(csvUrl);
+      return compactRows(parseFredCsv(csv, seriesId), 1200);
+    } catch (e) {
+      lastError = e;
+      if (attempt < maxAttempts) await new Promise(r => setTimeout(r, Math.min(600 * 2 ** (attempt - 1), 8000)));
+    }
+  }
+  throw lastError;
 }
 
 async function yahooSeries(symbol, range = '10y', interval = '1d') {

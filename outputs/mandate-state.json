@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T14:32:33.822Z",
+  "generatedAt": "2026-10-16T16:59:55.430Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -7,10 +7,10 @@
       "id": "core",
       "label": "Core portfolio",
       "description": "Longer-horizon portfolio oversight, concentration control, thesis verification, and measured exposure changes.",
-      "state": "PAUSED_STALE",
+      "state": "READY_REVIEW",
       "actionAllowed": false,
-      "permission": "NO_ACTION",
-      "reason": "1 required dependency blocker(s).",
+      "permission": "HUMAN_REVIEW_REQUIRED",
+      "reason": "Evidence is current enough for human review; Capital Radar does not authorize execution.",
       "dependencies": [
         {
           "id": "positions",
@@ -18,7 +18,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-10-16T14:00:37.000Z",
-          "ageMinutes": 31.9,
+          "ageMinutes": 179.3,
           "maxMinutes": 4320,
           "source": "portfolio-live-state.BROKER_SYNC",
           "reason": null
@@ -28,8 +28,8 @@
           "label": "Holding prices",
           "required": true,
           "status": "OK",
-          "asOf": "2026-10-16T14:00:30.000Z",
-          "ageMinutes": 32.1,
+          "asOf": "2026-10-16T16:31:01.000Z",
+          "ageMinutes": 28.9,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
           "reason": null
@@ -38,12 +38,12 @@
           "id": "data_health",
           "label": "Data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-10-16T14:32:10.687Z",
-          "ageMinutes": 0.4,
+          "status": "OK",
+          "asOf": "2026-10-16T16:59:54.353Z",
+          "ageMinutes": 0,
           "maxMinutes": 1440,
           "source": "data-health",
-          "reason": "Data health reports PARTIAL."
+          "reason": null
         },
         {
           "id": "calendar",
@@ -51,24 +51,18 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-10-16",
-          "ageMinutes": 872.6,
+          "ageMinutes": 1019.9,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
         }
       ],
-      "blockers": [
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports PARTIAL."
-        }
-      ],
+      "blockers": [],
       "portfolio": {
         "totalValue": 95149.97,
         "buyingPower": 4765.94,
         "positionCount": 13,
-        "dayChange": -488.8
+        "dayChange": -1325.82
       }
     },
     {
@@ -139,12 +133,12 @@
           "id": "data_health",
           "label": "Market data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-10-16T14:32:10.687Z",
-          "ageMinutes": 0.4,
+          "status": "OK",
+          "asOf": "2026-10-16T16:59:54.353Z",
+          "ageMinutes": 0,
           "maxMinutes": 15,
           "source": "data-health",
-          "reason": "Data health reports PARTIAL."
+          "reason": null
         },
         {
           "id": "calendar",
@@ -152,7 +146,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-10-16",
-          "ageMinutes": 872.6,
+          "ageMinutes": 1019.9,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -183,11 +177,6 @@
           "id": "gate_observations",
           "status": "MISSING",
           "reason": "No timestamped gate observation set is available."
-        },
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports PARTIAL."
         }
       ],
       "riskPolicy": {
@@ -273,9 +262,9 @@
     }
   ],
   "summary": {
-    "readyForReview": 0,
+    "readyForReview": 1,
     "armed": 0,
-    "paused": 1,
+    "paused": 0,
     "executionAuthorized": 0
   }
 }

@@ -85,8 +85,11 @@ const positions = rh.positions.map(pos => {
   const symbol = String(pos.symbol || '').toUpperCase();
   const live = liveByTicker.get(symbol) || {};
   const shares = round(pos.quantity, 6);
-  const avgCostPrice = round(pos.avgCostPrice, 2);
-  const costBasis = round(shares * avgCostPrice, 2);
+  const avgCostPrice = round(pos.avgCostPrice, symbol === 'DOGE' ? 9 : 2);
+  const suppliedCostBasis = Number(pos.costBasis);
+  const costBasis = Number.isFinite(suppliedCostBasis)
+    ? round(suppliedCostBasis, 2)
+    : round(shares * avgCostPrice, 2);
   const livePrice = round(live.livePrice ?? pos.livePrice, symbol === 'DOGE' ? 6 : 2);
   const prevClose = round(live.prevClose ?? pos.prevClose, symbol === 'DOGE' ? 6 : 2);
   const currentValue = round(livePrice * shares, 2);

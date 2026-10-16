@@ -11,6 +11,7 @@ const interpretations = new Map((strategy.interpretations || []).map(x => [Strin
 const n = value => { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : 0; };
 function classify(h) {
   const ticker = String(h.ticker || '').toUpperCase();
+  if (ticker === 'CASH') return ['cash_liquidity', 'Cash / liquidity reserve', 'Uninvested cash and buying power available as portfolio ballast and deployment capacity.', 100];
   if (ticker === 'SPY') return ['index_market_beta', 'Index / market beta', 'Broad market index exposure used as portfolio beta and ballast.', 55];
   if (ticker === 'AMZN') return ['ecommerce_cloud', 'E-commerce / cloud infrastructure', 'Amazon-specific exposure: e-commerce, AWS, advertising, logistics, and operating leverage.', 20];
   if (ticker === 'MSFT') return ['cloud_software_ai', 'Cloud / software / AI platform', 'Enterprise software, cloud, and AI platform exposure.', 25];
@@ -51,6 +52,22 @@ for (const h of holdings) {
   const [id, label, description, capPct] = classify(h);
   if (!groups.has(id)) groups.set(id, { id, label, description, capPct, members: [] });
   groups.get(id).members.push(h);
+}
+const mappedHoldingWeightPct = holdings.reduce((sum, h) => sum + n(h.portfolioWeightPct), 0);
+const cashWeightPct = Number(Math.max(0, 100 - mappedHoldingWeightPct).toFixed(2));
+if (cashWeightPct > 0.15) {
+  const [id, label, description, capPct] = classify({ ticker: 'CASH' });
+  groups.set(id, {
+    id,
+    label,
+    description,
+    capPct,
+    members: [{
+      ticker: 'CASH',
+      portfolioWeightPct: cashWeightPct,
+      computedSignal: 'RESERVE'
+    }]
+  });
 }
 const buckets = Array.from(groups.values()).map(bucketFromGroup).sort((a, b) => b.weightPct - a.weightPct);
 const totalWeightPct = Number(buckets.reduce((sum, b) => sum + b.weightPct, 0).toFixed(2));

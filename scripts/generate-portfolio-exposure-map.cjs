@@ -24,6 +24,7 @@ function classify(h) {
   if (ticker === 'NFLX') return ['streaming_media', 'Streaming / media', 'Subscription entertainment and media platform exposure.', 15];
   if (ticker === 'UBER') return ['mobility_ondemand_platform', 'Mobility / on-demand platform', 'Ride-hailing, delivery, and on-demand logistics platform exposure.', 15];
   if (ticker === 'IAU') return ['commodities_precious_metals', 'Commodities / precious metals', 'Gold and precious-metals exposure used as an inflation/uncertainty hedge.', 20];
+  if (['DOGE','BTC','ETH'].includes(ticker)) return ['speculative_crypto_assets', 'Speculative crypto assets', 'Direct high-volatility crypto exposure requiring strict sizing and liquidity-risk controls.', 5];
   if (ticker === 'BMNR') return ['speculative_crypto_infrastructure', 'Speculative crypto infrastructure', 'High-volatility crypto/mining/infrastructure optionality requiring explicit thesis review.', 5];
   if (ticker === 'TSNF') return ['speculative_single_name', 'Speculative single-name equity', 'Speculative or thesis-uncertain single-name equity exposure.', 5];
   if (['TSLT','CONL','TMF','TQQQ','SQQQ','SOXL','SOXS','BITX'].includes(ticker)) return ['levered_tactical', 'Levered / tactical products', 'Daily-reset or levered tactical exposure where volatility path and decay matter.', 5];

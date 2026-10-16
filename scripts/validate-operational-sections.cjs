@@ -63,6 +63,7 @@ function degradedPortfolioFreshnessCheck() {
 function robinhoodFreshnessCheck() {
   const raw = readJson('outputs/robinhood-positions.json', null);
   const portfolio = readJson('outputs/portfolio-live-state.json', null);
+  const attestation = readJson('outputs/portfolio-positions-attestation.json', null);
   const timestamp = raw?.syncedAt;
   const age = ageHours(timestamp);
   const visibleDegraded =
@@ -70,12 +71,27 @@ function robinhoodFreshnessCheck() {
     portfolio?.freshness?.degraded === true &&
     /data freshness stale|Holdings frozen|STALE/i.test(html + publicHtml);
   const fresh = Number.isFinite(age) && age <= maxRobinhoodAgeHours;
-  const ok = fresh || visibleDegraded;
+  // Attestation alignment (owner decision 2026-10-16): mirror the exact rule
+  // generate-portfolio-live-state.cjs already applies — a manual UNCHANGED
+  // attestation bound to this snapshot's syncedAt carries its own 720h
+  // policy. The raw 72h rule still governs whenever no valid attestation
+  // exists; an attestation bound to a different snapshot, with a different
+  // status, or older than the attestation window does not pass.
+  const attestationMaxAgeHours = Number(process.env.CAPITAL_RADAR_MAX_POSITION_ATTESTATION_AGE_HOURS || 720);
+  const attestationMatches = Boolean(
+    attestation?.status === 'UNCHANGED' &&
+    attestation?.attestedAt &&
+    timestamp &&
+    attestation?.sourceSnapshotSyncedAt === timestamp
+  );
+  const attestationAge = attestationMatches ? ageHours(attestation.attestedAt) : Infinity;
+  const attested = attestationMatches && Number.isFinite(attestationAge) && attestationAge <= attestationMaxAgeHours;
+  const ok = fresh || attested || visibleDegraded;
   return pass(
     'Robinhood raw freshness',
     ok,
     timestamp
-      ? `outputs/robinhood-positions.json syncedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxRobinhoodAgeHours}h; visibleDegraded=${visibleDegraded}`
+      ? `outputs/robinhood-positions.json syncedAt=${timestamp}; age=${Number.isFinite(age) ? age.toFixed(1) : 'invalid'}h; max=${maxRobinhoodAgeHours}h; attested=${attested}; attestationAge=${attestationMatches ? attestationAge.toFixed(1) : 'n/a'}h; attestationMax=${attestationMaxAgeHours}h; visibleDegraded=${visibleDegraded}`
       : 'outputs/robinhood-positions.json missing syncedAt',
     ok ? null : 'Robinhood data is stale or missing without a visible degraded portfolio state.'
   );

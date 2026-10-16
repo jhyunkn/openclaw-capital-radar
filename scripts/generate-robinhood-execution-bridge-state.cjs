@@ -16,6 +16,11 @@ function round(v, d = 2) {
   return Number.isFinite(n) ? Number(n.toFixed(d)) : null;
 }
 
+function ageHours(timestamp) {
+  const parsed = new Date(timestamp);
+  return Number.isFinite(parsed.getTime()) ? (Date.now() - parsed.getTime()) / 3_600_000 : Infinity;
+}
+
 const rh = readJson('outputs/robinhood-positions.json', {});
 const liveState = readJson('data/report-state.live.json', {});
 const watchlist = readJson('outputs/watchlist-market-data.json', {});
@@ -34,7 +39,7 @@ for (const z of (zones.holdings || zones.zones || [])) {
 const positions = (rh.positions || []).map(pos => {
   const sym = String(pos.symbol).toUpperCase();
   const shares = round(pos.quantity, 6);
-  const avgCostPrice = round(pos.avgCostPrice, 2);
+  const avgCostPrice = round(pos.avgCostPrice, sym === 'DOGE' ? 9 : 2);
   const totalCostBasis = Number.isFinite(pos.costBasis)
     ? round(pos.costBasis, 2)
     : (shares != null && avgCostPrice != null ? round(shares * avgCostPrice, 2) : null);
@@ -47,17 +52,19 @@ const positions = (rh.positions || []).map(pos => {
   // A non-positive or missing price is "unavailable": renderers must show '—',
   // never $0.00 (a $0 price corrupts every total it touches).
   const livePriceRaw = lh?.livePrice ?? pos.livePrice ?? wl?.currentPrice;
-  const livePrice = (Number(livePriceRaw) > 0) ? round(livePriceRaw, 2) : null;
+  const livePrice = (Number(livePriceRaw) > 0) ? round(livePriceRaw, sym === 'DOGE' ? 8 : 4) : null;
   const priceSource = lh?.livePrice != null ? 'live-state'
+    : pos.livePrice != null && pos.priceAsOf ? 'broker-live-snapshot'
     : pos.livePrice != null ? 'broker-snapshot'
     : wl?.currentPrice != null ? 'watchlist' : 'unavailable';
-  const priceStale = priceSource !== 'live-state';
+  const priceAsOf = lh?.priceAsOf || pos.priceAsOf || wl?.asOf || null;
+  const priceStale = ageHours(priceAsOf) > 24;
   const currentValue = (livePrice != null && shares != null) ? round(livePrice * shares, 2) : null;
   const unrealizedGain = (currentValue != null && totalCostBasis != null) ? round(currentValue - totalCostBasis, 2) : null;
   const unrealizedPct = (unrealizedGain != null && totalCostBasis != null && totalCostBasis !== 0)
     ? round((unrealizedGain / totalCostBasis) * 100, 2) : null;
 
-  return { symbol: sym, shares, avgCostPrice, totalCostBasis, livePrice, currentValue, unrealizedGain, unrealizedPct, signal: signalMap.get(sym) || null, priceSource, priceStale };
+  return { symbol: sym, shares, avgCostPrice, totalCostBasis, livePrice, currentValue, unrealizedGain, unrealizedPct, signal: signalMap.get(sym) || null, priceSource, priceAsOf, priceStale };
 }).sort((a, b) => (b.totalCostBasis ?? 0) - (a.totalCostBasis ?? 0));
 
 const portfolio = rh.portfolio || {};
@@ -69,6 +76,7 @@ const state = {
   portfolio: {
     totalValue: round(portfolio.totalValue, 2),
     equityValue: round(portfolio.equityValue, 2),
+    cryptoValue: round(portfolio.cryptoValue, 2),
     cash: round(portfolio.cash, 2),
     buyingPower: round(portfolio.buyingPower, 2),
     positionCount: positions.length,

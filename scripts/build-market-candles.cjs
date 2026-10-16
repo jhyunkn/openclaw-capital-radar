@@ -13,7 +13,8 @@ async function fetchJson(url) {
   return res.json();
 }
 async function candlesFor(symbol) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5y&interval=1d&includePrePost=false&events=div%2Csplits`;
+  const upstreamSymbol = symbol === 'DOGE' ? 'DOGE-USD' : symbol;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(upstreamSymbol)}?range=5y&interval=1d&includePrePost=false&events=div%2Csplits`;
   const json = await fetchJson(url);
   const result = json.chart?.result?.[0];
   if (!result) throw new Error(`No chart result for ${symbol}`);

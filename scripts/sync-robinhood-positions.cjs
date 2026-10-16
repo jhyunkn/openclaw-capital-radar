@@ -27,7 +27,10 @@ for (const pos of (rh.positions || [])) {
   const sym      = String(pos.symbol).toUpperCase();
   const qty      = parseFloat(pos.quantity);
   const avgCost  = parseFloat(pos.avgCostPrice);
-  const basis    = Math.round(qty * avgCost * 100) / 100;
+  const suppliedBasis = Number(pos.costBasis);
+  const basis    = Number.isFinite(suppliedBasis)
+    ? Math.round(suppliedBasis * 100) / 100
+    : Math.round(qty * avgCost * 100) / 100;
   updated[sym]   = { ...(existing[sym] || {}), avgCostPrice: avgCost, shares: qty, totalCostBasis: basis };
 }
 
@@ -50,6 +53,54 @@ const statePath = path.join(root, 'data', 'report-state.live.json');
 if (fs.existsSync(statePath)) {
   const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
   const rhBySym = new Map((rh.positions || []).map(p => [String(p.symbol).toUpperCase(), p]));
+  const stateBySym = new Map((state.holdings || []).map(h => [String(h.ticker || '').toUpperCase(), h]));
+  let holdingsAdded = 0;
+  for (const pos of (rh.positions || [])) {
+    const sym = String(pos.symbol || '').toUpperCase();
+    if (!sym || stateBySym.has(sym)) continue;
+    const qty = Number(pos.quantity);
+    const avgCost = Number(pos.avgCostPrice);
+    const livePrice = Number(pos.livePrice);
+    const costBasis = Number.isFinite(Number(pos.costBasis))
+      ? Number(pos.costBasis)
+      : (Number.isFinite(qty) && Number.isFinite(avgCost) ? qty * avgCost : null);
+    const isCrypto = pos.assetClass === 'crypto' || sym === 'DOGE';
+    const seeded = {
+      ticker: sym,
+      ...(sym === 'DOGE' ? { displayName: 'Dogecoin' } : {}),
+      shares: qty,
+      role: isCrypto ? 'Crypto/speculative liquidity beta' : 'Broker-synced holding pending classification',
+      signal: isCrypto ? 'TACTICAL WATCH' : 'INVESTIGATE',
+      health: isCrypto ? 'High volatility' : 'Pending classification',
+      thesis: isCrypto
+        ? 'Speculative crypto beta; keep as a capped risk bucket, not a core compounder.'
+        : 'New broker-synced position requires thesis and risk classification.',
+      watch: isCrypto
+        ? 'Crypto liquidity, BTC trend, meme-coin risk appetite, and drawdown control.'
+        : 'Thesis, liquidity, concentration, and invalidation.',
+      actionRationale: isCrypto
+        ? 'Monitor as tactical risk exposure; do not average down without crypto confirmation.'
+        : 'Freeze adds until the position is classified.',
+      exposureBucket: isCrypto ? 'Crypto / speculative beta' : 'Unclassified broker holding',
+      livePrice: Number.isFinite(livePrice) ? livePrice : null,
+      priceAsOf: pos.priceAsOf || rh.syncedAt,
+      dayChangePct: Number.isFinite(Number(pos.dayChangePct)) ? Number(pos.dayChangePct) : null,
+      marketValue: Number.isFinite(Number(pos.currentValue)) ? Number(pos.currentValue) : null,
+      liveDataSource: 'Robinhood MCP live sync (read-only)',
+      sourceConfidence: 'high: authenticated broker position and quote snapshot',
+      avgCostPrice: Number.isFinite(avgCost) ? avgCost : null,
+      totalCostBasis: Number.isFinite(costBasis) ? Math.round(costBasis * 100) / 100 : null,
+    };
+    if (seeded.marketValue != null && seeded.totalCostBasis != null) {
+      seeded.unrealizedGain = Math.round((seeded.marketValue - seeded.totalCostBasis) * 100) / 100;
+      seeded.unrealizedPct = seeded.totalCostBasis
+        ? Math.round((seeded.unrealizedGain / seeded.totalCostBasis) * 10000) / 100
+        : null;
+    }
+    state.holdings = [...(state.holdings || []), seeded];
+    stateBySym.set(sym, seeded);
+    holdingsAdded++;
+  }
   let priceUpdated = 0;
   for (const h of (state.holdings || [])) {
     const pos = rhBySym.get(String(h.ticker || '').toUpperCase());
@@ -61,6 +112,19 @@ if (fs.existsSync(statePath)) {
     h.marketValue = Math.round(price * parseFloat(pos.quantity) * 100) / 100;
     priceUpdated++;
   }
+  const portfolioTotal = Number(rh.portfolio?.totalValue);
+  if (Number.isFinite(portfolioTotal) && portfolioTotal > 0) {
+    for (const h of (state.holdings || [])) {
+      const marketValue = Number(h.marketValue);
+      h.portfolioWeightPct = Number.isFinite(marketValue)
+        ? Math.round((marketValue / portfolioTotal) * 10000) / 100
+        : null;
+    }
+  }
+  state.meta = state.meta || {};
+  state.meta.holdingsSyncedAt = rh.syncedAt;
+  state.meta.holdingsSource = 'Robinhood MCP live sync (read-only)';
+  state.meta.holdingsSyncNote = `${(rh.positions || []).length} live broker positions reconciled; quantities, exact cost basis, cash, buying power, and portfolio totals refreshed.`;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
-  console.log(`sync-robinhood-positions: refreshed livePrice/priceAsOf/marketValue for ${priceUpdated} holdings in report-state.live.json`);
+  console.log(`sync-robinhood-positions: refreshed ${priceUpdated} holdings and added ${holdingsAdded} missing broker holding(s) in report-state.live.json`);
 }

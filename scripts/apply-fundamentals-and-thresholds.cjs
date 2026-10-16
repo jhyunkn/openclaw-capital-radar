@@ -29,6 +29,7 @@ function vol20(h){
 }
 function kind(t){
   t = String(t||'').toUpperCase();
+  if (['DOGE','BTC','ETH'].includes(t)) return 'crypto';
   if (['TSLT','CONL','TMF','TQQQ','SQQQ','SOXL','SOXS','BITX'].includes(t)) return 'levered';
   if (t === 'BMNR') return 'high_vol_speculative';
   if (['SPY','MSFT','MA'].includes(t)) return 'low_vol_quality';
@@ -43,6 +44,7 @@ function bands(h){
   let add = -(1.25 + 1.25 * scale), trim = 8 + 7 * scale, risk = -(6 + 6 * scale);
   if (k === 'levered') { add = -(3 + 2.5 * scale); trim = 12 + 8 * scale; risk = -(12 + 8 * scale); }
   if (k === 'high_vol_speculative') { add = -(3 + 2 * scale); trim = 12 + 7 * scale; risk = -(10 + 8 * scale); }
+  if (k === 'crypto') { add = -(4 + 3 * scale); trim = 15 + 10 * scale; risk = -(15 + 10 * scale); }
   if (k === 'low_vol_quality') { add = -(1 + 0.9 * scale); trim = 6 + 4 * scale; risk = -(4 + 3.5 * scale); }
   return { ticker, exposureType:k, realizedVol20Pct:r(vol), addPct:r(add), trimPct:r(trim), riskReviewPct:r(risk), addPrice:price?r(price*(1+add/100)):null, trimPrice:price?r(price*(1+trim/100)):null, riskReviewPrice:price?r(price*(1+risk/100)):null };
 }

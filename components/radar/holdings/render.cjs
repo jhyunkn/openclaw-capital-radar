@@ -479,8 +479,8 @@ function renderHoldingCard(h, route = {}, translation = {}, rhPos = null) {
       <div class="mu-ticker-row">
         <h3 class="mu-ticker">${esc(ticker)}</h3>
         <span class="mu-signal-badge ${sigCls}">${esc(signal)}</span>
-        ${score !== null ? `<span class="mu-health-badge ${scoreCls}">${score}/100</span>` : ''}
-        ${inBuyZoneBadge}${inTrimBadge}${belowBadge}${exitBadge}
+${score !== null ? `<span class="mu-health-badge ${scoreCls}">${score}/100</span>` : ''}
+${inBuyZoneBadge}${inTrimBadge}${belowBadge}${exitBadge}
       </div>
       <div class="mu-sub-row">
         ${h.role ? `<span class="mu-role">${esc(h.role)}</span>` : ''}
@@ -492,15 +492,15 @@ function renderHoldingCard(h, route = {}, translation = {}, rhPos = null) {
       <div class="mu-day-chg" style="color:${dayColor}">${daySign}${fmt(dayV,2)}%</div>
     </div>
   </div>
-  ${renderRhPositionStrip(rhPos)}
+${renderRhPositionStrip(rhPos)}
   <details class="mu-charts-det" open><summary class="mu-charts-sum">Charts</summary><div class="mu-chart-wrap"><div class="mu-chart-legend" id="lgnd-lwc-${esc(ticker)}"></div><div id="lwc-${esc(ticker)}" class="mu-holding-lwc"></div><div id="rsi-${esc(ticker)}" class="mu-rsi-lwc"></div><div id="macd-${esc(ticker)}" class="mu-macd-lwc"></div></div></details>
   <div class="mu-zone-bar-wrap">${buildZoneBar(h)}</div>
-  ${levelsHtml}
-  ${substanceHtml}
+${levelsHtml}
+${substanceHtml}
   <div class="mu-posture-row ${esc(verdict.cls)}"><b>${esc(verdict.text)}</b></div>
-  ${renderPermissionRow(route)}
-  ${renderDataTruthRow(h, route, translation)}
-  ${thesisHtml}${watchHtml}
+${renderPermissionRow(route)}
+${renderDataTruthRow(h, route, translation)}
+${thesisHtml}${watchHtml}
   <div class="mu-tech-row">${ma50chk}${ma200chk}${rationale}</div>
 </article>`;
 }

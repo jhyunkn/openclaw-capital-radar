@@ -73,6 +73,7 @@ function renderRobinhoodExecutionBridgeModule(state = {}) {
   const portfolioStats = [
     { label: 'Portfolio', value: fmt(portfolio.totalValue) },
     { label: 'Equity', value: fmt(portfolio.equityValue) },
+    { label: 'Crypto', value: fmt(portfolio.cryptoValue) },
     { label: 'Cash', value: fmt(portfolio.cash) },
     { label: 'Positions', value: String(portfolio.positionCount ?? positions.length) },
   ].map(s => `<span class="rh-lh-stat"><b>${esc(s.value)}</b><small>${esc(s.label)}</small></span>`).join('');
@@ -102,7 +103,14 @@ function renderRobinhoodExecutionBridgeModule(state = {}) {
     <td>—</td>
   </tr>`;
 
-  const footnote = syncedAt ? `Synced from Robinhood on ${esc(syncedAt)} · Prices from Capital Radar live state` : 'Prices from Capital Radar live state';
+  // Prices are marked from the Robinhood sync snapshot itself (same
+  // valuation path as the account header) — say so, with the sync's ET
+  // timestamp and its price basis (intraday snapshot vs closing prices),
+  // both derived from syncedAt by the state generator.
+  const basis = state.priceBasis || null;
+  const footnote = basis
+    ? `Synced from Robinhood · ${esc(basis.stamp)} — prices are ${basis.basis === 'intraday' ? 'an intraday snapshot, not closing prices' : 'closing prices as of this sync'} · Table marks from the same sync snapshot as the account header`
+    : (syncedAt ? `Synced from Robinhood on ${esc(syncedAt)} · Prices from the Robinhood sync snapshot` : 'Prices from the Robinhood sync snapshot');
   const badge = syncBadge(state.syncedAt);
 
   return `<div id="robinhood-execution-bridge-module" class="rh-live-holdings" aria-labelledby="rh-lh-title">

@@ -13,6 +13,13 @@ const rh        = JSON.parse(fs.readFileSync(rhPath, 'utf8'));
 const syncedAt  = new Date(rh.syncedAt);
 const ageHours  = (Date.now() - syncedAt.getTime()) / 3_600_000;
 const syncLabel = syncedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+// Price basis: the "Synced" line must state the sync time in ET and whether
+// the snapshot's prices are intraday prints or closes (lib/price-basis.cjs).
+// A date-only "Synced Oct 16" let a 2:50 PM intraday snapshot pose as the
+// day's closing prices.
+const { describeSyncBasis } = require(path.join(root, 'lib', 'price-basis.cjs'));
+const basis = describeSyncBasis(syncedAt);
+const syncTimeText = basis ? `Synced ${basis.stamp} — ${basis.label}` : `Synced ${syncLabel}`;
 const isStale   = ageHours > 48;
 const dotColor  = isStale ? '#f59e0b' : '#22c55e';
 const statusLabel = isStale ? `Stale (${Math.round(ageHours)}h ago)` : `Live · ${syncLabel}`;
@@ -41,10 +48,11 @@ const strip = `<div class="rh-sync-strip">
   <div class="rh-sync-stats">
     <span class="rh-stat"><b>${fmt(p.totalValue)}</b><small>Portfolio</small></span>
     <span class="rh-stat"><b>${fmt(p.equityValue)}</b><small>Equity</small></span>
+    <span class="rh-stat"><b>${fmt(p.cryptoValue)}</b><small>Crypto</small></span>
     <span class="rh-stat"><b>${fmt(p.cash)}</b><small>Cash</small></span>
     <span class="rh-stat"><b>${posCount}</b><small>Positions</small></span>
   </div>
-  <span class="rh-sync-time">Synced ${syncLabel}</span>
+  <span class="rh-sync-time">${syncTimeText}</span>
 </div>`;
 
 let html = fs.readFileSync(indexPath, 'utf8');

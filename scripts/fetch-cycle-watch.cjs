@@ -4,6 +4,16 @@
 // per-trading-day snapshot, and appends it to data/cycle-watch-history.json.
 // - Backfills the last 60 trading days on first run (one-time).
 // - Dedupes by trading date: never double-appends.
+// - SETTLED BARS ONLY: Yahoo's chart API returns the in-progress day's bar
+//   with close = latest intraday print. A run during market hours (e.g. the
+//   2026-10-16 10:37 ET manual refresh) used to append that partial bar as
+//   the day's "close" — stamping SPX 7,733.01 / VIX 15.97 for a day that
+//   actually closed 7,659.44 / 19.99 — and dedupe locked the error in
+//   forever. Bars are now filtered to settled closes (date before today ET,
+//   or today after a 16:15 ET settle buffer), snapshots dated after the
+//   latest settled bar are pruned, and the latest settled snapshot is
+//   recomputed on every run so a partial capture self-heals once the bar
+//   settles.
 // - NEVER depends on FRED. Credit/breadth use labeled Yahoo proxies.
 // - Fail-soft: on fetch failure it logs and exits 0 WITHOUT appending, so the
 //   build never breaks; generate-cycle-watch-state.cjs marks signals STALE.
@@ -56,6 +66,21 @@ async function fetchBars(symbol, days) {
 
 function byDate(bars) { const m = {}; for (const b of bars) m[b.date] = b; return m; }
 
+// Current America/New_York date ('YYYY-MM-DD') and minutes since midnight,
+// via Intl — no external tz database needed.
+function etNow() {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(new Date());
+  const g = t => (parts.find(p => p.type === t) || {}).value || '';
+  return { date: `${g('year')}-${g('month')}-${g('day')}`, minutes: Number(g('hour')) * 60 + Number(g('minute')) };
+}
+const SETTLE_BUFFER_MIN = 16 * 60 + 15; // 16:15 ET — after the 16:00 close settles
+function isSettledBar(barDate, now) {
+  return barDate < now.date || (barDate === now.date && now.minutes >= SETTLE_BUFFER_MIN);
+}
+
 async function main() {
   const results = {};
   const failures = [];
@@ -63,6 +88,15 @@ async function main() {
     try { results[key] = await fetchBars(sym, DAYS_OF_HISTORY); }
     catch (e) { failures.push(`${sym}: ${e.message}`); }
   }));
+
+  // Drop in-progress bars: only settled daily closes may enter history
+  // (see header — a partial bar stamped as a close is how the 2026-10-16
+  // snapshot landed wrong). All downstream math (200D windows, prior-close
+  // lookups) therefore works on completed bars only.
+  const now = etNow();
+  for (const k of Object.keys(results)) {
+    if (results[k]) results[k].bars = results[k].bars.filter(b => isSettledBar(b.date, now));
+  }
 
   // Core symbols are mandatory for a usable snapshot.
   for (const k of ['spx', 'vix', 'tnx', 'hyg', 'lqd', 'rsp', 'spy']) {
@@ -91,13 +125,21 @@ async function main() {
   };
 
   const existing = readJson(HISTORY_PATH, null);
-  const have = new Set(existing && Array.isArray(existing.snapshots) ? existing.snapshots.map(s => s.date) : []);
+  const latestSettledDate = spxDates[spxDates.length - 1];
+  // Prune snapshots dated after the latest settled bar: they can only be
+  // partial intraday captures written by a mid-session run (see header).
+  const snapshots = (existing && Array.isArray(existing.snapshots) ? existing.snapshots : [])
+    .filter(s => s.date <= latestSettledDate);
+  const have = new Set(snapshots.map(s => s.date));
   const targetDates = spxDates.slice(-BACKFILL_TRADING_DAYS);
   let appended = 0;
+  let refreshed = 0;
 
-  const snapshots = existing && Array.isArray(existing.snapshots) ? existing.snapshots : [];
   for (const date of targetDates) {
-    if (have.has(date)) continue;
+    // Dedupe — except the latest settled date, which is always recomputed
+    // so a snapshot first written from a partial bar self-heals once the
+    // bar settles.
+    if (have.has(date) && date !== latestSettledDate) continue;
     const spxClose = closes('spx', date);
     const ma200arr = [spxClose, ...closesBefore('spx', date, 199)].filter(v => v != null);
     const ma200 = ma200arr.length >= 200 ? avg(ma200arr) : null;
@@ -128,7 +170,7 @@ async function main() {
       const spyHi = rollingHigh('spy', date, 252) || (results.spy && results.spy.fiftyTwoWeekHigh);
       if (offs.length >= 5 && spyHi) mag7Gap = ((spy / spyHi - 1) * 100) - avg(offs);
     }
-    snapshots.push({
+    const snap = {
       date,
       spx_close: r2(spxClose),
       spx_ma200: r2(ma200),
@@ -140,8 +182,14 @@ async function main() {
       rsp_spy_ratio: r4(rspSpy),
       rsp_spy_30d_pct: (rspSpy != null && rspSpy30) ? r2((rspSpy / rspSpy30 - 1) * 100) : null,
       mag7_gap_pts: r2(mag7Gap),
-    });
-    appended++;
+    };
+    if (have.has(date)) {
+      const idx = snapshots.findIndex(s => s.date === date);
+      if (JSON.stringify(snapshots[idx]) !== JSON.stringify(snap)) { snapshots[idx] = snap; refreshed++; }
+    } else {
+      snapshots.push(snap);
+      appended++;
+    }
   }
   snapshots.sort((a, b) => a.date < b.date ? -1 : 1);
 
@@ -154,7 +202,7 @@ async function main() {
     note: 'hyg_lqd and rsp_spy are Yahoo-ETF PROXIES for credit spreads and breadth (FRED down since 2026-09-18). Labeled as proxy wherever displayed.',
     snapshots,
   });
-  console.log(`[cycle-watch] history updated: ${snapshots.length} snapshots, +${appended} new. Failures: ${failures.length ? failures.join('; ') : 'none'}`);
+  console.log(`[cycle-watch] history updated: ${snapshots.length} snapshots, +${appended} new, ${refreshed} refreshed. Failures: ${failures.length ? failures.join('; ') : 'none'}`);
 }
 
 main().catch(e => { console.warn('[cycle-watch] fatal fetch error (fail-soft):', e.message); });

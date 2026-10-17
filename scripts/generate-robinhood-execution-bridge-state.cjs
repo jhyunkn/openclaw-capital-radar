@@ -46,18 +46,23 @@ const positions = (rh.positions || []).map(pos => {
 
   const lh = liveHoldingsMap.get(sym);
   const wl = watchlist[sym] || watchlist.tickers?.[sym];
-  // Price chain: live state first, then the broker snapshot's own price, then the
-  // watchlist cache. The broker snapshot is a last-known price, never a live quote —
-  // flag it so renderers mark it stale instead of presenting it as current.
+  // Price chain: the broker snapshot's own price FIRST. The account header
+  // (inject-robinhood-sync-badge) prints the broker sync's portfolio block,
+  // so the table must mark from the same snapshot or the two disagree —
+  // they did: on 2026-10-16 this chain preferred report-state.live.json's
+  // adapter marks (a different, unlabeled vintage) and the table total
+  // ($87,281) matched neither header Equity ($86,035, equities only) nor
+  // Equity + Crypto ($87,447) from the sync. Live state and the watchlist
+  // cache remain fallbacks for lines the sync carries no price for.
   // A non-positive or missing price is "unavailable": renderers must show '—',
   // never $0.00 (a $0 price corrupts every total it touches).
-  const livePriceRaw = lh?.livePrice ?? pos.livePrice ?? wl?.currentPrice;
+  const livePriceRaw = pos.livePrice ?? lh?.livePrice ?? wl?.currentPrice;
   const livePrice = (Number(livePriceRaw) > 0) ? round(livePriceRaw, sym === 'DOGE' ? 8 : 4) : null;
-  const priceSource = lh?.livePrice != null ? 'live-state'
-    : pos.livePrice != null && pos.priceAsOf ? 'broker-live-snapshot'
+  const priceSource = pos.livePrice != null && pos.priceAsOf ? 'broker-live-snapshot'
     : pos.livePrice != null ? 'broker-snapshot'
+    : lh?.livePrice != null ? 'live-state'
     : wl?.currentPrice != null ? 'watchlist' : 'unavailable';
-  const priceAsOf = lh?.priceAsOf || pos.priceAsOf || wl?.asOf || null;
+  const priceAsOf = pos.priceAsOf || lh?.priceAsOf || wl?.asOf || null;
   const priceStale = ageHours(priceAsOf) > 24;
   const currentValue = (livePrice != null && shares != null) ? round(livePrice * shares, 2) : null;
   const unrealizedGain = (currentValue != null && totalCostBasis != null) ? round(currentValue - totalCostBasis, 2) : null;
@@ -68,11 +73,16 @@ const positions = (rh.positions || []).map(pos => {
 }).sort((a, b) => (b.totalCostBasis ?? 0) - (a.totalCostBasis ?? 0));
 
 const portfolio = rh.portfolio || {};
+const { describeSyncBasis } = require(path.join(root, 'lib', 'price-basis.cjs'));
 
 const state = {
   generatedAt: new Date().toISOString(),
   artifact: 'robinhood-execution-bridge-state',
   syncedAt: rh.syncedAt || null,
+  // Price basis of the snapshot (intraday vs close), derived from syncedAt —
+  // renderers print it next to the prices so a mid-session snapshot can
+  // never pose as closing prices.
+  priceBasis: describeSyncBasis(rh.syncedAt),
   portfolio: {
     totalValue: round(portfolio.totalValue, 2),
     equityValue: round(portfolio.equityValue, 2),

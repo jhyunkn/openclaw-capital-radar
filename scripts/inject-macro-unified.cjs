@@ -25,6 +25,17 @@ const cycle    = read('outputs/macro-cycle-state.json');
 const cycleWatch = read('outputs/cycle-watch-state.json', null);
 const liveState   = read('data/report-state.live.json', {});
 const allHoldings = Array.isArray(liveState.holdings) ? liveState.holdings : [];
+// Position-count label: the alignment universe above is the scored equity
+// book (report-state holdings). The broker book (robinhood-positions.json)
+// additionally carries crypto lines (DOGE, assetClass 'crypto') that are
+// not phase-scored here — label the split from the data instead of letting
+// this module's "13 positions" contradict the header's 14.
+const rhBook = read('outputs/robinhood-positions.json', {});
+const cryptoSyms = (Array.isArray(rhBook.positions) ? rhBook.positions : [])
+  .filter(p => p && p.assetClass === 'crypto').map(p => String(p.symbol || '').toUpperCase()).filter(Boolean);
+const alignmentCountLabel = cryptoSyms.length
+  ? `${allHoldings.length} equities + ${cryptoSyms.length} crypto (${cryptoSyms.join(', ')} not phase-scored)`
+  : `${allHoldings.length} positions`;
 
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : null; };
@@ -1595,7 +1606,7 @@ const pbGroups = {
 };
 
 const phaseBridge = allHoldings.length > 0 ? `<div class="mu-phase-bridge">
-  <div class="mu-pb-label">Phase ${phaseCode} → portfolio alignment · ${allHoldings.length} positions <span class="mu-pb-legend">· % = 3M total return</span></div>
+  <div class="mu-pb-label">Phase ${phaseCode} → portfolio alignment · ${alignmentCountLabel} <span class="mu-pb-legend">· % = 3M total return</span></div>
   <div class="mu-pb-grid">
     <div class="mu-pb-col mu-pb-aligned">
       <div class="mu-pb-head">
@@ -2362,7 +2373,7 @@ const section = `<section id="decision-brief-section" class="macro-unified">
 </script>
 
   <!-- 7. Holdings alignment with phase -->
-  <details class="mu-pb-det"><summary class="mu-pb-sum">Portfolio alignment · ${allHoldings.length} positions</summary>${phaseBridge}</details>
+  <details class="mu-pb-det"><summary class="mu-pb-sum">Portfolio alignment · ${alignmentCountLabel}</summary>${phaseBridge}</details>
 
   <!-- 8. Today's session read -->
   ${dailyBriefingHtml}

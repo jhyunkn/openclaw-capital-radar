@@ -13,7 +13,22 @@
  *   (c) 2+ anticipatory probes print identical calibrated-probability
  *       values while the Opportunity section carries no cohort labeling
  *       (cohort statistics must be labeled as cohort statistics, in plain
- *       sight — see components/radar/opportunities/render.cjs).
+ *       sight — see components/radar/opportunities/render.cjs);
+ *   (d) the Cycle Watch tape disagrees with the page's primary tape:
+ *       Cycle Watch VIX vs the primary VIX print (tolerance ±0.5), and
+ *       Cycle Watch S&P-vs-200D vs the momentum gate's SPX-vs-200D
+ *       (tolerance ±0.3pp). Guards the 2026-10-16 failure where Cycle
+ *       Watch's own history file carried an intraday bar stamped as a
+ *       close (VIX 15.97 "calm" vs the 19.99 close);
+ *   (e) more than one distinct current-CAPE value printed page-wide.
+ *       CAPE has a single dated source (data/valuation-cape.json); every
+ *       consumer — fans anchor, cycle evidence, analog text — must print
+ *       the same number;
+ *   (f) the Robinhood account strip's printed components do not sum to
+ *       its printed Portfolio total (tolerance ±$1). Guards the 2026-10-16
+ *       render where Portfolio $92,212 sat next to Equity $86,035 + Cash
+ *       $4,766 = $90,801 because the $1,411 crypto component was never
+ *       printed.
  *
  * Read-only: it never edits artifacts. Exit 0 = coherent, 1 = violation.
  */
@@ -73,6 +88,67 @@ for (const file of candidates) {
       `holds ${holdCode} · advances to ${advCode} · slips to ${slipCode}` + (distinct ? '' : ' — duplicate phase label'));
     check(`${rel} · next-phase odds sum`, sum === 100,
       `${holdPct} + ${advPct} + ${slipPct} + ${otherPct} = ${sum}`);
+  }
+
+  // ── (d) Cross-tape: Cycle Watch vs the page's primary prints ──
+  const cwVixM = html.match(/mu-cw-name">VIX<\/span>\s*<b class="mu-cw-now">([\d.]+)</);
+  const primVixM = html.match(/<span>VIX<\/span><b>([\d.]+)<\/b>/);
+  if (cwVixM && primVixM) {
+    const cw = Number(cwVixM[1]), prim = Number(primVixM[1]);
+    check(`${rel} · cross-tape VIX`, Math.abs(cw - prim) <= 0.5,
+      `Cycle Watch VIX ${cw} vs primary tape ${prim} (tolerance ±0.5)`);
+  } else {
+    console.log(`SKIP ${rel} · cross-tape VIX — ${!cwVixM ? 'Cycle Watch VIX row' : 'primary VIX print'} not found`);
+  }
+  const cwDistM = html.match(/mu-cw-name">S&amp;P 500 vs 200-day<\/span>\s*<b class="mu-cw-now">([+-]?[\d.]+)%/);
+  const primDistM = html.match(/SPX (?:above|below) 200D \(([+-]?[\d.]+)%\)/);
+  if (cwDistM && primDistM) {
+    const cw = Number(cwDistM[1]), prim = Number(primDistM[1]);
+    check(`${rel} · cross-tape SPX vs 200D`, Math.abs(cw - prim) <= 0.3,
+      `Cycle Watch ${cw}% vs momentum gate ${prim}% (tolerance ±0.3pp)`);
+  } else {
+    console.log(`SKIP ${rel} · cross-tape SPX vs 200D — ${!cwDistM ? 'Cycle Watch 200D row' : 'momentum gate print'} not found`);
+  }
+
+  // ── (e) CAPE: one current value page-wide ──
+  const capePatterns = [
+    /CAPE\s+(?:<b>)?(\d+\.\d+)×/g,            // "CAPE 40.54×" (fans, evidence, cards)
+    /(\d+\.\d+)×\s*CAPE/g,                    // "40.54× CAPE" (exceptions text)
+    /CAPE[\s\S]{0,60}?vs\s+(\d+\.\d+)×?\s+now/g, // "CAPE ~44 then vs 40.54 now" (analogs)
+    /Current\s+(\d+\.\d+)×/g,                 // "Current 40.54×" (history series desc)
+    /CAPE (?:reverting|reversion)\s+(\d+\.\d+)x/g, // fan info text (ASCII x)
+    /'(\d+\.\d+)×',\s*lbl:'Shiller CAPE'/g,   // history stat card
+    /NOW_CAPE=(\d+\.\d+)/g,                   // fans anchor constant in the init script
+  ];
+  const capeValues = new Set();
+  for (const re of capePatterns) {
+    for (const m of html.matchAll(re)) capeValues.add(m[1]);
+  }
+  if (capeValues.size) {
+    check(`${rel} · CAPE single value`, capeValues.size === 1,
+      `current-CAPE prints page-wide: [${[...capeValues].join(', ')}]` +
+      (capeValues.size === 1 ? '' : ' — more than one distinct value; all consumers must read data/valuation-cape.json'));
+  } else {
+    console.log(`SKIP ${rel} · CAPE single value — no current-CAPE print matched`);
+  }
+
+  // ── (f) Account strip: printed components must sum to printed total ──
+  const statRe = /rh-stat"><b>\$([\d,]+)<\/b><small>(Portfolio|Equity|Crypto|Cash)<\/small>/g;
+  const stats = {};
+  for (const m of html.matchAll(statRe)) stats[m[2]] = Number(m[1].replace(/,/g, ''));
+  if (stats.Portfolio != null) {
+    const parts = ['Equity', 'Crypto', 'Cash'];
+    const missing = parts.filter(k => stats[k] == null);
+    if (missing.length) {
+      check(`${rel} · account reconciliation`, false,
+        `Portfolio $${stats.Portfolio.toLocaleString('en-US')} printed without component(s): ${missing.join(', ')} — components must be printed and sum to the total`);
+    } else {
+      const sum = parts.reduce((s, k) => s + stats[k], 0);
+      check(`${rel} · account reconciliation`, Math.abs(stats.Portfolio - sum) <= 1,
+        `Portfolio $${stats.Portfolio.toLocaleString('en-US')} vs Equity $${stats.Equity.toLocaleString('en-US')} + Crypto $${stats.Crypto.toLocaleString('en-US')} + Cash $${stats.Cash.toLocaleString('en-US')} = $${sum.toLocaleString('en-US')} (tolerance ±$1)`);
+    }
+  } else {
+    console.log(`SKIP ${rel} · account reconciliation — Robinhood sync strip not found`);
   }
 
   // ── (c) Probe statistics: identical probabilities need cohort labeling ──

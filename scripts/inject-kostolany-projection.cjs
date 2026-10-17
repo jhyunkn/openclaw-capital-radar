@@ -80,6 +80,20 @@ try {
   if (Number.isFinite(cur) && cur > 0) nowSp = Math.round(cur);
 } catch { /* keep fallback */ }
 
+// ── CAPE anchor: single dated source (data/valuation-cape.json), same
+// pattern as nowSp above. The 41.6 hardcoded here before was a stale
+// late-Sep print; the 2026-10-16 close is 40.54 (Shiller CAPE, multpl).
+// Fallback = last sourced value; validate-coherence fails if any CAPE
+// print on the page disagrees with another.
+let capeNow = 40.54;
+let capeSrc = 'Shiller CAPE (multpl)';
+try {
+  const cape = JSON.parse(fs.readFileSync(path.join(root, 'data', 'valuation-cape.json'), 'utf8'));
+  if (Number.isFinite(Number(cape?.value))) capeNow = Number(cape.value);
+  if (cape?.source) capeSrc = String(cape.source);
+} catch { /* keep fallback */ }
+const CAPE_TXT = String(capeNow);
+
 // ── Section HTML ──────────────────────────────────────────────────────────────
 const section = `<!-- KP_PROJECTION_START -->
 <div id="kostolany-projection-section" class="kp-wrap">
@@ -95,7 +109,7 @@ const section = `<!-- KP_PROJECTION_START -->
   <div class="kp-read">
     <b>How to read this chart:</b> each shaded band is one model. Its <b>bottom edge = bear scenario</b>, its <b>top edge = bull scenario</b>, its <b>center line = the scenario selected below</b>. Where bands overlap, the models agree; where they don't, that's genuine uncertainty.
     <div class="kp-method-row"><span class="kp-method-chip">Model 1 · EPS × P/E</span><p><strong>In:</strong> FactSet EPS trajectory × Goldman P/E path. <strong>Out:</strong> year-end S&P 500 price.</p></div>
-    <div class="kp-method-row"><span class="kp-method-chip">Model 2 · CAPE reversion</span><p><strong>In:</strong> current CAPE 41.6× pulled toward its long-run average at a chosen speed + EPS growth. <strong>Out:</strong> implied price level.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Model 2 · CAPE reversion</span><p><strong>In:</strong> current CAPE ${CAPE_TXT}× pulled toward its long-run average at a chosen speed + EPS growth. <strong>Out:</strong> implied price level.</p></div>
     <div class="kp-method-row"><span class="kp-method-chip">Model 3 · Institutional</span><p><strong>In:</strong> Vanguard / Research Affiliates / GMO annualized return forecasts. <strong>Out:</strong> price range from compounding today's level.</p></div>
     <div class="kp-method-row"><span class="kp-method-chip">Rate path</span><p>FOMC SEP median (FRED FEDTARMD, Mar 2026) — context only, not a return driver.</p></div>
   </div>
@@ -123,7 +137,7 @@ const section = `<!-- KP_PROJECTION_START -->
   <div class="kp-risk-grid" id="kp-risk-grid"></div>
   <div class="kp-disclaimer">
     <strong>Methodology transparency:</strong> Model 1 uses FactSet/Goldman EPS consensus × P/E — a structured calculation, not an analyst price target.
-    Model 2 applies CAPE mean-reversion to current CAPE 41.6× with EPS growth — mathematically grounded valuation headwind.
+    Model 2 applies CAPE mean-reversion to current CAPE ${CAPE_TXT}× with EPS growth — mathematically grounded valuation headwind.
     Model 3 translates Vanguard VCMM Mar 2026, Research Affiliates Jan 2026, GMO Q1 2026 10-year return forecasts into price levels.
     Each model is drawn as a band across its bear/base/bull scenarios — the spread between the edges is genuine uncertainty, not decoration. Rate path is context only.
   </div>
@@ -133,7 +147,7 @@ const section = `<!-- KP_PROJECTION_START -->
 (function(){
 if(typeof Chart==='undefined'||window.__kpInited)return;
 window.__kpInited=true;
-const NOW_SP=${nowSp},NOW_CAPE=41.6;   // build-time anchor from decision-brief market state
+const NOW_SP=${nowSp},NOW_CAPE=${capeNow};   // build-time anchors: SP from decision-brief state, CAPE from data/valuation-cape.json
 const EPS0=338;                        // FactSet 2026 fwd EPS consensus
 const PE0=+(NOW_SP/EPS0).toFixed(1);   // ~22.0x — anchors to current price
 const HIST_YEARS=[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
@@ -179,7 +193,7 @@ const SC={
   base:{name:'Base',color:'#1d9e75',
     // Model 1: EPS₀=$338, growth +14%/+8%/+7%/+6%, P/E 22→21→20.5→20→19.5
     m1:epsPath([0.142,0.080,0.069,0.061],[21.0,20.5,20.0,19.5]),
-    // Model 2: CAPE 41.6→27.6 (20yr avg) over 10yr, 8% annual EPS
+    // Model 2: CAPE ${CAPE_TXT}→27.6 (20yr avg) over 10yr, 8% annual EPS
     m2:capePath(27.6,10,0.08),
     // Model 3: Institutional return range (Vanguard/RA/GMO)
     m3:returnPath(0.038),m3h:returnPath(0.050),m3l:returnPath(-0.027),
@@ -189,11 +203,11 @@ const SC={
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'EPS0 \xd7 PE0 validates start',src:'FactSet/Goldman'},
       {val:'+14% / +8% / +7% / +6%',lbl:'EPS growth (yr 1–4)',sub:'FactSet deceleration consensus',src:'FactSet Jun 2026'},
       {val:'22x → 19.5x by 2030',lbl:'P/E path',sub:'Goldman mild compression',src:'Goldman May 2026'},
-      {val:'CAPE 41.6\xd7 → 27.6\xd7',lbl:'CAPE reversion (10yr)',sub:'Partial reversion to 20yr avg',src:'GuruFocus'},
+      {val:'CAPE ${CAPE_TXT}\xd7 → 27.6\xd7',lbl:'CAPE reversion (10yr)',sub:'Partial reversion to 20yr avg',src:'${capeSrc}'},
     ],
-    info:'<strong style="color:#1d9e75">Base — three models, three answers:</strong><br><strong>Model 1 (EPS\xd7P/E):</strong> $338 \xd7 22.0x today. EPS compounds at +14%/+8%/+7%/+6% with P/E drifting 22x→19.5x → $9,224 by 2030.<br><strong>Model 2 (CAPE reversion):</strong> 8% annual EPS offset by CAPE reverting 41.6x→27.6x over 10yr at -4%/yr → ~$8,740.<br><strong>Model 3 (Institutional):</strong> Vanguard 3.8% → $8,740, Vanguard upside 5% → $9,030, GMO -2.7% nominal → $6,580.',
+    info:'<strong style="color:#1d9e75">Base — three models, three answers:</strong><br><strong>Model 1 (EPS\xd7P/E):</strong> $338 \xd7 22.0x today. EPS compounds at +14%/+8%/+7%/+6% with P/E drifting 22x→19.5x → $9,224 by 2030.<br><strong>Model 2 (CAPE reversion):</strong> 8% annual EPS offset by CAPE reverting ${CAPE_TXT}x→27.6x over 10yr at -4%/yr → ~$8,740.<br><strong>Model 3 (Institutional):</strong> Vanguard 3.8% → $8,740, Vanguard upside 5% → $9,030, GMO -2.7% nominal → $6,580.',
     bull:['FactSet Q1 2026 actual EPS growth +27.1% YoY','AI capex $650–700bn begins monetising in 2027','Rate cuts to 3.0% by 2028 support multiple expansion','M2 +4.6% YoY provides liquidity'],
-    bear:['CAPE 41.6× — Model 2 reversion headwind is structural and persistent','GMO 7yr: US Large Caps -5.4% real is most bearish credible forecast','Goldman warns momentum/breadth concentration risk','Vanguard 4–5% vs 7–10% historical = structural return shortfall'],
+    bear:['CAPE ${CAPE_TXT}× — Model 2 reversion headwind is structural and persistent','GMO 7yr: US Large Caps -5.4% real is most bearish credible forecast','Goldman warns momentum/breadth concentration risk','Vanguard 4–5% vs 7–10% historical = structural return shortfall'],
   },
   bull:{name:'Bull',color:'#185fa5',
     // Model 1: EPS₀=$338, AI monetises faster +21%/+12%/+10%/+8%, P/E holds 23x
@@ -206,11 +220,11 @@ const SC={
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, higher path required',src:'FactSet'},
       {val:'+21% / +12% / +10% / +8%',lbl:'EPS growth (yr 1–4)',sub:'AI monetises — Goldman bull case',src:'Goldman bull'},
       {val:'22x → 22x by 2030',lbl:'P/E holds',sub:'Multiple sustained on AI earnings',src:'Goldman/Yardeni'},
-      {val:'CAPE 41.6\xd7 → 32\xd7',lbl:'CAPE new mean (bull)',sub:'Structural AI premium assumption',src:'Bull assumption'},
+      {val:'CAPE ${CAPE_TXT}\xd7 → 32\xd7',lbl:'CAPE new mean (bull)',sub:'Structural AI premium assumption',src:'Bull assumption'},
     ],
     info:'<strong style="color:#185fa5">Bull — what has to be true:</strong><br><strong>Model 1:</strong> EPS compounds at +21%/+12%/+10%/+8% with P/E holding 23x → ~$11,800 by 2030. Requires AI monetisation.<br><strong>Model 2:</strong> If AI shifts structural CAPE mean to 32x over 10yr + 10% EPS → ~$10,700.<br><strong>Model 3:</strong> Vanguard upside 5%/yr → $9,030, optimistic 8% → $10,200.',
     bull:['Goldman EPS $340 tracking (+24% Q1 2026 actual)','Mag7 FCF $350bn 2025 — earnings base is real','Deeper cuts = lower discount rate = higher justified multiple','Vanguard upside: AI diffusion → 3% GDP growth'],
-    bear:['CAPE 41.6× — never sustained above 40× for >18 months historically','Structural new mean 32× is assumption, not data','MIT: AI economically justified for <5% of US tasks at current cost','Goldman: narrow breadth is cautionary signal even in bull case'],
+    bear:['CAPE ${CAPE_TXT}× — never sustained above 40× for >18 months historically','Structural new mean 32× is assumption, not data','MIT: AI economically justified for <5% of US tasks at current cost','Goldman: narrow breadth is cautionary signal even in bull case'],
   },
   bear:{name:'Bear',color:'#e24b4a',
     // Model 1: EPS₀=$338, AI misses +8%/+4%/+3%/+3%, P/E compresses 20x→16x
@@ -223,11 +237,11 @@ const SC={
       {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, CAPE headwind compresses path',src:'FactSet'},
       {val:'+8% / +4% / +3% / +3%',lbl:'EPS growth (yr 1–4)',sub:'AI not monetising (MIT <5% tasks)',src:'Bear/MIT'},
       {val:'22x → 16x by 2030',lbl:'P/E compression',sub:'CAPE mean-reversion to long-run avg',src:'GMO/CAPE'},
-      {val:'CAPE 41.6\xd7 → 17.3\xd7',lbl:'CAPE target (7yr)',sub:'Full reversion to 145yr mean',src:'Shiller/Yale'},
+      {val:'CAPE ${CAPE_TXT}\xd7 → 17.3\xd7',lbl:'CAPE target (7yr)',sub:'Full reversion to 145yr mean',src:'Shiller/Yale'},
     ],
-    info:'<strong style="color:#e24b4a">Bear — what data-driven pessimists say:</strong><br><strong>Model 1:</strong> EPS misses at +8%/+4%/+3%/+3% with P/E compressing 22x→16x (CAPE gravity) → ~$5,760.<br><strong>Model 2:</strong> Full CAPE reversion 41.6x→17.3x over 7yr (GMO horizon) + 4% EPS → ~$5,200.<br><strong>Model 3:</strong> GMO -2.7% nominal → $6,580, CAPE implied 1.6%/yr → $7,890.',
+    info:'<strong style="color:#e24b4a">Bear — what data-driven pessimists say:</strong><br><strong>Model 1:</strong> EPS misses at +8%/+4%/+3%/+3% with P/E compressing 22x→16x (CAPE gravity) → ~$5,760.<br><strong>Model 2:</strong> Full CAPE reversion ${CAPE_TXT}x→17.3x over 7yr (GMO horizon) + 4% EPS → ~$5,200.<br><strong>Model 3:</strong> GMO -2.7% nominal → $6,580, CAPE implied 1.6%/yr → $7,890.',
     bull:['FactSet Q1 2026 actual +27.1% far outpacing bear EPS assumption','HY OAS 275bps — no credit stress signal','Fed still cutting — rate environment broadly supportive','GMO wrong on US equities for 10+ years'],
-    bear:['GMO 7yr US Large Cap: -5.4% real (Q1 2026)','GuruFocus CAPE implied: 1.6%/yr at 41.6×','CAPE above 40× occurred twice in 145yr — both preceded major drawdowns','JPMorgan re-hike risk: PCE 2.7% end-2026 > 2% target'],
+    bear:['GMO 7yr US Large Cap: -5.4% real (Q1 2026)','GuruFocus CAPE implied: 1.6%/yr at ${CAPE_TXT}×','CAPE above 40× occurred twice in 145yr — both preceded major drawdowns','JPMorgan re-hike risk: PCE 2.7% end-2026 > 2% target'],
   },
 };
 let kpChart,kpSc='base';
@@ -247,7 +261,7 @@ function buildChart(sc){
     projBox:{type:'box',xMin:2026,xMax:2031,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:'rgba(240,192,64,0.05)',borderColor:'rgba(240,192,64,0.20)',borderWidth:1,label:{display:true,content:'← Projection fan: 3 models × 3 scenarios',position:{x:'start',y:'center'},font:{size:9},color:'rgba(160,130,20,0.55)',backgroundColor:'transparent'}},
     nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'yRate',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3],label:{display:true,content:'Now',position:'start',font:{size:10,weight:'bold'},color:'#ba7517',backgroundColor:'transparent'}},
     neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'yRate',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
-    capeWarn:{type:'label',xValue:2023.5,yValue:7.1,content:['CAPE 41.6× · 2nd highest since 1881','Implied 10yr return: 1.6%/yr'],font:{size:8.5},color:'rgba(196,97,58,0.65)',textAlign:'center',backgroundColor:'rgba(255,248,240,0.9)',borderRadius:3,padding:{top:3,bottom:3,left:6,right:6}},
+    capeWarn:{type:'label',xValue:2023.5,yValue:7.1,content:['CAPE ${CAPE_TXT}× · 2nd highest since 1881','Implied 10yr return: 1.6%/yr'],font:{size:8.5},color:'rgba(196,97,58,0.65)',textAlign:'center',backgroundColor:'rgba(255,248,240,0.9)',borderRadius:3,padding:{top:3,bottom:3,left:6,right:6}},
   };
   // Phase labels are drawn by Chart.js at the bottom of each phase column,
   // so they always align with the x-axis years they describe (no separate strip).
@@ -332,7 +346,7 @@ function buildModelTable(sc){
   document.getElementById('kp-model-table').innerHTML=
     '<tr><th>Model</th><th>Formula</th><th>Parameters</th><th>2028</th><th>2030</th><th>Source</th></tr>'+
     '<tr><td>M1 · EPS\xd7P/E</td><td>EPS₀\xd7(1+g)ᵗ\xd7PE(t)</td><td>EPS₀=$338 · '+epsGrowth+' · PE: '+peRange+'</td><td class="kp-mid">$'+m1_28.toLocaleString()+'</td><td class="'+m1c+'">$'+m1_30.toLocaleString()+'</td><td>FactSet Jun 2026 · Goldman</td></tr>'+
-    '<tr><td>M2 · CAPE rev.</td><td>P₀\xd7(1+eps)ᵗ\xd7(CAPEₜₐᵣ/CAPE₀)ᵗⁿʳˢ</td><td>CAPE 41.6\xd7→'+capeTarget+'</td><td class="kp-mid">$'+m2_28.toLocaleString()+'</td><td class="'+m2c+'">$'+m2_30.toLocaleString()+'</td><td>Shiller/Yale · GuruFocus</td></tr>'+
+    '<tr><td>M2 · CAPE rev.</td><td>P₀\xd7(1+eps)ᵗ\xd7(CAPEₜₐᵣ/CAPE₀)ᵗⁿʳˢ</td><td>CAPE ${CAPE_TXT}\xd7→'+capeTarget+'</td><td class="kp-mid">$'+m2_28.toLocaleString()+'</td><td class="'+m2c+'">$'+m2_30.toLocaleString()+'</td><td>Shiller/Yale · GuruFocus</td></tr>'+
     '<tr><td>M3 · Institutional</td><td>P₀\xd7(1+r)ᵗ</td><td>High: Vanguard 5%. Mid: RA 3.8%. Low: GMO -2.7% nominal</td><td class="kp-mid">$'+m3_28.toLocaleString()+'</td><td>$'+m3l_30.toLocaleString()+' – $'+m3h_30.toLocaleString()+'</td><td>Vanguard · RA · GMO 2026</td></tr>'+
     '<tr style="border-top:1px solid var(--rule,#dedbd2);"><td style="font-weight:500;">Convergence</td><td colspan="2" style="color:var(--muted,#747168);">Range where M1 and M2 overlap = most defensible zone</td><td class="kp-mid">$'+Math.min(m1_28,m2_28).toLocaleString()+'–$'+Math.max(m1_28,m2_28).toLocaleString()+'</td><td class="kp-mid">$'+Math.min(m1_30,m2_30).toLocaleString()+'–$'+Math.max(m1_30,m2_30).toLocaleString()+'</td><td></td></tr>';
 }

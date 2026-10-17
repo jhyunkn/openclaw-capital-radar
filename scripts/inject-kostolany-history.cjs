@@ -10,6 +10,26 @@ if (!fs.existsSync(indexPath)) process.exit(0);
 
 let html = fs.readFileSync(indexPath, 'utf8');
 
+// ── Current CAPE: single dated source (data/valuation-cape.json) ──
+// The now box, the series' last point, the series description and the stat
+// card all print the current CAPE from here — the hardcoded 41.6 they used
+// before was a stale late-Sep print (2026-10-16 close: 40.54, multpl).
+// Fallback = last sourced value; validate-coherence fails if any CAPE
+// print on the page disagrees with another.
+let capeNow = 40.54;
+let capeSrc = 'Shiller CAPE (multpl)';
+let capeAsOfLabel = 'Oct 16, 2026';
+try {
+  const cape = JSON.parse(fs.readFileSync(path.join(root, 'data', 'valuation-cape.json'), 'utf8'));
+  if (Number.isFinite(Number(cape?.value))) capeNow = Number(cape.value);
+  if (cape?.source) capeSrc = String(cape.source);
+  if (cape?.asOf) {
+    const d = new Date(`${cape.asOf}T12:00:00Z`);
+    if (Number.isFinite(d.getTime())) capeAsOfLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  }
+} catch { /* keep fallback */ }
+const CAPE_TXT = String(capeNow);
+
 // Idempotent removal — comment-marker block + old section/div variants + style
 html = html.replace(/<!-- KH_HISTORY_START -->[\s\S]*?<!-- KH_HISTORY_END -->\s*/g, '');
 html = html.replace(/<style id="kostolany-history-style">[\s\S]*?<\/style>\s*/g, '');
@@ -183,11 +203,11 @@ const section = `<!-- KH_HISTORY_START -->
   <div class="kh-chart-wrap"><canvas id="kh-main-chart" role="img" aria-label="Multi-indicator Kostolany historical chart 1970–2026"></canvas></div>
   <div class="kh-now-box">
     <span class="kh-now-tag">Now · Sep 2026 — where you are</span>
-    <p>Fed funds <b>3.75&ndash;4.00%</b> (Sep 16 hike; down from the 5.14% 2024 peak) · HY spreads <b>~278bps</b>, near the tightest in the post-1997 record · CAPE <b>41.6×</b>, second-highest since 1881 · SPX <b>~7,704</b>. The period to compare against is <b>1994–95</b> — the last time the Fed tightened aggressively while equities kept climbing (rates 4.2%→5.8%, SPX +34%, spreads calm). Key difference: CAPE was ~24× then vs 41.6× now. A slower-tightening alternative: <b>2015–19</b> (rates 0.1%→2.2%, SPX +58%, CAPE 24×→30×).</p>
+    <p>Fed funds <b>3.75&ndash;4.00%</b> (Sep 16 hike; down from the 5.14% 2024 peak) · HY spreads <b>~278bps</b>, near the tightest in the post-1997 record · CAPE <b>${CAPE_TXT}×</b>, second-highest since 1881 · SPX <b>~7,704</b>. The period to compare against is <b>1994–95</b> — the last time the Fed tightened aggressively while equities kept climbing (rates 4.2%→5.8%, SPX +34%, spreads calm). Key difference: CAPE was ~24× then vs ${CAPE_TXT}× now. A slower-tightening alternative: <b>2015–19</b> (rates 0.1%→2.2%, SPX +58%, CAPE 24×→30×).</p>
   </div>
   <div class="kh-pattern-box">
     <span class="kh-pattern-tag">Pattern emerging</span>
-    <p><b>Rate cuts without a credit scare.</b> The Fed cut from 5.14% to ~3.5% through mid-2026, then hiked to 3.75&ndash;4.00% on Sep 16, while HY spreads stayed near record tights and equities pushed to record valuation. The 2001 and 2008 cutting cycles arrived with spreads peaking near <b>912bps</b> and <b>1,725bps</b> — this cycle never widened. <b>What to watch:</b> HY OAS widening past ~400–600bps, M2 growth stalling from +4.6%, or SPX losing its 200-day. This is an analog, not a prediction — at 41.6× CAPE the margin for error is thin.</p>
+    <p><b>Rate cuts without a credit scare.</b> The Fed cut from 5.14% to ~3.5% through mid-2026, then hiked to 3.75&ndash;4.00% on Sep 16, while HY spreads stayed near record tights and equities pushed to record valuation. The 2001 and 2008 cutting cycles arrived with spreads peaking near <b>912bps</b> and <b>1,725bps</b> — this cycle never widened. <b>What to watch:</b> HY OAS widening past ~400–600bps, M2 growth stalling from +4.6%, or SPX losing its 200-day. This is an analog, not a prediction — at ${CAPE_TXT}× CAPE the margin for error is thin.</p>
   </div>
   <div class="kh-strip-scroll"><div class="kh-phase-strip" id="kh-phase-strip"></div></div>
   <div class="kh-info-box" id="kh-info-box">Click any phase strip to see Kostolany capital flow analysis. Toggle indicators above to isolate signals.</div>
@@ -207,14 +227,14 @@ window.__khInited=true;
 const YEARS=[1970,1971,1972,1973,1974,1975,1976,1977,1978,1979,1980,1981,1982,1983,1984,1985,1986,1987,1988,1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
 const RATES=[7.17,4.67,4.44,8.74,10.51,5.82,5.05,5.54,7.94,11.20,13.35,16.38,12.24,9.09,10.23,8.10,6.80,6.66,7.57,9.21,8.10,5.69,3.52,3.02,4.21,5.84,5.30,5.46,5.35,5.07,6.24,3.88,1.67,1.13,1.35,3.22,4.97,5.02,1.92,0.24,0.18,0.10,0.14,0.11,0.09,0.13,0.40,1.00,1.83,2.16,0.36,0.08,1.68,5.02,5.14,4.22,3.62];
 const SP500=[92,102,118,97,68,90,107,95,96,107,135,122,140,164,167,211,242,247,277,353,330,417,435,466,459,615,740,970,1229,1469,1320,1148,879,1112,1212,1248,1418,1468,903,1115,1258,1258,1426,1848,2059,2044,2239,2674,2507,3231,3756,4766,3840,4769,5882,6350,7420];
-const CAPE=[15.1,17.3,19.2,16.0,10.9,10.1,11.0,10.3,9.3,9.3,8.9,9.3,12.2,14.2,12.5,15.5,16.9,14.1,14.0,16.0,15.0,18.0,20.0,22.0,19.0,24.0,26.5,34.3,32.8,44.2,36.3,30.5,22.9,27.5,29.7,26.0,27.2,25.5,15.2,20.4,22.5,21.8,22.3,25.4,26.5,24.2,26.0,32.0,28.4,30.0,33.0,38.3,28.0,31.0,37.4,35.5,41.6];
+const CAPE=[15.1,17.3,19.2,16.0,10.9,10.1,11.0,10.3,9.3,9.3,8.9,9.3,12.2,14.2,12.5,15.5,16.9,14.1,14.0,16.0,15.0,18.0,20.0,22.0,19.0,24.0,26.5,34.3,32.8,44.2,36.3,30.5,22.9,27.5,29.7,26.0,27.2,25.5,15.2,20.4,22.5,21.8,22.3,25.4,26.5,24.2,26.0,32.0,28.4,30.0,33.0,38.3,28.0,31.0,37.4,35.5,${capeNow}];
 const M2=[6.2,13.2,12.9,5.5,4.4,12.5,10.8,8.0,7.9,8.0,7.1,9.3,8.7,12.0,8.0,8.2,9.1,3.6,5.3,4.7,4.0,2.8,1.7,1.5,0.6,3.9,4.7,5.7,8.5,6.4,6.0,10.6,6.9,8.5,5.3,4.0,5.0,6.8,9.8,3.7,3.9,9.8,6.3,6.3,5.7,5.9,6.8,5.0,3.7,6.0,25.0,12.5,-1.3,1.9,3.2,4.5,4.6];
 const HY=[350,300,280,420,680,450,370,400,480,520,580,620,700,480,450,380,370,320,340,360,420,470,450,430,430,380,330,356,330,570,752,861,912,568,445,334,358,598,1725,611,571,600,537,437,488,385,333,395,344,307,386,310,481,339,300,390,278];
 const RECESSIONS=[1,0,0,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0];
 const inds=[
   {key:'rate', label:'Fed Funds Rate', color:'#2c2c2a', axis:'yRate', data:RATES, fmt:v=>v.toFixed(1)+'%', dash:[], w:2.5, desc:'Federal Reserve FEDFUNDS annual average. Source: FRED.'},
   {key:'sp',   label:'S&P 500',        color:'#185fa5', axis:'ySP',   data:SP500, fmt:v=>'$'+Math.round(v).toLocaleString(), dash:[6,3], w:2.5, desc:'S&P 500 annual close. Shiller dataset 1970–2019, Yahoo Finance 2020–2026.'},
-  {key:'cape', label:'Shiller CAPE',   color:'#993C1D', axis:'yCAPE', data:CAPE,  fmt:v=>v.toFixed(1)+'×', dash:[3,2], w:1.8, desc:'Cyclically-adjusted P/E (10yr inflation-adj earnings). Robert Shiller / Yale. Current 41.6× — 2nd highest since 1881. Implied 10yr return: 1.6%/yr.'},
+  {key:'cape', label:'Shiller CAPE',   color:'#993C1D', axis:'yCAPE', data:CAPE,  fmt:v=>v.toFixed(1)+'×', dash:[3,2], w:1.8, desc:'Cyclically-adjusted P/E (10yr inflation-adj earnings). Robert Shiller / Yale. Current ${CAPE_TXT}× — 2nd highest since 1881. Implied 10yr return: 1.6%/yr.'},
   {key:'m2',   label:'M2 Growth %',    color:'#0F6E56', axis:'yRate', data:M2,    fmt:v=>v.toFixed(1)+'%', dash:[4,2], w:1.8, desc:'M2 money supply YoY growth. Federal Reserve H.6 / FRED (M2SL). COVID peak +25%. Current +4.6%.'},
   {key:'hy',   label:'HY Spread (bps)',color:'#e24b4a', axis:'yHY',   data:HY,    fmt:v=>v+'bps', dash:[2,2], w:1.8, desc:"High yield OAS. ICE BofA / FRED from 1997; pre-1997 Moody's Baa approx. Current ~278bps — near historic tight. Danger: >600bps."},
 ];
@@ -344,7 +364,7 @@ function buildStats(){
   const stats=[
     {val:'3.75&ndash;4.00%',lbl:'Fed Funds Rate',sub:'Sep 2026 FOMC (FRED DFF ~3.88%)',color:'#2c2c2a'},
     {val:'~$7,420',lbl:'S&P 500',sub:'Jun 2026',color:'#185fa5'},
-    {val:'41.6×',lbl:'Shiller CAPE',sub:'Jun 2026 (GuruFocus)',color:'#993C1D'},
+    {val:'${CAPE_TXT}×',lbl:'Shiller CAPE',sub:'${capeAsOfLabel} · ${capeSrc}',color:'#993C1D'},
     {val:'+4.6%',lbl:'M2 Growth YoY',sub:'Mar 2026 (Fed)',color:'#0F6E56'},
     {val:'~278bp',lbl:'HY OAS',sub:'Jun 2026 (ICE BofA)',color:'#e24b4a'},
   ];

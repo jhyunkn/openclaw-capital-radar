@@ -127,7 +127,7 @@ const section = `<!-- KP_PROJECTION_START -->
     <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#b45f0622;border-top:2.5px dashed #b45f06;"></span>M2 · CAPE reversion fan</div>
     <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#6d28d922;border-top:2.5px dotted #6d28d9;"></span>M3 · Institutional fan</div>
   </div>
-  <p class="kp-leg-note">Models are told apart by line style as well as color: M1 solid, M2 dashed, M3 dotted. Fan bottom edge = bear scenario, fan top edge = bull scenario, center line = the scenario tab you selected.</p>
+  <p class="kp-leg-note">Models are told apart by line style as well as color: M1 solid, M2 dashed, M3 dotted. Fan bottom edge = bear scenario, fan top edge = bull scenario, center line = the scenario tab you selected. Every fan starts at the same anchor — today's S&amp;P 500 (${nowSp}); the 2026 point is the current level, not a 2026 year-end forecast. M1 reaches the anchor as EPS₀ × implied P/E₀; M2 and M3 start from the level directly.</p>
   <div class="kp-chart-wrap"><canvas id="kp-proj-chart"></canvas></div>
   <div class="kp-info-box" id="kp-info-box">Select a scenario to see the model assumptions and outputs.</div>
   <div>
@@ -149,7 +149,8 @@ if(typeof Chart==='undefined'||window.__kpInited)return;
 window.__kpInited=true;
 const NOW_SP=${nowSp},NOW_CAPE=${capeNow};   // build-time anchors: SP from decision-brief state, CAPE from data/valuation-cape.json
 const EPS0=338;                        // FactSet 2026 fwd EPS consensus
-const PE0=+(NOW_SP/EPS0).toFixed(1);   // ~22.0x — anchors to current price
+const PE0=NOW_SP/EPS0;                 // exact implied P/E at the anchor (22.66x): EPS0 × PE0 = NOW_SP by construction. Do NOT pre-round — rounding to 22.7x made Model 1's fan start at 7,673 while Models 2/3 start at NOW_SP.
+const PE0_TXT=PE0.toFixed(1);          // display form (22.7x)
 const HIST_YEARS=[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
 const HIST_RATES=[0.13,0.40,1.00,1.83,2.16,0.36,0.08,1.68,5.02,5.14,4.22,3.62];
 const HIST_SP=[2044,2239,2674,2507,3231,3756,4766,3840,4769,5882,6350,${nowSp}];
@@ -188,58 +189,75 @@ function rateMo(path){
     return {x:2026+yr,y:+(path[y0]+(path[y0+1]-path[y0])*(yr-y0)).toFixed(2)};
   });
 }
+// ── scenario paths — computed ONCE here. The chart, the model table and
+// the narrative prose all read these same arrays, so a figure in the text
+// can never drift from the figure in the table. ──
+const PATHS={
+  base:{ // M1: EPS +14%/+8%/+7%/+6%, P/E 21/20.5/20/19.5 · M2: CAPE to 27.6 (20yr avg) over 10yr, 8% EPS · M3: 3.8% mid / 5% high / -2.7% low (GMO)
+    m1:epsPath([0.142,0.080,0.069,0.061],[21.0,20.5,20.0,19.5]),
+    m2:capePath(27.6,10,0.08),
+    m3:returnPath(0.038),m3h:returnPath(0.050),m3l:returnPath(-0.027)},
+  bull:{ // M1: EPS +21%/+12%/+10%/+8%, P/E holds ~23 · M2: CAPE to 32 (structural new mean) over 10yr, 10% EPS · M3: 5% mid / 8% high / 3% low
+    m1:epsPath([0.210,0.120,0.100,0.080],[23.0,23.0,22.5,22.0]),
+    m2:capePath(32.0,10,0.10),
+    m3:returnPath(0.050),m3h:returnPath(0.080),m3l:returnPath(0.030)},
+  bear:{ // M1: EPS +8%/+4%/+3%/+3%, P/E 20/18/17/16 · M2: CAPE to 17.3 (145yr mean) over 7yr, 4% EPS · M3: -2.7% mid (GMO) / +1.6% high / -5.4% low
+    m1:epsPath([0.080,0.040,0.030,0.030],[20.0,18.0,17.0,16.0]),
+    m2:capePath(17.3,7,0.04),
+    m3:returnPath(-0.027),m3h:returnPath(0.016),m3l:returnPath(-0.054)},
+};
+// Narrative endpoint formatter — the 2030 value (path index 48) rounded to
+// the nearest $10, the prose convention (~$X,XXX). This is the ONLY way an
+// S&P level may enter the narrative strings below: no hand-typed endpoints
+// (validate-coherence check (g) enforces this on the built page).
+const D2030=function(p){return '$'+(Math.round(p[48].y/10)*10).toLocaleString('en-US');};
+// Anchor card value, built from the anchor identity itself: EPS0 × PE0 = NOW_SP.
+const ANCHOR_TXT='$'+EPS0+' \xd7 '+PE0.toFixed(2)+'\xd7 = $'+NOW_SP.toLocaleString('en-US');
 // ── scenario definitions — parameters drive the math, not hardcoded prices ──
 const SC={
   base:{name:'Base',color:'#1d9e75',
-    // Model 1: EPS₀=$338, growth +14%/+8%/+7%/+6%, P/E 22→21→20.5→20→19.5
-    m1:epsPath([0.142,0.080,0.069,0.061],[21.0,20.5,20.0,19.5]),
-    // Model 2: CAPE ${CAPE_TXT}→27.6 (20yr avg) over 10yr, 8% annual EPS
-    m2:capePath(27.6,10,0.08),
-    // Model 3: Institutional return range (Vanguard/RA/GMO)
-    m3:returnPath(0.038),m3h:returnPath(0.050),m3l:returnPath(-0.027),
+    m1:PATHS.base.m1,
+    m2:PATHS.base.m2,
+    m3:PATHS.base.m3,m3h:PATHS.base.m3h,m3l:PATHS.base.m3l,
     // FOMC SEP rate path (annual targets → interpolated monthly)
     rateMo:rateMo([3.88,4.10,4.10,3.65,3.20]), // Sep 2026 SEP: 4.1% end-26/27, 3.2% LR; start = post-hike midpoint
     cards:[
-      {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'EPS0 \xd7 PE0 validates start',src:'FactSet/Goldman'},
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'EPS0 \xd7 implied PE0 — the anchor, by construction',src:'FactSet/Goldman'},
       {val:'+14% / +8% / +7% / +6%',lbl:'EPS growth (yr 1–4)',sub:'FactSet deceleration consensus',src:'FactSet Jun 2026'},
       {val:'22x → 19.5x by 2030',lbl:'P/E path',sub:'Goldman mild compression',src:'Goldman May 2026'},
       {val:'CAPE ${CAPE_TXT}\xd7 → 27.6\xd7',lbl:'CAPE reversion (10yr)',sub:'Partial reversion to 20yr avg',src:'${capeSrc}'},
     ],
-    info:'<strong style="color:#1d9e75">Base — three models, three answers:</strong><br><strong>Model 1 (EPS\xd7P/E):</strong> $338 \xd7 22.0x today. EPS compounds at +14%/+8%/+7%/+6% with P/E drifting 22x→19.5x → $9,224 by 2030.<br><strong>Model 2 (CAPE reversion):</strong> 8% annual EPS offset by CAPE reverting ${CAPE_TXT}x→27.6x over 10yr at -4%/yr → ~$8,740.<br><strong>Model 3 (Institutional):</strong> Vanguard 3.8% → $8,740, Vanguard upside 5% → $9,030, GMO -2.7% nominal → $6,580.',
+    info:'<strong style="color:#1d9e75">Base — three models, three answers:</strong><br><strong>Model 1 (EPS\xd7P/E):</strong> $'+EPS0+' \xd7 '+PE0_TXT+'x today. EPS compounds at +14%/+8%/+7%/+6% with P/E drifting 22x→19.5x → '+D2030(PATHS.base.m1)+' by 2030.<br><strong>Model 2 (CAPE reversion):</strong> 8% annual EPS offset by CAPE reverting ${CAPE_TXT}x→27.6x over 10yr at -4%/yr → ~'+D2030(PATHS.base.m2)+'.<br><strong>Model 3 (Institutional):</strong> Vanguard 3.8% → '+D2030(PATHS.base.m3)+', Vanguard upside 5% → '+D2030(PATHS.base.m3h)+', GMO -2.7% nominal → '+D2030(PATHS.base.m3l)+'.',
     bull:['FactSet Q1 2026 actual EPS growth +27.1% YoY','AI capex $650–700bn begins monetising in 2027','Rate cuts to 3.0% by 2028 support multiple expansion','M2 +4.6% YoY provides liquidity'],
     bear:['CAPE ${CAPE_TXT}× — Model 2 reversion headwind is structural and persistent','GMO 7yr: US Large Caps -5.4% real is most bearish credible forecast','Goldman warns momentum/breadth concentration risk','Vanguard 4–5% vs 7–10% historical = structural return shortfall'],
   },
   bull:{name:'Bull',color:'#185fa5',
-    // Model 1: EPS₀=$338, AI monetises faster +21%/+12%/+10%/+8%, P/E holds 23x
-    m1:epsPath([0.210,0.120,0.100,0.080],[23.0,23.0,22.5,22.0]),
-    // Model 2: Structural new mean 32x over 10yr, 10% EPS
-    m2:capePath(32.0,10,0.10),
-    m3:returnPath(0.050),m3h:returnPath(0.080),m3l:returnPath(0.030),
+    m1:PATHS.bull.m1,
+    m2:PATHS.bull.m2,
+    m3:PATHS.bull.m3,m3h:PATHS.bull.m3h,m3l:PATHS.bull.m3l,
     rateMo:rateMo([3.88,3.50,3.00,2.75,2.75]),
     cards:[
-      {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, higher path required',src:'FactSet'},
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start, higher path required',src:'FactSet'},
       {val:'+21% / +12% / +10% / +8%',lbl:'EPS growth (yr 1–4)',sub:'AI monetises — Goldman bull case',src:'Goldman bull'},
       {val:'22x → 22x by 2030',lbl:'P/E holds',sub:'Multiple sustained on AI earnings',src:'Goldman/Yardeni'},
       {val:'CAPE ${CAPE_TXT}\xd7 → 32\xd7',lbl:'CAPE new mean (bull)',sub:'Structural AI premium assumption',src:'Bull assumption'},
     ],
-    info:'<strong style="color:#185fa5">Bull — what has to be true:</strong><br><strong>Model 1:</strong> EPS compounds at +21%/+12%/+10%/+8% with P/E holding 23x → ~$11,800 by 2030. Requires AI monetisation.<br><strong>Model 2:</strong> If AI shifts structural CAPE mean to 32x over 10yr + 10% EPS → ~$10,700.<br><strong>Model 3:</strong> Vanguard upside 5%/yr → $9,030, optimistic 8% → $10,200.',
+    info:'<strong style="color:#185fa5">Bull — what has to be true:</strong><br><strong>Model 1:</strong> EPS compounds at +21%/+12%/+10%/+8% with P/E holding 23x → ~'+D2030(PATHS.bull.m1)+' by 2030. Requires AI monetisation.<br><strong>Model 2:</strong> If AI shifts structural CAPE mean to 32x over 10yr + 10% EPS → ~'+D2030(PATHS.bull.m2)+'.<br><strong>Model 3:</strong> Vanguard upside 5%/yr → '+D2030(PATHS.bull.m3)+', optimistic 8% → '+D2030(PATHS.bull.m3h)+'.',
     bull:['Goldman EPS $340 tracking (+24% Q1 2026 actual)','Mag7 FCF $350bn 2025 — earnings base is real','Deeper cuts = lower discount rate = higher justified multiple','Vanguard upside: AI diffusion → 3% GDP growth'],
     bear:['CAPE ${CAPE_TXT}× — never sustained above 40× for >18 months historically','Structural new mean 32× is assumption, not data','MIT: AI economically justified for <5% of US tasks at current cost','Goldman: narrow breadth is cautionary signal even in bull case'],
   },
   bear:{name:'Bear',color:'#e24b4a',
-    // Model 1: EPS₀=$338, AI misses +8%/+4%/+3%/+3%, P/E compresses 20x→16x
-    m1:epsPath([0.080,0.040,0.030,0.030],[20.0,18.0,17.0,16.0]),
-    // Model 2: Full CAPE reversion to 145yr mean 17.3x over 7yr, 4% EPS
-    m2:capePath(17.3,7,0.04),
-    m3:returnPath(-0.027),m3h:returnPath(0.016),m3l:returnPath(-0.054),
+    m1:PATHS.bear.m1,
+    m2:PATHS.bear.m2,
+    m3:PATHS.bear.m3,m3h:PATHS.bear.m3h,m3l:PATHS.bear.m3l,
     rateMo:rateMo([3.88,4.25,4.75,5.00,4.25]),
     cards:[
-      {val:'$338 \xd7 22x = $7,436',lbl:'Anchored to today',sub:'Same start, CAPE headwind compresses path',src:'FactSet'},
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start, CAPE headwind compresses path',src:'FactSet'},
       {val:'+8% / +4% / +3% / +3%',lbl:'EPS growth (yr 1–4)',sub:'AI not monetising (MIT <5% tasks)',src:'Bear/MIT'},
       {val:'22x → 16x by 2030',lbl:'P/E compression',sub:'CAPE mean-reversion to long-run avg',src:'GMO/CAPE'},
       {val:'CAPE ${CAPE_TXT}\xd7 → 17.3\xd7',lbl:'CAPE target (7yr)',sub:'Full reversion to 145yr mean',src:'Shiller/Yale'},
     ],
-    info:'<strong style="color:#e24b4a">Bear — what data-driven pessimists say:</strong><br><strong>Model 1:</strong> EPS misses at +8%/+4%/+3%/+3% with P/E compressing 22x→16x (CAPE gravity) → ~$5,760.<br><strong>Model 2:</strong> Full CAPE reversion ${CAPE_TXT}x→17.3x over 7yr (GMO horizon) + 4% EPS → ~$5,200.<br><strong>Model 3:</strong> GMO -2.7% nominal → $6,580, CAPE implied 1.6%/yr → $7,890.',
+    info:'<strong style="color:#e24b4a">Bear — what data-driven pessimists say:</strong><br><strong>Model 1:</strong> EPS misses at +8%/+4%/+3%/+3% with P/E compressing 22x→16x (CAPE gravity) → ~'+D2030(PATHS.bear.m1)+'.<br><strong>Model 2:</strong> Full CAPE reversion ${CAPE_TXT}x→17.3x over 7yr (GMO horizon) + 4% EPS → ~'+D2030(PATHS.bear.m2)+'.<br><strong>Model 3:</strong> GMO -2.7% nominal → '+D2030(PATHS.bear.m3)+', CAPE implied 1.6%/yr → '+D2030(PATHS.bear.m3h)+'.',
     bull:['FactSet Q1 2026 actual +27.1% far outpacing bear EPS assumption','HY OAS 275bps — no credit stress signal','Fed still cutting — rate environment broadly supportive','GMO wrong on US equities for 10+ years'],
     bear:['GMO 7yr US Large Cap: -5.4% real (Q1 2026)','GuruFocus CAPE implied: 1.6%/yr at ${CAPE_TXT}×','CAPE above 40× occurred twice in 145yr — both preceded major drawdowns','JPMorgan re-hike risk: PCE 2.7% end-2026 > 2% target'],
   },

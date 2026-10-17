@@ -28,7 +28,16 @@
  *       its printed Portfolio total (tolerance ±$1). Guards the 2026-10-16
  *       render where Portfolio $92,212 sat next to Equity $86,035 + Cash
  *       $4,766 = $90,801 because the $1,411 crypto component was never
- *       printed.
+ *       printed;
+ *   (g) the S&P fan narrative carries a hand-typed S&P level. The fan's
+ *       table and prose are rendered client-side, so computed endpoints
+ *       do not exist in the built HTML to cross-check numerically; the
+ *       structural guard is that the kp init script contains NO $X,XXX
+ *       literal anywhere (narrative endpoints are interpolated from the
+ *       computed paths via D2030(PATHS.*)) and the retired false anchor
+ *       claim ("$338 × 22x = $7,436 · validates start") stays absent.
+ *       Guards the 2026-10-17 audit finding of nine hand-written
+ *       narrative endpoints contradicting the models' own computed ones.
  *
  * Read-only: it never edits artifacts. Exit 0 = coherent, 1 = violation.
  */
@@ -149,6 +158,23 @@ for (const file of candidates) {
     }
   } else {
     console.log(`SKIP ${rel} · account reconciliation — Robinhood sync strip not found`);
+  }
+
+  // ── (g) Fan narrative: endpoints generated, never hand-typed ──
+  const kpM = html.match(/<script id="kp-init-script">([\s\S]*?)<\/script>/);
+  if (kpM) {
+    const kp = kpM[1];
+    const typed = [...new Set([...kp.matchAll(/\$\d{1,3}(?:,\d{3})+/g)].map(x => x[0]))];
+    const generated = (kp.match(/D2030\(PATHS\./g) || []).length;
+    const falseAnchor = /validates start/i.test(kp);
+    check(`${rel} · fan narrative generated`, typed.length === 0 && !falseAnchor,
+      (typed.length
+        ? `hand-typed S&P level(s) in fan script: ${typed.join(', ')} — narrative endpoints must be interpolated from the computed paths`
+        : 'no hand-typed $X,XXX levels in the fan script') +
+      `; D2030(PATHS.*) interpolations: ${generated}` +
+      (falseAnchor ? '; FALSE anchor claim "validates start" present' : ''));
+  } else {
+    console.log(`SKIP ${rel} · fan narrative generated — kp-init-script not found`);
   }
 
   // ── (c) Probe statistics: identical probabilities need cohort labeling ──

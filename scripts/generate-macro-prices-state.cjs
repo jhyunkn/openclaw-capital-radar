@@ -40,6 +40,7 @@ function fromCache(key) {
 
 const gold = fromCache('GOLD') || fromCommodity('GLD');
 const oil = fromCache('OIL') || fromCommodity('USO');
+const brent = fromCache('BRENT');
 const silver = fromCache('SILVER');
 const vix = fromMarket('^VIX');
 const dxy = fromMarket('DX-Y.NYB');
@@ -63,13 +64,25 @@ const assets = [
     format: 'dollar',
     decimals: 1,
   },
+  // Labeled contracts (Batch 2 A1): the old single unlabeled "Oil" tile
+  // printed a stale/rolled cache value matching neither settlement. WTI and
+  // Brent print separately, each from its own cache series (last settled bar
+  // vs the prior session — the cache tail is kept dense by the refresher).
   oil && {
-    label: 'Oil',
+    label: 'WTI',
     symbol: 'CL=F',
     price: oil.price,
     changePct: oil.changePct,
     format: 'dollar',
-    decimals: 0,
+    decimals: 2,
+  },
+  brent && {
+    label: 'Brent',
+    symbol: 'BZ=F',
+    price: brent.price,
+    changePct: brent.changePct,
+    format: 'dollar',
+    decimals: 2,
   },
   vix && {
     label: 'VIX',

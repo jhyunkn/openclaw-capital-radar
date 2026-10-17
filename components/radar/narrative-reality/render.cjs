@@ -35,8 +35,17 @@ function renderNarrativeRealitySection(brief, options = {}) {
   const themes     = arr(brief.themes);
   const cards      = themes.map(renderThemeCard).join('');
 
+  // Full as-of from the brief's generatedAt (ET, with time): the brief is an
+  // intraday snapshot — its figures (e.g. a midday VIX print in the posture
+  // text) must not read as closing values next to close-based sections.
   const asOf = brief.generatedAt
-    ? new Date(brief.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    ? (() => {
+        const d = new Date(brief.generatedAt);
+        if (Number.isNaN(d.getTime())) return '';
+        const day = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+        const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+        return `as of ${day} · ${time} ET`;
+      })()
     : '';
 
   const classCount = cls => themes.filter(t => t.classification === cls).length;

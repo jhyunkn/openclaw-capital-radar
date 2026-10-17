@@ -57,10 +57,15 @@ function compactRows(rows, maxRows = 900) {
     .sort((a, b) => a.date.localeCompare(b.date));
   if (clean.length <= maxRows) return clean;
   const stride = Math.ceil(clean.length / maxRows);
-  const sampled = clean.filter((_, index) => index % stride === 0);
-  const latest = clean.at(-1);
-  if (!sampled.length || sampled.at(-1).date !== latest.date) sampled.push(latest);
-  return sampled;
+  // Keep the recent tail dense: consumers compute day changes from the last
+  // two points, and whole-series stride sampling made the "previous" point
+  // several sessions old (the macro strip printed a 3-session oil move as a
+  // day change — Batch 2 A1). Stride-sample only the older head.
+  const TAIL = 30;
+  const head = clean.slice(0, -TAIL);
+  const tail = clean.slice(-TAIL);
+  const sampledHead = head.filter((_, index) => index % stride === 0);
+  return [...sampledHead, ...tail];
 }
 
 async function fetchText(url, timeoutMs = 30000) {
@@ -264,6 +269,7 @@ async function main() {
 
   await writeYahooCache('commodities-series.json', 'commodities-series-cache', {
     OIL: { label: 'WTI crude oil futures proxy', symbol: 'CL=F', sourceUrl: 'https://finance.yahoo.com/quote/CL=F' },
+    BRENT: { label: 'Brent crude oil futures proxy', symbol: 'BZ=F', sourceUrl: 'https://finance.yahoo.com/quote/BZ=F' },
     NATGAS: { label: 'Natural gas futures proxy', symbol: 'NG=F', sourceUrl: 'https://finance.yahoo.com/quote/NG=F' },
     URANIUM: { label: 'Uranium equities proxy', symbol: 'URA', sourceUrl: 'https://finance.yahoo.com/quote/URA' },
     COPPER: { label: 'Copper futures proxy', symbol: 'HG=F', sourceUrl: 'https://finance.yahoo.com/quote/HG=F' },
@@ -273,7 +279,7 @@ async function main() {
   }, 'Refreshed from Yahoo Finance public chart endpoints. Homepage build reads this cache and does not fetch commodities live.', [
     'Yahoo chart API is public/unofficial. Inventory data, futures curves, shipping data, regional power prices, and producer cost curves remain missing evidence.'
   ], {
-    energy: ['oil', 'natural_gas', 'uranium'],
+    energy: ['oil', 'brent', 'natural_gas', 'uranium'],
     industrial: ['copper'],
     food: ['agriculture_basket'],
     monetary_metal: ['silver', 'gold']

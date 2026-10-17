@@ -105,7 +105,7 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
 
   const topCount = topDecile.activeCount;
   const universeN = state?.includedCount || '';
-  const scope = `top decile of ${universeN} · ${Math.round((topDecile.exposure ?? gate.exposure ?? 1) * 100)}% invested, rest cash`;
+  const scope = `top decile of ${universeN} ranked names · ${Math.round((topDecile.exposure ?? gate.exposure ?? 1) * 100)}% invested, rest cash`;
 
   const moduleMode = options.module === true;
   const shellOpen = moduleMode
@@ -133,7 +133,7 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
       </tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
-    <p class="mom-scope">Showing top 10 of ${esc(topCount)} active names (${esc(scope)})</p>
+    <p class="mom-scope">Showing top 10 of ${esc(topCount)} active portfolio names (${esc(scope)})</p>
     ${(() => {
       if (!changes) return '';
       const base = fmtRebalanceDate(changes.vsRebalanceDate);
@@ -156,9 +156,9 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
         if (rebalance.nextRebalanceDate && rebalance.nextRebalanceDate <= todayIso) return ' · today';
         return ` · ${esc(d)} trading day${d === 1 ? '' : 's'} away`;
       })()}</span>
-      <span class="mom-health ${esc(healthCls)}">Data: ${esc(health)}${state?.coverageCount ? ` · ${esc(state.coverageCount)}/${esc(state.universeCount)} symbols` : ''}</span>
+      <span class="mom-health ${esc(healthCls)}">Data: ${esc(health)}${state?.coverageCount ? ` · ${esc(state.coverageCount)} of ${esc(state.universeCount)} index constituents with price data` : ''}</span>
     </div>
-    ${state?.excludedCount ? `<p class="mom-note">${esc(state.excludedCount)} symbols excluded (insufficient history). Universe is current S&amp;P 500 members — historical ranks carry survivorship bias.</p>` : ''}
+    ${state?.excludedCount ? `<p class="mom-note">${esc(state.excludedCount)} of the symbols with data excluded from ranking (insufficient history or non-finite signals) — ${esc(state.includedCount)} ranked. Universe is current S&amp;P 500 members — historical ranks carry survivorship bias.</p>` : ''}
     <p class="mom-note">Entry reads are display-only — they never change the mechanical monthly portfolio. Earnings timing is unknown for every name (no feed; never guessed).</p>
   </div>
 ${shellClose}`;

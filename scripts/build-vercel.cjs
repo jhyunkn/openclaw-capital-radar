@@ -241,6 +241,14 @@ runFinalInjector('inject-narrative-reality-home.cjs', 'Narrative-reality macro m
 runFinalInjector('inject-momentum-home.cjs', 'Momentum macro module injection failed before Vercel copy');
 runFinalInjector('inject-dollar-stress-home.cjs', 'Dollar stress check injection failed before Vercel copy');
 runFinalInjector('inject-arb-deal-board-home.cjs', 'Arb deal board module injection failed before Vercel copy');
+// Opportunity was the one homepage module NOT re-injected here (Batch 2 E1):
+// every other module is re-rendered from its committed state at packaging
+// time, but the Opportunity section shipped as whatever a previous local
+// render had left in index.html — which is how a committed state with
+// PROBE_ELIGIBLE candidates (whose cards carry the cohort-statistics label)
+// reached production with a stale section showing none. Inject from the
+// committed opportunity state like the other modules.
+runFinalInjector('inject-opportunities-home-modular.cjs', 'Opportunity module injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-history.cjs', 'Kostolany history chart injection failed before Vercel copy');
 runFinalInjector('inject-kostolany-projection.cjs', 'Kostolany projection chart injection failed before Vercel copy');
 runFinalInjector('inject-market-calendar.cjs', 'Market calendar injection failed before Vercel copy');

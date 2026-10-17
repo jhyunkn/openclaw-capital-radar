@@ -39,6 +39,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const gateV2 = require('./momentum-gate-v2.cjs'); // shared v2 gate: backtest + live use one implementation
 
 const root = path.join(__dirname, '..');
@@ -197,6 +198,19 @@ function main() {
   const bAdj = cache.benchmark.adj;
   const bDateIso = bDates.map(isoOf);
   const lastBarIso = bDateIso[bDateIso.length - 1];
+
+  // Cache fingerprint (Batch 2 D2): the price cache is unversioned and
+  // gitignored, so a later cache rebuild silently shifts bar indices and
+  // makes a recorded artifact unreproducible. Record exactly which cache
+  // vintage produced this artifact; the validator compares fingerprints
+  // and reports CACHE_VINTAGE_CHANGED instead of a silent rank mismatch.
+  const cacheFingerprint = {
+    cacheGeneratedAt: cache.generatedAt || null,
+    benchmarkBarCount: bDates.length,
+    firstBarDate: bDateIso[0],
+    lastBarDate: lastBarIso,
+    benchmarkCloseSha256: crypto.createHash('sha256').update(JSON.stringify(bAdj)).digest('hex'),
+  };
 
   // Rebalance calendar: first trading day (first bar) of each calendar month.
   const rebMonths = [];
@@ -585,6 +599,7 @@ function main() {
 
   const doc = {
     generatedAt: new Date().toISOString(),
+    cacheFingerprint,
     methodology,
     window: { start: windowStart, end: lastBarIso, rebalanceCount: rebDates.length },
     variants: {

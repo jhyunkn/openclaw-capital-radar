@@ -6,9 +6,14 @@ const { spawnSync } = require('child_process');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'data', 'cache', 'money-cash-series.json');
 const timeoutMs = Number(process.env.FRED_FETCH_TIMEOUT_MS || 30000);
-const retries = Number(process.env.FRED_FETCH_RETRIES || 3);
+// Parity with the hardened main FRED path (refresh-public-data-caches.cjs,
+// owner-approved 2026-10-16): 5 attempts, exponential backoff, staggered
+// series, node first with curl as the fallback transport (Batch 2 B1).
+// Callers may still de-tune via env (the build lane sets 1 retry / 8s
+// fast-failover for every FRED consumer, this one included).
+const retries = Number(process.env.FRED_FETCH_RETRIES || 5);
 const forceIpv4 = process.env.FRED_FORCE_IPV4 !== '0';
-const useCurlFirst = process.env.FRED_USE_CURL !== '0';
+const useCurl = process.env.FRED_USE_CURL !== '0';
 const forceCurlHttp11 = process.env.FRED_CURL_HTTP11 !== '0';
 
 const SERIES = {
@@ -33,18 +38,25 @@ function readExistingCache() {
   }
 }
 
+const FAILURE_NOTE = 'Latest live FRED refresh failed; scheduled job kept the existing cache so downstream dashboard artifacts can still render with stale/degraded evidence warnings.';
+const STALE_LIMITATION = 'Most recent live FRED refresh failed; values may be stale until the next successful refresh.';
+
 function writeFallbackCache(existing, errors) {
+  // Set, never append (Batch 2 B3): the previous writer concatenated the
+  // failure note onto source_policy on every failed attempt — the on-disk
+  // cache carried 139 copies of the sentence (and 140 limitation entries).
+  // Strip any accumulated copies, then set the note exactly once.
+  const basePolicy = String(existing.source_policy || 'Money / Cash cache.').split(FAILURE_NOTE).join('').replace(/\s+/g, ' ').trim();
+  const limitations = (Array.isArray(existing.limitations) ? existing.limitations : []).filter(l => l !== STALE_LIMITATION);
+  limitations.push(STALE_LIMITATION);
   const fallback = {
     ...existing,
     cache_status: existing.cache_status === 'SEED_COMPACT' ? 'SEED_COMPACT' : 'FRED_REFRESH_FAILED_USING_EXISTING_CACHE',
     last_refresh_attempt_at: new Date().toISOString(),
     last_refresh_status: 'FAILED_FALLBACK_USED',
     last_refresh_errors: errors,
-    source_policy: `${existing.source_policy || 'Money / Cash cache.'} Latest live FRED refresh failed; scheduled job kept the existing cache so downstream dashboard artifacts can still render with stale/degraded evidence warnings.`,
-    limitations: [
-      ...(Array.isArray(existing.limitations) ? existing.limitations : []),
-      'Most recent live FRED refresh failed; values may be stale until the next successful refresh.'
-    ]
+    source_policy: `${basePolicy} ${FAILURE_NOTE}`,
+    limitations
   };
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, JSON.stringify(fallback, null, 2) + '\n');
@@ -118,7 +130,8 @@ async function nodeGetWithRetry(url) {
     } catch (error) {
       lastError = error;
       console.warn(`node fetch attempt ${attempt}/${retries} failed for ${url}: ${error.message}`);
-      await sleep(1000 * attempt);
+      // Exponential backoff, same schedule as the main FRED path.
+      if (attempt < retries) await sleep(1500 * 2 ** (attempt - 1));
     }
   }
   throw lastError;
@@ -126,21 +139,27 @@ async function nodeGetWithRetry(url) {
 
 async function fetchBody(url) {
   const failures = [];
-  if (useCurlFirst) {
-    try {
-      const transportParts = ['curl'];
-      if (forceIpv4) transportParts.push('ipv4');
-      if (forceCurlHttp11) transportParts.push('http1.1');
-      return { body: curlGet(url), transport: transportParts.join('-') };
-    } catch (error) {
-      failures.push(`curl: ${error.message || String(error)}`);
-      console.warn(`curl fetch failed for ${url}: ${error.message || String(error)}`);
-    }
-  }
+  // Node first, curl as the fallback transport — the main FRED path's order.
+  // (Curl-first burned curl's whole internal retry budget at full timeout
+  // before node was ever tried.)
   try {
     return { body: await nodeGetWithRetry(url), transport: forceIpv4 ? 'node-https-ipv4' : 'node-https' };
   } catch (error) {
     failures.push(`node: ${error.message || String(error)}`);
+  }
+  if (useCurl) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const transportParts = ['curl'];
+        if (forceIpv4) transportParts.push('ipv4');
+        if (forceCurlHttp11) transportParts.push('http1.1');
+        return { body: curlGet(url), transport: transportParts.join('-') };
+      } catch (error) {
+        failures.push(`curl#${attempt}: ${error.message || String(error)}`);
+        console.warn(`curl fetch attempt ${attempt}/2 failed for ${url}: ${error.message || String(error)}`);
+        if (attempt < 2) await sleep(2000 * attempt);
+      }
+    }
   }
   throw new Error(failures.join(' | '));
 }
@@ -195,8 +214,12 @@ async function main() {
   const series = {};
   const refresh_meta = {};
   const errors = [];
-  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}, useCurlFirst=${useCurlFirst}, forceCurlHttp11=${forceCurlHttp11}`);
-  for (const id of Object.keys(SERIES)) {
+  console.log(`FRED refresh settings: timeoutMs=${timeoutMs}, retries=${retries}, forceIpv4=${forceIpv4}, useCurlFallback=${useCurl}, forceCurlHttp11=${forceCurlHttp11}`);
+  const seriesIds = Object.keys(SERIES);
+  for (let i = 0; i < seriesIds.length; i++) {
+    const id = seriesIds[i];
+    // Stagger series requests like the main FRED path (avoids burst drops).
+    if (i > 0) await sleep(400 * i);
     try {
       const result = await fetchSeries(id);
       series[id] = result.rows;

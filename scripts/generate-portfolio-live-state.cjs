@@ -131,7 +131,14 @@ const totalCurrentValue = round(positions.reduce((sum, pos) => sum + (pos.curren
 const totalUnrealizedGain = round(totalCurrentValue - totalCostBasis, 2);
 const totalUnrealizedPct = totalCostBasis ? round((totalUnrealizedGain / totalCostBasis) * 100, 2) : null;
 const totalDayChange = round(positions.reduce((sum, pos) => sum + (pos.dayChange || 0), 0), 2);
-const totalDayChangePct = totalCurrentValue ? round((totalDayChange / (totalCurrentValue - totalDayChange)) * 100, 2) : null;
+// Day-change % base = prior-day TOTAL portfolio value (equity + crypto +
+// cash), not prior-day positions value: the header prints this % next to the
+// total-portfolio figure, and the positions-only base matched neither the
+// portfolio base nor the equity base (Batch 2 A6). portfolio.totalValue is
+// the broker-synced total; the fallback mirrors state.portfolio.totalValue.
+const portfolio = rh.portfolio || {};
+const portfolioTotalValue = round(portfolio.totalValue ?? (totalCurrentValue + Number(portfolio.cash || 0) + Number(portfolio.cryptoValue || 0)), 2);
+const totalDayChangePct = portfolioTotalValue ? round((totalDayChange / (portfolioTotalValue - totalDayChange)) * 100, 2) : null;
 
 const actionRank = { exit: 0, trim: 1, investigate: 2, watch: 3, hold: 4 };
 const actionQueue = positions
@@ -144,7 +151,6 @@ const actionQueue = positions
     unrealizedPct: pos.unrealizedPct,
   }));
 
-const portfolio = rh.portfolio || {};
 const staleQuoteCount = positions.filter(position => position.priceFreshness?.status !== 'OK').length;
 const state = {
   generatedAt: new Date().toISOString(),
@@ -168,7 +174,7 @@ const state = {
     ...(ownershipStale || staleQuoteCount ? { note: `Portfolio changes blocked: ownership verification age ${ownershipAgeHours.toFixed(1)}h; ${staleQuoteCount} quote(s) exceed ${maxQuoteAgeHours}h.` } : {}),
   },
   portfolio: {
-    totalValue: round(portfolio.totalValue ?? (totalCurrentValue + Number(portfolio.cash || 0) + Number(portfolio.cryptoValue || 0)), 2),
+    totalValue: portfolioTotalValue,
     equityValue: round(portfolio.equityValue ?? totalCurrentValue, 2),
     cryptoValue: round(portfolio.cryptoValue, 2),
     cash: round(portfolio.cash, 2),

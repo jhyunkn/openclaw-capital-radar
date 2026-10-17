@@ -26,6 +26,16 @@ const broad=macro.allocation_posture||[];const equity=macro.equity_posture||[];
 const favorBroad=broad.filter(x=>/ACCUMULATE|FAVORED|HOLD|ADD|INCREASE|REBUILD/i.test(x.posture)).slice(0,5);
 const reduceBroad=broad.filter(x=>/TRIM|REDUCE|AVOID|WAIT|STRICT|RESEARCH ONLY/i.test(x.posture)).slice(0,5);
 const favorEquity=(macro.equity_groups?.favor||[]).slice(0,6);const avoidEquity=(macro.equity_groups?.avoid_or_trim||[]).slice(0,6);
-const nextProbs={};sequence.forEach(id=>nextProbs[id]=5);nextProbs[phaseId]=50;nextProbs[nextId]=30;nextProbs[previousId]=10;
+const rawProbs={};sequence.forEach(id=>rawProbs[id]=5);rawProbs[phaseId]=50;rawProbs[nextId]=30;rawProbs[previousId]=10;
+// Normalize to exactly 100 at the source (Batch 2 C1): the raw weights sum
+// to 110 (50/30/10/5x4), and the displayed line only summed to 100 because
+// the renderer clamped the residual "other" bucket. Largest-remainder
+// rounding preserves the intended ratios and keeps integer weights.
+const rawTotal=Object.values(rawProbs).reduce((a,b)=>a+b,0);
+const nextProbs={};const probRemainders=[];
+for(const id of sequence){const exact=rawProbs[id]*100/rawTotal;const base=Math.floor(exact);nextProbs[id]=base;probRemainders.push({id,frac:exact-base});}
+let probAssigned=Object.values(nextProbs).reduce((a,b)=>a+b,0);
+probRemainders.sort((a,b)=>b.frac-a.frac);
+for(let i=0;probAssigned<100&&i<probRemainders.length;i++){nextProbs[probRemainders[i].id]+=1;probAssigned+=1;}
 const state={as_of:new Date().toISOString(),artifact:'kostolany-egg-state',method:'Kostolany-inspired capital-cycle map. Rates are a primary transmission mechanism, but phase is governed by monetary, liquidity, psychology, market structure, and valuation axes.',phase_code:current.code,macro_phase:current.macro,phase_label:current.label,phase_confidence:macro.cycle_confidence||null,stress_type:macro.pressure_detail?.stress_type||'balanced',stress_id:macro.stress_id||null,center_action:current.action,capital_action:current.action,phase_market_meaning:current.market,phases,axis,next_phase_probability:nextProbs,broad_asset_posture:broad,equity_subcategory_posture:equity,visual_summary:{favor_broad:favorBroad.map(x=>({asset:x.asset,posture:x.posture})),reduce_broad:reduceBroad.map(x=>({asset:x.asset,posture:x.posture})),favor_equity:favorEquity,avoid_equity:avoidEquity},invalidation:macro.phase_invalidation||'Invalidation pending',self_check:{q1:'A1–F notation remains visible but secondary to clear macro labels.',q2:'Center prioritizes capital action first; stress type is shown underneath.',q3:'First production version is clean/minimal; density can be added later.'},source:'outputs/macro-cycle-state.json',render_permission:true};
 write('kostolany-egg-state.json',state);console.log(`kostolany-egg-state: ${state.phase_code} ${state.macro_phase} action=${state.capital_action}`);

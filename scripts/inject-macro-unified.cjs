@@ -857,8 +857,11 @@ const tenYNow = (() => {
     const c = JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'fred-rates-cache.json'), 'utf8'));
     const d = (c.series || []).find(s => s.id === 'DGS10');
     if (d && d.value != null) {
+      // latestDate is a FRED observation DATE (a calendar day, not an instant):
+      // format it in UTC. Rendering UTC midnight in America/New_York shifted
+      // the label one day back (Oct 15 obs printed as "Oct 14") — Batch 2 A2.
       const asOf = d.latestDate
-        ? new Date(d.latestDate + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' })
+        ? new Date(d.latestDate + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
         : '';
       return { value: Number(d.value), asOf };
     }

@@ -23,6 +23,11 @@
  *      composite rank from the price cache using ONLY bars with timestamps <= T
  *      and confirm it matches the backtest's recorded rank. Also recompute the
  *      gate from cache inputs and confirm it matches the recorded gate.
+ *      Bars are located BY DATE in the current cache, not by the recorded
+ *      benchmarkIndex (Batch 2 D1 — see the spot-check code for why).
+ *   8. CACHE VINTAGE (Batch 2 D2): the artifact's recorded cacheFingerprint
+ *      must match the replay cache; a mismatch fails with a distinct
+ *      CACHE_VINTAGE_CHANGED diagnostic (re-record signal), not a rank error.
  *   7. V2 GATE CHECK (independent reimplementation): recompute the v2 stress
  *      score from each entry's recorded gateInputs with separate threshold
  *      code, replay the asymmetric hysteresis over the full score sequence
@@ -34,6 +39,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const root = path.join(__dirname, '..');
 const artifactPath = path.join(root, 'outputs', 'momentum', 'momentum-backtest.json');
@@ -303,6 +309,26 @@ function main() {
   const vol = readJson(volPath);
   if (!cache || failures.length) { console.error('FAIL:\n- ' + failures.join('\n- ')); process.exit(1); }
 
+  /* 8. cache-vintage diagnostic (Batch 2 D2): the price cache is unversioned
+   * and gitignored; when its vintage changes, a recorded artifact is no
+   * longer reproducible from it. Report that as its own diagnostic — a clear
+   * signal to re-run the runner — instead of letting it surface as opaque
+   * rank/gate mismatches in the spot check below. */
+  const benchDateToIndex = new Map((cache.benchmark.dates || []).map((ts, i) => [new Date(ts * 1000).toISOString().slice(0, 10), i]));
+  const currentFingerprint = {
+    cacheGeneratedAt: cache.generatedAt || null,
+    benchmarkBarCount: (cache.benchmark.dates || []).length,
+    benchmarkCloseSha256: crypto.createHash('sha256').update(JSON.stringify(cache.benchmark.adj)).digest('hex'),
+  };
+  const recordedFp = doc.cacheFingerprint || null;
+  if (!recordedFp) {
+    fail('CACHE_VINTAGE_CHANGED: artifact carries no cacheFingerprint (recorded before fingerprinting) — re-run scripts/run-momentum-backtest.cjs to re-record it against the current cache');
+  } else if (recordedFp.benchmarkCloseSha256 !== currentFingerprint.benchmarkCloseSha256
+    || recordedFp.benchmarkBarCount !== currentFingerprint.benchmarkBarCount) {
+    fail(`CACHE_VINTAGE_CHANGED: artifact was recorded against a different price-cache vintage (recorded ${recordedFp.benchmarkBarCount} benchmark bars, sha256 ${String(recordedFp.benchmarkCloseSha256).slice(0, 12)}…; replay cache ${currentFingerprint.benchmarkBarCount} bars, sha256 ${currentFingerprint.benchmarkCloseSha256.slice(0, 12)}…) — re-run scripts/run-momentum-backtest.cjs to re-record`);
+  }
+  if (failures.length) { console.error('FAIL:\n- ' + failures.join('\n- ')); process.exit(1); }
+
   const hySeries = credit?.series?.BAMLH0A0HYM2 || [];
   const vixSeries = vol?.series?.VIX || [];
   const hyFirst = hySeries.length ? hySeries[0].date : null;
@@ -314,7 +340,15 @@ function main() {
   const spotFails = [];
   for (const di of dateIdx) {
     const e = log[di];
-    const T = e.benchmarkIndex;
+    // DATE-based bar location (Batch 2 D1): do NOT use e.benchmarkIndex. It
+    // indexes the cache vintage the backtest was recorded against, and the
+    // unversioned, gitignored cache can shift by a bar between vintages —
+    // the 2026-10-17 audit found every recorded index off by exactly one vs
+    // the current cache, while the recorded margins match exactly at the
+    // true date indices. Locate this rebalance date's bar by date in the
+    // current cache; every check below is unchanged.
+    const T = benchDateToIndex.get(e.date);
+    if (T === undefined) { spotFails.push(`${e.date}: rebalance date not found in current benchmark cache`); continue; }
     const tEpoch = cache.benchmark.dates[T];
     // independent rank recomputation: only bars with timestamp <= T
     const rows = [];

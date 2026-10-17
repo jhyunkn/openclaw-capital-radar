@@ -30,6 +30,32 @@ try {
 } catch { /* keep fallback */ }
 const CAPE_TXT = String(capeNow);
 
+// ── Current SPX: same anchor the fans/ladder use ──
+// Value from outputs/market-decision-brief-state.json chart_reference.current;
+// the as-of is the date of the operational chart's last candle — the bar that
+// anchor is taken from. The hardcoded "~7,704" here before was a stale Sep 25
+// print sitting in present-tense text (Batch 2 A3). Fallbacks = last sourced
+// values (7,659.44 close, Oct 16, 2026).
+let spxNow = 7659.44;
+let spxAsOfLabel = 'Oct 16, 2026';
+let spxMonthLabel = 'Oct 2026';
+try {
+  const brief = JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'market-decision-brief-state.json'), 'utf8'));
+  const cur = Number(brief?.chart_reference?.current);
+  if (Number.isFinite(cur) && cur > 0) spxNow = cur;
+} catch { /* keep fallback */ }
+try {
+  const op = JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'operational-chart-state.json'), 'utf8'));
+  const series = op?.chart?.series || [];
+  const lastT = series.length ? Number(series[series.length - 1]?.t) : NaN;
+  if (Number.isFinite(lastT) && lastT > 0) {
+    const d = new Date(lastT);
+    spxAsOfLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    spxMonthLabel = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+  }
+} catch { /* keep fallback */ }
+const SPX_TXT = Math.round(spxNow).toLocaleString('en-US');
+
 // Idempotent removal — comment-marker block + old section/div variants + style
 html = html.replace(/<!-- KH_HISTORY_START -->[\s\S]*?<!-- KH_HISTORY_END -->\s*/g, '');
 html = html.replace(/<style id="kostolany-history-style">[\s\S]*?<\/style>\s*/g, '');
@@ -202,8 +228,8 @@ const section = `<!-- KH_HISTORY_START -->
   </div>
   <div class="kh-chart-wrap"><canvas id="kh-main-chart" role="img" aria-label="Multi-indicator Kostolany historical chart 1970–2026"></canvas></div>
   <div class="kh-now-box">
-    <span class="kh-now-tag">Now · Sep 2026 — where you are</span>
-    <p>Fed funds <b>3.75&ndash;4.00%</b> (Sep 16 hike; down from the 5.14% 2024 peak) · HY spreads <b>~278bps</b>, near the tightest in the post-1997 record · CAPE <b>${CAPE_TXT}×</b>, second-highest since 1881 · SPX <b>~7,704</b>. The period to compare against is <b>1994–95</b> — the last time the Fed tightened aggressively while equities kept climbing (rates 4.2%→5.8%, SPX +34%, spreads calm). Key difference: CAPE was ~24× then vs ${CAPE_TXT}× now. A slower-tightening alternative: <b>2015–19</b> (rates 0.1%→2.2%, SPX +58%, CAPE 24×→30×).</p>
+    <span class="kh-now-tag">Now · ${spxMonthLabel} — where you are</span>
+    <p>Fed funds <b>3.75&ndash;4.00%</b> (Sep 16 hike; down from the 5.14% 2024 peak) · HY spreads <b>~278bps</b>, near the tightest in the post-1997 record · CAPE <b>${CAPE_TXT}×</b>, second-highest since 1881 · SPX <b>${SPX_TXT}</b> (${spxAsOfLabel} close). The period to compare against is <b>1994–95</b> — the last time the Fed tightened aggressively while equities kept climbing (rates 4.2%→5.8%, SPX +34%, spreads calm). Key difference: CAPE was ~24× then vs ${CAPE_TXT}× now. A slower-tightening alternative: <b>2015–19</b> (rates 0.1%→2.2%, SPX +58%, CAPE 24×→30×).</p>
   </div>
   <div class="kh-pattern-box">
     <span class="kh-pattern-tag">Pattern emerging</span>

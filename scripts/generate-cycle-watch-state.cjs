@@ -50,6 +50,29 @@ function main() {
 function build(asOf) {
   const hist = read('data/cycle-watch-history.json', null);
   const thesis = read('data/cycle-thesis.json', null);
+  // Thesis reads are phase-keyed (data/cycle-thesis.json `reads`, Jun's
+  // 2026-10-17 decision): the read follows the CURRENT mechanical phase_id
+  // from outputs/macro-cycle-state.json — the same source the Kostolany egg
+  // generator reads. If no read is authored for the current phase, emit a
+  // neutral mechanical fallback built from the phase itself. NEVER fall back
+  // to the legacy top-level `read`: it is phase-specific editorial text
+  // (written for Phase D) and emitting it under another phase is exactly the
+  // incoherence this replaces.
+  const macroCycle = read('outputs/macro-cycle-state.json', null);
+  const egg = read('outputs/kostolany-egg-state.json', null);
+  const phaseId = macroCycle && typeof macroCycle.phase_id === 'string' ? macroCycle.phase_id : null;
+  function selectThesisRead() {
+    if (phaseId && thesis.reads && typeof thesis.reads[phaseId] === 'string' && thesis.reads[phaseId]) {
+      return { read: thesis.reads[phaseId], readPhaseId: phaseId, readSource: 'keyed' };
+    }
+    const entry = phaseId && egg && Array.isArray(egg.phases)
+      ? egg.phases.find(p => p && p.id === phaseId) : null;
+    const text = entry && entry.code && entry.label
+      ? `Phase ${entry.code} — ${entry.label}. No thesis read authored for this phase yet.`
+      : 'Current phase read unavailable — thesis read not authored for this phase.';
+    return { read: text, readPhaseId: phaseId, readSource: 'fallback' };
+  }
+  const selected = thesis ? selectThesisRead() : null;
   const snaps = hist && Array.isArray(hist.snapshots) ? hist.snapshots : [];
   const latest = snaps[snaps.length - 1] || null;
   const prev = snaps[snaps.length - 2] || null;
@@ -177,7 +200,9 @@ function build(asOf) {
     feed_stale: feedStale,
     history_snapshots: snaps.length,
     thesis: thesis ? {
-      read: thesis.read,
+      read: selected.read,
+      readPhaseId: selected.readPhaseId,
+      readSource: selected.readSource,
       exceptions: thesis.exceptions,
       analogs: thesis.analogs,
       updated: thesis.updated,

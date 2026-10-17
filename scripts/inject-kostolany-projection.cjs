@@ -86,9 +86,10 @@ const section = `<!-- KP_PROJECTION_START -->
 <div class="kp-inner">
   <div class="kp-head">
     <div>
-      <span class="kp-eyebrow">Phase D Projection · Three Models · 2026–2030</span>
-      <h2 class="kp-title">S&amp;P 500 Projection</h2>
+      <span class="kp-eyebrow">Long-Horizon Valuation · Three Models · 2026–2030</span>
+      <h2 class="kp-title">S&amp;P 500 — Long-Horizon Valuation Fans (2026–2030)</h2>
       <p class="kp-subtitle">Three independent models — EPS × P/E, CAPE reversion, and institutional — each drawn as a band from its bear to its bull scenario. The band is the honest part: one line to the moon would be a lie.</p>
+      <p class="kp-subtitle"><strong>Context only:</strong> these fans frame long-horizon (2026–2030) valuation scenarios. They are not a near-term forecast and not a trading signal.</p>
     </div>
   </div>
   <div class="kp-read">

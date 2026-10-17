@@ -71,8 +71,8 @@ function anticipatoryCard(c) {
     <div class="opp-row"><span class="opp-k">Entry band</span><span class="opp-v"><b>${fmt$(c.entry.low)}–${fmt$(c.entry.high)}</b></span></div>
     <div class="opp-row"><span class="opp-k">Invalidation</span><span class="opp-v">${fmt$(c.invalidation.price)} → <b class="opp-risk">−${Number(c.invalidation.riskPct).toFixed(1)}%</b> risk</span></div>
     <div class="opp-row"><span class="opp-k">Target</span><span class="opp-v">${fmt$(c.target.price)} → <b class="opp-margin">${fmtPct(c.target.rewardPct)}</b> · R/R ${Number(c.rewardRisk).toFixed(2)}</span></div>
-    <div class="opp-row"><span class="opp-k">Probability</span><span class="opp-v">${p21} calibrated · ${v21} held-out validation <span class="opp-sub">(${esc(c.calibration?.n)} / ${esc(c.validation?.n)} observations)</span></span></div>
-    <div class="opp-row"><span class="opp-k">1m path</span><span class="opp-v">p10 ${fmtPct(oneMonth.p10)} · median ${fmtPct(oneMonth.median)} · p90 ${fmtPct(oneMonth.p90)}</span></div>
+    <div class="opp-row"><span class="opp-k">Probability</span><span class="opp-v">${p21} calibrated · ${v21} held-out validation <span class="opp-sub">(cohort ${esc(c.cohort)} · ${esc(c.calibration?.n)} / ${esc(c.validation?.n)} observations — cohort statistics, not specific to ${esc(c.symbol)})</span></span></div>
+    <div class="opp-row"><span class="opp-k">1m path</span><span class="opp-v">p10 ${fmtPct(oneMonth.p10)} · median ${fmtPct(oneMonth.median)} · p90 ${fmtPct(oneMonth.p90)} <span class="opp-sub">(cohort ${esc(c.cohort)} path distribution)</span></span></div>
     <div class="opp-row"><span class="opp-k">Risk budget</span><span class="opp-v">max ${Number(c.sizing.maxPortfolioRiskPct).toFixed(2)}% portfolio risk · max ${Number(c.sizing.maxPositionPct).toFixed(2)}% position</span></div>
     <div class="opp-ev">Forecast is scored after 21 bars · no ADD without confirmation · ${esc(c.cohort)}</div>
   </article>`;

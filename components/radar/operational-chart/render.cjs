@@ -161,7 +161,7 @@ function renderZoneLadder(state) {
     const below = pctOf(current) > 0.86;
     parts.push(`<div class="op-ladder-now" style="top:${topOf(current)}"><span class="op-ladder-nowtag${below ? ' op-ladder-nowtag--below' : ''}">SPX ${Math.round(current).toLocaleString('en-US')} · now</span></div>`);
   }
-  return `<div class="op-ladder-card"><span class="op-card-eyebrow">Action zones</span><h3 class="op-card-title">Where the S&amp;P 500 sits on the ladder</h3><div class="op-ladder" style="height:400px">${parts.join('')}</div><p class="op-ladder-note">Levels from the current action bands, unchanged. Ladder scale is linear between hard risk and target; the marker is the latest close.</p></div>`;
+  return `<div class="op-ladder-card"><span class="op-card-eyebrow">Action zones</span><h3 class="op-card-title">Where the S&amp;P 500 sits on the ladder</h3><div class="op-ladder" style="height:400px">${parts.join('')}</div><p class="op-ladder-note">Levels from the current action bands, unchanged. Ladder scale is linear between hard risk and target; the marker is the latest close. Target source: 2-year high × 1.06 — the rule-based bull-path scenario endpoint over ~126 trading days (generate-operational-chart-state.cjs), not a forecast.</p></div>`;
 }
 
 function renderOperationalChartSection(state, macroPrices) {

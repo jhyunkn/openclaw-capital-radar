@@ -2110,10 +2110,23 @@ const evDgs10 = num(mvMap.dgs10?.value);
 const evVix   = vixCurRaw;
 
 const npp = egg.next_phase_probability || {};
-const pStay  = num(npp.expansion_risk_on) ?? 50;
-const pNext  = num(npp.euphoria_late_risk_on) ?? 30;
-const pPrev  = num(npp.transition_verification) ?? 10;
+// Stay / advance / slip are derived from the egg's own phase sequence:
+// generate-kostolany-egg-state.cjs stamps each entry in egg.phases with
+// state 'current' | 'next' | 'previous'. Never hardcode phase ids or codes
+// here — the previous version pinned expansion_risk_on / euphoria_late_risk_on
+// / transition_verification and the literal labels "E" / "C", which was only
+// correct while the current phase was D and silently rendered duplicate,
+// misassigned odds once the phase moved to C.
+const phaseByState = st => (Array.isArray(egg.phases) ? egg.phases.find(pp => pp.state === st) : null);
+const curEntry  = phaseByState('current');
+const nextEntry = phaseByState('next');
+const prevEntry = phaseByState('previous');
+const pStay  = (curEntry  && num(npp[curEntry.id]))  ?? 50;
+const pNext  = (nextEntry && num(npp[nextEntry.id])) ?? 30;
+const pPrev  = (prevEntry && num(npp[prevEntry.id])) ?? 10;
 const pOther = Math.max(0, 100 - pStay - pNext - pPrev);
+const nextCode = nextEntry ? nextEntry.code : '—';
+const prevCode = prevEntry ? prevEntry.code : '—';
 
 // Mini distance-bar: domain [lo,hi], red break-marker at brk, green dot at val.
 function distBar(lo, hi, brk, val) {
@@ -2256,7 +2269,7 @@ const cycleHeroHtml = `
   <div class="mu-break">
     <p class="mu-ev-kicker">What would change the call?</p>
     <ul class="mu-break-list">${breakListHtml}</ul>
-    <p class="mu-prob">Next-phase odds — holds ${esc(curPhase.code)} ${pStay}% · advances to E ${pNext}% · slips to C ${pPrev}% · other ${pOther}%</p>
+    <p class="mu-prob">Next-phase odds — holds ${esc(curPhase.code)} ${pStay}% · advances to ${esc(nextCode)} ${pNext}% · slips to ${esc(prevCode)} ${pPrev}% · other ${pOther}%</p>
   </div>
   ${cycleWatchHtml}
   <details class="mu-guide-det"><summary class="mu-guide-sum">Full A1–F phase guide</summary><div class="mu-guide-grid">${guideGridHtml}</div></details>

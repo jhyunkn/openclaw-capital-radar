@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T13:23:46.231Z",
+  "generatedAt": "2026-10-17T19:15:02.088Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -10,7 +10,7 @@
       "state": "PAUSED_STALE",
       "actionAllowed": false,
       "permission": "NO_ACTION",
-      "reason": "1 required dependency blocker(s).",
+      "reason": "2 required dependency blocker(s).",
       "dependencies": [
         {
           "id": "positions",
@@ -18,7 +18,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-10-16T18:50:47.677Z",
-          "ageMinutes": 1113,
+          "ageMinutes": 1464.2,
           "maxMinutes": 4320,
           "source": "portfolio-live-state.BROKER_SYNC",
           "reason": null
@@ -27,20 +27,20 @@
           "id": "quotes",
           "label": "Holding prices",
           "required": true,
-          "status": "OK",
+          "status": "STALE",
           "asOf": "2026-10-16T18:50:47.677Z",
-          "ageMinutes": 1113,
+          "ageMinutes": 1464.2,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
-          "reason": null
+          "reason": "Holding prices is 1464 minutes old; maximum is 1440."
         },
         {
           "id": "data_health",
           "label": "Data health",
           "required": true,
           "status": "INVALID",
-          "asOf": "2026-10-17T13:23:19.433Z",
-          "ageMinutes": 0.4,
+          "asOf": "2026-10-17T19:14:31.950Z",
+          "ageMinutes": 0.5,
           "maxMinutes": 1440,
           "source": "data-health",
           "reason": "Data health reports PARTIAL."
@@ -51,13 +51,18 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-10-17",
-          "ageMinutes": 803.8,
+          "ageMinutes": 1155,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
         }
       ],
       "blockers": [
+        {
+          "id": "quotes",
+          "status": "STALE",
+          "reason": "Holding prices is 1464 minutes old; maximum is 1440."
+        },
         {
           "id": "data_health",
           "status": "INVALID",
@@ -140,8 +145,8 @@
           "label": "Market data health",
           "required": true,
           "status": "INVALID",
-          "asOf": "2026-10-17T13:23:19.433Z",
-          "ageMinutes": 0.4,
+          "asOf": "2026-10-17T19:14:31.950Z",
+          "ageMinutes": 0.5,
           "maxMinutes": 15,
           "source": "data-health",
           "reason": "Data health reports PARTIAL."
@@ -152,7 +157,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-10-17",
-          "ageMinutes": 803.8,
+          "ageMinutes": 1155,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null

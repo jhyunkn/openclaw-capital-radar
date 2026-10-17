@@ -29,11 +29,45 @@ function renderThemeCard(theme) {
   </article>`;
 }
 
+function stanceMeta(stance) {
+  switch (stance) {
+    case 'Add':   return 'nr-stance-act';
+    case 'Probe': return 'nr-stance-act';
+    case 'Trim':  return 'nr-stance-defensive';
+    case 'Exit':  return 'nr-stance-defensive';
+    default:      return 'nr-stance-neutral';
+  }
+}
+
+function renderReaction(reaction) {
+  if (!reaction || typeof reaction !== 'object') return '';
+  const rungs = arr(reaction.ladder).map(rung => `
+      <div class="nr-rung">
+        <span class="nr-rung-trigger">${esc(rung.trigger)}</span>
+        <span class="nr-rung-arrow">&rarr;</span>
+        <span class="nr-rung-response">${esc(rung.response)}</span>
+      </div>`).join('');
+  return `
+    <div class="nr-reaction">
+      <div class="nr-reaction-head">
+        <span class="nr-reaction-title">Reaction ladder</span>
+        ${reaction.stance ? `<span class="nr-stance ${stanceMeta(reaction.stance)}">Stance &middot; ${esc(reaction.stance)}</span>` : ''}
+      </div>
+      ${reaction.episode ? `<p class="nr-reaction-episode">${esc(reaction.episode)}</p>` : ''}
+      ${rungs ? `<div class="nr-rungs">${rungs}</div>` : ''}
+      <div class="nr-reaction-foot">
+        ${reaction.invalidation ? `<div class="nr-reaction-line"><span class="nr-watch-label">Invalidation</span><span class="nr-watch-text">${esc(reaction.invalidation)}</span></div>` : ''}
+        ${reaction.trapRisk ? `<div class="nr-reaction-line"><span class="nr-watch-label">Trap risk</span><span class="nr-watch-text">${esc(reaction.trapRisk)}</span></div>` : ''}
+      </div>
+    </div>`;
+}
+
 function renderNarrativeRealitySection(brief, options = {}) {
   if (!brief || !arr(brief.themes).length) return '';
 
   const themes     = arr(brief.themes);
   const cards      = themes.map(renderThemeCard).join('');
+  const reaction   = renderReaction(brief.reaction);
 
   // Full as-of from the brief's generatedAt (ET, with time): the brief is an
   // intraday snapshot — its figures (e.g. a midday VIX print in the posture
@@ -67,6 +101,7 @@ function renderNarrativeRealitySection(brief, options = {}) {
       </div>
     </div>
 
+    ${reaction}
     <div class="nr-theme-list">${cards}</div>
   </div>
 ${shellClose}`;
@@ -97,6 +132,27 @@ function renderNarrativeRealityStyle() {
 .nr-aligned .nr-watch{background:rgba(138,106,44,.05);border-left:3px solid rgba(138,106,44,.45)}
 .nr-watch-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(36,35,31,.5);white-space:nowrap;margin-top:2px}
 .nr-watch-text{font-size:12.5px;line-height:1.55;color:rgba(36,35,31,.85)}
+.nr-reaction{margin-top:24px;border:1px solid rgba(201,191,173,.55);border-left:4px solid rgba(138,106,44,.6);background:#fffdf8;padding:20px 24px}
+.nr-reaction-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.nr-reaction-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(36,35,31,.55)}
+.nr-stance{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.nr-stance-neutral{color:var(--warn,#8a6a2c);border-color:rgba(138,106,44,.35);background:rgba(138,106,44,.06)}
+.nr-stance-act{color:var(--green,#2f6f4e);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.06)}
+.nr-stance-defensive{color:rgba(164,80,47,.9);border-color:rgba(164,80,47,.35);background:rgba(164,80,47,.06)}
+.nr-reaction-episode{margin:0 0 14px;font-size:13.5px;line-height:1.65;color:rgba(36,35,31,.88);max-width:78ch}
+.nr-rungs{display:flex;flex-direction:column;border-top:1px solid rgba(201,191,173,.4)}
+.nr-rung{display:flex;gap:10px;align-items:baseline;padding:9px 2px;border-bottom:1px solid rgba(201,191,173,.4);font-size:12.5px;line-height:1.55}
+.nr-rung-trigger{font-weight:600;color:rgba(36,35,31,.9);flex:0 1 44%}
+.nr-rung-arrow{color:rgba(138,106,44,.8);flex:none}
+.nr-rung-response{color:rgba(36,35,31,.82);flex:1}
+.nr-reaction-foot{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.nr-reaction-line{display:flex;gap:10px;align-items:flex-start}
+@media(max-width:760px){
+  .nr-reaction{padding:16px}
+  .nr-rung{flex-direction:column;gap:2px}
+  .nr-rung-arrow{display:none}
+  .nr-rung-trigger{flex:none}
+}
 @media(max-width:760px){
   .nr-theme-card{padding:18px 16px}
   .nr-headline{font-size:15.5px}

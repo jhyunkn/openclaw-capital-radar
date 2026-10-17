@@ -56,9 +56,18 @@ After running the build pipeline, Claude Code must synthesize `outputs/narrative
   ],
   "strategyPosture": "<1-2 sentences: current action posture for the portfolio>",
   "whereWaveBuilds": "<1-2 sentences: where the next move is most likely to materialize and what the trigger is>",
-  "watchFor": ["<specific measurable signal>", ...]
+  "watchFor": ["<specific measurable signal>", ...],
+  "reaction": {
+    "stance": "<Watch | Probe | Add | Hold | Trim | Exit — portfolio reaction stance for the current episode>",
+    "episode": "<1-2 sentences naming the episode and its measured state, anchored to the input's episode block>",
+    "ladder": [{ "trigger": "<measurable trigger>", "response": "<pre-committed response>" }],
+    "invalidation": "<what proves the stance wrong and voids the ladder>",
+    "trapRisk": "<how the pivot-and-fail / bull-trap scenario changes entries>"
+  }
 }
 ```
+
+**Reaction layer (required since 2026-10-17):** the brief must say how we react to the current episode, not only the long-term thesis. `scripts/generate-episode-state.cjs` computes the mechanical episode state (index + SMH/NVDA drawdown, MA distances, zone occupancy vs `config/reaction-episode.json`, VIX, HY OAS, mechanical capitulation tally) into `outputs/episode-state.json` during the market-orientation stage, and `assemble-narrative-input.cjs` embeds it as the input's `episode` block. The reaction ladder's numbers come from that block, never from memory. `validate-narrative-brief.cjs` fails closed on a missing or incomplete reaction block.
 
 **Classification rules:**
 - `NARRATIVE_AHEAD` — price is ahead of fundamentals. The story has run past what the data supports. Caution.

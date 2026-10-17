@@ -46,4 +46,23 @@ if (!Array.isArray(b.watchFor) || b.watchFor.length < 3 || b.watchFor.length > 5
   fail('watchFor must be an array of 3-5, got ' + (Array.isArray(b.watchFor) ? b.watchFor.length : typeof b.watchFor));
 }
 
-console.log(`NARRATIVE_BRIEF_OK: themes=${themes.length} generatedAt=${b.generatedAt}`);
+// Reaction layer (required since 2026-10-17): the brief must say how we react
+// to the current episode, not only the long-term thesis. Fail-closed — a
+// brief without a complete reaction block must never ride a deploy.
+const STANCES = new Set(['Watch', 'Probe', 'Add', 'Hold', 'Trim', 'Exit']);
+const r = b.reaction;
+if (!r || typeof r !== 'object' || Array.isArray(r)) fail('missing reaction block');
+if (!STANCES.has(r.stance)) fail('reaction.stance must be one of Watch/Probe/Add/Hold/Trim/Exit, got ' + r.stance);
+if (!r.episode || typeof r.episode !== 'string') fail('reaction.episode missing');
+if (!Array.isArray(r.ladder) || r.ladder.length < 3 || r.ladder.length > 5) {
+  fail('reaction.ladder must be an array of 3-5, got ' + (Array.isArray(r.ladder) ? r.ladder.length : typeof r.ladder));
+}
+r.ladder.forEach((rung, i) => {
+  if (!rung || !rung.trigger || typeof rung.trigger !== 'string' || !rung.response || typeof rung.response !== 'string') {
+    fail(`reaction.ladder[${i}] must have non-empty trigger and response strings`);
+  }
+});
+if (!r.invalidation || typeof r.invalidation !== 'string') fail('reaction.invalidation missing');
+if (!r.trapRisk || typeof r.trapRisk !== 'string') fail('reaction.trapRisk missing');
+
+console.log(`NARRATIVE_BRIEF_OK: themes=${themes.length} reaction=${r.stance} generatedAt=${b.generatedAt}`);

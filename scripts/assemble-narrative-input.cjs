@@ -21,6 +21,7 @@ const oppUniverse    = readJson('data/opportunity-universe.json', {});
 const scannerUni     = readJson('data/scanner-universe.json', {});
 const marketEvents   = readJson('data/market-events.json', {});
 const concentration  = readJson('outputs/market-concentration-state.json', {});
+const episodeState   = readJson('outputs/episode-state.json', null);
 
 // ── UNIVERSE ──────────────────────────────────────────────────────────────────
 const holdingTickers = (liveState.holdings || []).map(h => String(h.ticker || '').toUpperCase()).filter(Boolean);
@@ -173,6 +174,24 @@ const input = {
     lendingStandardsValue: concentration.credit_context?.lending_standards_value ?? null,
   },
 
+  // Episode / reaction state — the mechanical state of the current drawdown
+  // episode (index + AI complex), computed by generate-episode-state.cjs.
+  // The brief's reaction ladder is written against these numbers, never from
+  // memory. May be null on the very first run before the generator has run.
+  episode: episodeState ? {
+    status:        episodeState.status,
+    dataStale:     episodeState.dataStale || false,
+    dataThrough:   episodeState.dataThrough || null,
+    episodeClass:  episodeState.episodeClass,
+    spx:           episodeState.spx,
+    smh:           episodeState.smh,
+    nvda:          episodeState.nvda,
+    vix:           episodeState.vix,
+    credit:        episodeState.credit,
+    failureZone:   episodeState.failureZone,
+    mechanicalTally: episodeState.mechanicalTally,
+  } : null,
+
   // Filtered news ready for synthesis
   news: {
     highMateriality:   highMatNews,     // score >= 6, always include
@@ -189,6 +208,12 @@ const input = {
     'Write a strategyPosture (1-2 sentences: current action posture).',
     'Write whereWaveBuilds (1-2 sentences: where the next move is most likely to materialize, and what the trigger is).',
     'Write watchFor (3-5 specific, measurable signals that would change the posture).',
+    'Also write a reaction block — the versatility layer. Jun reviews this to know how we react to the current episode, not just the long-term thesis:',
+    '  reaction.stance — one of Watch / Probe / Add / Hold / Trim / Exit: the portfolio-level reaction stance for THIS episode state.',
+    '  reaction.episode — 1-2 sentences naming the episode and its measured state, anchored to the episode block (episodeClass, SPX drawdown from high, distance to the 50/200-day, SMH/NVDA zone occupancy, VIX, HY OAS, mechanical tally). If episode.dataStale is true, say the episode data is stale and when it is through. If the episode block is null or episodeClass is NONE with no complex drawdown, still write the block — a calm tape gets a one-line episode ("no active episode") and a ladder of standing responses.',
+    '  reaction.ladder — 3-5 rungs, each {trigger, response}: pre-committed responses covering (a) escalation to the next zone down, (b) a bounce into the failure zone (the trap case), (c) stand-down / regime-break conditions, (d) the re-entry condition. Triggers must be measurable levels or prints from the episode block and watchFor, not vibes.',
+    '  reaction.invalidation — what would prove the current stance wrong and void the ladder.',
+    '  reaction.trapRisk — address the pivot-and-fail / bull-trap scenario explicitly whenever the episode is active: how it changes entries (e.g. no chasing the first bounce, wait for the failure-zone retest verdict).',
     'Be direct. No filler. Anchor every claim to a data point in this input.',
     'The audience is a single investor (Jun) reviewing this at the start of the day.',
   ],

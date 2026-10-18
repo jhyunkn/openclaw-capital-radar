@@ -1,5 +1,5 @@
 {
-  "assembledAt": "2026-10-17T19:12:30.231Z",
+  "assembledAt": "2026-10-18T01:01:23.542Z",
   "purpose": "Input for Claude Code to synthesize into outputs/narrative-reality-brief.json. Read this file during the operating loop and write the brief.",
   "marketSnapshot": {
     "spy": {
@@ -65,8 +65,8 @@
     "laggards1m": [
       {
         "symbol": "ETH-USD",
-        "perf1m": -10.39,
-        "today": -0.2
+        "perf1m": -11.08,
+        "today": -0.97
       },
       {
         "symbol": "CCJ",
@@ -685,6 +685,146 @@
     "lendingStandardsZone": "LOOSE",
     "lendingStandardsValue": 0
   },
+  "episode": {
+    "status": "OK",
+    "dataStale": false,
+    "dataThrough": "2026-10-16",
+    "episodeClass": "DIGESTION",
+    "spx": {
+      "symbol": "^GSPC",
+      "date": "2026-10-16",
+      "close": 7659.44,
+      "dayChangePct": -1.09,
+      "ret5dPct": -1.95,
+      "ret20dPct": 0.12,
+      "trailingHigh120": 7844.52,
+      "drawdownFromHighPct": -2.36,
+      "sma50": 7706.42,
+      "sma200": 7271.44,
+      "pctVsSma50": -0.61,
+      "pctVsSma200": 5.34,
+      "lastVolume": 5482060000,
+      "avgVolume20": 5362786500
+    },
+    "smh": {
+      "symbol": "SMH",
+      "date": "2026-10-16",
+      "close": 539.79,
+      "dayChangePct": -3.41,
+      "ret5dPct": -10.53,
+      "ret20dPct": -5.8,
+      "trailingHigh120": 671.83,
+      "drawdownFromHighPct": -19.65,
+      "sma50": 579.03,
+      "sma200": 511.35,
+      "pctVsSma50": -6.78,
+      "pctVsSma200": 5.56,
+      "lastVolume": 18367300,
+      "avgVolume20": 7073305,
+      "zone": "BETWEEN_ZONES",
+      "zones": {
+        "zone1": [
+          540,
+          565
+        ],
+        "zone2": [
+          470,
+          505
+        ]
+      }
+    },
+    "nvda": {
+      "symbol": "NVDA",
+      "date": "2026-10-16",
+      "close": 214.13,
+      "dayChangePct": -1.43,
+      "ret5dPct": -6.61,
+      "ret20dPct": -3.66,
+      "trailingHigh120": 243.37,
+      "drawdownFromHighPct": -12.01,
+      "sma50": 223.08,
+      "sma200": 202.97,
+      "pctVsSma50": -4.01,
+      "pctVsSma200": 5.5,
+      "lastVolume": 120855100,
+      "avgVolume20": 108333485,
+      "zone": "ABOVE_ZONE_1",
+      "zones": {
+        "zone1": [
+          200,
+          210
+        ],
+        "zone2": [
+          175,
+          185
+        ]
+      }
+    },
+    "vix": {
+      "symbol": "^VIX",
+      "date": "2026-10-16",
+      "close": 19.99,
+      "dayChangePct": 21.45,
+      "ret5dPct": 34.7,
+      "ret20dPct": 34.98,
+      "trailingHigh120": 23.34,
+      "drawdownFromHighPct": -14.35,
+      "sma50": 15.6,
+      "sma200": 18.13,
+      "pctVsSma50": 28.14,
+      "pctVsSma200": 10.27,
+      "lastVolume": 0,
+      "avgVolume20": 0,
+      "high5d": 19.99,
+      "spikeRollover": false
+    },
+    "credit": {
+      "hyOas": 3.23,
+      "change5d": null,
+      "calm": true,
+      "cracking": false
+    },
+    "failureZone": {
+      "SMH": [
+        580,
+        600
+      ],
+      "SPX": [
+        7750,
+        7820
+      ]
+    },
+    "mechanicalTally": {
+      "confirmed": 1,
+      "of": 4,
+      "signals": [
+        {
+          "id": "zone_occupancy",
+          "label": "AI complex inside a buy zone (SMH or NVDA in Zone 1/2)",
+          "confirmed": false,
+          "detail": "SMH BETWEEN_ZONES, NVDA ABOVE_ZONE_1"
+        },
+        {
+          "id": "volume_climax_reversal",
+          "label": "SMH volume climax with intraday reversal",
+          "confirmed": false,
+          "detail": "volume 2.60x 20d avg; close in 5% of range"
+        },
+        {
+          "id": "vix_rollover",
+          "label": "VIX spiked and is rolling over",
+          "confirmed": false,
+          "detail": "VIX 19.99, 5d high 19.99"
+        },
+        {
+          "id": "credit_calm",
+          "label": "Credit not cracking (HY OAS contained)",
+          "confirmed": true,
+          "detail": "HY OAS 3.23"
+        }
+      ]
+    }
+  },
   "news": {
     "highMateriality": [
       {
@@ -746,6 +886,12 @@
     "Write a strategyPosture (1-2 sentences: current action posture).",
     "Write whereWaveBuilds (1-2 sentences: where the next move is most likely to materialize, and what the trigger is).",
     "Write watchFor (3-5 specific, measurable signals that would change the posture).",
+    "Also write a reaction block — the versatility layer. Jun reviews this to know how we react to the current episode, not just the long-term thesis:",
+    "  reaction.stance — one of Watch / Probe / Add / Hold / Trim / Exit: the portfolio-level reaction stance for THIS episode state.",
+    "  reaction.episode — 1-2 sentences naming the episode and its measured state, anchored to the episode block (episodeClass, SPX drawdown from high, distance to the 50/200-day, SMH/NVDA zone occupancy, VIX, HY OAS, mechanical tally). If episode.dataStale is true, say the episode data is stale and when it is through. If the episode block is null or episodeClass is NONE with no complex drawdown, still write the block — a calm tape gets a one-line episode (\"no active episode\") and a ladder of standing responses.",
+    "  reaction.ladder — 3-5 rungs, each {trigger, response}: pre-committed responses covering (a) escalation to the next zone down, (b) a bounce into the failure zone (the trap case), (c) stand-down / regime-break conditions, (d) the re-entry condition. Triggers must be measurable levels or prints from the episode block and watchFor, not vibes.",
+    "  reaction.invalidation — what would prove the current stance wrong and void the ladder.",
+    "  reaction.trapRisk — address the pivot-and-fail / bull-trap scenario explicitly whenever the episode is active: how it changes entries (e.g. no chasing the first bounce, wait for the failure-zone retest verdict).",
     "Be direct. No filler. Anchor every claim to a data point in this input.",
     "The audience is a single investor (Jun) reviewing this at the start of the day."
   ]

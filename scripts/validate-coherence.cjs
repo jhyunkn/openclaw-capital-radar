@@ -14,12 +14,18 @@
  *       values while the Opportunity section carries no cohort labeling
  *       (cohort statistics must be labeled as cohort statistics, in plain
  *       sight — see components/radar/opportunities/render.cjs);
- *   (d) the Cycle Watch tape disagrees with the page's primary tape:
- *       Cycle Watch VIX vs the primary VIX print (tolerance ±0.5), and
- *       Cycle Watch S&P-vs-200D vs the momentum gate's SPX-vs-200D
- *       (tolerance ±0.3pp). Guards the 2026-10-16 failure where Cycle
+ *   (d) the Cycle Watch tape disagrees with an independent settled-bars
+ *       computation of the same quantities: Cycle Watch VIX vs the
+ *       episode state's settled VIX (tolerance ±0.5), and Cycle Watch
+ *       S&P-vs-200D vs the episode state's settled S&P-vs-200D (tolerance
+ *       ±0.3pp), compared only when both artifacts carry the same settled
+ *       date. Like-for-like since 2026-10-19 (Jun's approval): the page's
+ *       primary tape is a LIVE intraday print and legitimately diverges
+ *       from Cycle Watch's settled values on any moving morning, so it is
+ *       no longer the reference. Guards the 2026-10-16 failure where Cycle
  *       Watch's own history file carried an intraday bar stamped as a
- *       close (VIX 15.97 "calm" vs the 19.99 close);
+ *       close (VIX 15.97 "calm" vs the 19.99 close) — that stale print
+ *       still fails against the settled reference;
  *   (e) more than one distinct current-CAPE value printed page-wide.
  *       CAPE has a single dated source (data/valuation-cape.json); every
  *       consumer — fans anchor, cycle evidence, analog text — must print
@@ -99,24 +105,43 @@ for (const file of candidates) {
       `${holdPct} + ${advPct} + ${slipPct} + ${otherPct} = ${sum}`);
   }
 
-  // ── (d) Cross-tape: Cycle Watch vs the page's primary prints ──
+  // ── (d) Cross-tape: Cycle Watch vs the settled-bars episode state ──
+  // Both references are settled computations carrying an explicit date.
+  // The comparison runs only when the episode state is fresh (not a
+  // degraded last-good reuse) and its settled date equals Cycle Watch's
+  // data_through; a fresh episode state on a DIFFERENT date than Cycle
+  // Watch means one fetcher failed to advance — itself an incoherence.
+  const cwState = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'cycle-watch-state.json'), 'utf8')); } catch { return null; } })();
+  const epState = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'episode-state.json'), 'utf8')); } catch { return null; } })();
+  const cwDate = cwState?.data_through || null;
+  const epFresh = Boolean(epState && !epState.dataStale && epState.status !== 'UNAVAILABLE' && epState.dataThrough);
+  const dateMismatch = epFresh && cwDate && epState.dataThrough !== cwDate;
+
   const cwVixM = html.match(/mu-cw-name">VIX<\/span>\s*<b class="mu-cw-now">([\d.]+)</);
-  const primVixM = html.match(/<span>VIX<\/span><b>([\d.]+)<\/b>/);
-  if (cwVixM && primVixM) {
-    const cw = Number(cwVixM[1]), prim = Number(primVixM[1]);
-    check(`${rel} · cross-tape VIX`, Math.abs(cw - prim) <= 0.5,
-      `Cycle Watch VIX ${cw} vs primary tape ${prim} (tolerance ±0.5)`);
+  if (cwVixM && epFresh && epState.vix && Number.isFinite(epState.vix.close)) {
+    const cw = Number(cwVixM[1]), ref = epState.vix.close;
+    if (dateMismatch) {
+      check(`${rel} · cross-tape VIX`, false,
+        `settled-date mismatch: Cycle Watch through ${cwDate} vs episode state through ${epState.dataThrough} — one fetcher failed to advance`);
+    } else {
+      check(`${rel} · cross-tape VIX`, Math.abs(cw - ref) <= 0.5,
+        `Cycle Watch VIX ${cw} vs settled episode-state VIX ${ref} (through ${epState.dataThrough}, tolerance ±0.5)`);
+    }
   } else {
-    console.log(`SKIP ${rel} · cross-tape VIX — ${!cwVixM ? 'Cycle Watch VIX row' : 'primary VIX print'} not found`);
+    console.log(`SKIP ${rel} · cross-tape VIX — ${!cwVixM ? 'Cycle Watch VIX row not found' : 'no fresh settled episode-state VIX reference'}`);
   }
   const cwDistM = html.match(/mu-cw-name">S&amp;P 500 vs 200-day<\/span>\s*<b class="mu-cw-now">([+-]?[\d.]+)%/);
-  const primDistM = html.match(/SPX (?:above|below) 200D \(([+-]?[\d.]+)%\)/);
-  if (cwDistM && primDistM) {
-    const cw = Number(cwDistM[1]), prim = Number(primDistM[1]);
-    check(`${rel} · cross-tape SPX vs 200D`, Math.abs(cw - prim) <= 0.3,
-      `Cycle Watch ${cw}% vs momentum gate ${prim}% (tolerance ±0.3pp)`);
+  if (cwDistM && epFresh && epState.spx && Number.isFinite(epState.spx.pctVsSma200)) {
+    const cw = Number(cwDistM[1]), ref = epState.spx.pctVsSma200;
+    if (dateMismatch) {
+      check(`${rel} · cross-tape SPX vs 200D`, false,
+        `settled-date mismatch: Cycle Watch through ${cwDate} vs episode state through ${epState.dataThrough} — one fetcher failed to advance`);
+    } else {
+      check(`${rel} · cross-tape SPX vs 200D`, Math.abs(cw - ref) <= 0.3,
+        `Cycle Watch ${cw}% vs settled episode-state SPX vs 200D ${ref}% (through ${epState.dataThrough}, tolerance ±0.3pp)`);
+    }
   } else {
-    console.log(`SKIP ${rel} · cross-tape SPX vs 200D — ${!cwDistM ? 'Cycle Watch 200D row' : 'momentum gate print'} not found`);
+    console.log(`SKIP ${rel} · cross-tape SPX vs 200D — ${!cwDistM ? 'Cycle Watch 200D row not found' : 'no fresh settled episode-state SPX reference'}`);
   }
 
   // ── (e) CAPE: one current value page-wide ──

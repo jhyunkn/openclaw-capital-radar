@@ -56,6 +56,48 @@ if (!arg || arg === '--help' || arg === '-h' || arg === '--list') {
 const lane = lanes[arg];
 if (!lane) fail(`unknown lane "${arg}". Use --list to see available lanes.`);
 
+// --- Tree lock: lanes share one working tree. Two lanes running concurrently
+// interleave stages — e.g. one lane's page regeneration (ticker-workbenches)
+// lands after another lane's workbench injections and wipes them, surfacing
+// later as a strategy-workbench validation failure (2026-10-17, 2026-10-22).
+// Serialize lanes: wait for the holder to finish; break only stale locks.
+const lockPath = path.join(root, 'outputs', '.build-lane.lock');
+const LOCK_STALE_MS = 2 * 60 * 60 * 1000;
+const LOCK_WAIT_MAX_MS = 75 * 60 * 1000;
+fs.mkdirSync(path.dirname(lockPath), { recursive: true });
+function tryAcquireLock() {
+  try {
+    const fd = fs.openSync(lockPath, 'wx');
+    fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, lane: arg, startedAt: new Date().toISOString() }) + '\n');
+    fs.closeSync(fd);
+    return true;
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+    return false;
+  }
+}
+let lockAnnounced = false;
+const lockDeadline = Date.now() + LOCK_WAIT_MAX_MS;
+while (!tryAcquireLock()) {
+  let holder = null;
+  try { holder = JSON.parse(fs.readFileSync(lockPath, 'utf8')); } catch { /* unreadable lock: treat as stale */ }
+  const lockAgeMs = holder && holder.startedAt ? Date.now() - Date.parse(holder.startedAt) : Infinity;
+  if (!holder || !(lockAgeMs >= 0) || lockAgeMs > LOCK_STALE_MS) {
+    console.log(`Breaking stale build-lane lock (holder: ${holder ? `${holder.lane} pid ${holder.pid} since ${holder.startedAt}` : 'unreadable'}).`);
+    try { fs.unlinkSync(lockPath); } catch { /* already gone */ }
+    continue;
+  }
+  if (Date.now() > lockDeadline) fail(`build-lane lock held by ${holder.lane} (pid ${holder.pid}, since ${holder.startedAt}) for over ${Math.round(LOCK_WAIT_MAX_MS / 60000)} minutes; refusing to interleave lanes in one tree.`);
+  if (!lockAnnounced) { console.log(`Build-lane lock held by ${holder.lane} (pid ${holder.pid}, since ${holder.startedAt}); waiting for it to finish instead of interleaving stages...`); lockAnnounced = true; }
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 15000);
+}
+process.on('exit', () => {
+  try {
+    const holder = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    if (holder.pid === process.pid) fs.unlinkSync(lockPath);
+  } catch { /* lock already gone or not ours */ }
+});
+
 for (const stage of lane.stages) {
   if (!manifestStages.includes(stage)) fail(`lane "${arg}" references unknown stage "${stage}"`);
 }

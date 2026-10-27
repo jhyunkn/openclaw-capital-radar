@@ -21,7 +21,9 @@ if (ageHours > 72) {
 
 const cb       = fs.existsSync(cbPath) ? JSON.parse(fs.readFileSync(cbPath, 'utf8')) : {};
 const existing = cb.holdings || {};
-const updated  = { ...existing };
+// The authenticated broker snapshot is authoritative for ownership. Seed a fresh
+// map so fully sold positions cannot survive indefinitely in the manual-basis file.
+const updated  = {};
 
 for (const pos of (rh.positions || [])) {
   const sym      = String(pos.symbol).toUpperCase();
@@ -53,6 +55,9 @@ const statePath = path.join(root, 'data', 'report-state.live.json');
 if (fs.existsSync(statePath)) {
   const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
   const rhBySym = new Map((rh.positions || []).map(p => [String(p.symbol).toUpperCase(), p]));
+  const holdingsBeforePrune = (state.holdings || []).length;
+  state.holdings = (state.holdings || []).filter(h => rhBySym.has(String(h.ticker || '').toUpperCase()));
+  const holdingsRemoved = holdingsBeforePrune - state.holdings.length;
   const stateBySym = new Map((state.holdings || []).map(h => [String(h.ticker || '').toUpperCase(), h]));
   let holdingsAdded = 0;
   for (const pos of (rh.positions || [])) {
@@ -65,23 +70,36 @@ if (fs.existsSync(statePath)) {
       ? Number(pos.costBasis)
       : (Number.isFinite(qty) && Number.isFinite(avgCost) ? qty * avgCost : null);
     const isCrypto = pos.assetClass === 'crypto' || sym === 'DOGE';
+    const isLeveragedProduct = new Set(['TQQQ', 'SQQQ', 'SOXL', 'SOXS', 'TSLT', 'CONL', 'TMF', 'BITX']).has(sym);
     const seeded = {
       ticker: sym,
       ...(sym === 'DOGE' ? { displayName: 'Dogecoin' } : {}),
       shares: qty,
-      role: isCrypto ? 'Crypto/speculative liquidity beta' : 'Broker-synced holding pending classification',
-      signal: isCrypto ? 'TACTICAL WATCH' : 'INVESTIGATE',
-      health: isCrypto ? 'High volatility' : 'Pending classification',
+      role: isCrypto
+        ? 'Crypto/speculative liquidity beta'
+        : (isLeveragedProduct ? 'Leveraged tactical exposure' : 'Broker-synced holding pending classification'),
+      signal: isCrypto || isLeveragedProduct ? 'TACTICAL WATCH' : 'INVESTIGATE',
+      health: isCrypto
+        ? 'High volatility'
+        : (isLeveragedProduct ? 'Path-dependent leverage' : 'Pending classification'),
       thesis: isCrypto
         ? 'Speculative crypto beta; keep as a capped risk bucket, not a core compounder.'
-        : 'New broker-synced position requires thesis and risk classification.',
+        : (isLeveragedProduct
+            ? 'Short-horizon leveraged exposure; keep within aggregate leverage and beta caps.'
+            : 'New broker-synced position requires thesis and risk classification.'),
       watch: isCrypto
         ? 'Crypto liquidity, BTC trend, meme-coin risk appetite, and drawdown control.'
-        : 'Thesis, liquidity, concentration, and invalidation.',
+        : (isLeveragedProduct
+            ? 'Underlying trend, breadth, credit, volatility decay, and drawdown control.'
+            : 'Thesis, liquidity, concentration, and invalidation.'),
       actionRationale: isCrypto
         ? 'Monitor as tactical risk exposure; do not average down without crypto confirmation.'
-        : 'Freeze adds until the position is classified.',
-      exposureBucket: isCrypto ? 'Crypto / speculative beta' : 'Unclassified broker holding',
+        : (isLeveragedProduct
+            ? 'Treat as a starter tactical sleeve; freeze adds until the leverage-review gate clears.'
+            : 'Freeze adds until the position is classified.'),
+      exposureBucket: isCrypto
+        ? 'Crypto / speculative beta'
+        : (isLeveragedProduct ? 'Levered / tactical products' : 'Unclassified broker holding'),
       livePrice: Number.isFinite(livePrice) ? livePrice : null,
       priceAsOf: pos.priceAsOf || rh.syncedAt,
       dayChangePct: Number.isFinite(Number(pos.dayChangePct)) ? Number(pos.dayChangePct) : null,
@@ -126,5 +144,5 @@ if (fs.existsSync(statePath)) {
   state.meta.holdingsSource = 'Robinhood MCP live sync (read-only)';
   state.meta.holdingsSyncNote = `${(rh.positions || []).length} live broker positions reconciled; quantities, exact cost basis, cash, buying power, and portfolio totals refreshed.`;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
-  console.log(`sync-robinhood-positions: refreshed ${priceUpdated} holdings and added ${holdingsAdded} missing broker holding(s) in report-state.live.json`);
+  console.log(`sync-robinhood-positions: refreshed ${priceUpdated} holdings, added ${holdingsAdded}, and removed ${holdingsRemoved} stale broker holding(s) in report-state.live.json`);
 }

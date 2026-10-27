@@ -1,20 +1,20 @@
 {
   "artifact": "dollar-stress-state",
   "version": 1,
-  "generatedAt": "2026-10-26T20:33:28.778Z",
+  "generatedAt": "2026-10-27T13:13:42.620Z",
   "generatedBy": "scripts/generate-dollar-stress-state.cjs",
-  "anchorDate": "2026-10-26",
+  "anchorDate": "2026-10-27",
   "coverage": "PARTIAL",
   "partial": true,
   "staleInputs": [
-    "DGS10 lag 11d (latest 2026-10-15)",
-    "HY OAS lag 11d (latest 2026-10-15)"
+    "DGS10 lag 12d (latest 2026-10-15)",
+    "HY OAS lag 12d (latest 2026-10-15)"
   ],
-  "verdict": "NO_STRESS",
-  "verdictLabel": "No dollar stress",
+  "verdict": "DOLLAR_STRENGTH_RIGHT_SIDE",
+  "verdictLabel": "Dollar strength — right side of the smile",
   "dollarHaven": "NOT_TESTED",
-  "implication": "No dollar-stress pattern: the dollar is not distorting cross-asset prices. Normal position-sizing rules apply.",
-  "whatWouldChange": "Any SPY 5d drop beyond -1.0% paired with a dollar move of +/-0.3% or a 10Y move beyond 10bp activates a stress verdict.",
+  "implication": "Dollar strength here is the growth/rates kind, not a panic bid: equities are not in stress. It pressures foreign-earnings translation and EM, but it is not a crisis signal — cash is not yet a crisis asset.",
+  "whatWouldChange": "Turns defensive if SPY breaks down (5d <= -1.0%) while the dollar keeps rising — that reclassifies to NORMAL_RISK_OFF or DOLLAR_LIQUIDITY_STRESS.",
   "thresholds": {
     "spyDown5": -1,
     "spyDown20": -3,
@@ -27,46 +27,46 @@
   },
   "inputs": {
     "dxy": {
-      "level": 101.893,
-      "asOf": "2026-10-26",
-      "change5dPct": 0.111,
-      "change20dPct": 0.062,
+      "level": 102.179,
+      "asOf": "2026-10-27",
+      "change5dPct": 0.56,
+      "change20dPct": -0.06,
       "window5d": {
-        "fromDate": "2026-10-21",
-        "fromValue": 101.78,
-        "toDate": "2026-10-26",
-        "toValue": 101.893,
-        "pctChange": 0.111,
-        "delta": 0.113,
-        "deltaBp": 11.3,
+        "fromDate": "2026-10-22",
+        "fromValue": 101.61,
+        "toDate": "2026-10-27",
+        "toValue": 102.179,
+        "pctChange": 0.56,
+        "delta": 0.569,
+        "deltaBp": 56.9,
         "spanDays": 5,
         "windowDays": 5
       },
       "window20d": {
-        "fromDate": "2026-10-06",
-        "fromValue": 101.83,
-        "toDate": "2026-10-26",
-        "toValue": 101.893,
-        "pctChange": 0.062,
-        "delta": 0.063,
-        "deltaBp": 6.3,
+        "fromDate": "2026-10-07",
+        "fromValue": 102.24,
+        "toDate": "2026-10-27",
+        "toValue": 102.179,
+        "pctChange": -0.06,
+        "delta": -0.061,
+        "deltaBp": -6.1,
         "spanDays": 20,
         "windowDays": 20
       }
     },
     "spy": {
-      "level": 765.83,
+      "level": 765.37,
       "asOf": "2026-10-26",
-      "change5dPct": -0.939,
-      "change20dPct": -1.702,
+      "change5dPct": -0.999,
+      "change20dPct": -1.761,
       "window5d": {
         "fromDate": "2026-10-21",
         "fromValue": 773.09,
         "toDate": "2026-10-26",
-        "toValue": 765.83,
-        "pctChange": -0.939,
-        "delta": -7.26,
-        "deltaBp": -726,
+        "toValue": 765.37,
+        "pctChange": -0.999,
+        "delta": -7.72,
+        "deltaBp": -772,
         "spanDays": 5,
         "windowDays": 5
       },
@@ -74,26 +74,26 @@
         "fromDate": "2026-10-06",
         "fromValue": 779.09,
         "toDate": "2026-10-26",
-        "toValue": 765.83,
-        "pctChange": -1.702,
-        "delta": -13.26,
-        "deltaBp": -1326,
+        "toValue": 765.37,
+        "pctChange": -1.761,
+        "delta": -13.72,
+        "deltaBp": -1372,
         "spanDays": 20,
         "windowDays": 20
       }
     },
     "vix": {
-      "level": 18.44,
-      "asOf": "2026-10-26",
-      "change5dDelta": 1.76,
+      "level": 17.73,
+      "asOf": "2026-10-27",
+      "change5dDelta": -1.3,
       "window5d": {
-        "fromDate": "2026-10-21",
-        "fromValue": 16.68,
-        "toDate": "2026-10-26",
-        "toValue": 18.44,
-        "pctChange": 10.552,
-        "delta": 1.76,
-        "deltaBp": 176,
+        "fromDate": "2026-10-22",
+        "fromValue": 19.03,
+        "toDate": "2026-10-27",
+        "toValue": 17.73,
+        "pctChange": -6.831,
+        "delta": -1.3,
+        "deltaBp": -130,
         "spanDays": 5,
         "windowDays": 5
       }
@@ -101,7 +101,7 @@
     "dgs10": {
       "levelPct": 5.1,
       "asOf": "2026-10-15",
-      "lagDays": 11,
+      "lagDays": 12,
       "cacheStatus": "REFRESH_FAILED_USING_EXISTING_CACHE",
       "change5dBp": -16,
       "change20dBp": 27,
@@ -131,7 +131,7 @@
     "hyOas": {
       "levelPct": 3.23,
       "asOf": "2026-10-15",
-      "lagDays": 11,
+      "lagDays": 12,
       "cacheStatus": "REFRESH_FAILED_USING_EXISTING_CACHE",
       "change5dBp": 12,
       "change20dBp": 30,
@@ -159,9 +159,9 @@
       }
     },
     "gold": {
-      "level": 4034.9,
-      "asOf": "2026-10-26",
-      "change5dPct": -2.773
+      "level": 4040.6,
+      "asOf": "2026-10-27",
+      "change5dPct": -0.488
     }
   },
   "rules": [

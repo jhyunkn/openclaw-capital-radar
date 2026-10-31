@@ -1,7 +1,7 @@
 {
   "artifact": "dollar-stress-state",
   "version": 1,
-  "generatedAt": "2026-10-30T18:44:46.044Z",
+  "generatedAt": "2026-10-31T13:24:48.984Z",
   "generatedBy": "scripts/generate-dollar-stress-state.cjs",
   "anchorDate": "2026-10-30",
   "coverage": "PARTIAL",
@@ -10,11 +10,11 @@
     "DGS10 lag 15d (latest 2026-10-15)",
     "HY OAS lag 15d (latest 2026-10-15)"
   ],
-  "verdict": "NORMAL_RISK_OFF",
-  "verdictLabel": "Equity stress — dollar bid not confirmed",
-  "dollarHaven": "NOT_CONFIRMED",
-  "implication": "Equities are selling off but the dollar is not bid and yields are not rising — this is equity stress first, not a dollar-liquidity event and not a Sell-America pattern.",
-  "whatWouldChange": "A dollar bid (DXY 5d >= +0.3%) confirms NORMAL_RISK_OFF; a falling dollar with yields up >= +10bp flips it to SELL_AMERICA_STRESS.",
+  "verdict": "NO_STRESS",
+  "verdictLabel": "No dollar stress",
+  "dollarHaven": "NOT_TESTED",
+  "implication": "No dollar-stress pattern: the dollar is not distorting cross-asset prices. Normal position-sizing rules apply.",
+  "whatWouldChange": "Any SPY 5d drop beyond -1.0% paired with a dollar move of +/-0.3% or a 10Y move beyond 10bp activates a stress verdict.",
   "thresholds": {
     "spyDown5": -1,
     "spyDown20": -3,
@@ -27,18 +27,18 @@
   },
   "inputs": {
     "dxy": {
-      "level": 101.95,
+      "level": 101.88,
       "asOf": "2026-10-30",
       "change5dPct": null,
-      "change20dPct": -0.254,
+      "change20dPct": -0.323,
       "window5d": {
         "fromDate": "2026-10-25",
         "fromValue": 0,
         "toDate": "2026-10-30",
-        "toValue": 101.95,
+        "toValue": 101.88,
         "pctChange": null,
-        "delta": 101.95,
-        "deltaBp": 10195,
+        "delta": 101.88,
+        "deltaBp": 10188,
         "spanDays": 5,
         "windowDays": 5
       },
@@ -46,27 +46,27 @@
         "fromDate": "2026-10-09",
         "fromValue": 102.21,
         "toDate": "2026-10-30",
-        "toValue": 101.95,
-        "pctChange": -0.254,
-        "delta": -0.26,
-        "deltaBp": -26,
+        "toValue": 101.88,
+        "pctChange": -0.323,
+        "delta": -0.33,
+        "deltaBp": -33,
         "spanDays": 21,
         "windowDays": 20
       }
     },
     "spy": {
-      "level": 753.96,
+      "level": 755.72,
       "asOf": "2026-10-30",
-      "change5dPct": -0.791,
-      "change20dPct": -3.162,
+      "change5dPct": -0.559,
+      "change20dPct": -2.935,
       "window5d": {
         "fromDate": "2026-10-23",
         "fromValue": 759.97,
         "toDate": "2026-10-30",
-        "toValue": 753.955,
-        "pctChange": -0.791,
-        "delta": -6.015,
-        "deltaBp": -601.5,
+        "toValue": 755.72,
+        "pctChange": -0.559,
+        "delta": -4.25,
+        "deltaBp": -425,
         "spanDays": 7,
         "windowDays": 5
       },
@@ -74,26 +74,26 @@
         "fromDate": "2026-10-09",
         "fromValue": 778.57,
         "toDate": "2026-10-30",
-        "toValue": 753.955,
-        "pctChange": -3.162,
-        "delta": -24.615,
-        "deltaBp": -2461.5,
+        "toValue": 755.72,
+        "pctChange": -2.935,
+        "delta": -22.85,
+        "deltaBp": -2285,
         "spanDays": 21,
         "windowDays": 20
       }
     },
     "vix": {
-      "level": 21.85,
+      "level": 19.42,
       "asOf": "2026-10-30",
-      "change5dDelta": 2.4,
+      "change5dDelta": -0.03,
       "window5d": {
         "fromDate": "2026-10-23",
         "fromValue": 19.45,
         "toDate": "2026-10-30",
-        "toValue": 21.85,
-        "pctChange": 12.339,
-        "delta": 2.4,
-        "deltaBp": 240,
+        "toValue": 19.42,
+        "pctChange": -0.154,
+        "delta": -0.03,
+        "deltaBp": -3,
         "spanDays": 7,
         "windowDays": 5
       }
@@ -159,9 +159,9 @@
       }
     },
     "gold": {
-      "level": 3888.6,
+      "level": 3898.9,
       "asOf": "2026-10-30",
-      "change5dPct": -2.977
+      "change5dPct": -2.72
     }
   },
   "rules": [

@@ -1,51 +1,189 @@
 {
-  "generatedAt": "2026-11-01T03:10:00.000Z",
+  "generatedAt": "2026-11-01T05:20:13.506Z",
   "artifact": "tqqq-watcher-state",
-  "schemaVersion": 1,
-  "observedAt": null,
-  "dataSource": "awaiting-gateway-watcher",
+  "schemaVersion": 2,
+  "observedAt": "2026-11-01T05:19:47.030Z",
+  "dataSource": "O broker verification plus last completed market session",
   "account": "agentic-2775",
+  "stale": true,
+  "staleReason": "U.S. markets are closed. Friday prices are reference-only; all intraday confirmation gates remain blocked until a fresh regular-hours observation.",
+  "maxAgeMinutes": 20,
+  "decision": {
+    "action": "WAIT",
+    "regime": "MARKET_CLOSED",
+    "confidence": "HIGH",
+    "summary": "No entry can be confirmed while the market is closed.",
+    "blocker": "Await Monday regular-hours data and refresh the bottoming zone before evaluating an entry."
+  },
+  "market": {
+    "status": "CLOSED",
+    "session": "2026-10-30",
+    "nextRequiredRefresh": "2026-11-02 regular session",
+    "zoneRevalidationRequired": true
+  },
   "policy": {
     "entryRule": "Deploy ~50% of available Agentic cash on confirmed bottoming",
+    "entrySizing": "50% of live available Agentic cash after confirmed bottoming",
     "haltRule": "-12% from weighted-average deployed cost pauses new buying (pause-and-review, no auto-sell)",
+    "pauseThresholdPct": -12,
     "approval": "Every order requires Jun's explicit authorization. No resting broker order."
   },
   "zone": {
-    "primary": { "low": 57, "high": 60 },
-    "deeper": { "low": 54, "high": 57 },
-    "note": "Weekend estimate. Must be revalidated against live Monday data before use as a trigger."
+    "primary": {
+      "low": 57,
+      "high": 60
+    },
+    "deeper": {
+      "low": 54,
+      "high": 57
+    },
+    "note": "Weekend estimate only. O must refresh this zone with Monday regular-hours QQQ/TQQQ structure before it can become actionable."
   },
   "price": {
-    "last": null,
-    "asOf": null
+    "last": 62.69,
+    "regularCloseReference": 62.02,
+    "asOf": "2026-10-30T23:59:56.713Z",
+    "status": "REFERENCE_ONLY"
+  },
+  "marketInputs": {
+    "qqq": {
+      "price": 692.74,
+      "regularCloseReference": 690.53,
+      "asOf": "2026-10-30T23:59:55.485Z"
+    },
+    "rsp": {
+      "price": 218.4499,
+      "asOf": "2026-10-30T23:55:47.183Z"
+    },
+    "iwm": {
+      "price": 279.55,
+      "asOf": "2026-10-30T23:52:47.496Z"
+    },
+    "hyg": {
+      "price": 77.43,
+      "asOf": "2026-10-30T21:50:55.481Z"
+    },
+    "ief": {
+      "price": 91.7399,
+      "asOf": "2026-10-30T21:56:14.934Z"
+    }
   },
   "gates": [
-    { "id": "vwap_reclaim", "label": "VWAP reclaim", "status": "UNKNOWN", "detail": "Awaiting live watcher observation." },
-    { "id": "rising_bars", "label": "Two rising 15-min bars", "status": "UNKNOWN", "detail": "Awaiting live watcher observation." },
-    { "id": "risk_credit", "label": "Risk / credit gate clear", "status": "UNKNOWN", "detail": "Awaiting live watcher observation." }
+    {
+      "id": "bottom_zone",
+      "label": "Refreshed bottoming zone",
+      "status": "UNKNOWN",
+      "detail": "Weekend zone is not actionable; refresh required Monday.",
+      "asOf": null
+    },
+    {
+      "id": "qqq_vwap",
+      "label": "QQQ VWAP reclaim",
+      "status": "UNKNOWN",
+      "detail": "Requires live regular-hours data.",
+      "asOf": null
+    },
+    {
+      "id": "tqqq_vwap",
+      "label": "TQQQ VWAP reclaim",
+      "status": "UNKNOWN",
+      "detail": "Requires live regular-hours data.",
+      "asOf": null
+    },
+    {
+      "id": "rising_bars",
+      "label": "Two rising completed 15-min bars",
+      "status": "UNKNOWN",
+      "detail": "Requires live regular-hours data for both QQQ and TQQQ.",
+      "asOf": null
+    },
+    {
+      "id": "breadth",
+      "label": "Breadth confirmation",
+      "status": "UNKNOWN",
+      "detail": "RSP and IWM must reclaim session VWAP.",
+      "asOf": null
+    },
+    {
+      "id": "credit",
+      "label": "Credit confirmation",
+      "status": "UNKNOWN",
+      "detail": "HYG/IEF must be non-deteriorating on fresh data.",
+      "asOf": null
+    },
+    {
+      "id": "risk_veto",
+      "label": "Risk-state veto",
+      "status": "UNKNOWN",
+      "detail": "Authoritative risk state must be NORMAL and QQQ loss better than -1.25%.",
+      "asOf": null
+    },
+    {
+      "id": "broker_capacity",
+      "label": "Agentic broker capacity",
+      "status": "PASS",
+      "detail": "$4,000 cash and buying power; 0 TQQQ shares; no open TQQQ order.",
+      "asOf": "2026-11-01T05:19:47.030Z"
+    }
   ],
   "holdings": {
     "shares": 0,
     "avgDeployedCost": null,
-    "haltTriggerPrice": null
+    "haltTriggerPrice": null,
+    "asOf": "2026-11-01T05:19:47.030Z"
   },
   "sizing": {
-    "availableCash": null,
+    "accountValue": 4000,
+    "availableCash": 4000,
+    "buyingPower": 4000,
     "deployFraction": 0.5,
-    "note": "Gateway watcher writes Agentic available cash. Next tranche = availableCash * deployFraction; shares computed from live price only when fresh."
+    "targetDollars": 2000,
+    "estimatedShares": null,
+    "note": "Whole shares are recalculated from 50% of the lesser of live cash and buying power at the fresh candidate price."
   },
   "order": {
     "state": "NONE",
-    "detail": "No order open, staged, or resting."
+    "detail": "No TQQQ order is open, staged, or resting.",
+    "asOf": "2026-11-01T05:19:47.030Z"
+  },
+  "approval": {
+    "authorized": false,
+    "status": "NOT AUTHORIZED",
+    "detail": "Jun must approve the exact live shares and marketable-limit price after every gate passes."
   },
   "reviewStamp": {
-    "by": null,
-    "status": "NONE",
+    "by": "C",
+    "status": "REVIEW_PENDING",
     "fingerprint": null,
     "at": null,
-    "note": "C posts an independent verification stamp here; it binds to the data fingerprint and expires on any fingerprint or freshness change."
+    "expiresAt": null,
+    "note": "C must independently verify O's exact fingerprint. Silence is not approval."
   },
-  "maxAgeMinutes": 20,
-  "stale": true,
-  "staleReason": "No live watcher observation has been recorded yet (observedAt is null)."
+  "sources": [
+    {
+      "id": "robinhood-broker",
+      "label": "Robinhood Agentic account",
+      "status": "FRESH",
+      "asOf": "2026-11-01T05:19:47.030Z"
+    },
+    {
+      "id": "robinhood-quotes",
+      "label": "Robinhood quote tape",
+      "status": "MARKET_CLOSED",
+      "asOf": "2026-10-30T23:59:56.713Z"
+    },
+    {
+      "id": "o-entry-watcher",
+      "label": "O deterministic entry watcher",
+      "status": "BLOCKED_MARKET_CLOSED",
+      "asOf": "2026-11-01T05:19:47.030Z"
+    },
+    {
+      "id": "c-independent-review",
+      "label": "C independent review",
+      "status": "PENDING",
+      "asOf": null
+    }
+  ],
+  "fingerprint": "1c12411d6fc183d6479f7b10f38b38974c2acfdab17b2a95a44b94c5c8d562e0"
 }

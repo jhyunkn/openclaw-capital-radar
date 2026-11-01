@@ -75,6 +75,19 @@ async function fetchText(url, timeoutMs = 30000) {
     const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': userAgent } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.text();
+  } catch (fetchError) {
+    // Curl fallback (2026-10-31): Node fetch never reaches FRED from this host
+    // (stalls pre-socket); curl with its DEFAULT User-Agent lands in ~1s. Any
+    // explicit -A stalls too, so none is passed. fetchText is FRED-only here.
+    try {
+      const { spawnSync } = require('child_process');
+      const secs = Math.max(1, Math.ceil(timeoutMs / 1000));
+      const result = spawnSync('curl', ['-fsSL', '--retry', '2', '--retry-delay', '2', '--connect-timeout', String(secs), '--max-time', String(secs), url], { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
+      if (result.status !== 0) throw new Error(`curl exit ${result.status}: ${String(result.stderr || '').trim().slice(-200)}`);
+      return result.stdout;
+    } catch (curlError) {
+      throw new Error(`${fetchError.message} | curl fallback: ${curlError.message}`);
+    }
   } finally {
     clearTimeout(timer);
   }

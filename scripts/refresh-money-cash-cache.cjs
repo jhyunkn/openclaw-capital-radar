@@ -70,7 +70,6 @@ function curlGet(url) {
     '--retry-delay', '2',
     '--connect-timeout', String(Math.ceil(timeoutMs / 1000)),
     '--max-time', String(Math.ceil(timeoutMs / 1000)),
-    '-A', 'CapitalRadar/1.0',
     '-H', 'Accept: text/plain,text/csv,*/*'
   ];
   if (forceCurlHttp11) args.unshift('--http1.1');
@@ -139,14 +138,10 @@ async function nodeGetWithRetry(url) {
 
 async function fetchBody(url) {
   const failures = [];
-  // Node first, curl as the fallback transport — the main FRED path's order.
-  // (Curl-first burned curl's whole internal retry budget at full timeout
-  // before node was ever tried.)
-  try {
-    return { body: await nodeGetWithRetry(url), transport: forceIpv4 ? 'node-https-ipv4' : 'node-https' };
-  } catch (error) {
-    failures.push(`node: ${error.message || String(error)}`);
-  }
+  // Curl first (2026-10-31): Node's https stack never reaches FRED from this
+  // host (stalls pre-socket every time), while curl with its default UA lands
+  // in ~1s. Node-first used to be the order, but it burned ~3 min per series
+  // in retries before curl was ever tried. Node stays as the fallback.
   if (useCurl) {
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
@@ -160,6 +155,11 @@ async function fetchBody(url) {
         if (attempt < 2) await sleep(2000 * attempt);
       }
     }
+  }
+  try {
+    return { body: await nodeGetWithRetry(url), transport: forceIpv4 ? 'node-https-ipv4' : 'node-https' };
+  } catch (error) {
+    failures.push(`node: ${error.message || String(error)}`);
   }
   throw new Error(failures.join(' | '));
 }

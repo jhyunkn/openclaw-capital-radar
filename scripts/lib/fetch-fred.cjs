@@ -1,37 +1,29 @@
-const https = require('https');
+const { spawnSync } = require('child_process');
 
 const DEFAULT_TIMEOUT_MS = Number(process.env.FRED_FETCH_TIMEOUT_MS || 12000);
 const MAX_REDIRECTS = 4;
 
+// Transport (2026-10-31): Node's https stack cannot reach fred.stlouisfed.org
+// from this host at all (stalls pre-socket, any UA, IPv4 or IPv6), while curl
+// with its DEFAULT User-Agent returns 200 in ~0.6s. Any explicit -A stalls.
+// So this helper is curl-only; do not "fix" it back to https.get.
 function fetchText(url, options = {}) {
   const timeoutMs = Number(options.timeoutMs || DEFAULT_TIMEOUT_MS);
-  const redirectsRemaining = Number.isFinite(options.redirectsRemaining) ? options.redirectsRemaining : MAX_REDIRECTS;
-
-  return new Promise((resolve, reject) => {
-    const req = https.get(url, {
-      timeout: timeoutMs,
-      headers: { 'User-Agent': 'openclaw-capital-radar/1.0' }
-    }, res => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        res.resume();
-        if (redirectsRemaining <= 0) return reject(new Error(`too many redirects for ${url}`));
-        return resolve(fetchText(res.headers.location, { timeoutMs, redirectsRemaining: redirectsRemaining - 1 }));
-      }
-      if (res.statusCode !== 200) {
-        res.resume();
-        return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
-      }
-      let body = '';
-      res.setEncoding('utf8');
-      res.on('data', chunk => { body += chunk; });
-      res.on('end', () => resolve(body));
-    });
-
-    req.on('timeout', () => {
-      req.destroy(new Error(`timeout after ${timeoutMs}ms for ${url}`));
-    });
-    req.on('error', reject);
-  });
+  const secs = Math.max(1, Math.ceil(timeoutMs / 1000));
+  const args = [
+    '-fsSL',
+    '--retry', '2',
+    '--retry-delay', '2',
+    '--connect-timeout', String(secs),
+    '--max-time', String(secs),
+    url
+  ];
+  const result = spawnSync('curl', args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
+  if (result.status !== 0) {
+    const stderr = String(result.stderr || '').trim().slice(-300);
+    throw new Error(`curl exit ${result.status}${stderr ? `: ${stderr}` : ''} for ${url}`);
+  }
+  return result.stdout;
 }
 
 function parseFredCsv(csv, seriesId) {

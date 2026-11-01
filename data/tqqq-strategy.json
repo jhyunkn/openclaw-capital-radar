@@ -1,0 +1,294 @@
+{
+  "artifact": "tqqq-strategy",
+  "benchmark": {
+    "definition": "Hold 100% TQQQ through every regime, no timing. Profit indexed to 100 in every backtest window.",
+    "name": "Buy-and-hold TQQQ",
+    "note": "The benchmark is the thing to beat. Any timer that cannot beat it on the full period AND hold up in the worst window has not earned the name."
+  },
+  "changelog": [
+    {
+      "change": "Blueprint created. October 2026 grade verified from Yahoo monthly closes: MA $670.76, close $690.49, gate ON, no trim.",
+      "date": "2026-11-01"
+    }
+  ],
+  "control_group": {
+    "current": {
+      "monday_nov2_threshold": 684.4,
+      "qqq_200day": 679.52,
+      "read": "A Mon Nov 2 QQQ close below ~$684.40 means the host sells all TQQQ at Tuesday's open. Jun's monthly gate would NOT sell on that.",
+      "sell_line": 684.07
+    },
+    "description": "A YouTube creator's live account rule, tracked here as the control group for the binary design Jun rejected. It is NOT Jun's rule and never triggers Jun's system.",
+    "flag": "The 0.67% band is flagged as overfit risk: tuned to the second decimal over 'hundreds of thousands of runs'; the band is $4.55 on a stock that moved $24.85 in a day.",
+    "name": "TQQQ Labs binary system",
+    "rule": "Daily 200-day moving average + 0.67% band; binary TQQQ <-> GLD; close-based; execute at next open."
+  },
+  "evidence": {
+    "disqualified": [
+      {
+        "reason": "Thresholds oscillate: 1,073 trades over the full period. Redeploy at -26%, bounce to -24%, trim, fall again. A fixed version needs a hysteresis gap and taxes paid from outside cash before it means anything.",
+        "system": "DD-LADDER (trim -10%, redeploy -25%)"
+      }
+    ],
+    "key_mechanism_note": "PARTIAL-ROT ends with FEWER TQQQ shares than buy-and-hold (405 vs 487 in the backtest) because it redeploys on recoveries and buys higher. Buying MORE shares requires redeploying LOWER than the trim price; no tested redeploy rule does that consistently.",
+    "source": "Backtest 6 (Oct 27, 2026), ~/workspace/tqqq-agentic-backtest/SUMMARY6_jun_trim_dip.md — TQQQ + bills, daily, trim-once semantics, cash 0%, no commissions/slippage (flatters timers). Backtests 3-5 covered binary rotation and rebalancing variants for contrast.",
+    "table_profit_pct_of_buy_and_hold": {
+      "columns": [
+        "full_period",
+        "bull_years_2010_17",
+        "window_2018_26",
+        "top_start_nov_2021"
+      ],
+      "rows": [
+        {
+          "note": "benchmark",
+          "system": "Buy-and-hold TQQQ",
+          "values": [
+            100,
+            100,
+            100,
+            100
+          ]
+        },
+        {
+          "max_drawdown_pct": -75.6,
+          "note": "best worst-window of any timer tested",
+          "system": "PARTIAL-ROT 30% (this system)",
+          "trades": 8,
+          "values": [
+            85.9,
+            81.9,
+            110.2,
+            163.8
+          ]
+        },
+        {
+          "max_drawdown_pct": -73.8,
+          "note": "",
+          "system": "PARTIAL-ROT 50%",
+          "values": [
+            75.5,
+            70.8,
+            115,
+            206.4
+          ]
+        },
+        {
+          "note": "beats PARTIAL-ROT in crash windows only",
+          "system": "ROT-BAND (binary rotation)",
+          "values": [
+            61.5,
+            56.6,
+            113.7,
+            257.5
+          ]
+        },
+        {
+          "note": "superseded by PARTIAL-ROT 30% as the recommendation",
+          "system": "50/50 BH + ROT-BAND blend",
+          "values": [
+            80.6,
+            78.3,
+            106.9,
+            178.8
+          ]
+        },
+        {
+          "note": "RSI crossings whipsaw in trends — fails",
+          "system": "RSI-TRIM-DIP 30%",
+          "trades": 38,
+          "values": [
+            43.8,
+            72.8,
+            71.7,
+            123.6
+          ]
+        },
+        {
+          "note": "prints arrive mid-fall — fails",
+          "system": "DIV-DIP 30% (buy divergence prints)",
+          "trades": 37,
+          "values": [
+            25.1,
+            51.9,
+            57.7,
+            36.8
+          ]
+        }
+      ]
+    },
+    "verdict": "PARTIAL-ROT 30% is the current champion on the criterion that matters most — worst-window survival (81.9%, best of any timer tested) — and it beats buy-and-hold in crash windows (110.2% in 2018-26, 163.8% from the Nov 2021 top). It TRAILS buy-and-hold over the full period (85.9%) and in bull years (81.9%), because keeping 70% invested through a bull still lags holding 100%. No tested system beats buy-and-hold by large margins over the full period. The large-margin edge is an open research problem, not a solved claim — see open_research."
+  },
+  "falsifiers": [
+    "A tested variant beats PARTIAL-ROT 30% on the worst window AND on the full period, with the same trim-once semantics and no lookahead — it replaces this system.",
+    "A regime change that breaks the monthly-trend premise (e.g. the 10-month MA stops separating bull from bear in the QQQ record) — the system is re-audited, not silently kept.",
+    "The October grade inputs are revised by Yahoo (corporate action or restatement) by more than 0.5% — the grade is recomputed and re-verified, not carried forward."
+  ],
+  "for_ai": {
+    "how_to_read": [
+      "system.rule is the only investment rule. Do not invent a second rule from the control group or the related systems.",
+      "evidence.verdict is the honest score: the system trails buy-and-hold over a full bull run and beats it in crash windows. Never present it as beating buy-and-hold by large margins over the full period — no tested variant does.",
+      "live is recomputed daily from data/market-candles/QQQ.json and TQQQ.json. monthly_grade changes only at a month-end close. live.current changes every trading day.",
+      "related_systems are separate systems. Do not merge the Agentic watcher, the survival grid, or the inflow study into system.rule."
+    ],
+    "how_to_update": [
+      "Daily: refresh live.current from the latest candle closes; recompute distances to the exit line and to the TQQQ Labs line; update updatedAt. Do not touch system, evidence, or monthly_grade on a daily run.",
+      "At a month-end close: recompute monthly_grade from the 10 monthly closes preceding the completed month (see system.rule.ma_window). If the recomputed 10-month MA differs from a stored verified MA by more than 0.5%, keep the stored value, set live.verification.drift=true, and flag it for Jun — never silently overwrite a verified grade.",
+      "Never change system.rule parameters, evidence numbers, or the verdict without Jun's explicit approval and a new backtest result recorded in evidence.sources."
+    ],
+    "machine_readable_page": "/pages/tqqq-strategy.html",
+    "purpose": "This file is the single machine-readable blueprint for how TQQQ must be invested in this operation. Any AI reading it should be able to state the rule, grade the current month, and update the live block without changing the system.",
+    "watcher_state": "/outputs/tqqq-watcher-state.json"
+  },
+  "generatedBy": "scripts/generate-tqqq-strategy.cjs",
+  "live": {
+    "asOf": "2026-10-30",
+    "monthly_grade": {
+      "month": "2026-10",
+      "month_close": 690.49,
+      "ma_10mo": 670.76,
+      "ma_inputs": [
+        614.31,
+        621.87,
+        607.29,
+        577.18,
+        667.74,
+        738.31,
+        736.4,
+        687.99,
+        716.76,
+        739.77
+      ],
+      "ma_input_months": [
+        "2025-12",
+        "2026-01",
+        "2026-02",
+        "2026-03",
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "close_vs_ma_pct": 2.94,
+      "gate": "ON",
+      "exit_line": 637.22,
+      "exit_line_distance_dollars": 53.27,
+      "exit_line_distance_pct": 8.36,
+      "position": "100% TQQQ, NO TRIM",
+      "verified": "2026-11-01",
+      "note": "Supersedes the Oct 27 working-note MA of $669.48 (0.19% data-vintage difference); the grade is unchanged either way."
+    },
+    "next_grade": "Next month-end close. The MA for that test is the 10 completed months through the just-closed month — recompute then; the stored MA does NOT carry forward.",
+    "qqq": {
+      "close": 690.49,
+      "date": "2026-10-30",
+      "change_day_pct": -3.47
+    },
+    "source": "Yahoo Finance (monthly closes verified 2026-11-01 from the QQQ history page; daily closes from data/market-candles)",
+    "tqqq": {
+      "close": 62.01,
+      "date": "2026-10-30",
+      "change_day_pct": -10.47
+    },
+    "verification": {
+      "drift": false,
+      "note": ""
+    },
+    "labs": {
+      "qqq_200day": 679.52,
+      "sell_line": 684.07,
+      "qqq_close_vs_sell_line_pct": 0.94,
+      "read": "QQQ $690.49 sits +0.94% above the Labs sell line — no trigger."
+    },
+    "distances": {
+      "qqq_close_vs_exit_line_pct": 8.36,
+      "qqq_close_vs_exit_line_dollars": 53.27
+    }
+  },
+  "objective": "A systematic TQQQ approach that beats buy-and-hold TQQQ by large margins. Buy-and-hold is the benchmark. The current best system does not yet clear that bar over the full period — see evidence.verdict. This file is the blueprint plus the research program to get there.",
+  "open_research": [
+    {
+      "id": "dip_redeploy_hysteresis",
+      "question": "Can a redeploy rule buy LOWER than the trim price, so the system ends with MORE shares than buy-and-hold instead of fewer?",
+      "status": "open — the DD-LADDER attempt oscillated (1,073 trades) and is disqualified. A fixed version needs a hysteresis gap (e.g. redeploy at -25%, no re-trim until back above -5%) and taxes paid from outside cash."
+    },
+    {
+      "id": "inflow_dip_rule_activation",
+      "question": "Activate the $30k/year inflow study's dip rule, and on which account with what funding?",
+      "status": "open — awaiting Jun's call on variant, account, and funding."
+    },
+    {
+      "id": "partial_rot_activation",
+      "question": "Activate PARTIAL-ROT 30% itself — on which account, with what funding?",
+      "status": "open — specified, not live. Free cash was $3,751 at the Oct 22 sync, so a 25% tranche is roughly $940: a gesture, not a position, until a funding source is chosen."
+    },
+    {
+      "id": "crash_window_edge",
+      "question": "What closes the gap in crash windows, where binary rotation (257.5% top-start) still beats partial (163.8%)?",
+      "status": "open — the price of keeping 70% invested. Any answer must keep the worst-window above 81.9% or it has not improved the system."
+    }
+  ],
+  "related_systems": {
+    "agentic_survival_grid": {
+      "source": "~/workspace/tqqq-agentic-backtest/",
+      "status": "Test requested and delivered; live use / mandate change NOT authorized.",
+      "what": "Laoer-grid improvement study for the Agentic account (Oct 22, 2026 backtest). Recommended variant: paced buys + 50% exit at +8% + rest at +16% + quarter-stop recycle + gated restarts."
+    },
+    "agentic_watcher": {
+      "approval": "Every order requires Jun's explicit authorization. No resting broker order.",
+      "entry_rule": "Deploy ~50% of available Agentic cash on confirmed bottoming",
+      "gates": [
+        "VWAP reclaim",
+        "Two rising 15-min bars",
+        "Risk / credit gate clear"
+      ],
+      "halt_rule": "-12% from weighted-average deployed cost pauses new buying (pause-and-review, no auto-sell)",
+      "live_status": "STALE — no live watcher observation recorded yet (observedAt is null). Rendering is fail-closed: stale reads as STALE/UNKNOWN, never as a live pass.",
+      "relation_to_this_system": "Separate system, separate account logic. The watcher hunts intraday bottoms; PARTIAL-ROT is the monthly position system. Do not merge them.",
+      "state_file": "/outputs/tqqq-watcher-state.json",
+      "what": "Live execution monitor for the Agentic account (••••2775) — bottom-fishing TQQQ entries on intraday confirmation gates. Built by Jun, Oct 31 2026.",
+      "zones": {
+        "deeper": [
+          54,
+          57
+        ],
+        "primary": [
+          57,
+          60
+        ]
+      }
+    },
+    "inflow_study": {
+      "relation_to_this_system": "An inflow system, not a position-timing system. It decides WHEN new money enters; PARTIAL-ROT decides how much stays invested.",
+      "result": "The runnable dip rule is worth roughly 5% more profit at the clean end (11% at the flattered end) vs monthly DCA. No choice between them recorded yet.",
+      "source": "~/workspace/tqqq-agentic-backtest/SUMMARY7_annual_dca_vs_dip.md",
+      "what": "Jun's plan to invest ~$30,000/year into TQQQ: plain monthly dollar-cost averaging vs three $10,000 dip tranches through the year."
+    }
+  },
+  "schemaVersion": 1,
+  "status": "specified_not_live",
+  "statusNote": "The system below is specified and backtested. It is NOT live: no activation, account, or funding decision has been made, and nothing is traded by it. Activation is Jun's call only.",
+  "system": {
+    "name": "PARTIAL-ROT 30%",
+    "origin": "Jun's own design, Oct 27 2026 (Backtest 6). His claim: pulling 30% to bills in a bear market and holding the rest beats binary rotation. Graded half-right — see evidence.",
+    "parameter_note": "Parameters were set by Jun's design, not tuned. The 0.67%-style fine tuning seen in the TQQQ Labs control group is explicitly rejected here — Jun's own band sweep showed band choice swings results 2x.",
+    "parameters_are_frozen": true,
+    "rule_formal": {
+      "execution": "Trade at the month-end close when the state changes",
+      "exit_line": "10-month moving average x 0.95",
+      "hold_when_off": "70% TQQQ / 30% bills",
+      "hold_when_on": "100% TQQQ",
+      "ma_window": "10 completed months preceding the month being graded",
+      "reentry": "Monthly close back above the 10-month moving average",
+      "signal": "QQQ monthly close vs 10-month moving average of completed monthly closes",
+      "trades_in_16y_backtest": 8,
+      "trim_fraction": 0.3,
+      "trim_threshold_pct": 5,
+      "universe": "TQQQ + Treasury bills (cash yields 0% in backtest)"
+    },
+    "rule_plain": "Hold TQQQ. At each month-end, if QQQ's monthly close is 5% or more below its 10-month moving average, hold 70% TQQQ and 30% Treasury bills. Otherwise hold 100% TQQQ. Trade only when the state changes — never rebalance daily."
+  },
+  "updatedAt": "2026-11-01T05:21:19.366Z"
+}

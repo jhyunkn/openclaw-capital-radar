@@ -36,14 +36,6 @@ function freshness(state) {
   return { stale, label, max, age };
 }
 
-function sourceTime(value) {
-  if (!value) return 'missing';
-  const date = new Date(value);
-  return Number.isFinite(date.getTime())
-    ? date.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
-    : String(value);
-}
-
 function gateTone(status, stale) {
   if (stale) return 'unknown';
   const s = String(status || '').toUpperCase();
@@ -66,10 +58,6 @@ function renderTqqqWatcherModule(state = {}) {
   const order = state.order || {};
   const review = state.reviewStamp || {};
   const policy = state.policy || {};
-  const decision = state.decision || {};
-  const market = state.market || {};
-  const approval = state.approval || {};
-  const sources = arr(state.sources);
 
   const priceLast = f.stale ? null : state.price?.last;
   const zonePrimary = (primary.low != null && primary.high != null) ? `${money(primary.low)}–${money(primary.high)}` : '—';
@@ -112,13 +100,6 @@ function renderTqqqWatcherModule(state = {}) {
     ? `${esc(review.by || 'C')} · ${esc(review.status)}${review.at ? ' · ' + esc(review.at) : ''}`
     : 'No current C review stamp';
 
-  const action = String(decision.action || 'WAIT').toUpperCase();
-  const actionReason = decision.blocker || decision.summary || state.staleReason || 'Awaiting a fresh market observation.';
-  const regime = String(decision.regime || 'UNKNOWN').toUpperCase();
-  const marketStatus = String(market.status || 'UNKNOWN').toUpperCase();
-  const approvalStatus = approval.status || (approval.authorized ? 'AUTHORIZED' : 'NOT AUTHORIZED');
-  const sourceRows = sources.length ? sources.map(source => `<li><b>${esc(source.label || source.id || 'Source')}</b><span>${esc(source.status || 'UNKNOWN')} · ${esc(sourceTime(source.asOf))}</span></li>`).join('') : '<li><b>Sources</b><span>Missing</span></li>';
-
   return `<section class="tqqq-watcher" id="tqqq-watcher">
     <div class="tqw-head">
       <div>
@@ -129,14 +110,6 @@ function renderTqqqWatcherModule(state = {}) {
     </div>
 
     <div class="tqw-grid">
-      <article class="tqw-card tqw-decision">
-        <span>Current action</span><b>${esc(action)}</b>
-        <small>${esc(actionReason)}</small>
-      </article>
-      <article class="tqw-card">
-        <span>Regime / market</span><b>${esc(regime)}</b>
-        <small>${esc(marketStatus)}${market.session ? ' · session ' + esc(market.session) : ''}</small>
-      </article>
       <article class="tqw-card">
         <span>Live price</span>
         <b>${f.stale ? '<i class="tqw-dim">— (stale)</i>' : money(priceLast)}</b>
@@ -162,10 +135,6 @@ function renderTqqqWatcherModule(state = {}) {
         <span>Order state</span><b>${esc(order.state || 'NONE')}</b>
         <small>${esc(order.detail || '')}</small>
       </article>
-      <article class="tqw-card">
-        <span>Jun approval</span><b>${esc(approvalStatus)}</b>
-        <small>${esc(approval.detail || 'A fresh approval is required before every order submission.')}</small>
-      </article>
     </div>
 
     <div class="tqw-gates-head">Confirmation gates <em>(all must pass before an order is presented for approval)</em></div>
@@ -174,10 +143,7 @@ function renderTqqqWatcherModule(state = {}) {
     <div class="tqw-foot">
       <div class="tqw-review"><span>Independent review</span><b>${esc(reviewLine)}</b></div>
       <div class="tqw-policy"><span>Policy</span><b>${esc(policy.entryRule || '')}</b><small>${esc(policy.haltRule || '')} · ${esc(policy.approval || '')}</small></div>
-    </div>
-    <div class="tqw-evidence">
-      <div><span>Evidence fingerprint</span><b>${esc(state.fingerprint || 'not available')}</b><small>C's review is valid only for this exact fingerprint and freshness state.</small></div>
-      <ul>${sourceRows}</ul>
+      <div class="tqw-blueprint"><span>System blueprint</span><b><a href="/pages/tqqq-strategy.html">How TQQQ is invested here — PARTIAL-ROT 30% rule, evidence, live grade</a></b><small>Machine-readable spec: <a href="/data/tqqq-strategy.json">data/tqqq-strategy.json</a> · the watcher above hunts intraday bottoms; the blueprint is the monthly position system. Do not merge them.</small></div>
     </div>
   </section>`;
 }
@@ -219,17 +185,7 @@ function renderTqqqWatcherStyle() {
 .tqw-foot span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
 .tqw-foot b{font-size:14px;font-weight:500;line-height:1.3}
 .tqw-foot small{display:block;color:var(--muted);font-size:12px;margin-top:5px;line-height:1.35}
-.tqw-decision{background:rgba(36,35,31,.025)}
-.tqw-evidence{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(280px,1.3fr);gap:18px;border-top:1px solid var(--rule);margin-top:16px;padding-top:16px}
-.tqw-evidence>div>span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
-.tqw-evidence>div>b{display:block;font-size:12px;overflow-wrap:anywhere}
-.tqw-evidence>div>small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.35}
-.tqw-evidence ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
-.tqw-evidence li{border-left:2px solid var(--rule);padding-left:10px}
-.tqw-evidence li b,.tqw-evidence li span{display:block;font-size:11px;line-height:1.35}
-.tqw-evidence li span{color:var(--muted)}
 @media(max-width:700px){.tqw-head{display:block}.tqw-fresh{margin-top:12px;text-align:left}}
-@media(max-width:700px){.tqw-evidence{grid-template-columns:1fr}}
 </style>`;
 }
 

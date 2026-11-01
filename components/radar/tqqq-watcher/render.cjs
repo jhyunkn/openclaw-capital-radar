@@ -63,6 +63,31 @@ function renderTqqqWatcherModule(state = {}) {
   const zonePrimary = (primary.low != null && primary.high != null) ? `${money(primary.low)}–${money(primary.high)}` : '—';
   const zoneDeeper = (deeper.low != null && deeper.high != null) ? `${money(deeper.low)}–${money(deeper.high)}` : '—';
 
+  // Deployable cash and the resulting next tranche (entry rule = deploy
+  // deployFraction of available cash). Shown so an order can be sized, not
+  // just triggered. Fail closed: no fresh price means no share estimate.
+  const sizing = state.sizing || {};
+  const cash = Number(sizing.availableCash);
+  const frac = Number(sizing.deployFraction) > 0 ? Number(sizing.deployFraction) : 0.5;
+  const trancheDollars = Number.isFinite(cash) ? cash * frac : NaN;
+  const trancheShares = (!f.stale && Number.isFinite(trancheDollars) && Number(priceLast) > 0)
+    ? Math.floor(trancheDollars / Number(priceLast)) : null;
+  const cashText = Number.isFinite(cash) ? money(cash) : '—';
+  const trancheText = Number.isFinite(trancheDollars) ? money(trancheDollars) : '—';
+
+  // Distance from live price to the top of the primary trigger zone.
+  let distText = 'Awaiting fresh price';
+  if (!f.stale && Number(priceLast) > 0 && primary.high != null) {
+    const pct = ((Number(priceLast) - Number(primary.high)) / Number(primary.high)) * 100;
+    const sign = pct >= 0 ? '+' : '';
+    distText = pct >= 0
+      ? `${sign}${pct.toFixed(1)}% above zone top (${money(primary.high)})`
+      : `${pct.toFixed(1)}% — in/below zone`;
+  }
+  const distBig = (!f.stale && Number(priceLast) > 0 && primary.high != null)
+    ? `${(((Number(priceLast) - Number(primary.high)) / Number(primary.high)) * 100).toFixed(1)}%`
+    : '<i class="tqw-dim">— (stale)</i>';
+
   const gates = arr(state.gates).map(g => {
     const tone = gateTone(g.status, f.stale);
     return `<li class="tqw-gate tqw-${tone}">
@@ -97,6 +122,14 @@ function renderTqqqWatcherModule(state = {}) {
       <article class="tqw-card">
         <span>Agentic holdings</span><b>${esc(String(holdings.shares ?? 0))} sh</b>
         <small>Avg cost ${money(holdings.avgDeployedCost)} · −12% halt ${money(holdings.haltTriggerPrice)}</small>
+      </article>
+      <article class="tqw-card">
+        <span>Distance to zone</span><b>${distBig}</b>
+        <small>${esc(distText)}</small>
+      </article>
+      <article class="tqw-card">
+        <span>Deployable cash</span><b>${esc(cashText)}</b>
+        <small>Next tranche ${esc(trancheText)} (${Math.round(frac * 100)}%)${trancheShares != null ? ' · ≈' + trancheShares + ' sh' : ''}</small>
       </article>
       <article class="tqw-card">
         <span>Order state</span><b>${esc(order.state || 'NONE')}</b>

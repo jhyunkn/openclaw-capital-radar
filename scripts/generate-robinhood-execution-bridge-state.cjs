@@ -73,7 +73,13 @@ const positions = (rh.positions || []).map(pos => {
 }).sort((a, b) => (b.totalCostBasis ?? 0) - (a.totalCostBasis ?? 0));
 
 const portfolio = rh.portfolio || {};
-const { describeSyncBasis } = require(path.join(root, 'lib', 'price-basis.cjs'));
+const anyStalePrice = positions.some(position => position.priceStale);
+const latestPriceAsOf = positions
+  .filter(position => !anyStalePrice || position.priceStale)
+  .map(position => position.priceAsOf)
+  .filter(Boolean)
+  .sort()
+  .at(-1) || null;
 
 const state = {
   generatedAt: new Date().toISOString(),
@@ -82,7 +88,13 @@ const state = {
   // Price basis of the snapshot (intraday vs close), derived from syncedAt —
   // renderers print it next to the prices so a mid-session snapshot can
   // never pose as closing prices.
-  priceBasis: describeSyncBasis(rh.syncedAt),
+  priceBasis: {
+    stamp: latestPriceAsOf,
+    basis: anyStalePrice ? 'reference' : 'intraday',
+    label: anyStalePrice
+      ? 'last completed market session; broker positions and cash were refreshed separately'
+      : 'live intraday broker quote snapshot',
+  },
   portfolio: {
     totalValue: round(portfolio.totalValue, 2),
     equityValue: round(portfolio.equityValue, 2),

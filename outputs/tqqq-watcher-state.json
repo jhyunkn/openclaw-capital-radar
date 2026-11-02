@@ -1,25 +1,24 @@
 {
-  "generatedAt": "2026-11-01T14:47:41.731Z",
   "artifact": "tqqq-watcher-state",
   "schemaVersion": 2,
-  "observedAt": "2026-11-01T14:47:04.526Z",
-  "dataSource": "O broker verification plus last completed market session",
+  "observedAt": "2026-11-02T17:00:58.157Z",
+  "dataSource": "O deterministic entry evaluator plus live Robinhood broker verification",
   "account": "agentic-2775",
-  "stale": true,
-  "staleReason": "U.S. markets are closed. Friday prices are reference-only; all intraday confirmation gates remain blocked until a fresh regular-hours observation.",
+  "stale": false,
+  "staleReason": null,
   "maxAgeMinutes": 20,
   "decision": {
     "action": "WAIT",
-    "regime": "MARKET_CLOSED",
+    "regime": "REBOUND_UNCONFIRMED",
     "confidence": "HIGH",
-    "summary": "No entry can be confirmed while the market is closed.",
-    "blocker": "Await Monday regular-hours data and refresh the bottoming zone before evaluating an entry."
+    "summary": "The market is open and risk is NORMAL, but TQQQ has not confirmed a bottoming reversal.",
+    "blocker": "QQQ and TQQQ are below VWAP, neither has two rising completed 15-minute bars, and credit confirmation is negative."
   },
   "market": {
-    "status": "CLOSED",
-    "session": "2026-10-30",
-    "nextRequiredRefresh": "2026-11-02 regular session",
-    "zoneRevalidationRequired": true
+    "status": "OPEN",
+    "session": "2026-11-02",
+    "nextRequiredRefresh": "Within 20 minutes during regular market hours",
+    "zoneRevalidationRequired": false
   },
   "policy": {
     "entryRule": "Deploy ~50% of available Agentic cash on confirmed bottoming",
@@ -37,100 +36,134 @@
       "low": 54,
       "high": 57
     },
-    "note": "Weekend estimate only. O must refresh this zone with Monday regular-hours QQQ/TQQQ structure before it can become actionable."
+    "qqqActive": {
+      "name": "PRIMARY_200D",
+      "low": 678,
+      "high": 686,
+      "maximumChaseHigh": 696.29
+    },
+    "note": "The prior completed QQQ session touched the configured 678-686 zone; current QQQ remains within the allowed 1.5% chase ceiling, but reversal confirmation has not passed."
   },
   "price": {
-    "last": 62.69,
-    "regularCloseReference": 62.02,
-    "asOf": "2026-10-30T23:59:56.713Z",
-    "status": "REFERENCE_ONLY"
+    "last": 62.99,
+    "regularCloseReference": 62.01,
+    "vwap": 63.13104983422758,
+    "dayLow": 62.68000030517578,
+    "dayHigh": 64.3499984741211,
+    "dayPct": 1.5803902596355446,
+    "asOf": "2026-11-02T17:00:58.157Z",
+    "status": "LIVE"
   },
   "marketInputs": {
     "qqq": {
-      "price": 692.74,
-      "regularCloseReference": 690.53,
-      "asOf": "2026-10-30T23:59:55.485Z"
+      "price": 694.395,
+      "previousClose": 690.49,
+      "dayPct": 0.5655404133296571,
+      "vwap": 695.1739311016472,
+      "aboveVwap": false,
+      "twoRising15": false,
+      "dayLow": 693.2100219726562,
+      "dayHigh": 699.4299926757812,
+      "asOf": "2026-11-02T17:00:58.157Z"
+    },
+    "tqqq": {
+      "price": 62.99,
+      "previousClose": 62.01,
+      "dayPct": 1.5803902596355446,
+      "vwap": 63.13104983422758,
+      "aboveVwap": false,
+      "twoRising15": false,
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     "rsp": {
-      "price": 218.4499,
-      "asOf": "2026-10-30T23:55:47.183Z"
+      "price": 220.65,
+      "vwap": 220.49817012473446,
+      "aboveVwap": true,
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     "iwm": {
-      "price": 279.55,
-      "asOf": "2026-10-30T23:52:47.496Z"
+      "price": 282.36,
+      "vwap": 282.2226522485964,
+      "aboveVwap": true,
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     "hyg": {
-      "price": 77.43,
-      "asOf": "2026-10-30T21:50:55.481Z"
+      "price": 77.155,
+      "dayPct": 0.16408189113110705,
+      "aboveVwap": false,
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     "ief": {
-      "price": 91.7399,
-      "asOf": "2026-10-30T21:56:14.934Z"
-    }
+      "price": 91.62,
+      "dayPct": 0.18750438087959953,
+      "aboveVwap": true,
+      "asOf": "2026-11-02T17:00:58.157Z"
+    },
+    "hygIefRelativeDayPct": -0.023378653748540312
   },
   "gates": [
     {
       "id": "bottom_zone",
       "label": "Refreshed bottoming zone",
-      "status": "UNKNOWN",
-      "detail": "Weekend zone is not actionable; refresh required Monday.",
-      "asOf": null
+      "status": "PASS",
+      "detail": "Prior QQQ session touched 678-686; current QQQ is below the 696.29 chase ceiling.",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "qqq_vwap",
       "label": "QQQ VWAP reclaim",
-      "status": "UNKNOWN",
-      "detail": "Requires live regular-hours data.",
-      "asOf": null
+      "status": "FAIL",
+      "detail": "QQQ 694.40 is below VWAP 695.17.",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "tqqq_vwap",
       "label": "TQQQ VWAP reclaim",
-      "status": "UNKNOWN",
-      "detail": "Requires live regular-hours data.",
-      "asOf": null
+      "status": "FAIL",
+      "detail": "TQQQ 62.99 is below VWAP 63.13.",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "rising_bars",
       "label": "Two rising completed 15-min bars",
-      "status": "UNKNOWN",
-      "detail": "Requires live regular-hours data for both QQQ and TQQQ.",
-      "asOf": null
+      "status": "FAIL",
+      "detail": "Neither QQQ nor TQQQ has two rising completed 15-minute bars.",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "breadth",
       "label": "Breadth confirmation",
-      "status": "UNKNOWN",
-      "detail": "RSP and IWM must reclaim session VWAP.",
-      "asOf": null
+      "status": "PASS",
+      "detail": "RSP and IWM are both above session VWAP.",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "credit",
       "label": "Credit confirmation",
-      "status": "UNKNOWN",
-      "detail": "HYG/IEF must be non-deteriorating on fresh data.",
-      "asOf": null
+      "status": "FAIL",
+      "detail": "HYG/IEF relative day move is -0.023%, below the non-deteriorating threshold.",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "risk_veto",
       "label": "Risk-state veto",
-      "status": "UNKNOWN",
-      "detail": "Authoritative risk state must be NORMAL and QQQ loss better than -1.25%.",
-      "asOf": null
+      "status": "PASS",
+      "detail": "Authoritative risk state is NORMAL and QQQ is +0.57% on the day.",
+      "asOf": "2026-11-02T17:00:57.912Z"
     },
     {
       "id": "broker_capacity",
       "label": "Agentic broker capacity",
       "status": "PASS",
-      "detail": "$4,000 cash and buying power; 0 TQQQ shares; no open TQQQ order.",
-      "asOf": "2026-11-01T14:47:04.526Z"
+      "detail": "$4,000 cash and buying power; 0 TQQQ shares; no TQQQ order.",
+      "asOf": "2026-11-02T17:00:30.000Z"
     }
   ],
   "holdings": {
     "shares": 0,
     "avgDeployedCost": null,
     "haltTriggerPrice": null,
-    "asOf": "2026-11-01T14:47:04.526Z"
+    "asOf": "2026-11-02T17:00:30.000Z"
   },
   "sizing": {
     "accountValue": 4000,
@@ -138,13 +171,15 @@
     "buyingPower": 4000,
     "deployFraction": 0.5,
     "targetDollars": 2000,
-    "estimatedShares": null,
-    "note": "Whole shares are recalculated from 50% of the lesser of live cash and buying power at the fresh candidate price."
+    "estimatedShares": 31,
+    "estimatedMaximumCost": 1952.69,
+    "postTradeCashEstimate": 2047.31,
+    "note": "Whole shares must be recalculated from 50% of the lesser of live cash and buying power at the final approved price."
   },
   "order": {
     "state": "NONE",
     "detail": "No TQQQ order is open, staged, or resting.",
-    "asOf": "2026-11-01T14:47:04.526Z"
+    "asOf": "2026-11-02T17:00:30.000Z"
   },
   "approval": {
     "authorized": false,
@@ -153,30 +188,30 @@
   },
   "reviewStamp": {
     "by": "C",
-    "status": "CLEARED",
-    "fingerprint": "28dfd847165915a6b9e05cfc1c70c9686cbeac4f63dc408e122a753ba2e9d363",
-    "at": "2026-11-01T14:52:00.000Z",
+    "status": "REVIEW_PENDING",
+    "fingerprint": null,
+    "at": null,
     "expiresAt": null,
-    "note": "C independently recomputed the material-input fingerprint (sha256) and confirmed it matches O's claim. Verified: WAIT/MARKET_CLOSED, order NONE, not authorized, deploy 50%, -12% halt, zone flagged weekend-estimate-only, 7 of 8 gates UNKNOWN (fail-closed), broker_capacity PASS ($4,000 cash / 0 shares / no order). This clearance is of the STALE/WAIT posture only — it is NOT entry approval, and it voids on any fingerprint or freshness change."
+    "note": "Fresh Monday evidence requires C to review the new material-input fingerprint. Silence is not approval."
   },
   "sources": [
     {
       "id": "robinhood-broker",
       "label": "Robinhood Agentic account",
       "status": "FRESH",
-      "asOf": "2026-11-01T14:47:04.526Z"
+      "asOf": "2026-11-02T17:00:30.000Z"
     },
     {
-      "id": "robinhood-quotes",
-      "label": "Robinhood quote tape",
-      "status": "MARKET_CLOSED",
-      "asOf": "2026-10-30T23:59:56.713Z"
+      "id": "yahoo-intraday",
+      "label": "Yahoo 5-minute market tape",
+      "status": "FRESH",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "o-entry-watcher",
       "label": "O deterministic entry watcher",
-      "status": "BLOCKED_MARKET_CLOSED",
-      "asOf": "2026-11-01T14:47:04.526Z"
+      "status": "FRESH_WAIT",
+      "asOf": "2026-11-02T17:00:58.157Z"
     },
     {
       "id": "c-independent-review",
@@ -185,5 +220,6 @@
       "asOf": null
     }
   ],
-  "fingerprint": "28dfd847165915a6b9e05cfc1c70c9686cbeac4f63dc408e122a753ba2e9d363"
+  "fingerprint": "5dd77e3011e01e6d4031ca637db9b0d620f5f275de8241b02300514adcd79d7b",
+  "generatedAt": "2026-11-02T17:01:35.392Z"
 }

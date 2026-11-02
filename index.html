@@ -215,7 +215,10 @@
 .pb-dn{color:var(--red,#9f3f35)!important}
 .pb-timestamp{font-size:9px;color:rgba(36,35,31,.3);font-family:var(--mono,monospace);white-space:nowrap;margin-left:auto}
 @media(max-width:760px){.pb-wrap{width:calc(100% - 36px);display:block}.pb-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-left:1px solid rgba(201,191,173,.32);border-top:1px solid rgba(201,191,173,.32)}.pb-tile{min-width:0;padding:9px;border-right:1px solid rgba(201,191,173,.32);border-bottom:1px solid rgba(201,191,173,.32)}.pb-val{display:block;overflow-wrap:anywhere}.pb-pct{display:inline}.pb-timestamp{display:none}}
-</style>  <link rel="stylesheet" href="assets/mandate-command.css"/>
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="assets/mandate-command.css"/>
 <style id="macro-unified-style">
 .macro-unified{border-bottom:1px solid var(--macro-rule,rgba(201,191,173,.55));background:#ffffff}
 .mu-wrap{width:min(1280px,calc(100% - 48px));margin:0 auto}
@@ -536,9 +539,7 @@ details[open].mu-details summary:before{content:'↑'}
 .mp-chg.up{color:var(--green,#2f6f4e)}.mp-chg.dn{color:var(--red,#9f3f35)}
 @media(max-width:900px){.macro-price-strip{grid-template-columns:repeat(3,1fr)}.op-lwc-chart{height:380px}}
 @media(max-width:560px){.macro-price-strip{grid-template-columns:repeat(2,1fr)}.op-lwc-chart{height:300px}.op-route-hero,.op-ladder-card{padding:18px 16px}.op-ladder{height:360px !important}.op-ladder-label{left:34px}.op-rules-strip{grid-template-columns:1fr}}
-</style><style>.dollar-stress-check{--ds-good:#2f6f4e;--ds-info:#4d6f91;--ds-warn:#ae7c2c;--ds-bad:#9f3f35}.dollar-stress-check .ds-pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.02em;border:1px solid var(--rule);border-radius:999px;padding:6px 12px;white-space:nowrap}.dollar-stress-check .ds-good{color:var(--ds-good);border-color:rgba(47,111,78,.45);background:rgba(47,111,78,.08)}.dollar-stress-check .ds-info{color:var(--ds-info);border-color:rgba(77,111,145,.45);background:rgba(77,111,145,.08)}.dollar-stress-check .ds-warn{color:var(--ds-warn);border-color:rgba(174,124,44,.45);background:rgba(174,124,44,.08)}.dollar-stress-check .ds-bad{color:var(--ds-bad);border-color:rgba(159,63,53,.45);background:rgba(159,63,53,.08)}.ds-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0}.ds-tiles article{border:1px solid var(--rule);border-radius:16px;background:#ffffff;padding:12px}.ds-tiles span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.1em}.ds-tiles b{display:block;font-size:19px;font-weight:500;letter-spacing:-.02em;margin-top:4px}.ds-tiles small{display:block;color:var(--muted);font-size:10.5px;line-height:1.3;margin-top:5px}.ds-implication{font-size:14px;line-height:1.45;margin:8px 0 4px;max-width:920px}.ds-note{color:var(--muted);font-size:11.5px;line-height:1.4;margin:4px 0;max-width:920px}.ds-partial{color:var(--ds-bad)}@media(max-width:980px){.ds-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.ds-tiles{grid-template-columns:1fr}}</style><style id="today-strip-style">.today-strip{display:flex;align-items:center;gap:10px;padding:9px 24px;background:rgba(26,23,20,.025);border-bottom:1px solid rgba(201,191,173,.28);flex-wrap:wrap}.ts-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(44,42,37,.38);font-family:var(--mono,monospace);flex-shrink:0}.ts-posture{font-size:11px;color:rgba(44,42,37,.55);font-family:var(--mono,monospace)}.ts-alert{font-family:var(--mono,monospace);font-size:10px;padding:2px 8px;border-radius:2px;white-space:nowrap}.ts-bad{background:rgba(220,38,38,.07);color:#c62828;border:1px solid rgba(220,38,38,.18)}.ts-warn{background:rgba(217,119,6,.07);color:#92400e;border:1px solid rgba(217,119,6,.18)}</style><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" crossorigin="anonymous"></script>
-<style id="kostolany-history-style">
+</style><style>.dollar-stress-check{--ds-good:#2f6f4e;--ds-info:#4d6f91;--ds-warn:#ae7c2c;--ds-bad:#9f3f35}.dollar-stress-check .ds-pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.02em;border:1px solid var(--rule);border-radius:999px;padding:6px 12px;white-space:nowrap}.dollar-stress-check .ds-good{color:var(--ds-good);border-color:rgba(47,111,78,.45);background:rgba(47,111,78,.08)}.dollar-stress-check .ds-info{color:var(--ds-info);border-color:rgba(77,111,145,.45);background:rgba(77,111,145,.08)}.dollar-stress-check .ds-warn{color:var(--ds-warn);border-color:rgba(174,124,44,.45);background:rgba(174,124,44,.08)}.dollar-stress-check .ds-bad{color:var(--ds-bad);border-color:rgba(159,63,53,.45);background:rgba(159,63,53,.08)}.ds-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0}.ds-tiles article{border:1px solid var(--rule);border-radius:16px;background:#ffffff;padding:12px}.ds-tiles span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.1em}.ds-tiles b{display:block;font-size:19px;font-weight:500;letter-spacing:-.02em;margin-top:4px}.ds-tiles small{display:block;color:var(--muted);font-size:10.5px;line-height:1.3;margin-top:5px}.ds-implication{font-size:14px;line-height:1.45;margin:8px 0 4px;max-width:920px}.ds-note{color:var(--muted);font-size:11.5px;line-height:1.4;margin:4px 0;max-width:920px}.ds-partial{color:var(--ds-bad)}@media(max-width:980px){.ds-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.ds-tiles{grid-template-columns:1fr}}</style><style id="today-strip-style">.today-strip{display:flex;align-items:center;gap:10px;padding:9px 24px;background:rgba(26,23,20,.025);border-bottom:1px solid rgba(201,191,173,.28);flex-wrap:wrap}.ts-label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(44,42,37,.38);font-family:var(--mono,monospace);flex-shrink:0}.ts-posture{font-size:11px;color:rgba(44,42,37,.55);font-family:var(--mono,monospace)}.ts-alert{font-family:var(--mono,monospace);font-size:10px;padding:2px 8px;border-radius:2px;white-space:nowrap}.ts-bad{background:rgba(220,38,38,.07);color:#c62828;border:1px solid rgba(220,38,38,.18)}.ts-warn{background:rgba(217,119,6,.07);color:#92400e;border:1px solid rgba(217,119,6,.18)}</style><style id="kostolany-history-style">
 .kh-wrap{border-bottom:1px solid var(--rule,#dedbd2);padding:56px clamp(18px,4vw,56px);box-sizing:border-box}
 .kh-inner{max-width:1240px;margin:0 auto}
 .kh-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--rule,#dedbd2)}
@@ -981,7 +982,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
         <b class="pb-val">15</b>
       </div>
     </div>
-    <span class="pb-timestamp">2:52 PM · Nov 1</span>
+    <span class="pb-timestamp">9:52 AM · Nov 1</span>
   </div>
 </div>
 <div id="mandate-command" class="mandate-command" data-default-mandate="core">
@@ -1336,7 +1337,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <span class="mu-arc-meta">One of five inputs &middot; ~55 mo &middot; Next phase: Euphoria</span>
   </div>
   <div class="mu-arc-canvas-box">
-    <canvas id="mcc_mvzbae3n"></canvas>
+    <canvas id="mcc_mvzialbm"></canvas>
   </div>
   <div class="mu-arc-legend">
     <span><span class="mu-leg mu-leg-actual"></span>Actual rate · FRED DFF last-known-good</span>
@@ -1405,7 +1406,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
-  var canvas=document.getElementById("mcc_mvzbae3n");
+  var canvas=document.getElementById("mcc_mvzialbm");
   if(!canvas)return;
   var c=canvas.getContext("2d");
   var anim=0, raf;
@@ -4336,7 +4337,7 @@ else{window.addEventListener('load',init);}
 <div id="robinhood-execution-bridge-module" class="rh-live-holdings" aria-labelledby="rh-lh-title">
   <div class="rh-lh-head">
     <div>
-      <p class="eyebrow">Robinhood · Live</p>
+      <p class="eyebrow rh-stale-eyebrow">Robinhood · Stale (1d)</p>
       <h3 id="rh-lh-title">Proposal-only execution rail</h3>
       <p class="rh-lh-safety">Human approval required. Capital Radar remains the decision brain; this bridge does not place autonomous orders.</p>
     </div>
@@ -4408,7 +4409,7 @@ else{window.addEventListener('load',init);}
       <td class="num">17,737.75</td>
       <td class="num">$0.26</td>
       <td class="num">$4,640</td>
-      <td class="num">$0.08</td>
+      <td class="num"><span class="rh-stale-price" title="Last-known price from broker sync — not a live quote">$0.08 *</span></td>
       <td class="num">$1,343</td>
       <td class="num loss">$-3,297 (-71.1%)</td>
       <td><span class="rh-lh-signal hold">HOLD</span></td>
@@ -4495,7 +4496,7 @@ else{window.addEventListener('load',init);}
   </tr></tfoot>
     </table>
   </div>
-  <p class="rh-lh-footnote">Synced from Robinhood · 2026-10-30T23:59:59.471767118Z — prices are closing prices as of this sync · Table marks from the same sync snapshot as the account header</p>
+  <p class="rh-lh-footnote">Synced from Robinhood · 2026-11-01T09:56:59.506-05:00 — prices are closing prices as of this sync · Table marks from the same sync snapshot as the account header</p>
 </div>
 <!-- ROBINHOOD_EXECUTION_BRIDGE_END -->
 <!-- TQQQ_WATCHER_START -->
@@ -4505,38 +4506,38 @@ else{window.addEventListener('load',init);}
         <p class="tqw-kicker">Agentic ••••2775 · TQQQ watcher</p>
         <h2 class="tqw-title">TQQQ Bottoming Watch</h2>
       </div>
-      <div class="tqw-fresh tqw-stale"><span>Data status</span><b>STALE · observed 1379m ago (max 20m)</b></div>
+      <div class="tqw-fresh tqw-live"><span>Data status</span><b>Live · observed 1m ago</b></div>
     </div>
 
     <div class="tqw-grid">
       <article class="tqw-card tqw-decision">
         <span>Current action</span><b>WAIT</b>
-        <small>Await Monday regular-hours data and refresh the bottoming zone before evaluating an entry.</small>
+        <small>QQQ and TQQQ are below VWAP, neither has two rising completed 15-minute bars, and credit confirmation is negative.</small>
       </article>
       <article class="tqw-card">
-        <span>Regime / market</span><b>MARKET_CLOSED</b>
-        <small>CLOSED · session 2026-10-30</small>
+        <span>Regime / market</span><b>REBOUND_UNCONFIRMED</b>
+        <small>OPEN · session 2026-11-02</small>
       </article>
       <article class="tqw-card">
         <span>Live price</span>
-        <b><i class="tqw-dim">— (stale)</i></b>
-        <small>Awaiting fresh observation</small>
+        <b>$62.99</b>
+        <small>as of 2026-11-02T17:00:58.157Z</small>
       </article>
       <article class="tqw-card">
         <span>Primary zone</span><b>$57.00–$60.00</b>
-        <small>Deeper $54.00–$57.00 · Weekend estimate only. O must refresh this zone with Monday regular-hours QQQ/TQQQ structure before it can become actionable.</small>
+        <small>Deeper $54.00–$57.00 · The prior completed QQQ session touched the configured 678-686 zone; current QQQ remains within the allowed 1.5% chase ceiling, but reversal confirmation has not passed.</small>
       </article>
       <article class="tqw-card">
         <span>Agentic holdings</span><b>0 sh</b>
         <small>Avg cost $0.00 · −12% halt $0.00</small>
       </article>
       <article class="tqw-card">
-        <span>Distance to zone</span><b><i class="tqw-dim">— (stale)</i></b>
-        <small>Awaiting fresh price</small>
+        <span>Distance to zone</span><b>5.0%</b>
+        <small>+5.0% above zone top ($60.00)</small>
       </article>
       <article class="tqw-card">
         <span>Deployable cash</span><b>$4,000.00</b>
-        <small>Next tranche $2,000.00 (50%)</small>
+        <small>Next tranche $2,000.00 (50%) · ≈31 sh</small>
       </article>
       <article class="tqw-card">
         <span>Order state</span><b>NONE</b>
@@ -4549,40 +4550,40 @@ else{window.addEventListener('load',init);}
     </div>
 
     <div class="tqw-gates-head">Confirmation gates <em>(all must pass before an order is presented for approval)</em></div>
-    <ul class="tqw-gates"><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>Refreshed bottoming zone</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>QQQ VWAP reclaim</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>TQQQ VWAP reclaim</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>Two rising completed 15-min bars</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>Breadth confirmation</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>Credit confirmation</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>Risk-state veto</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
-    </li><li class="tqw-gate tqw-unknown">
-      <div class="tqw-gate-top"><b>STALE</b><span>Agentic broker capacity</span></div>
-      <p class="tqw-gate-detail">Not confirmable — data is stale.</p>
+    <ul class="tqw-gates"><li class="tqw-gate tqw-pass">
+      <div class="tqw-gate-top"><b>PASS</b><span>Refreshed bottoming zone</span></div>
+      <p class="tqw-gate-detail">Prior QQQ session touched 678-686; current QQQ is below the 696.29 chase ceiling.</p>
+    </li><li class="tqw-gate tqw-fail">
+      <div class="tqw-gate-top"><b>FAIL</b><span>QQQ VWAP reclaim</span></div>
+      <p class="tqw-gate-detail">QQQ 694.40 is below VWAP 695.17.</p>
+    </li><li class="tqw-gate tqw-fail">
+      <div class="tqw-gate-top"><b>FAIL</b><span>TQQQ VWAP reclaim</span></div>
+      <p class="tqw-gate-detail">TQQQ 62.99 is below VWAP 63.13.</p>
+    </li><li class="tqw-gate tqw-fail">
+      <div class="tqw-gate-top"><b>FAIL</b><span>Two rising completed 15-min bars</span></div>
+      <p class="tqw-gate-detail">Neither QQQ nor TQQQ has two rising completed 15-minute bars.</p>
+    </li><li class="tqw-gate tqw-pass">
+      <div class="tqw-gate-top"><b>PASS</b><span>Breadth confirmation</span></div>
+      <p class="tqw-gate-detail">RSP and IWM are both above session VWAP.</p>
+    </li><li class="tqw-gate tqw-fail">
+      <div class="tqw-gate-top"><b>FAIL</b><span>Credit confirmation</span></div>
+      <p class="tqw-gate-detail">HYG/IEF relative day move is -0.023%, below the non-deteriorating threshold.</p>
+    </li><li class="tqw-gate tqw-pass">
+      <div class="tqw-gate-top"><b>PASS</b><span>Risk-state veto</span></div>
+      <p class="tqw-gate-detail">Authoritative risk state is NORMAL and QQQ is +0.57% on the day.</p>
+    </li><li class="tqw-gate tqw-pass">
+      <div class="tqw-gate-top"><b>PASS</b><span>Agentic broker capacity</span></div>
+      <p class="tqw-gate-detail">$4,000 cash and buying power; 0 TQQQ shares; no TQQQ order.</p>
     </li></ul>
 
     <div class="tqw-foot">
-      <div class="tqw-review"><span>Independent review</span><b>C · CLEARED · 2026-11-01T14:52:00.000Z</b></div>
+      <div class="tqw-review"><span>Independent review</span><b>C · REVIEW_PENDING</b></div>
       <div class="tqw-policy"><span>Policy</span><b>Deploy ~50% of available Agentic cash on confirmed bottoming</b><small>-12% from weighted-average deployed cost pauses new buying (pause-and-review, no auto-sell) · Every order requires Jun&#39;s explicit authorization. No resting broker order.</small></div>
       <div class="tqw-blueprint"><span>System blueprint</span><b><a href="/pages/tqqq-strategy.html">How TQQQ is invested here — PARTIAL-ROT 30% rule, evidence, live grade</a></b><small>Machine-readable spec: <a href="/data/tqqq-strategy.json">data/tqqq-strategy.json</a> · the watcher above hunts intraday bottoms; the blueprint is the monthly position system. Do not merge them.</small></div>
     </div>
     <div class="tqw-evidence">
-      <div><span>Evidence fingerprint</span><b>28dfd847165915a6b9e05cfc1c70c9686cbeac4f63dc408e122a753ba2e9d363</b><small>C's review is valid only for this exact fingerprint and freshness state.</small></div>
-      <ul><li><b>Robinhood Agentic account</b><span>FRESH · Nov 1, 9:47 AM EST</span></li><li><b>Robinhood quote tape</b><span>MARKET_CLOSED · Oct 30, 7:59 PM EDT</span></li><li><b>O deterministic entry watcher</b><span>BLOCKED_MARKET_CLOSED · Nov 1, 9:47 AM EST</span></li><li><b>C independent review</b><span>PENDING · missing</span></li></ul>
+      <div><span>Evidence fingerprint</span><b>5dd77e3011e01e6d4031ca637db9b0d620f5f275de8241b02300514adcd79d7b</b><small>C's review is valid only for this exact fingerprint and freshness state.</small></div>
+      <ul><li><b>Robinhood Agentic account</b><span>FRESH · Nov 2, 12:00 PM EST</span></li><li><b>Yahoo 5-minute market tape</b><span>FRESH · Nov 2, 12:00 PM EST</span></li><li><b>O deterministic entry watcher</b><span>FRESH_WAIT · Nov 2, 12:00 PM EST</span></li><li><b>C independent review</b><span>PENDING · missing</span></li></ul>
     </div>
   </section>
 <!-- TQQQ_WATCHER_END -->

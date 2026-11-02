@@ -1337,7 +1337,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <span class="mu-arc-meta">One of five inputs &middot; ~55 mo &middot; Next phase: Euphoria</span>
   </div>
   <div class="mu-arc-canvas-box">
-    <canvas id="mcc_mvzialbm"></canvas>
+    <canvas id="mcc_mvzieuqg"></canvas>
   </div>
   <div class="mu-arc-legend">
     <span><span class="mu-leg mu-leg-actual"></span>Actual rate · FRED DFF last-known-good</span>
@@ -1406,7 +1406,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
-  var canvas=document.getElementById("mcc_mvzialbm");
+  var canvas=document.getElementById("mcc_mvzieuqg");
   if(!canvas)return;
   var c=canvas.getContext("2d");
   var anim=0, raf;
@@ -4500,19 +4500,19 @@ else{window.addEventListener('load',init);}
 </div>
 <!-- ROBINHOOD_EXECUTION_BRIDGE_END -->
 <!-- TQQQ_WATCHER_START -->
-<section class="tqqq-watcher" id="tqqq-watcher">
+<section class="tqqq-watcher" id="tqqq-watcher" data-observed-at="2026-11-02T17:00:58.157Z" data-max-age-minutes="20" data-declared-stale="false">
     <div class="tqw-head">
       <div>
         <p class="tqw-kicker">Agentic ••••2775 · TQQQ watcher</p>
         <h2 class="tqw-title">TQQQ Bottoming Watch</h2>
       </div>
-      <div class="tqw-fresh tqw-live"><span>Data status</span><b>Live · observed 1m ago</b></div>
+      <div class="tqw-fresh tqw-live" data-tqw-freshness><span>Data status</span><b>Live · observed 4m ago</b></div>
     </div>
 
     <div class="tqw-grid">
       <article class="tqw-card tqw-decision">
-        <span>Current action</span><b>WAIT</b>
-        <small>QQQ and TQQQ are below VWAP, neither has two rising completed 15-minute bars, and credit confirmation is negative.</small>
+        <span>Current action</span><b data-tqw-action>WAIT</b>
+        <small data-tqw-action-reason>QQQ and TQQQ are below VWAP, neither has two rising completed 15-minute bars, and credit confirmation is negative.</small>
       </article>
       <article class="tqw-card">
         <span>Regime / market</span><b>REBOUND_UNCONFIRMED</b>
@@ -4520,8 +4520,8 @@ else{window.addEventListener('load',init);}
       </article>
       <article class="tqw-card">
         <span>Live price</span>
-        <b>$62.99</b>
-        <small>as of 2026-11-02T17:00:58.157Z</small>
+        <b data-tqw-price>$62.99</b>
+        <small data-tqw-price-asof>as of 2026-11-02T17:00:58.157Z</small>
       </article>
       <article class="tqw-card">
         <span>Primary zone</span><b>$57.00–$60.00</b>
@@ -4551,41 +4551,91 @@ else{window.addEventListener('load',init);}
 
     <div class="tqw-gates-head">Confirmation gates <em>(all must pass before an order is presented for approval)</em></div>
     <ul class="tqw-gates"><li class="tqw-gate tqw-pass">
-      <div class="tqw-gate-top"><b>PASS</b><span>Refreshed bottoming zone</span></div>
-      <p class="tqw-gate-detail">Prior QQQ session touched 678-686; current QQQ is below the 696.29 chase ceiling.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>PASS</b><span>Refreshed bottoming zone</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>Prior QQQ session touched 678-686; current QQQ is below the 696.29 chase ceiling.</p>
     </li><li class="tqw-gate tqw-fail">
-      <div class="tqw-gate-top"><b>FAIL</b><span>QQQ VWAP reclaim</span></div>
-      <p class="tqw-gate-detail">QQQ 694.40 is below VWAP 695.17.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>FAIL</b><span>QQQ VWAP reclaim</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>QQQ 694.40 is below VWAP 695.17.</p>
     </li><li class="tqw-gate tqw-fail">
-      <div class="tqw-gate-top"><b>FAIL</b><span>TQQQ VWAP reclaim</span></div>
-      <p class="tqw-gate-detail">TQQQ 62.99 is below VWAP 63.13.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>FAIL</b><span>TQQQ VWAP reclaim</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>TQQQ 62.99 is below VWAP 63.13.</p>
     </li><li class="tqw-gate tqw-fail">
-      <div class="tqw-gate-top"><b>FAIL</b><span>Two rising completed 15-min bars</span></div>
-      <p class="tqw-gate-detail">Neither QQQ nor TQQQ has two rising completed 15-minute bars.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>FAIL</b><span>Two rising completed 15-min bars</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>Neither QQQ nor TQQQ has two rising completed 15-minute bars.</p>
     </li><li class="tqw-gate tqw-pass">
-      <div class="tqw-gate-top"><b>PASS</b><span>Breadth confirmation</span></div>
-      <p class="tqw-gate-detail">RSP and IWM are both above session VWAP.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>PASS</b><span>Breadth confirmation</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>RSP and IWM are both above session VWAP.</p>
     </li><li class="tqw-gate tqw-fail">
-      <div class="tqw-gate-top"><b>FAIL</b><span>Credit confirmation</span></div>
-      <p class="tqw-gate-detail">HYG/IEF relative day move is -0.023%, below the non-deteriorating threshold.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>FAIL</b><span>Credit confirmation</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>HYG/IEF relative day move is -0.023%, below the non-deteriorating threshold.</p>
     </li><li class="tqw-gate tqw-pass">
-      <div class="tqw-gate-top"><b>PASS</b><span>Risk-state veto</span></div>
-      <p class="tqw-gate-detail">Authoritative risk state is NORMAL and QQQ is +0.57% on the day.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>PASS</b><span>Risk-state veto</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>Authoritative risk state is NORMAL and QQQ is +0.57% on the day.</p>
     </li><li class="tqw-gate tqw-pass">
-      <div class="tqw-gate-top"><b>PASS</b><span>Agentic broker capacity</span></div>
-      <p class="tqw-gate-detail">$4,000 cash and buying power; 0 TQQQ shares; no TQQQ order.</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>PASS</b><span>Agentic broker capacity</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>$4,000 cash and buying power; 0 TQQQ shares; no TQQQ order.</p>
     </li></ul>
 
     <div class="tqw-foot">
-      <div class="tqw-review"><span>Independent review</span><b>C · REVIEW_PENDING</b></div>
+      <div class="tqw-review"><span>Independent review</span><b data-tqw-review>C · REVIEW_PENDING</b></div>
       <div class="tqw-policy"><span>Policy</span><b>Deploy ~50% of available Agentic cash on confirmed bottoming</b><small>-12% from weighted-average deployed cost pauses new buying (pause-and-review, no auto-sell) · Every order requires Jun&#39;s explicit authorization. No resting broker order.</small></div>
       <div class="tqw-blueprint"><span>System blueprint</span><b><a href="/pages/tqqq-strategy.html">How TQQQ is invested here — PARTIAL-ROT 30% rule, evidence, live grade</a></b><small>Machine-readable spec: <a href="/data/tqqq-strategy.json">data/tqqq-strategy.json</a> · the watcher above hunts intraday bottoms; the blueprint is the monthly position system. Do not merge them.</small></div>
     </div>
     <div class="tqw-evidence">
       <div><span>Evidence fingerprint</span><b>5dd77e3011e01e6d4031ca637db9b0d620f5f275de8241b02300514adcd79d7b</b><small>C's review is valid only for this exact fingerprint and freshness state.</small></div>
-      <ul><li><b>Robinhood Agentic account</b><span>FRESH · Nov 2, 12:00 PM EST</span></li><li><b>Yahoo 5-minute market tape</b><span>FRESH · Nov 2, 12:00 PM EST</span></li><li><b>O deterministic entry watcher</b><span>FRESH_WAIT · Nov 2, 12:00 PM EST</span></li><li><b>C independent review</b><span>PENDING · missing</span></li></ul>
+      <ul><li><b>Robinhood Agentic account</b><span data-tqw-source-status>FRESH · Nov 2, 12:00 PM EST</span></li><li><b>Yahoo 5-minute market tape</b><span data-tqw-source-status>FRESH · Nov 2, 12:00 PM EST</span></li><li><b>O deterministic entry watcher</b><span data-tqw-source-status>FRESH_WAIT · Nov 2, 12:00 PM EST</span></li><li><b>C independent review</b><span data-tqw-source-status>PENDING · missing</span></li></ul>
     </div>
   </section>
+  <script id="tqqq-watcher-freshness-runtime">
+  (() => {
+    const panel = document.getElementById('tqqq-watcher');
+    if (!panel || panel.dataset.freshnessRuntimeBound === 'true') return;
+    panel.dataset.freshnessRuntimeBound = 'true';
+    const observedAt = Date.parse(panel.dataset.observedAt || '');
+    const maxAgeMinutes = Number(panel.dataset.maxAgeMinutes) || 20;
+    const declaredStale = panel.dataset.declaredStale === 'true';
+    const reviewNode = panel.querySelector('[data-tqw-review]');
+    const originalReview = reviewNode ? reviewNode.textContent : 'C · REVIEW_PENDING';
+    const update = () => {
+      const ageMinutes = Number.isFinite(observedAt) ? (Date.now() - observedAt) / 60000 : Infinity;
+      const stale = declaredStale || !Number.isFinite(ageMinutes) || ageMinutes > maxAgeMinutes;
+      const freshnessNode = panel.querySelector('[data-tqw-freshness]');
+      const freshnessText = freshnessNode ? freshnessNode.querySelector('b') : null;
+      if (!stale) {
+        if (freshnessNode) freshnessNode.className = 'tqw-fresh tqw-live';
+        if (freshnessText) freshnessText.textContent = 'Live · observed ' + Math.max(0, Math.round(ageMinutes)) + 'm ago';
+        return;
+      }
+      panel.dataset.runtimeStale = 'true';
+      if (freshnessNode) freshnessNode.className = 'tqw-fresh tqw-stale';
+      if (freshnessText) freshnessText.textContent = Number.isFinite(ageMinutes)
+        ? 'STALE · observed ' + Math.max(0, Math.round(ageMinutes)) + 'm ago (max ' + maxAgeMinutes + 'm)'
+        : 'STALE · no valid observation';
+      const action = panel.querySelector('[data-tqw-action]');
+      const actionReason = panel.querySelector('[data-tqw-action-reason]');
+      const price = panel.querySelector('[data-tqw-price]');
+      const priceAsOf = panel.querySelector('[data-tqw-price-asof]');
+      if (action) action.textContent = 'WAIT';
+      if (actionReason) actionReason.textContent = 'Observation expired. Refresh market and broker evidence before making a decision.';
+      if (price) price.innerHTML = '<i class="tqw-dim">— (stale)</i>';
+      if (priceAsOf) priceAsOf.textContent = 'Awaiting fresh observation';
+      panel.querySelectorAll('.tqw-gate').forEach(gate => {
+        gate.classList.remove('tqw-pass', 'tqw-fail');
+        gate.classList.add('tqw-unknown');
+        const status = gate.querySelector('[data-tqw-gate-status]');
+        const detail = gate.querySelector('[data-tqw-gate-detail]');
+        if (status) status.textContent = 'STALE';
+        if (detail) detail.textContent = 'Not confirmable — observation exceeded the ' + maxAgeMinutes + '-minute freshness limit.';
+      });
+      panel.querySelectorAll('[data-tqw-source-status]').forEach(source => {
+        source.textContent = 'STALE · refresh required';
+      });
+      if (reviewNode) reviewNode.textContent = originalReview + ' · DATA STALE';
+    };
+    update();
+    window.setInterval(update, 30000);
+  })();
+  </script>
 <!-- TQQQ_WATCHER_END -->
 
 </section><section id="opportunities-section" class="cr-section opp-section">

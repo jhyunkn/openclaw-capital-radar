@@ -257,6 +257,7 @@ runFinalInjector('inject-holdings-home-modular.cjs', 'Holdings decision chart in
 runFinalInjector('inject-robinhood-execution-bridge-home.cjs', 'Robinhood execution bridge injection failed before Vercel copy');
 runFinalInjector('validate-tqqq-watcher-state.cjs', 'TQQQ watcher state validation failed before Vercel copy');
 runFinalInjector('inject-tqqq-watcher-home.cjs', 'TQQQ watcher injection failed before Vercel copy');
+runFinalInjector('validate-tqqq-watcher-runtime.cjs', 'TQQQ watcher runtime freshness validation failed before Vercel copy');
 runFinalInjector('inject-robinhood-sync-badge.cjs', 'Robinhood sync badge injection failed before Vercel copy');
 runFinalInjector('inject-macro-design-language.cjs', 'Macro design language injection failed before Vercel copy');
 runFinalInjector('harden-homepage-chrome.cjs', 'Homepage chrome hardening failed before Vercel copy', ['index.html']);

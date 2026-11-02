@@ -103,8 +103,8 @@ function renderTqqqWatcherModule(state = {}) {
   const gates = arr(state.gates).map(g => {
     const tone = gateTone(g.status, f.stale);
     return `<li class="tqw-gate tqw-${tone}">
-      <div class="tqw-gate-top"><b>${esc(gateText(g.status, f.stale))}</b><span>${esc(g.label)}</span></div>
-      <p class="tqw-gate-detail">${esc(f.stale ? 'Not confirmable — data is stale.' : (g.detail || ''))}</p>
+      <div class="tqw-gate-top"><b data-tqw-gate-status>${esc(gateText(g.status, f.stale))}</b><span>${esc(g.label)}</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>${esc(f.stale ? 'Not confirmable — data is stale.' : (g.detail || ''))}</p>
     </li>`;
   }).join('');
 
@@ -118,22 +118,22 @@ function renderTqqqWatcherModule(state = {}) {
   const marketStatus = String(market.status || 'UNKNOWN').toUpperCase();
   const approvalStatus = approval.status || (approval.authorized ? 'AUTHORIZED' : 'NOT AUTHORIZED');
   const sourceRows = sources.length
-    ? sources.map(source => `<li><b>${esc(source.label || source.id || 'Source')}</b><span>${esc(source.status || 'UNKNOWN')} · ${esc(sourceTime(source.asOf))}</span></li>`).join('')
+    ? sources.map(source => `<li><b>${esc(source.label || source.id || 'Source')}</b><span data-tqw-source-status>${esc(source.status || 'UNKNOWN')} · ${esc(sourceTime(source.asOf))}</span></li>`).join('')
     : '<li><b>Sources</b><span>Missing</span></li>';
 
-  return `<section class="tqqq-watcher" id="tqqq-watcher">
+  return `<section class="tqqq-watcher" id="tqqq-watcher" data-observed-at="${esc(state.observedAt || '')}" data-max-age-minutes="${esc(f.max)}" data-declared-stale="${state.stale === true ? 'true' : 'false'}">
     <div class="tqw-head">
       <div>
         <p class="tqw-kicker">Agentic ••••2775 · TQQQ watcher</p>
         <h2 class="tqw-title">TQQQ Bottoming Watch</h2>
       </div>
-      <div class="tqw-fresh tqw-${f.stale ? 'stale' : 'live'}"><span>Data status</span><b>${esc(f.label)}</b></div>
+      <div class="tqw-fresh tqw-${f.stale ? 'stale' : 'live'}" data-tqw-freshness><span>Data status</span><b>${esc(f.label)}</b></div>
     </div>
 
     <div class="tqw-grid">
       <article class="tqw-card tqw-decision">
-        <span>Current action</span><b>${esc(action)}</b>
-        <small>${esc(actionReason)}</small>
+        <span>Current action</span><b data-tqw-action>${esc(action)}</b>
+        <small data-tqw-action-reason>${esc(actionReason)}</small>
       </article>
       <article class="tqw-card">
         <span>Regime / market</span><b>${esc(regime)}</b>
@@ -141,8 +141,8 @@ function renderTqqqWatcherModule(state = {}) {
       </article>
       <article class="tqw-card">
         <span>Live price</span>
-        <b>${f.stale ? '<i class="tqw-dim">— (stale)</i>' : money(priceLast)}</b>
-        <small>${esc(f.stale ? 'Awaiting fresh observation' : ('as of ' + (state.price?.asOf || 'unknown')))}</small>
+        <b data-tqw-price>${f.stale ? '<i class="tqw-dim">— (stale)</i>' : money(priceLast)}</b>
+        <small data-tqw-price-asof>${esc(f.stale ? 'Awaiting fresh observation' : ('as of ' + (state.price?.asOf || 'unknown')))}</small>
       </article>
       <article class="tqw-card">
         <span>Primary zone</span><b>${esc(zonePrimary)}</b>
@@ -174,7 +174,7 @@ function renderTqqqWatcherModule(state = {}) {
     <ul class="tqw-gates">${gates}</ul>
 
     <div class="tqw-foot">
-      <div class="tqw-review"><span>Independent review</span><b>${esc(reviewLine)}</b></div>
+      <div class="tqw-review"><span>Independent review</span><b data-tqw-review>${esc(reviewLine)}</b></div>
       <div class="tqw-policy"><span>Policy</span><b>${esc(policy.entryRule || '')}</b><small>${esc(policy.haltRule || '')} · ${esc(policy.approval || '')}</small></div>
       <div class="tqw-blueprint"><span>System blueprint</span><b><a href="/pages/tqqq-strategy.html">How TQQQ is invested here — PARTIAL-ROT 30% rule, evidence, live grade</a></b><small>Machine-readable spec: <a href="/data/tqqq-strategy.json">data/tqqq-strategy.json</a> · the watcher above hunts intraday bottoms; the blueprint is the monthly position system. Do not merge them.</small></div>
     </div>
@@ -182,7 +182,57 @@ function renderTqqqWatcherModule(state = {}) {
       <div><span>Evidence fingerprint</span><b>${esc(state.fingerprint || 'not available')}</b><small>C's review is valid only for this exact fingerprint and freshness state.</small></div>
       <ul>${sourceRows}</ul>
     </div>
-  </section>`;
+  </section>
+  <script id="tqqq-watcher-freshness-runtime">
+  (() => {
+    const panel = document.getElementById('tqqq-watcher');
+    if (!panel || panel.dataset.freshnessRuntimeBound === 'true') return;
+    panel.dataset.freshnessRuntimeBound = 'true';
+    const observedAt = Date.parse(panel.dataset.observedAt || '');
+    const maxAgeMinutes = Number(panel.dataset.maxAgeMinutes) || 20;
+    const declaredStale = panel.dataset.declaredStale === 'true';
+    const reviewNode = panel.querySelector('[data-tqw-review]');
+    const originalReview = reviewNode ? reviewNode.textContent : 'C · REVIEW_PENDING';
+    const update = () => {
+      const ageMinutes = Number.isFinite(observedAt) ? (Date.now() - observedAt) / 60000 : Infinity;
+      const stale = declaredStale || !Number.isFinite(ageMinutes) || ageMinutes > maxAgeMinutes;
+      const freshnessNode = panel.querySelector('[data-tqw-freshness]');
+      const freshnessText = freshnessNode ? freshnessNode.querySelector('b') : null;
+      if (!stale) {
+        if (freshnessNode) freshnessNode.className = 'tqw-fresh tqw-live';
+        if (freshnessText) freshnessText.textContent = 'Live · observed ' + Math.max(0, Math.round(ageMinutes)) + 'm ago';
+        return;
+      }
+      panel.dataset.runtimeStale = 'true';
+      if (freshnessNode) freshnessNode.className = 'tqw-fresh tqw-stale';
+      if (freshnessText) freshnessText.textContent = Number.isFinite(ageMinutes)
+        ? 'STALE · observed ' + Math.max(0, Math.round(ageMinutes)) + 'm ago (max ' + maxAgeMinutes + 'm)'
+        : 'STALE · no valid observation';
+      const action = panel.querySelector('[data-tqw-action]');
+      const actionReason = panel.querySelector('[data-tqw-action-reason]');
+      const price = panel.querySelector('[data-tqw-price]');
+      const priceAsOf = panel.querySelector('[data-tqw-price-asof]');
+      if (action) action.textContent = 'WAIT';
+      if (actionReason) actionReason.textContent = 'Observation expired. Refresh market and broker evidence before making a decision.';
+      if (price) price.innerHTML = '<i class="tqw-dim">— (stale)</i>';
+      if (priceAsOf) priceAsOf.textContent = 'Awaiting fresh observation';
+      panel.querySelectorAll('.tqw-gate').forEach(gate => {
+        gate.classList.remove('tqw-pass', 'tqw-fail');
+        gate.classList.add('tqw-unknown');
+        const status = gate.querySelector('[data-tqw-gate-status]');
+        const detail = gate.querySelector('[data-tqw-gate-detail]');
+        if (status) status.textContent = 'STALE';
+        if (detail) detail.textContent = 'Not confirmable — observation exceeded the ' + maxAgeMinutes + '-minute freshness limit.';
+      });
+      panel.querySelectorAll('[data-tqw-source-status]').forEach(source => {
+        source.textContent = 'STALE · refresh required';
+      });
+      if (reviewNode) reviewNode.textContent = originalReview + ' · DATA STALE';
+    };
+    update();
+    window.setInterval(update, 30000);
+  })();
+  </script>`;
 }
 
 function renderTqqqWatcherStyle() {

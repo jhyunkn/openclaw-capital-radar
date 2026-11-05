@@ -1,20 +1,20 @@
 {
-  "as_of": "2026-11-05T13:48:58.393Z",
+  "as_of": "2026-11-05T18:48:13.400Z",
   "artifact": "strategy-routing-state",
-  "route_id": "transition_verify",
-  "route": "transition / verify",
-  "risk_budget": "neutral",
+  "route_id": "defensive",
+  "route": "defensive",
+  "risk_budget": "reduced",
   "add_permission": "blocked",
-  "trim_permission": "selective",
-  "opportunity_permission": "research_only",
-  "confirmation_score": 71,
-  "market_lens_regime": "mixed / verify",
+  "trim_permission": "active",
+  "opportunity_permission": "blocked_until_reclaim",
+  "confirmation_score": 45,
+  "market_lens_regime": "defensive pressure",
   "inputs": {
     "SPX": "VERIFY",
-    "QQQ": "VERIFY",
+    "QQQ": "DEFENSIVE",
     "TLT": "DEFENSIVE",
     "BTC": "VERIFY",
-    "VIX": "CONTAINED",
+    "VIX": "STRESS",
     "operational_chart": "Trend weakening above 200D"
   },
   "permissions": [
@@ -25,8 +25,8 @@
     },
     {
       "domain": "AI / growth compounders",
-      "permission": "PULLBACK ONLY",
-      "driver": "QQQ VERIFY; TLT DEFENSIVE"
+      "permission": "BLOCK ADD",
+      "driver": "QQQ DEFENSIVE; TLT DEFENSIVE"
     },
     {
       "domain": "Duration-sensitive growth",
@@ -36,21 +36,19 @@
     {
       "domain": "Speculative liquidity / crypto beta",
       "permission": "VERIFY",
-      "driver": "BTC VERIFY; VIX CONTAINED"
+      "driver": "BTC VERIFY; VIX STRESS"
     },
     {
       "domain": "Opportunity promotion",
-      "permission": "RESEARCH ONLY",
-      "driver": "route transition / verify"
+      "permission": "BLOCKED UNTIL RECLAIM",
+      "driver": "route defensive"
     }
   ],
   "blocks": [
-    "Rate pressure constrains duration/growth multiple expansion.",
-    "Growth leadership is extended/mixed; require pullback or confirmation."
+    "Volatility stress blocks new risk until VIX cools.",
+    "Rate pressure constrains duration/growth multiple expansion."
   ],
-  "promotes": [
-    "Contained volatility supports staying invested."
-  ],
+  "promotes": [],
   "action_protocol": [
     {
       "rule": "ADD",
@@ -64,17 +62,17 @@
     },
     {
       "rule": "TRIM",
-      "permission": "selective",
+      "permission": "active",
       "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
     },
     {
       "rule": "PROMOTE OPPORTUNITY",
-      "permission": "research_only",
+      "permission": "blocked_until_reclaim",
       "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
     },
     {
       "rule": "DEFEND",
-      "permission": "standby",
+      "permission": "active",
       "condition": "Activate if SPX loses defense line or VIX enters stress."
     }
   ],

@@ -1,20 +1,20 @@
 {
-  "as_of": "2026-11-06T20:08:43.702Z",
+  "as_of": "2026-11-06T22:18:35.145Z",
   "artifact": "strategy-routing-state",
-  "route_id": "transition_verify",
-  "route": "transition / verify",
-  "risk_budget": "neutral",
+  "route_id": "defensive",
+  "route": "defensive",
+  "risk_budget": "reduced",
   "add_permission": "blocked",
-  "trim_permission": "selective",
-  "opportunity_permission": "research_only",
-  "confirmation_score": 54,
+  "trim_permission": "active",
+  "opportunity_permission": "blocked_until_reclaim",
+  "confirmation_score": 45,
   "market_lens_regime": "defensive pressure",
   "inputs": {
     "SPX": "VERIFY",
     "QQQ": "DEFENSIVE",
     "TLT": "DEFENSIVE",
     "BTC": "VERIFY",
-    "VIX": "WATCH",
+    "VIX": "STRESS",
     "operational_chart": "Trend weakening above 200D"
   },
   "permissions": [
@@ -36,15 +36,16 @@
     {
       "domain": "Speculative liquidity / crypto beta",
       "permission": "VERIFY",
-      "driver": "BTC VERIFY; VIX WATCH"
+      "driver": "BTC VERIFY; VIX STRESS"
     },
     {
       "domain": "Opportunity promotion",
-      "permission": "RESEARCH ONLY",
-      "driver": "route transition / verify"
+      "permission": "BLOCKED UNTIL RECLAIM",
+      "driver": "route defensive"
     }
   ],
   "blocks": [
+    "Volatility stress blocks new risk until VIX cools.",
     "Rate pressure constrains duration/growth multiple expansion."
   ],
   "promotes": [],
@@ -61,17 +62,17 @@
     },
     {
       "rule": "TRIM",
-      "permission": "selective",
+      "permission": "active",
       "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
     },
     {
       "rule": "PROMOTE OPPORTUNITY",
-      "permission": "research_only",
+      "permission": "blocked_until_reclaim",
       "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
     },
     {
       "rule": "DEFEND",
-      "permission": "standby",
+      "permission": "active",
       "condition": "Activate if SPX loses defense line or VIX enters stress."
     }
   ],

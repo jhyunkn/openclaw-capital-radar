@@ -1,16 +1,16 @@
 {
-  "as_of": "2026-11-06T20:08:44.316Z",
+  "as_of": "2026-11-06T22:18:35.496Z",
   "artifact": "kostolany-egg-state",
   "method": "Kostolany-inspired capital-cycle map. Rates are a primary transmission mechanism, but phase is governed by monetary, liquidity, psychology, market structure, and valuation axes.",
-  "phase_code": "C",
-  "macro_phase": "Transition / verification",
-  "phase_label": "Verification",
-  "phase_confidence": 56,
-  "stress_type": "Balanced",
-  "stress_id": "balanced",
-  "center_action": "Wait for confirmation",
-  "capital_action": "Wait for confirmation",
-  "phase_market_meaning": "Accumulation / test",
+  "phase_code": "F",
+  "macro_phase": "Distribution / defensive reset",
+  "phase_label": "Distribution",
+  "phase_confidence": 44,
+  "stress_type": "Volatility stress",
+  "stress_id": "volatility_stress",
+  "center_action": "Rebalance / defend",
+  "capital_action": "Rebalance / defend",
+  "phase_market_meaning": "Top / liquidity warning",
   "phases": [
     {
       "code": "A1",
@@ -21,7 +21,7 @@
       "next": "A2",
       "id": "crisis_capitulation",
       "index": 0,
-      "state": "dormant"
+      "state": "next"
     },
     {
       "code": "A2",
@@ -43,7 +43,7 @@
       "next": "C",
       "id": "recovery_early_easing",
       "index": 2,
-      "state": "previous"
+      "state": "dormant"
     },
     {
       "code": "C",
@@ -54,7 +54,7 @@
       "next": "D",
       "id": "transition_verification",
       "index": 3,
-      "state": "current"
+      "state": "dormant"
     },
     {
       "code": "D",
@@ -65,7 +65,7 @@
       "next": "E",
       "id": "expansion_risk_on",
       "index": 4,
-      "state": "next"
+      "state": "dormant"
     },
     {
       "code": "E",
@@ -76,7 +76,7 @@
       "next": "F",
       "id": "euphoria_late_risk_on",
       "index": 5,
-      "state": "dormant"
+      "state": "previous"
     },
     {
       "code": "F",
@@ -87,7 +87,7 @@
       "next": "A1",
       "id": "distribution_defensive_reset",
       "index": 6,
-      "state": "dormant"
+      "state": "current"
     }
   ],
   "axis": {
@@ -103,12 +103,12 @@
     },
     "psychology_axis": {
       "label": "Psychology",
-      "score": 60,
+      "score": 32,
       "read": "balanced psychology"
     },
     "market_structure_axis": {
       "label": "Market structure",
-      "score": 48,
+      "score": 37,
       "read": "SPX between 50D and 200D; QQQ growth leadership weak"
     },
     "valuation_axis": {
@@ -118,129 +118,129 @@
     }
   },
   "next_phase_probability": {
-    "crisis_capitulation": 5,
+    "crisis_capitulation": 27,
     "contraction_reset": 5,
-    "recovery_early_easing": 9,
-    "transition_verification": 45,
-    "expansion_risk_on": 27,
-    "euphoria_late_risk_on": 5,
-    "distribution_defensive_reset": 4
+    "recovery_early_easing": 5,
+    "transition_verification": 5,
+    "expansion_risk_on": 4,
+    "euphoria_late_risk_on": 9,
+    "distribution_defensive_reset": 45
   },
   "broad_asset_posture": [
     {
       "asset": "SPX core",
-      "posture": "HOLD",
-      "tilt": "Neutral",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Add after 50D reclaim or clean pullback.",
-      "condition": "Add after 50D reclaim or clean pullback.",
+      "posture": "REDUCE WEAK BETA",
+      "tilt": "Reduce weak beta",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Defend below 200D or VIX stress.",
+      "condition": "Defend below 200D or VIX stress. Stress adjustment: Reduce weak beta.",
       "phase_rule": {
-        "posture": "HOLD",
-        "tilt": "Neutral",
-        "condition": "Add after 50D reclaim or clean pullback."
+        "posture": "REDUCE WEAK BETA",
+        "tilt": "Underweight beta",
+        "condition": "Defend below 200D or VIX stress."
       },
-      "stress_adjustment": null
+      "stress_adjustment": "Reduce weak beta"
     },
     {
       "asset": "QQQ / growth",
-      "posture": "PULLBACK ONLY",
-      "tilt": "Neutral",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Require reset and confirmation.",
-      "condition": "Require reset and confirmation.",
+      "posture": "AVOID ADD",
+      "tilt": "Avoid new adds",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Only strongest quality holds remain.",
+      "condition": "Only strongest quality holds remain. Stress adjustment: Avoid new adds.",
       "phase_rule": {
-        "posture": "PULLBACK ONLY",
-        "tilt": "Neutral",
-        "condition": "Require reset and confirmation."
+        "posture": "AVOID ADD",
+        "tilt": "Underweight",
+        "condition": "Only strongest quality holds remain."
       },
-      "stress_adjustment": null
+      "stress_adjustment": "Avoid new adds"
     },
     {
       "asset": "Small caps",
-      "posture": "WAIT",
-      "tilt": "Underweight",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Require breadth improvement.",
-      "condition": "Require breadth improvement.",
+      "posture": "AVOID",
+      "tilt": "Avoid",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Wait for credit/breadth stabilization.",
+      "condition": "Wait for credit/breadth stabilization. Stress adjustment: Avoid.",
       "phase_rule": {
-        "posture": "WAIT",
+        "posture": "AVOID",
         "tilt": "Underweight",
-        "condition": "Require breadth improvement."
+        "condition": "Wait for credit/breadth stabilization."
       },
-      "stress_adjustment": null
+      "stress_adjustment": "Avoid"
     },
     {
       "asset": "Bonds / TLT",
-      "posture": "WATCH",
-      "tilt": "Neutral",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Add after rate rollover.",
-      "condition": "Add after rate rollover. Stress adjustment: Neutral.",
+      "posture": "CONDITIONAL ACCUMULATE",
+      "tilt": "Overweight if disinflationary",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Add if rates roll over.",
+      "condition": "Add if rates roll over.",
       "phase_rule": {
-        "posture": "WATCH",
-        "tilt": "Neutral",
-        "condition": "Add after rate rollover."
-      },
-      "stress_adjustment": "Neutral"
-    },
-    {
-      "asset": "Gold",
-      "posture": "HEDGE LIGHTLY",
-      "tilt": "Small hedge",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Increase if transition becomes distribution.",
-      "condition": "Increase if transition becomes distribution. Stress adjustment: Small hedge.",
-      "phase_rule": {
-        "posture": "HEDGE LIGHTLY",
-        "tilt": "Small hedge",
-        "condition": "Increase if transition becomes distribution."
-      },
-      "stress_adjustment": "Small hedge"
-    },
-    {
-      "asset": "Oil / energy",
-      "posture": "CONDITIONAL",
-      "tilt": "Conditional",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Own only if pressure type is inflationary.",
-      "condition": "Own only if pressure type is inflationary. Stress adjustment: Conditional.",
-      "phase_rule": {
-        "posture": "CONDITIONAL",
-        "tilt": "Neutral",
-        "condition": "Own only if pressure type is inflationary."
-      },
-      "stress_adjustment": "Conditional"
-    },
-    {
-      "asset": "Cash",
-      "posture": "KEEP DRY POWDER",
-      "tilt": "Moderate dry powder",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Deploy only after confirmation.",
-      "condition": "Deploy only after confirmation. Stress adjustment: Moderate dry powder.",
-      "phase_rule": {
-        "posture": "KEEP DRY POWDER",
-        "tilt": "Moderate overweight",
-        "condition": "Deploy only after confirmation."
-      },
-      "stress_adjustment": "Moderate dry powder"
-    },
-    {
-      "asset": "BTC / crypto beta",
-      "posture": "TACTICAL / WATCH",
-      "tilt": "Small tactical sleeve",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Cut if liquidity weakens.",
-      "condition": "Cut if liquidity weakens.",
-      "phase_rule": {
-        "posture": "TACTICAL / WATCH",
-        "tilt": "Small tactical sleeve",
-        "condition": "Cut if liquidity weakens."
+        "posture": "CONDITIONAL ACCUMULATE",
+        "tilt": "Overweight if disinflationary",
+        "condition": "Add if rates roll over."
       },
       "stress_adjustment": null
     },
     {
-      "asset": "New opportunities",
-      "posture": "NEAR-MISS ONLY",
-      "tilt": "Low budget",
-      "reason": "The market is between regimes; confirmation matters more than prediction. Need route + evidence confirmation.",
-      "condition": "Need route + evidence confirmation.",
+      "asset": "Gold",
+      "posture": "ACCUMULATE",
+      "tilt": "Increase hedge",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Increase on stress confirmation.",
+      "condition": "Increase on stress confirmation. Stress adjustment: Increase hedge.",
       "phase_rule": {
-        "posture": "NEAR-MISS ONLY",
-        "tilt": "Low budget",
-        "condition": "Need route + evidence confirmation."
+        "posture": "ACCUMULATE",
+        "tilt": "Overweight hedge",
+        "condition": "Increase on stress confirmation."
+      },
+      "stress_adjustment": "Increase hedge"
+    },
+    {
+      "asset": "Oil / energy",
+      "posture": "STRESS TYPE ONLY",
+      "tilt": "Only if inflationary shock",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Avoid if demand destruction dominates.",
+      "condition": "Avoid if demand destruction dominates.",
+      "phase_rule": {
+        "posture": "STRESS TYPE ONLY",
+        "tilt": "Only if inflationary shock",
+        "condition": "Avoid if demand destruction dominates."
+      },
+      "stress_adjustment": null
+    },
+    {
+      "asset": "Cash",
+      "posture": "INCREASE",
+      "tilt": "Increase",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Hold until cycle repair.",
+      "condition": "Hold until cycle repair. Stress adjustment: Increase.",
+      "phase_rule": {
+        "posture": "INCREASE",
+        "tilt": "Overweight",
+        "condition": "Hold until cycle repair."
+      },
+      "stress_adjustment": "Increase"
+    },
+    {
+      "asset": "BTC / crypto beta",
+      "posture": "REDUCE",
+      "tilt": "Reduce",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. Wait for risk appetite repair.",
+      "condition": "Wait for risk appetite repair. Stress adjustment: Reduce.",
+      "phase_rule": {
+        "posture": "REDUCE",
+        "tilt": "Underweight",
+        "condition": "Wait for risk appetite repair."
+      },
+      "stress_adjustment": "Reduce"
+    },
+    {
+      "asset": "New opportunities",
+      "posture": "RESEARCH ONLY",
+      "tilt": "No deployment budget",
+      "reason": "Internal deterioration, volatility, or liquidity pressure is overriding trend confidence. No promotion without reset and evidence.",
+      "condition": "No promotion without reset and evidence.",
+      "phase_rule": {
+        "posture": "RESEARCH ONLY",
+        "tilt": "No deployment budget",
+        "condition": "No promotion without reset and evidence."
       },
       "stress_adjustment": null
     }
@@ -248,102 +248,134 @@
   "equity_subcategory_posture": [
     {
       "bucket": "Quality growth",
-      "posture": "HOLD / PULLBACK ONLY",
-      "tilt": "Neutral",
-      "condition": "Require confirmation before add."
+      "posture": "QUALITY ONLY",
+      "tilt": "Neutral to underweight",
+      "condition": "Hold only durable profitable leaders."
     },
     {
       "bucket": "Speculative growth",
-      "posture": "AVOID ADD",
+      "posture": "AVOID",
       "tilt": "Underweight",
-      "condition": "Wait until liquidity and route repair."
+      "condition": "Speculative duration is vulnerable."
     },
     {
       "bucket": "Dividend / income",
-      "posture": "HOLD / ADD QUALITY",
-      "tilt": "Neutral to overweight",
-      "condition": "Income stability is useful during uncertainty."
+      "posture": "ACCUMULATE QUALITY",
+      "tilt": "Overweight",
+      "condition": "Favor stable cash flows and dividend durability."
     },
     {
       "bucket": "Value",
-      "posture": "SELECTIVE",
+      "posture": "QUALITY VALUE ONLY",
       "tilt": "Neutral",
-      "condition": "Avoid low-quality value traps."
+      "condition": "Avoid levered cyclicals and value traps."
     },
     {
       "bucket": "Cyclicals",
-      "posture": "WAIT",
+      "posture": "REDUCE",
       "tilt": "Underweight",
-      "condition": "Need breadth and growth confirmation."
+      "condition": "Demand and earnings risk rising."
     },
     {
       "bucket": "Defensive sectors",
-      "posture": "HOLD / ACCUMULATE LIGHTLY",
-      "tilt": "Slight overweight",
-      "condition": "Useful while phase is unresolved."
+      "posture": "ACCUMULATE",
+      "tilt": "Overweight",
+      "condition": "Capital rotates toward lower-beta stability."
     },
     {
       "bucket": "Small caps",
-      "posture": "WAIT",
+      "posture": "AVOID",
       "tilt": "Underweight",
-      "condition": "Need credit and breadth confirmation."
+      "condition": "Credit and liquidity sensitivity high."
     },
     {
       "bucket": "AI / semis",
-      "posture": "PULLBACK ONLY",
-      "tilt": "Neutral",
-      "condition": "No chase if leadership is extended."
+      "posture": "REDUCE WEAK BETA",
+      "tilt": "Underweight speculative sleeve",
+      "condition": "Keep only strongest leaders."
     },
     {
       "bucket": "Financials",
-      "posture": "WATCH",
-      "tilt": "Neutral",
-      "condition": "Depends on rates, curve, and credit."
+      "posture": "AVOID IF CREDIT WEAKENS",
+      "tilt": "Underweight if stress",
+      "condition": "Credit deterioration is the key risk."
     },
     {
       "bucket": "Utilities",
-      "posture": "HOLD / WATCH",
-      "tilt": "Neutral to overweight",
-      "condition": "Improves if rates roll over."
+      "posture": "ACCUMULATE",
+      "tilt": "Overweight",
+      "condition": "Defensive income and rate sensitivity can help if yields fall."
     },
     {
       "bucket": "Healthcare",
-      "posture": "HOLD QUALITY",
-      "tilt": "Neutral to overweight",
-      "condition": "Good defensive ballast."
+      "posture": "ACCUMULATE",
+      "tilt": "Overweight",
+      "condition": "Defensive quality and stable demand."
     },
     {
       "bucket": "Energy equities",
-      "posture": "CONDITIONAL",
-      "tilt": "Neutral",
-      "condition": "Depends on inflation/supply signal."
+      "posture": "STRESS TYPE ONLY",
+      "tilt": "Conditional",
+      "condition": "Own only if inflationary/supply shock dominates."
     }
   ],
   "visual_summary": {
     "favor_broad": [
       {
-        "asset": "SPX core",
-        "posture": "HOLD"
+        "asset": "QQQ / growth",
+        "posture": "AVOID ADD"
+      },
+      {
+        "asset": "Bonds / TLT",
+        "posture": "CONDITIONAL ACCUMULATE"
+      },
+      {
+        "asset": "Gold",
+        "posture": "ACCUMULATE"
+      },
+      {
+        "asset": "Cash",
+        "posture": "INCREASE"
       }
     ],
     "reduce_broad": [
       {
+        "asset": "SPX core",
+        "posture": "REDUCE WEAK BETA"
+      },
+      {
+        "asset": "QQQ / growth",
+        "posture": "AVOID ADD"
+      },
+      {
         "asset": "Small caps",
-        "posture": "WAIT"
+        "posture": "AVOID"
+      },
+      {
+        "asset": "BTC / crypto beta",
+        "posture": "REDUCE"
+      },
+      {
+        "asset": "New opportunities",
+        "posture": "RESEARCH ONLY"
       }
     ],
     "favor_equity": [
       "Dividend / income",
       "Defensive sectors",
+      "Utilities",
       "Healthcare"
     ],
     "avoid_equity": [
+      "Quality growth",
       "Speculative growth",
       "Cyclicals",
-      "Small caps"
+      "Small caps",
+      "AI / semis",
+      "Financials"
     ]
   },
-  "invalidation": "SPX loses 200D or VIX stress rises above route threshold.",
+  "invalidation": "SPX reclaims 50D/200D with VIX contained and QQQ leadership repair.",
   "self_check": {
     "q1": "A1–F notation remains visible but secondary to clear macro labels.",
     "q2": "Center prioritizes capital action first; stress type is shown underneath.",

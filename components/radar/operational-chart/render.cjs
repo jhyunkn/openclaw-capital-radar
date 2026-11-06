@@ -108,7 +108,16 @@ function renderRouteHero(state) {
   const route = brief.portfolio_posture;
   if (!route) return '';
   const sub = brief.market_state ? `<p class="op-route-sub">${esc(brief.market_state)}</p>` : '';
-  return `<div class="op-route-hero"><span class="op-route-eyebrow">Current route</span><p class="op-route-line">${esc(route)}</p>${sub}</div>`;
+  // Ladder stance follows the narrative brief — shown alongside, never
+  // overwriting, the price-derived route line above it.
+  const ep = state.episode || {};
+  const ladderBits = [];
+  if (brief.ladder_stance) ladderBits.push(`Ladder stance: <strong>${esc(brief.ladder_stance)}</strong>`);
+  if (ep.episodeClass) ladderBits.push(`${esc(ep.episodeClass)} episode`);
+  if (ep.tally && Number.isFinite(Number(ep.tally.confirmed)) && Number.isFinite(Number(ep.tally.of)))
+    ladderBits.push(`tally ${esc(ep.tally.confirmed)}/${esc(ep.tally.of)}`);
+  const ladder = ladderBits.length ? `<p class="op-route-sub">${ladderBits.join(' · ')}</p>` : '';
+  return `<div class="op-route-hero"><span class="op-route-eyebrow">Current route</span><p class="op-route-line">${esc(route)}</p>${sub}${ladder}</div>`;
 }
 
 function renderRulesStrip(state) {
@@ -164,10 +173,42 @@ function renderZoneLadder(state) {
   return `<div class="op-ladder-card"><span class="op-card-eyebrow">Action zones</span><h3 class="op-card-title">Where the S&amp;P 500 sits on the ladder</h3><div class="op-ladder" style="height:400px">${parts.join('')}</div><p class="op-ladder-note">Levels from the current action bands, unchanged. Ladder scale is linear between hard risk and target; the marker is the latest close. Target source: 2-year high × 1.06 — the rule-based bull-path scenario endpoint over ~126 trading days (generate-operational-chart-state.cjs), not a forecast.</p></div>`;
 }
 
+// ── Bottom bands: Jun's standing bottom distribution, rendered from
+// data/spx-bottom-bands.json via state.bottom_bands. A separate block under
+// the ladder — "below 7,000" has no lower bound, so it cannot sit on the
+// ladder's linear scale. Also carries the live-vs-episode 200-day footnote. ──
+function renderBottomBands(state) {
+  const bb = state.bottom_bands;
+  if (!bb || !Array.isArray(bb.bands) || !bb.bands.length) return '';
+  const current = num(state.action_bands && state.action_bands.current);
+  const rows = bb.bands.map(b => {
+    const range = b.low != null ? `${fmtLevel(b.low)}–${fmtLevel(b.high)}` : `below ${fmtLevel(b.high)}`;
+    const prob = b.probabilityPct != null ? `${b.probabilityPct}%` : '—';
+    let pos = '';
+    if (Number.isFinite(current) && b.low != null && b.high != null) {
+      if (current > b.high) pos = ' · price above band';
+      else if (current < b.low) pos = ' · price below band';
+      else pos = ' · price inside band';
+    } else if (Number.isFinite(current) && b.low == null && b.high != null && current < b.high) {
+      pos = ' · price inside band';
+    }
+    return `<div class="op-band-row"><b>${esc(b.label)}</b><span class="op-band-range">${esc(range)}</span><span class="op-band-prob">${esc(prob)}</span><span class="op-band-note">${esc(b.note || '')}${esc(pos)}</span></div>`;
+  }).join('');
+  const ep = state.episode || {};
+  const foot = [];
+  if (ep.sma200 != null && state.chart && state.chart.overlays && state.chart.overlays.ma200 != null) {
+    foot.push(`200-day live ${fmtLevel(state.chart.overlays.ma200)} vs episode ${fmtLevel(ep.sma200)} (${esc(ep.asOf || '')} close) — the gap is the as-of date, not a data error.`);
+  }
+  if (ep.drawdownFromHighPct != null) foot.push(`S&amp;P ${esc(ep.drawdownFromHighPct)}% from its 120-day high at the ${esc(ep.asOf || '')} close.`);
+  if (bb.note) foot.push(esc(bb.note));
+  const source = bb.source ? `<p class="op-band-source">Source: ${esc(bb.source)}${bb.asOf ? ` · as of ${esc(bb.asOf)}` : ''}</p>` : '';
+  return `<div class="op-bands-card"><span class="op-card-eyebrow">Bottom bands</span><h3 class="op-card-title">Where the bottom likely prints</h3><div class="op-bands">${rows}</div>${foot.length ? `<p class="op-ladder-note">${foot.join(' ')}</p>` : ''}${source}</div>`;
+}
+
 function renderOperationalChartSection(state, macroPrices) {
   const payload = buildChartPayload(state);
   const priceStrip = renderMacroPriceStrip(macroPrices);
-  return `<section id="operational-chart-section" class="cr-section op-chart-section decision-chart-v2-shell" data-autoscale-policy="actionable_spx_levels_only"><div class="cr-wrap"><div class="section-head"><div><p class="eyebrow">Market</p><h2>Operational Decision Chart</h2><p class="op-chart-subtitle">S&amp;P 500 decision map</p></div></div>${renderRouteHero(state)}<div id="${CHART_ID}" class="op-lwc-chart"></div>${renderChartRuntime(payload)}${renderZoneLadder(state)}${renderRulesStrip(state)}${priceStrip}</div></section>`;
+  return `<section id="operational-chart-section" class="cr-section op-chart-section decision-chart-v2-shell" data-autoscale-policy="actionable_spx_levels_only"><div class="cr-wrap"><div class="section-head"><div><p class="eyebrow">Market</p><h2>Operational Decision Chart</h2><p class="op-chart-subtitle">S&amp;P 500 decision map</p></div></div>${renderRouteHero(state)}<div id="${CHART_ID}" class="op-lwc-chart"></div>${renderChartRuntime(payload)}${renderZoneLadder(state)}${renderBottomBands(state)}${renderRulesStrip(state)}${priceStrip}</div></section>`;
 }
 
 function renderOperationalChartStyle() {
@@ -198,6 +239,14 @@ function renderOperationalChartStyle() {
 .op-ladder-nowtag{position:absolute;left:0;top:0;transform:translateY(calc(-100% - 4px));background:#1c1a17;color:#ffffff;font-size:11px;font-weight:600;letter-spacing:.02em;padding:3px 10px;white-space:nowrap}
 .op-ladder-nowtag--below{transform:translateY(4px)}
 .op-ladder-note{font-size:11px;color:var(--muted);margin:8px 0 0;line-height:1.55}
+.op-bands-card{border:1px solid var(--rule);border-radius:0;background:#ffffff;padding:24px 28px;margin:0 0 20px}
+.op-bands{display:flex;flex-direction:column;margin-top:16px}
+.op-band-row{display:flex;gap:14px;align-items:baseline;padding:9px 2px;border-bottom:1px solid rgba(44,42,37,.12);font-size:12.5px;line-height:1.55}
+.op-band-row b{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink,#24231f);flex:none;min-width:110px}
+.op-band-range{font-weight:600;color:var(--ink,#24231f);flex:none;font-variant-numeric:tabular-nums}
+.op-band-prob{font-weight:700;color:#8a6a1f;flex:none;font-variant-numeric:tabular-nums}
+.op-band-note{color:var(--muted);flex:1}
+.op-band-source{font-size:11px;color:var(--muted);margin:10px 0 0;line-height:1.55}
 .op-rules-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:0 0 20px}
 .op-rule{border:1px solid var(--rule);border-radius:0;background:#ffffff;padding:14px 16px}
 .op-rule b{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink,#24231f);margin-bottom:6px}

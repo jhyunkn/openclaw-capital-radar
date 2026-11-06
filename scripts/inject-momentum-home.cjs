@@ -28,13 +28,22 @@ const topDecile = readJson(path.join(dir, 'momentum-top-decile.json'), null);
 const gate      = readJson(path.join(dir, 'momentum-gate.json'), null);
 const rebalance = readJson(path.join(dir, 'momentum-rebalance.json'), null);
 const state     = readJson(path.join(dir, 'momentum-state.json'), null);
+// Posture-disagreement inputs (display only — the engine's math is untouched):
+// the episode close (VIX, SMH zone) and the brief's ladder stance. Either may
+// be absent; the renderer then renders no disagreement note.
+const episode   = readJson(path.join(root, 'outputs', 'episode-state.json'), null);
+const brief     = readJson(path.join(root, 'outputs', 'narrative-reality-brief.json'), null);
 
 if (!topDecile || !gate || !rebalance) {
   console.log('momentum artifacts missing — skipping section injection');
   process.exit(0);
 }
 
-const section = renderMomentumSection(topDecile, gate, rebalance, state, { module: true });
+const section = renderMomentumSection(topDecile, gate, rebalance, state, {
+  module: true,
+  episode,
+  briefStance: brief && brief.reaction ? brief.reaction.stance : null,
+});
 const style   = renderMomentumStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');

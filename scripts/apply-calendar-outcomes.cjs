@@ -10,30 +10,29 @@
  * in the market-orientation stage immediately before sync-market-events.cjs,
  * so everything derived from the calendar sees completed events.
  *
- * SOURCE CONTRACT — the only place outcomes may come from:
- *   data/market-calendar-outcomes.json, a checked-in ledger keyed by the
- *   same event id sync-market-events.cjs derives (`<type>-<date>`).
- *   An entry counts as VERIFIED only when decision, reaction, source, and
- *   verifiedAt are all present and non-empty. Entries are curated from
- *   figures the brief pipeline has already verified (Jun's graded event
- *   record). The narrative brief (outputs/narrative-reality-brief.json) is
- *   prose and is NEVER scraped for figures; this step fetches nothing and
- *   estimates nothing.
+ * SOURCE CONTRACT — outcomes may come from two places, both checked in:
+ *   (1) data/market-calendar-outcomes.json, a ledger keyed by the same
+ *       event id sync-market-events.cjs derives (`<type>-<date>`), curated
+ *       from figures the brief pipeline has already verified (Jun's graded
+ *       event record). An entry counts as VERIFIED only when decision,
+ *       reaction, source, and verifiedAt are all present and non-empty.
+ *   (2) Machine entries written by scripts/fetch-calendar-outcomes.cjs
+ *       from FRED series (source "FRED ..."). Those carry a computed
+ *       decision only — a market reaction cannot be computed from an index
+ *       level and is never invented, so isVerified() accepts them without
+ *       a reaction. The narrative brief (outputs/narrative-reality-brief.json)
+ *       is prose and is NEVER scraped for figures; this step fetches nothing
+ *       and estimates nothing.
  *
  * FAIL CLOSED: a passed event with no verified ledger entry is left
  * without an outcome and logged. An existing outcome is never overwritten.
- * The outcome written to the calendar carries only { decision, reaction }
- * — the exact schema of the Sep 16 FOMC outcome; provenance (source,
- * verifiedAt) stays in the ledger.
+ * The outcome written to the calendar carries { decision, reaction } when
+ * a reaction exists, { decision } alone for machine entries — provenance
+ * (source, verifiedAt) stays in the ledger.
  *
- * GATE — OFF BY DEFAULT: the step runs only when the environment sets
- * CAPITAL_RADAR_CALENDAR_OUTCOMES=1. As of 2026-10-23 no pipeline stage
- * emits the ledger automatically, so entries are added deliberately, the
- * same curation model as data/market-calendar.json itself (see the
- * sync-market-events.cjs header). Enabling the step with no new ledger
- * entries is a no-op. To make outcomes fully automatic, a future stage
- * must write the ledger from verified brief figures; until then a human
- * adds the entry and this step does the closing-out.
+ * GATE — enabled by the lane runner (scripts/run-build-lane.cjs sets
+ * CAPITAL_RADAR_CALENDAR_OUTCOMES=1 by default, overridable to '0').
+ * With no new ledger entries the step is a no-op.
  */
 const fs = require('fs');
 const path = require('path');
@@ -55,8 +54,14 @@ function sortKeysDeep(value) {
 }
 
 function isVerified(entry) {
-  return Boolean(entry) && ['decision', 'reaction', 'source', 'verifiedAt']
-    .every(k => typeof entry[k] === 'string' && entry[k].trim().length > 0);
+  if (!entry || typeof entry !== 'object') return false;
+  const has = k => typeof entry[k] === 'string' && entry[k].trim().length > 0;
+  if (!has('decision') || !has('source') || !has('verifiedAt')) return false;
+  // Machine entries (source "FRED ...") carry a computed decision only;
+  // a market reaction cannot be computed from an index level and is never
+  // invented. Human-curated entries still require a reaction.
+  if (String(entry.source).startsWith('FRED ')) return true;
+  return has('reaction');
 }
 
 function main() {
@@ -92,7 +97,9 @@ function main() {
       leftOpen.push(id); // FAIL CLOSED: no verified figure, no outcome
       continue;
     }
-    ev.outcome = { decision: entry.decision, reaction: entry.reaction };
+    ev.outcome = entry.reaction
+      ? { decision: entry.decision, reaction: entry.reaction }
+      : { decision: entry.decision };
     wrote += 1;
     console.log(`apply-calendar-outcomes: wrote outcome for ${id} (source verified ${entry.verifiedAt})`);
   }

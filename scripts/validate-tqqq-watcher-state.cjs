@@ -21,6 +21,17 @@ if (state.order?.state !== 'NONE' && state.approval?.authorized !== true) errors
 if (state.market?.status !== 'OPEN' && state.decision?.action !== 'WAIT') errors.push('closed/non-open market must render WAIT');
 if (Number(state.sizing?.deployFraction) !== 0.5) errors.push('Agentic entry allocation must remain 50% of available cash');
 if (Number(state.policy?.pauseThresholdPct) !== -12) errors.push('pause threshold must remain -12%');
+// Stale-flag consistency: the flag must agree with observation age. A state
+// whose observedAt is older than maxAgeMinutes is stale whether or not the
+// gateway declared it — a stale:false on an old observation is a lie the
+// renderer would otherwise have to correct at display time.
+const maxAge = Number(state.maxAgeMinutes) > 0 ? Number(state.maxAgeMinutes) : 20;
+const observedMs = state.observedAt ? new Date(state.observedAt).getTime() : NaN;
+if (!Number.isFinite(observedMs)) {
+  if (state.stale !== true) errors.push('observedAt is missing or unparsable but stale is not true');
+} else if ((Date.now() - observedMs) / 60000 > maxAge && state.stale !== true) {
+  errors.push(`observedAt is ${Math.round((Date.now() - observedMs) / 60000)}m old (max ${maxAge}m) but stale is not true — stale flag is inconsistent with observation age`);
+}
 
 if (errors.length) {
   console.error(JSON.stringify({ ok: false, errors }, null, 2));

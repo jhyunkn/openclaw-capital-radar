@@ -121,7 +121,7 @@ function renderTqqqWatcherModule(state = {}) {
     ? sources.map(source => `<li><b>${esc(source.label || source.id || 'Source')}</b><span data-tqw-source-status>${esc(source.status || 'UNKNOWN')} · ${esc(sourceTime(source.asOf))}</span></li>`).join('')
     : '<li><b>Sources</b><span>Missing</span></li>';
 
-  return `<section class="tqqq-watcher" id="tqqq-watcher" data-observed-at="${esc(state.observedAt || '')}" data-max-age-minutes="${esc(f.max)}" data-declared-stale="${state.stale === true ? 'true' : 'false'}">
+  return `<section class="tqqq-watcher" id="tqqq-watcher" data-observed-at="${esc(state.observedAt || '')}" data-max-age-minutes="${esc(f.max)}" data-stale="${f.stale ? 'true' : 'false'}" data-declared-stale="${state.stale === true ? 'true' : 'false'}">
     <div class="tqw-head">
       <div>
         <p class="tqw-kicker">Agentic ••••2775 · TQQQ watcher</p>

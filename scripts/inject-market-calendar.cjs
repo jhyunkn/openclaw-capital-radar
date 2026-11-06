@@ -45,10 +45,14 @@ function formatMonth(dateStr) {
 
 // Group events by month, sorted chronologically.
 // An event with an `outcome` is decided → rendered in the "What happened"
-// group; everything else is upcoming.
+// group. Future events without one are upcoming. A PAST event without one
+// is pending — it must never render preview ("Watch for") text as if the
+// event were still ahead.
 const sorted  = [...events].sort((a, b) => a.date.localeCompare(b.date));
 const decided = sorted.filter(ev => ev.outcome && (ev.outcome.decision || ev.outcome.reaction));
-const upcoming = sorted.filter(ev => !(ev.outcome && (ev.outcome.decision || ev.outcome.reaction)));
+const rest    = sorted.filter(ev => !(ev.outcome && (ev.outcome.decision || ev.outcome.reaction)));
+const pending = rest.filter(ev => daysFrom(ev.date) < 0);
+const upcoming = rest.filter(ev => daysFrom(ev.date) >= 0);
 const byMonth = {};
 for (const ev of upcoming) {
   const monthKey = ev.date.slice(0, 7);
@@ -103,6 +107,24 @@ function renderDecidedEvent(ev) {
 </div>`;
 }
 
+// Passed event with no verified outcome: date + label + factual detail only.
+// Never the preview ("Watch for") text, never an invented number.
+function renderPendingEvent(ev) {
+  const meta = TYPE_META[ev.type] || TYPE_META.cpi;
+  const days = daysFrom(ev.date);
+  const badge = `<span class="mc-badge" style="color:${meta.color};background:${meta.bg};border-color:${meta.border};">${meta.label}</span>`;
+
+  return `<div class="mc-pending-event">
+  <div class="mc-row">
+    <span class="mc-date">${formatDate(ev.date)}</span>
+    ${badge}
+    <span class="mc-label">${esc(ev.label)}</span>
+    <span class="mc-pending">${Math.abs(days)}d ago · outcome pending</span>
+  </div>
+  ${ev.detail ? `<p class="mc-detail">${esc(ev.detail)}</p>` : ''}
+</div>`;
+}
+
 function renderSection() {
   const monthBlocks = Object.entries(byMonth).map(([monthKey, evs]) => {
     const monthLabel = formatMonth(evs[0].date);
@@ -118,6 +140,12 @@ function renderSection() {
   <div class="mc-past-events">${decided.map(renderDecidedEvent).join('\n')}</div>
 </div>` : '';
 
+  const pendingBlock = pending.length ? `<div class="mc-past">
+  <div class="mc-past-head">Outcome pending</div>
+  <p class="mc-pending-note">These events have passed with no verified outcome on file yet. Preview text is withheld until the actual is recorded — nothing here is a forecast.</p>
+  <div class="mc-past-events">${pending.map(renderPendingEvent).join('\n')}</div>
+</div>` : '';
+
   return `<!-- MC_CALENDAR_START -->
 <section id="market-calendar-section" class="mc-section">
 <div class="mc-inner">
@@ -130,6 +158,7 @@ function renderSection() {
   </div>
   <div class="mc-body">
     ${monthBlocks}
+    ${pendingBlock}
     ${pastBlock}
   </div>
   <p class="mc-source">Sources: Federal Reserve (fomc.org) · BLS · BEA · Earnings estimated from historical reporting patterns. Outcomes recorded from public post-decision reporting; reactions are short-term price repricing, not forecasts.</p>
@@ -168,6 +197,9 @@ function renderStyle() {
 .mc-past-event{opacity:.92}
 .mc-past-event:last-child .mc-row{margin-bottom:0}
 .mc-decided{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-family:var(--mono,monospace);color:rgba(36,35,31,.45);border:1px solid rgba(201,191,173,.5);padding:2px 7px;white-space:nowrap}
+.mc-pending{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-family:var(--mono,monospace);color:#8a6a1f;border:1px solid rgba(138,106,44,.5);background:rgba(138,106,44,.08);padding:2px 7px;white-space:nowrap}
+.mc-pending-note{font-size:11.5px;color:var(--muted,#747168);line-height:1.55;margin:0 0 14px}
+.mc-pending-event{opacity:.92}
 .mc-outcome,.mc-reaction{font-size:12px;line-height:1.55;color:rgba(36,35,31,.75);margin:7px 0 0;padding-left:64px}
 .mc-reaction{margin-top:5px}
 .mc-outcome span,.mc-reaction span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:rgba(36,35,31,.45);margin-right:7px}
@@ -210,4 +242,4 @@ if (sectionRe.test(html)) {
 
 fs.writeFileSync(indexPath, html);
 const upcomingCount = events.filter(e => daysFrom(e.date) >= 0).length;
-console.log(`injected market-calendar-section: ${events.length} events, ${upcomingCount} upcoming, ${decided.length} decided`);
+console.log(`injected market-calendar-section: ${events.length} events, ${upcomingCount} upcoming, ${pending.length} outcome pending, ${decided.length} decided`);

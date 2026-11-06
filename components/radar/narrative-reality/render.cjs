@@ -39,7 +39,7 @@ function stanceMeta(stance) {
   }
 }
 
-function renderReaction(reaction) {
+function renderReaction(reaction, momentum) {
   if (!reaction || typeof reaction !== 'object') return '';
   const rungs = arr(reaction.ladder).map(rung => `
       <div class="nr-rung">
@@ -47,6 +47,21 @@ function renderReaction(reaction) {
         <span class="nr-rung-arrow">&rarr;</span>
         <span class="nr-rung-response">${esc(rung.response)}</span>
       </div>`).join('');
+  // Posture disagreement (display only — mirror of the momentum module's note).
+  // Shown when the momentum engine is long (FULL/REDUCED) while this ladder
+  // is cautious (Watch/Trim/Exit): the engine trips only at VIX >= 30 /
+  // HY OAS >= 4%; the ladder stands down at VIX > 25. Both as-of dates shown.
+  let disagree = '';
+  if (momentum && (momentum.tierLabel === 'FULL' || momentum.tierLabel === 'REDUCED')
+      && (reaction.stance === 'Watch' || reaction.stance === 'Trim' || reaction.stance === 'Exit')) {
+    const momAsOf = momentum.generatedAt
+      ? new Date(momentum.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      : '';
+    const exposurePct = Number.isFinite(Number(momentum.exposure))
+      ? `${Math.round(Number(momentum.exposure) * 100)}%` : '—';
+    const momVix = Number.isFinite(Number(momentum.vix)) ? Number(momentum.vix).toFixed(1) : 'n/a';
+    disagree = `<p class="nr-disagree"><strong>Posture disagreement.</strong> Momentum engine says ${esc(momentum.tierLabel)} · ${esc(exposurePct)}${momAsOf ? ` (${esc(momAsOf)}, gate VIX ${esc(momVix)})` : ''} while this ladder says ${esc(reaction.stance)} — the engine trips only at VIX &ge;30 / HY OAS &ge;4%; the ladder stands down at VIX &gt;25. Different systems, different thresholds; neither overrides the other.</p>`;
+  }
   return `
     <div class="nr-reaction">
       <div class="nr-reaction-head">
@@ -54,6 +69,7 @@ function renderReaction(reaction) {
         ${reaction.stance ? `<span class="nr-stance ${stanceMeta(reaction.stance)}">Stance &middot; ${esc(reaction.stance)}</span>` : ''}
       </div>
       ${reaction.episode ? `<p class="nr-reaction-episode">${esc(reaction.episode)}</p>` : ''}
+      ${disagree}
       ${rungs ? `<div class="nr-rungs">${rungs}</div>` : ''}
       <div class="nr-reaction-foot">
         ${reaction.invalidation ? `<div class="nr-reaction-line"><span class="nr-watch-label">Invalidation</span><span class="nr-watch-text">${esc(reaction.invalidation)}</span></div>` : ''}
@@ -67,7 +83,7 @@ function renderNarrativeRealitySection(brief, options = {}) {
 
   const themes     = arr(brief.themes);
   const cards      = themes.map(renderThemeCard).join('');
-  const reaction   = renderReaction(brief.reaction);
+  const reaction   = renderReaction(brief.reaction, options.momentum || null);
 
   // Full as-of from the brief's generatedAt (ET, with time): the brief is an
   // intraday snapshot — its figures (e.g. a midday VIX print in the posture
@@ -140,6 +156,8 @@ function renderNarrativeRealityStyle() {
 .nr-stance-act{color:var(--green,#2f6f4e);border-color:rgba(47,111,78,.35);background:rgba(47,111,78,.06)}
 .nr-stance-defensive{color:rgba(164,80,47,.9);border-color:rgba(164,80,47,.35);background:rgba(164,80,47,.06)}
 .nr-reaction-episode{margin:0 0 14px;font-size:13.5px;line-height:1.65;color:rgba(36,35,31,.88);max-width:78ch}
+.nr-disagree{font-size:12.5px;line-height:1.6;color:rgba(36,35,31,.88);background:#fffdf8;border:1px solid rgba(138,106,44,.45);border-left:3px solid rgba(138,106,44,.6);padding:10px 14px;margin:0 0 14px}
+.nr-disagree strong{color:#8a6a1f}
 .nr-rungs{display:flex;flex-direction:column;border-top:1px solid rgba(201,191,173,.4)}
 .nr-rung{display:flex;gap:10px;align-items:baseline;padding:9px 2px;border-bottom:1px solid rgba(201,191,173,.4);font-size:12.5px;line-height:1.55}
 .nr-rung-trigger{font-weight:600;color:rgba(36,35,31,.9);flex:0 1 44%}

@@ -77,6 +77,39 @@ function fmtRebalanceDate(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+// Posture disagreement (display only — never changes engine math).
+// The momentum gate and the narrative ladder are different systems with
+// different thresholds: the gate trips only at VIX >= 30 / HY OAS >= 4%,
+// while the ladder stands down at VIX > 25. When they point different ways,
+// say so on the page with both as-of dates, so the reader never mistakes
+// one system's close for the other's.
+function renderPostureDisagreement(gate, options = {}) {
+  const episode = options.episode || null;
+  const stance = options.briefStance || null;
+  if (!episode || !stance) return '';
+  const epVix = episode.vix && Number.isFinite(Number(episode.vix.close))
+    ? Number(episode.vix.close) : null;
+  const standdownOn = epVix !== null && epVix > 25;
+  const smhZone = episode.smh && episode.smh.zone ? String(episode.smh.zone) : null;
+  const smhBelowZone2 = smhZone === 'BELOW_ZONE_2';
+  const engineFull = gate.tierLabel === 'FULL' || gate.tierLabel === 'REDUCED';
+  const ladderCautious = stance === 'Watch' || stance === 'Trim' || stance === 'Exit';
+  if (!standdownOn && !(engineFull && ladderCautious)) return '';
+
+  const gateVix = gate.inputs && gate.inputs.vix && Number.isFinite(Number(gate.inputs.vix.value))
+    ? Number(gate.inputs.vix.value) : null;
+  const gateAsOf = gate.generatedAt
+    ? new Date(gate.generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : '';
+  const epAsOf = episode.dataThrough ? fmtRebalanceDate(episode.dataThrough) : '';
+  const exposurePct = Math.round((gate.exposure ?? 1) * 100);
+  const reasons = [];
+  if (standdownOn) reasons.push(`ladder stand-down ON — VIX ${fmtNum(epVix, 2)} above 25`);
+  if (smhBelowZone2) reasons.push('SMH below Zone 2');
+  const reasonText = reasons.length ? ` — ${reasons.join('; ')}` : '';
+  return `<p class="mom-disagree"><strong>Posture disagreement.</strong> Engine ${esc(gate.tierLabel || '?')} · ${exposurePct}%${gateAsOf ? ` (${esc(gateAsOf)}, gate VIX ${gateVix === null ? 'n/a' : fmtNum(gateVix, 1)})` : ''} vs ladder ${esc(stance)}${epAsOf ? ` at the ${esc(epAsOf)} close` : ''}${esc(reasonText)}. The engine's gate trips only at VIX &ge;30 / HY OAS &ge;4%; the ladder stands down at VIX &gt;25. Engine math unchanged — the two systems disagree, and the disagreement is the signal.</p>`;
+}
+
 function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) {
   if (!topDecile || !gate || !rebalance) return '';
 
@@ -103,6 +136,17 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
     vix.value === null ? 'VIX: n/a'         : `VIX ${fmtNum(vix.value, 0)}`,
   ].join(' · ');
 
+  // Ladder stand-down state as a displayed input (from the episode close,
+  // not the gate's own VIX — the two are different as-of dates; see the
+  // disagreement note below the inputs line).
+  const episode = options.episode || null;
+  const epVix = episode && episode.vix && Number.isFinite(Number(episode.vix.close))
+    ? Number(episode.vix.close) : null;
+  const epAsOf = episode && episode.dataThrough ? fmtRebalanceDate(episode.dataThrough) : '';
+  const standdownLine = epVix === null ? ''
+    : ` · Ladder stand-down ${epVix > 25 ? 'ON' : 'OFF'} (VIX ${fmtNum(epVix, 2)} vs 25, ${epAsOf} close)`;
+  const disagreement = renderPostureDisagreement(gate, options);
+
   const topCount = topDecile.activeCount;
   const universeN = state?.includedCount || '';
   const scope = `top decile of ${universeN} ranked names · ${Math.round((topDecile.exposure ?? gate.exposure ?? 1) * 100)}% invested, rest cash`;
@@ -124,7 +168,8 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
     </div>
 
     <p class="mom-reason">${esc(gate.reason || '')}</p>
-    <p class="mom-inputs">${esc(gateInputsLine)}</p>
+    <p class="mom-inputs">${esc(gateInputsLine)}${standdownLine ? esc(standdownLine) : ''}</p>
+    ${disagreement}
 
     ${list.length ? `<div class="mom-tablewrap"><table class="mom-table">
       <thead><tr>
@@ -176,6 +221,8 @@ function renderMomentumStyle() {
 .mom-red{color:#a4502f;border-color:rgba(164,80,47,.5);background:rgba(164,80,47,.08)}
 .mom-reason{font-size:14px;color:#24231f;margin:10px 0 4px}
 .mom-inputs{font-size:12px;color:#6b675c;margin:0 0 16px}
+.mom-disagree{font-size:12.5px;line-height:1.6;color:rgba(36,35,31,.88);background:#fffdf8;border:1px solid rgba(138,106,44,.45);border-left:3px solid rgba(138,106,44,.6);padding:10px 14px;margin:0 0 16px}
+.mom-disagree strong{color:#8a6a1f}
 .mom-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;min-width:640px}
 .mom-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mom-table th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b675c;text-align:left;padding:6px 10px;border-bottom:1px solid rgba(201,191,173,.6)}

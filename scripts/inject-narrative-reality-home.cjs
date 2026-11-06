@@ -20,7 +20,18 @@ if (!brief || !Array.isArray(brief.themes) || !brief.themes.length) {
   process.exit(0);
 }
 
-const section = renderNarrativeRealitySection(brief, { module: true });
+// Posture-disagreement input (display only): the momentum engine's current
+// tier/exposure/VIX so the reaction block can name the disagreement when the
+// engine is long while the ladder is cautious. Absent file → no note.
+const momentumGate = readJson(path.join(root, 'outputs', 'momentum', 'momentum-gate.json'), null);
+const momentum = momentumGate ? {
+  tierLabel: momentumGate.tierLabel,
+  exposure: momentumGate.exposure,
+  vix: momentumGate.inputs && momentumGate.inputs.vix ? momentumGate.inputs.vix.value : null,
+  generatedAt: momentumGate.generatedAt,
+} : null;
+
+const section = renderNarrativeRealitySection(brief, { module: true, momentum });
 const style   = renderNarrativeRealityStyle();
 
 let html = fs.readFileSync(indexPath, 'utf8');

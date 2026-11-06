@@ -127,7 +127,11 @@ for (const stage of lane.stages) {
       // exec sessions (the money-cash refresh hung ~12min on 2026-10-01
       // because they were absent). Values match the money-cash workflow design.
       FRED_FETCH_TIMEOUT_MS: process.env.FRED_FETCH_TIMEOUT_MS || '8000',
-      FRED_FETCH_RETRIES: process.env.FRED_FETCH_RETRIES || '1' }
+      FRED_FETCH_RETRIES: process.env.FRED_FETCH_RETRIES || '1',
+      // Calendar outcomes: apply verified ledger entries every lane run.
+      // Default ON (overridable to '0'); without it, curated ledger entries
+      // never reach the calendar. See scripts/apply-calendar-outcomes.cjs.
+      CAPITAL_RADAR_CALENDAR_OUTCOMES: process.env.CAPITAL_RADAR_CALENDAR_OUTCOMES || '1' }
   });
   const durationMs = Date.now() - t0;
   report.stages.push({ stage, durationMs, status: result.status === 0 ? 'PASS' : 'FAIL' });

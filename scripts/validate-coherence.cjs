@@ -35,6 +35,9 @@
  *       render where Portfolio $92,212 sat next to Equity $86,035 + Cash
  *       $4,766 = $90,801 because the $1,411 crypto component was never
  *       printed;
+ *   (f2) the Portfolio Alignment section's membership/count differs from
+ *       the current broker snapshot. report-state is a wider market-data
+ *       universe and must not keep exited research tickers in the book;
  *   (g) the S&P fan narrative carries a hand-typed S&P level. The fan's
  *       table and prose are rendered client-side, so computed endpoints
  *       do not exist in the built HTML to cross-check numerically; the
@@ -52,6 +55,19 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
+let expectedAlignmentLabel = null;
+try {
+  const rhBook = JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'robinhood-positions.json'), 'utf8'));
+  const positions = Array.isArray(rhBook.positions) ? rhBook.positions : [];
+  const crypto = positions
+    .filter(position => position?.assetClass === 'crypto')
+    .map(position => String(position.symbol || '').toUpperCase())
+    .filter(Boolean);
+  const equityCount = positions.filter(position => position && position.assetClass !== 'crypto').length;
+  expectedAlignmentLabel = crypto.length
+    ? `${equityCount} equities + ${crypto.length} crypto (${crypto.join(', ')} not phase-scored)`
+    : `${equityCount} positions`;
+} catch {}
 
 const candidates = ['index.html', path.join('public', 'index.html')]
   .map(rel => path.join(root, rel))
@@ -183,6 +199,17 @@ for (const file of candidates) {
     }
   } else {
     console.log(`SKIP ${rel} · account reconciliation — Robinhood sync strip not found`);
+  }
+
+  // ── (f2) Portfolio alignment must use current broker membership ──
+  if (expectedAlignmentLabel) {
+    check(
+      `${rel} · portfolio alignment membership`,
+      html.includes(`Portfolio alignment · ${expectedAlignmentLabel}`),
+      `expected current broker label "${expectedAlignmentLabel}"`
+    );
+  } else {
+    console.log(`SKIP ${rel} · portfolio alignment membership — Robinhood snapshot unavailable`);
   }
 
   // ── (g) Fan narrative: endpoints generated, never hand-typed ──

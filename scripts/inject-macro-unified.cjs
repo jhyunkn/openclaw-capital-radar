@@ -24,15 +24,22 @@ const portfolio= read('outputs/macro-portfolio-translation-state.json');
 const cycle    = read('outputs/macro-cycle-state.json');
 const cycleWatch = read('outputs/cycle-watch-state.json', null);
 const liveState   = read('data/report-state.live.json', {});
-const allHoldings = Array.isArray(liveState.holdings) ? liveState.holdings : [];
+const reportHoldings = Array.isArray(liveState.holdings) ? liveState.holdings : [];
 // Position-count label: the alignment universe above is the scored equity
 // book (report-state holdings). The broker book (robinhood-positions.json)
 // additionally carries crypto lines (DOGE, assetClass 'crypto') that are
 // not phase-scored here — label the split from the data instead of letting
 // this module's "13 positions" contradict the header's 14.
 const rhBook = read('outputs/robinhood-positions.json', {});
-const cryptoSyms = (Array.isArray(rhBook.positions) ? rhBook.positions : [])
+const brokerPositions = Array.isArray(rhBook.positions) ? rhBook.positions : [];
+const cryptoSyms = brokerPositions
   .filter(p => p && p.assetClass === 'crypto').map(p => String(p.symbol || '').toUpperCase()).filter(Boolean);
+const brokerEquitySyms = new Set(brokerPositions
+  .filter(p => p && p.assetClass !== 'crypto')
+  .map(p => String(p.symbol || '').toUpperCase())
+  .filter(Boolean));
+const allHoldings = reportHoldings
+  .filter(h => brokerEquitySyms.has(String(h?.ticker || '').toUpperCase()));
 const alignmentCountLabel = cryptoSyms.length
   ? `${allHoldings.length} equities + ${cryptoSyms.length} crypto (${cryptoSyms.join(', ')} not phase-scored)`
   : `${allHoldings.length} positions`;

@@ -288,6 +288,25 @@ function extractTerms(text) {
     const w = windowFor(pm.index);
     if (!dealish(w)) continue;
     const v = parseFloat((pm[1] || pm[2]).replace(/,/g, ''));
+    // A headline per-share figure introduced as an *implied* value — e.g.
+    // "representing approximately $1,132 per share" on an all-stock deal —
+    // is DERIVED from the stock leg, never an additive cash leg. Recording
+    // it as offerPricePerShare double-counts the consideration (cash leg +
+    // stock leg) and fabricates a TRADEABLE spread. Stash it for audit and
+    // keep scanning for a genuine cash leg. A genuine cash leg is phrased
+    // "$X per share in cash" (or "cash consideration of $X per share") and
+    // is never introduced as implied — the "in cash" guard below is what
+    // keeps a real cash price from being skipped. If no genuine cash leg
+    // appears, the deal prices off the exchange ratio alone.
+    const matchText = pm[0] || '';
+    const ctxBefore = text.slice(Math.max(0, pm.index - 160), pm.index);
+    const explicitCash = /in cash/i.test(matchText) ||
+      /in cash/i.test(text.slice(pm.index + matchText.length, pm.index + matchText.length + 30));
+    if (!explicitCash && /\b(representing|represents|implied|implies|implying)\b/i.test(ctxBefore)) {
+      t.impliedValuePerShare = v;
+      t.rejected++;
+      continue;
+    }
     if (v >= 2) { t.offerPricePerShare = v; t.considerationType = 'cash'; break; }
     t.rejected++;
   }
@@ -516,6 +535,7 @@ async function main() {
           mergerOfEquals: /merger[\s-]?of[\s-]?equals/i.test(roleText),
           considerationType: terms.considerationType || null,
           offerPricePerShare: terms.offerPricePerShare ?? null,
+          impliedValuePerShare: terms.impliedValuePerShare ?? null,
           exchangeRatio: terms.exchangeRatio ?? null,
           expectedCloseDate: terms.expectedCloseDate || null,
           expectedCloseLabel: terms.expectedCloseLabel || null,
@@ -571,7 +591,7 @@ async function main() {
     winner.evidenceUrls = [...new Set([...(winner.evidenceUrls || [winner.filingUrl]), ...(loser.evidenceUrls || [loser.filingUrl])].filter(Boolean))];
     if (loser.status === 'completed') winner.status = 'completed';
     // prefer any extracted terms the winner lacks
-    for (const f of ['considerationType', 'offerPricePerShare', 'exchangeRatio', 'expectedCloseDate', 'expectedCloseLabel', 'terminationFeeUSD', 'dealValueUSD', 'acquirer', 'acquirerSymbol']) {
+    for (const f of ['considerationType', 'offerPricePerShare', 'impliedValuePerShare', 'exchangeRatio', 'expectedCloseDate', 'expectedCloseLabel', 'terminationFeeUSD', 'dealValueUSD', 'acquirer', 'acquirerSymbol']) {
       if (winner[f] == null && loser[f] != null) winner[f] = loser[f];
     }
     if (winner.confidenceReason && loser.confidenceReason && !winner.confidenceReason.includes('merged')) {

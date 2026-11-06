@@ -107,6 +107,59 @@ for (const d of board.deals) {
     ok(d.annualizedSpreadPct == null, `${id}: non-tradeable deal must not carry an annualized spread`);
   }
 
+  // Sub-bar deals (spread computed, verdict not TRADEABLE): the spread math
+  // must still recompute from the row's own terms and prices, the verdict
+  // must match the ladder, and no annualized spread or capacity math may be
+  // carried. This block is ADDITIVE — it extends the recompute coverage to
+  // the deals the tradeable-gated block above no longer sees, now that
+  // `tradeable` equals the final verdict instead of the loose pre-filter.
+  // (No existing check above was changed.)
+  if (!d.tradeable && d.spreadPct != null) {
+    let expected = null;
+    if (d.considerationType === 'cash' && d.offerPricePerShare) expected = d.offerPricePerShare / d.targetPrice - 1;
+    else if ((d.considerationType === 'stock' || d.considerationType === 'collar') && d.exchangeRatio && d.acquirerPrice) {
+      expected = (d.exchangeRatio * d.acquirerPrice) / d.targetPrice - 1;
+      ok(d.shortRequired === true, `${id}: stock deal must flag shortRequired`);
+      ok(d.borrowData === 'unavailable', `${id}: stock deal must flag borrowData unavailable`);
+    }
+    else if (d.considerationType === 'mixed' && d.offerPricePerShare) {
+      if (d.exchangeRatio && d.acquirerPrice) {
+        expected = (d.offerPricePerShare + d.exchangeRatio * d.acquirerPrice) / d.targetPrice - 1;
+        ok(d.shortRequired === true, `${id}: mixed deal with stock leg must flag shortRequired`);
+        ok(d.borrowData === 'unavailable', `${id}: mixed deal with stock leg must flag borrowData unavailable`);
+      } else {
+        expected = d.offerPricePerShare / d.targetPrice - 1;
+      }
+    }
+    if (expected != null) {
+      ok(Math.abs(expected - d.spreadPct) <= 0.001, `${id}: spreadPct ${d.spreadPct} != recomputed ${expected.toFixed(4)}`);
+    }
+    ok(d.annualizedSpreadPct == null, `${id}: non-tradeable deal must not carry an annualized spread`);
+    for (const row of (d.capacityTable || [])) {
+      ok(row.expectedGross == null && row.annualizedGross == null, `${id}: non-tradeable deal must not carry capacity math`);
+    }
+    // Verdict ladder for a computed spread on a live deal (a past-close
+    // deal is NOT TRADEABLE regardless of spread shape — the close already
+    // passed, so the stub/negative ladder does not apply to it).
+    const todayISO = new Date().toISOString().slice(0, 10);
+    const closePassed = d.expectedCloseDate != null && d.expectedCloseDate < todayISO;
+    if (!closePassed) {
+      const isStubShape = d.spreadPct >= 0 && d.spreadPct < 0.01 && d.tradingDaysToClose != null && d.tradingDaysToClose <= 10;
+      if (d.spreadPct < 0) ok(/^NEGATIVE/.test(d.verdict), `${id}: negative spread must carry NEGATIVE verdict`);
+      else if (isStubShape) ok(/^STUB — sailed/.test(d.verdict), `${id}: stub-shaped spread must carry STUB verdict`);
+      else if (d.expectedCloseDate == null) ok(/^NO TIMELINE/.test(d.verdict), `${id}: spread without a close date must carry NO TIMELINE verdict`);
+      else if (d.tradingDaysToClose != null && d.tradingDaysToClose > 0) {
+        // The annualized figure is nulled on the row by design, so recompute
+        // it here from the preserved spreadPct + tradingDaysToClose: a live
+        // sub-8% deal must carry THIN, and nothing sub-8% may pose as
+        // TRADEABLE.
+        const ann = Math.pow(1 + d.spreadPct, 252 / d.tradingDaysToClose) - 1;
+        ok(ann < 0.08, `${id}: recomputed annualized ${(ann * 100).toFixed(1)}% clears the 8% bar but verdict is '${d.verdict}'`);
+        ok(/^THIN — no romance$/.test(d.verdict), `${id}: annualized ${(ann * 100).toFixed(1)}% must carry THIN verdict`);
+      }
+    }
+  }
+
   // sort order: annualizedSpreadPct desc, nulls last
   const cur = d.annualizedSpreadPct == null ? -Infinity : d.annualizedSpreadPct;
   ok(cur <= prevAnn + 1e-9, `${id}: deals not sorted by annualizedSpreadPct desc`);

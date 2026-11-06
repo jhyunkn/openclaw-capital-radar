@@ -17,10 +17,17 @@
  * annualized spread is under 8% — thin spreads are the norm and the board
  * says so honestly.
  *
- * The `tradeable` boolean on each deal is a loose pre-filter (terms + price +
- * not closed). The VERDICT is the single source of truth: the homepage
- * renderer counts and cards only verdicts starting with "TRADEABLE". The
- * verdict rules are documented in the verdictCriteria block of the output.
+ * The `tradeable` boolean on each deal is recomputed from scratch on every
+ * run and set from the FINAL verdict (true only for TRADEABLE verdicts) —
+ * never carried forward from a previous board, and never left true on a
+ * sub-bar spread. The VERDICT is the single source of truth: the homepage
+ * renderer counts and cards only verdicts starting with "TRADEABLE". A deal
+ * whose spread math clears the terms/price pre-filter but lands THIN,
+ * NEGATIVE, STUB, or NO TIMELINE is tradeable: false with the reason in
+ * tradeableReason, and carries no annualized spread or capacity math (the
+ * spreadPct + tradingDaysToClose stay on the row, so the annualized figure
+ * is recomputable from the row itself). The verdict rules are documented
+ * in the verdictCriteria block of the output.
  *
  * Output: outputs/arb/arb-deal-board.json
  */
@@ -47,16 +54,18 @@ const STUB_DAYS_MAX = 10;
 
 // Single source of truth for what "tradeable" means on the board.
 // The homepage renderer counts and cards ONLY deals whose verdict starts with
-// "TRADEABLE" — the `tradeable` boolean on each deal is a loose pre-filter
-// (terms + price + not closed), not the display count. This block is written
-// into the JSON so the rules travel with the data.
+// "TRADEABLE" — and the `tradeable` boolean now equals the verdict (true
+// only for TRADEABLE verdicts), recomputed from current spread math on every
+// run, never carried forward. This block is written into the JSON so the
+// rules travel with the data.
 const VERDICT_CRITERIA = {
-  version: 2,
-  tradeablePreFilter: [
+  version: 3,
+  tradeableDefinition: [
+    'tradeable is set from the FINAL verdict on every run: true only when the verdict starts with "TRADEABLE". A deal whose spread math clears the pre-filter below but lands below the 8% annualized bar, negative, stub, or timeline-less is tradeable: false with the reason in tradeableReason.',
     'confidence in {HIGH, MEDIUM, MANUAL} (LOW-confidence items go to the watchlist)',
     'deal not completed (includes cross-filing completion notices)',
     'target price resolvable via Yahoo Finance with a priceAsOf timestamp',
-    'consideration terms extracted: cash -> offerPricePerShare; stock/collar -> exchangeRatio + acquirer price; mixed -> cash leg at minimum (stock leg added when exchangeRatio + acquirer price resolve)',
+    'consideration terms extracted: cash -> offerPricePerShare; stock/collar -> exchangeRatio + acquirer price; mixed -> cash leg at minimum (stock leg added when exchangeRatio + acquirer price resolve). A headline per-share implied value is derived from the stock leg, never an additive cash leg (see the miner).',
     'expectedCloseDate not in the past',
   ],
   spreadFormulas: {
@@ -88,7 +97,7 @@ const VERDICT_CRITERIA = {
     'SEC 8-K coverage is PARTIAL: S&P 500 universe, ~120-day lookback; expected-close guidance often lives in press-release exhibits the miner only fetches when 8-K body terms are missing.',
     'Timeline gaps are filled via manual deals (data/arb-deals.manual.json) with the source language quoted in each deal thesis.',
   ],
-  displayRule: 'The homepage renderer counts and cards only deals whose verdict starts with "TRADEABLE". The `tradeable` boolean is a pre-filter, not the display count.',
+  displayRule: 'The homepage renderer counts and cards only deals whose verdict starts with "TRADEABLE". The `tradeable` boolean equals the verdict (true only for TRADEABLE verdicts), recomputed per run from current spread math — never carried forward.',
 };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -230,6 +239,14 @@ async function main() {
     out.acquirerPrice = ap && ap.ok ? ap.price : null;
     out.acquirerPriceAsOf = ap && ap.ok ? ap.priceAsOf : null;
 
+    // `tradeable` is NOT a carried-forward flag: it is recomputed from
+    // scratch on every run and set from the FINAL verdict below (true only
+    // for TRADEABLE verdicts). `spreadComputed` is the intermediate
+    // pre-filter (terms + price resolved); a deal can compute a spread and
+    // still be THIN / NEGATIVE / STUB / NO TIMELINE — and then it is
+    // tradeable: false with the reason in tradeableReason.
+    let spreadComputed = false;
+    let closePassed = false;
     out.tradeable = false;
     out.tradeableReason = null;
     out.spreadPct = null; out.impliedValue = null; out.annualizedSpreadPct = null;
@@ -246,13 +263,13 @@ async function main() {
       out.tradeableReason = `no target price (${out.targetPriceError || 'unknown'})`;
     } else if (d.considerationType === 'cash' && d.offerPricePerShare) {
       out.spreadPct = r4(d.offerPricePerShare / out.targetPrice - 1);
-      out.tradeable = true;
+      spreadComputed = true;
     } else if ((d.considerationType === 'stock' || d.considerationType === 'collar') && d.exchangeRatio && out.acquirerPrice != null) {
       out.impliedValue = r4(d.exchangeRatio * out.acquirerPrice);
       out.spreadPct = r4(out.impliedValue / out.targetPrice - 1);
       out.shortRequired = true;
       out.borrowData = 'unavailable';
-      out.tradeable = true;
+      spreadComputed = true;
     } else if (d.considerationType === 'mixed' && d.offerPricePerShare) {
       if (d.exchangeRatio && out.acquirerPrice != null) {
         out.impliedValue = r4(d.offerPricePerShare + d.exchangeRatio * out.acquirerPrice);
@@ -263,15 +280,15 @@ async function main() {
         out.spreadPct = r4(d.offerPricePerShare / out.targetPrice - 1);
         out.tradeableNote = 'mixed consideration: spread computed on cash leg only (stock leg unpriced)';
       }
-      out.tradeable = true;
+      spreadComputed = true;
     } else {
       out.tradeableReason = 'terms not extracted — cannot compute spread';
     }
 
-    if (out.tradeable && d.expectedCloseDate) {
+    if (spreadComputed && d.expectedCloseDate) {
       const { calDays, tradingDays } = tradingDaysBetween(todayISO, d.expectedCloseDate);
       if (calDays < 0) {
-        out.tradeable = false;
+        closePassed = true;
         out.tradeableReason = 'expected close date has passed — likely closed or stale';
         out.tradingDaysToClose = 0;
       } else {
@@ -282,6 +299,27 @@ async function main() {
       }
     }
 
+    if (!spreadComputed || closePassed) out.verdict = 'NOT TRADEABLE';
+    else if (out.spreadPct < 0) out.verdict = 'NEGATIVE — target above offer';
+    else if (out.spreadPct >= 0 && out.spreadPct < STUB_SPREAD_MAX && out.tradingDaysToClose != null && out.tradingDaysToClose <= STUB_DAYS_MAX) out.verdict = 'STUB — sailed (spread <1%, ≤10 trading days left)';
+    else if (out.annualizedSpreadPct == null) out.verdict = 'NO TIMELINE — cannot annualize';
+    else if (out.annualizedSpreadPct < THIN_THRESHOLD) out.verdict = 'THIN — no romance';
+    else out.verdict = `TRADEABLE — ${(out.annualizedSpreadPct * 100).toFixed(1)}% annualized`;
+
+    // Final flag, from the verdict — never from the pre-filter, never
+    // carried forward from a previous board.
+    out.tradeable = String(out.verdict).startsWith('TRADEABLE');
+    if (!out.tradeable && !out.tradeableReason) {
+      if (out.verdict.startsWith('THIN')) out.tradeableReason = `annualized spread ${out.annualizedSpreadPct != null ? (out.annualizedSpreadPct * 100).toFixed(1) + '%' : 'n/a'} below the 8% bar`;
+      else if (out.verdict.startsWith('NEGATIVE')) out.tradeableReason = 'negative spread — target above offer';
+      else if (out.verdict.startsWith('STUB')) out.tradeableReason = 'spread <1% with ≤10 trading days left — sailed';
+      else if (out.verdict.startsWith('NO TIMELINE')) out.tradeableReason = 'no expected close date — cannot annualize';
+    }
+    // A sub-bar deal carries no annualized spread and no capacity math:
+    // the spreadPct + tradingDaysToClose stay on the row, so the annualized
+    // figure is recomputable from the row itself (audit trail preserved).
+    if (!out.tradeable) out.annualizedSpreadPct = null;
+
     out.capacityTable = NOTIONALS.map(n => {
       const row = { notional: n, commissionUSD: 0 };
       if (out.tradeable && out.spreadPct != null) {
@@ -291,12 +329,6 @@ async function main() {
       return row;
     });
 
-    if (!out.tradeable) out.verdict = 'NOT TRADEABLE';
-    else if (out.spreadPct < 0) out.verdict = 'NEGATIVE — target above offer';
-    else if (out.spreadPct >= 0 && out.spreadPct < STUB_SPREAD_MAX && out.tradingDaysToClose != null && out.tradingDaysToClose <= STUB_DAYS_MAX) out.verdict = 'STUB — sailed (spread <1%, ≤10 trading days left)';
-    else if (out.annualizedSpreadPct == null) out.verdict = 'NO TIMELINE — cannot annualize';
-    else if (out.annualizedSpreadPct < THIN_THRESHOLD) out.verdict = 'THIN — no romance';
-    else out.verdict = `TRADEABLE — ${(out.annualizedSpreadPct * 100).toFixed(1)}% annualized`;
     return out;
   });
 

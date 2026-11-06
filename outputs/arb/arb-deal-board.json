@@ -1,19 +1,20 @@
 {
-  "generatedAt": "2026-11-06T21:48:48.577Z",
+  "generatedAt": "2026-11-06T22:15:18.088Z",
   "universe": {
     "count": 502,
     "scanned": 502,
     "asOf": "2026-10-01",
     "source": "datahub.io/core/s-and-p-500-companies (constituents.csv)"
   },
-  "minerGeneratedAt": "2026-11-06T21:48:48.467Z",
+  "minerGeneratedAt": "2026-11-06T22:15:13.502Z",
   "verdictCriteria": {
-    "version": 2,
-    "tradeablePreFilter": [
+    "version": 3,
+    "tradeableDefinition": [
+      "tradeable is set from the FINAL verdict on every run: true only when the verdict starts with \"TRADEABLE\". A deal whose spread math clears the pre-filter below but lands below the 8% annualized bar, negative, stub, or timeline-less is tradeable: false with the reason in tradeableReason.",
       "confidence in {HIGH, MEDIUM, MANUAL} (LOW-confidence items go to the watchlist)",
       "deal not completed (includes cross-filing completion notices)",
       "target price resolvable via Yahoo Finance with a priceAsOf timestamp",
-      "consideration terms extracted: cash -> offerPricePerShare; stock/collar -> exchangeRatio + acquirer price; mixed -> cash leg at minimum (stock leg added when exchangeRatio + acquirer price resolve)",
+      "consideration terms extracted: cash -> offerPricePerShare; stock/collar -> exchangeRatio + acquirer price; mixed -> cash leg at minimum (stock leg added when exchangeRatio + acquirer price resolve). A headline per-share implied value is derived from the stock leg, never an additive cash leg (see the miner).",
       "expectedCloseDate not in the past"
     ],
     "spreadFormulas": {
@@ -45,16 +46,16 @@
       "SEC 8-K coverage is PARTIAL: S&P 500 universe, ~120-day lookback; expected-close guidance often lives in press-release exhibits the miner only fetches when 8-K body terms are missing.",
       "Timeline gaps are filled via manual deals (data/arb-deals.manual.json) with the source language quoted in each deal thesis."
     ],
-    "displayRule": "The homepage renderer counts and cards only deals whose verdict starts with \"TRADEABLE\". The `tradeable` boolean is a pre-filter, not the display count."
+    "displayRule": "The homepage renderer counts and cards only deals whose verdict starts with \"TRADEABLE\". The `tradeable` boolean equals the verdict (true only for TRADEABLE verdicts), recomputed per run from current spread math — never carried forward."
   },
   "coverage": {
     "symbolsScanned": 502,
     "cikResolved": 502,
     "submissionsOk": 497,
     "filingsScanned": 2318,
-    "docsFetched": 13,
+    "docsFetched": 2,
     "docsFromCache": 361,
-    "termsRejected": 0,
+    "termsRejected": 2,
     "dealsFound": {
       "HIGH": 10,
       "MEDIUM": 42,
@@ -94,16 +95,15 @@
     "watchlist": 65
   },
   "dataHealth": {
-    "status": "STALE",
+    "status": "PARTIAL",
     "yahooPricesOk": 60,
     "yahooPricesFailed": 0,
     "symbolsRequested": 60,
     "secCoverageErrors": 5,
     "reasons": [
-      "SEC submissions unavailable for 5 symbol(s): BAC, C, GS, JPM, MS — 8-K coverage incomplete",
-      "one or more tradeable deals has a stale price (>36h)"
+      "SEC submissions unavailable for 5 symbol(s): BAC, C, GS, JPM, MS — 8-K coverage incomplete"
     ],
-    "note": "SEC submissions unavailable for 5 symbol(s): BAC, C, GS, JPM, MS — 8-K coverage incomplete · one or more tradeable deals has a stale price (>36h)"
+    "note": "SEC submissions unavailable for 5 symbol(s): BAC, C, GS, JPM, MS — 8-K coverage incomplete"
   },
   "deals": [
     {
@@ -113,8 +113,8 @@
       "acquirer": "Marvell Technology, Inc.",
       "acquirerSymbol": "MRVL",
       "filerRole": "acquirer",
-      "considerationType": "mixed",
-      "offerPricePerShare": 1132,
+      "considerationType": "stock",
+      "offerPricePerShare": null,
       "exchangeRatio": 4.5,
       "expectedCloseDate": "2028-06-30",
       "expectedCloseLabel": "first half 2028",
@@ -138,7 +138,7 @@
         "https://www.sec.gov/Archives/edgar/data/1835632/000119312526442717/d352474d8k.htm"
       ],
       "source": "sec-8k",
-      "minedAt": "2026-11-02T13:41:31.278Z",
+      "minedAt": "2026-11-06T22:14:35.728Z",
       "addedAt": null,
       "targetPrice": 538.59,
       "targetPriceAsOf": "2026-11-06T21:00:01.000Z",
@@ -147,425 +147,33 @@
       "acquirerPriceAsOf": "2026-11-06T21:00:01.000Z",
       "tradeable": true,
       "tradeableReason": null,
-      "spreadPct": 2.2815,
-      "impliedValue": 1767.4,
-      "annualizedSpreadPct": 1.0065,
+      "spreadPct": 0.1797,
+      "impliedValue": 635.4,
+      "annualizedSpreadPct": 0.1017,
       "tradingDaysToClose": 430,
       "shortRequired": true,
       "borrowData": "unavailable",
+      "verdict": "TRADEABLE — 10.2% annualized",
       "capacityTable": [
         {
           "notional": 10000,
           "commissionUSD": 0,
-          "expectedGross": 22815,
-          "annualizedGross": 10065
+          "expectedGross": 1797,
+          "annualizedGross": 1017
         },
         {
           "notional": 25000,
           "commissionUSD": 0,
-          "expectedGross": 57037.5,
-          "annualizedGross": 25162.5
+          "expectedGross": 4492.5,
+          "annualizedGross": 2542.5
         },
         {
           "notional": 50000,
           "commissionUSD": 0,
-          "expectedGross": 114075,
-          "annualizedGross": 50325
+          "expectedGross": 8985,
+          "annualizedGross": 5085
         }
-      ],
-      "verdict": "TRADEABLE — 100.6% annualized"
-    },
-    {
-      "target": "ARX",
-      "targetSymbol": "ARX",
-      "targetName": "Accelerant Holdings",
-      "acquirer": "Thoma Bravo",
-      "acquirerSymbol": null,
-      "filerRole": null,
-      "considerationType": "cash",
-      "offerPricePerShare": 20.25,
-      "exchangeRatio": null,
-      "expectedCloseDate": "2027-06-30",
-      "expectedCloseLabel": "H1 2027",
-      "terminationFeeUSD": null,
-      "dealValueUSD": null,
-      "confidence": "MANUAL",
-      "confidenceReason": "research-hunt 2026-10-01 (announcement press + Finnhub snapshot), not 8-K-mined — verify proxy/8-K before sizing",
-      "status": "pending",
-      "riskFlags": {
-        "regulatory": "elevated",
-        "financing": "none-mentioned",
-        "goShop": false,
-        "shareholderVote": "committed-82pct"
-      },
-      "thesis": "Thoma Bravo acquiring Accelerant Holdings at $20.25/share cash (announced Aug 13, 2026). Company guides close in H1 2027 — using Jun 30 per timeline conventions. De-riskers: Altamont Capital (82% voting) committed; no financing condition; 6% annualized ticking fee if regulatory delays push close (delay compensates). Risks: state insurance-commissioner approvals are the real overhang (insurance deals always carry this tail); outside-date extensions possible. Source: 2026-10-01 research hunt.",
-      "filingUrl": null,
-      "exhibitUrl": null,
-      "evidenceUrls": [],
-      "source": "manual",
-      "minedAt": null,
-      "addedAt": "2026-10-01",
-      "targetPrice": 19.89,
-      "targetPriceAsOf": "2026-11-06T21:00:03.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": null,
-      "acquirerPriceAsOf": null,
-      "tradeable": true,
-      "tradeableReason": null,
-      "spreadPct": 0.0181,
-      "impliedValue": null,
-      "annualizedSpreadPct": 0.0271,
-      "tradingDaysToClose": 169,
-      "shortRequired": false,
-      "borrowData": null,
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": 181,
-          "annualizedGross": 271
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": 452.5,
-          "annualizedGross": 677.5
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": 905,
-          "annualizedGross": 1355
-        }
-      ],
-      "verdict": "THIN — no romance"
-    },
-    {
-      "target": "MGLD",
-      "targetSymbol": "MGLD",
-      "targetName": "Marygold Companies, Inc.",
-      "acquirer": "Madison Dearborn Partners",
-      "acquirerSymbol": null,
-      "filerRole": null,
-      "considerationType": "cash",
-      "offerPricePerShare": 2,
-      "exchangeRatio": null,
-      "expectedCloseDate": "2027-06-30",
-      "expectedCloseLabel": "H1 2027",
-      "terminationFeeUSD": null,
-      "dealValueUSD": null,
-      "confidence": "MANUAL",
-      "confidenceReason": "research-hunt 2026-10-01 (announcement press + Finnhub snapshot), not 8-K-mined — verify proxy/8-K before sizing",
-      "status": "pending",
-      "riskFlags": {
-        "regulatory": "standard",
-        "financing": "not-stated",
-        "goShop": false,
-        "shareholderVote": "written-consent-75pct"
-      },
-      "thesis": "Madison Dearborn Partners acquiring Marygold Companies at $2.00/share cash (announced Sept 25, 2026). Company guides close in H1 2027 — using Jun 30 per timeline conventions (conservative: later date understates annualized spread). De-riskers: holders of ~75% of voting power delivered written consent (shareholder vote effectively done), unanimous board. Risks: fund-management change-of-control / regulatory consents; 5-cent absolute spread demands limit-order discipline (slippage eats it); small-cap liquidity. Source: 2026-10-01 research hunt.",
-      "filingUrl": null,
-      "exhibitUrl": null,
-      "evidenceUrls": [],
-      "source": "manual",
-      "minedAt": null,
-      "addedAt": "2026-10-01",
-      "targetPrice": 1.97,
-      "targetPriceAsOf": "2026-11-06T20:56:22.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": null,
-      "acquirerPriceAsOf": null,
-      "tradeable": true,
-      "tradeableReason": null,
-      "spreadPct": 0.0152,
-      "impliedValue": null,
-      "annualizedSpreadPct": 0.0227,
-      "tradingDaysToClose": 169,
-      "shortRequired": false,
-      "borrowData": null,
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": 152,
-          "annualizedGross": 227
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": 380,
-          "annualizedGross": 567.5
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": 760,
-          "annualizedGross": 1135
-        }
-      ],
-      "verdict": "THIN — no romance"
-    },
-    {
-      "target": "MKTX",
-      "targetSymbol": "MKTX",
-      "targetName": "MarketAxess Holdings Inc",
-      "acquirer": "Intercontinental Exchange, Inc.",
-      "acquirerSymbol": "ICE",
-      "filerRole": null,
-      "considerationType": "cash",
-      "offerPricePerShare": 167,
-      "exchangeRatio": null,
-      "expectedCloseDate": "2027-06-30",
-      "expectedCloseLabel": "H1 2027",
-      "terminationFeeUSD": null,
-      "dealValueUSD": 6000000000,
-      "confidence": "MANUAL",
-      "confidenceReason": "user-entered manual deal",
-      "status": "pending",
-      "riskFlags": {
-        "regulatory": "standard",
-        "financing": "not-stated",
-        "goShop": false,
-        "shareholderVote": "not-stated"
-      },
-      "thesis": "Intercontinental Exchange acquiring MarketAxess at $167/share cash (8-K filed July 30, 2026, ~$6.0B equity value). The 8-K body carries no close-date guidance; ICE's debt-offering prospectus and press materials state the transaction 'is expected to close in the first half of 2027' — timeline added manually. Shareholder vote scheduled Oct 29, 2026; HSR waiting period refiled Sept 29, 2026. Gross spread ~1.9%.",
-      "filingUrl": null,
-      "exhibitUrl": null,
-      "evidenceUrls": [],
-      "source": "manual",
-      "minedAt": null,
-      "addedAt": "2026-10-01",
-      "targetPrice": 165.59,
-      "targetPriceAsOf": "2026-11-06T21:00:01.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": 172.27,
-      "acquirerPriceAsOf": "2026-11-06T21:00:02.000Z",
-      "tradeable": true,
-      "tradeableReason": null,
-      "spreadPct": 0.0085,
-      "impliedValue": null,
-      "annualizedSpreadPct": 0.0127,
-      "tradingDaysToClose": 169,
-      "shortRequired": false,
-      "borrowData": null,
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": 85,
-          "annualizedGross": 127
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": 212.5,
-          "annualizedGross": 317.5
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": 425,
-          "annualizedGross": 635
-        }
-      ],
-      "verdict": "THIN — no romance"
-    },
-    {
-      "target": "TECH",
-      "targetSymbol": "TECH",
-      "targetName": "BIO-TECHNE Corporation",
-      "acquirer": "Merck KGaA, Darmstadt, Germany",
-      "acquirerSymbol": null,
-      "filerRole": null,
-      "considerationType": "cash",
-      "offerPricePerShare": 73,
-      "exchangeRatio": null,
-      "expectedCloseDate": "2027-03-31",
-      "expectedCloseLabel": "early 2027 (by end of Q1)",
-      "terminationFeeUSD": 230500000,
-      "dealValueUSD": 11300000000,
-      "confidence": "MANUAL",
-      "confidenceReason": "user-entered manual deal",
-      "status": "pending",
-      "riskFlags": {
-        "regulatory": "standard",
-        "financing": "not-stated",
-        "goShop": false,
-        "shareholderVote": "not-stated"
-      },
-      "thesis": "Merck KGaA acquiring Bio-Techne at $73/share cash (announced June 2026, ~$11.3B enterprise value). Company guidance is 'expected to close by late 2026 or early 2027' (Merck press release; repeated in Bio-Techne's FY2026 10-K) — no quarter-level date exists, so using end of Q1 2027 as the conservative endpoint per the timeline conventions (a later date understates the annualized spread). Timeline added manually. Gross spread ~0.7%.",
-      "filingUrl": null,
-      "exhibitUrl": null,
-      "evidenceUrls": [],
-      "source": "manual",
-      "minedAt": null,
-      "addedAt": "2026-10-01",
-      "targetPrice": 72.78,
-      "targetPriceAsOf": "2026-11-06T21:00:00.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": null,
-      "acquirerPriceAsOf": null,
-      "tradeable": true,
-      "tradeableReason": null,
-      "spreadPct": 0.003,
-      "impliedValue": null,
-      "annualizedSpreadPct": 0.0073,
-      "tradingDaysToClose": 104,
-      "shortRequired": false,
-      "borrowData": null,
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": 30,
-          "annualizedGross": 73
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": 75,
-          "annualizedGross": 182.5
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": 150,
-          "annualizedGross": 365
-        }
-      ],
-      "verdict": "THIN — no romance"
-    },
-    {
-      "target": "RRC",
-      "targetSymbol": "RRC",
-      "targetName": "Range Resources",
-      "acquirer": "EQT Corp",
-      "acquirerSymbol": "EQT",
-      "filerRole": "acquirer",
-      "considerationType": "stock",
-      "offerPricePerShare": null,
-      "exchangeRatio": 0.987,
-      "expectedCloseDate": "2027-03-31",
-      "expectedCloseLabel": "first quarter 2027",
-      "terminationFeeUSD": 1148000000,
-      "dealValueUSD": 50000000000,
-      "confidence": "HIGH",
-      "confidenceReason": "definitive agreement text with per-share terms",
-      "status": "pending",
-      "riskFlags": {
-        "financing": "none-mentioned",
-        "goShop": false,
-        "shareholderVote": "pending",
-        "regulatory": "elevated"
-      },
-      "thesis": null,
-      "filingUrl": "https://www.sec.gov/Archives/edgar/data/33213/000121390026112242/ea0309601-8k425_eqtcorp.htm",
-      "exhibitUrl": "https://www.sec.gov/Archives/edgar/data/33213/000121390026112242/ea030960101ex99-1.htm",
-      "evidenceUrls": [
-        "https://www.sec.gov/Archives/edgar/data/33213/000121390026112242/ea0309601-8k425_eqtcorp.htm"
-      ],
-      "source": "sec-8k",
-      "minedAt": "2026-10-26T12:51:51.952Z",
-      "addedAt": null,
-      "targetPrice": 48.72,
-      "targetPriceAsOf": "2026-11-06T21:00:02.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": 49.4,
-      "acquirerPriceAsOf": "2026-11-06T21:03:22.000Z",
-      "tradeable": true,
-      "tradeableReason": null,
-      "spreadPct": 0.0008,
-      "impliedValue": 48.7578,
-      "annualizedSpreadPct": 0.0019,
-      "tradingDaysToClose": 104,
-      "shortRequired": true,
-      "borrowData": "unavailable",
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": 8,
-          "annualizedGross": 19
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": 20,
-          "annualizedGross": 47.5
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": 40,
-          "annualizedGross": 95
-        }
-      ],
-      "verdict": "THIN — no romance"
-    },
-    {
-      "target": "ROKU",
-      "targetSymbol": "ROKU",
-      "targetName": "Roku, Inc.",
-      "acquirer": "Fox Corporation",
-      "acquirerSymbol": "FOXA",
-      "filerRole": null,
-      "considerationType": "mixed",
-      "offerPricePerShare": 96,
-      "exchangeRatio": 0.9693,
-      "expectedCloseDate": "2027-06-30",
-      "expectedCloseLabel": "H1 2027",
-      "terminationFeeUSD": 866084000,
-      "dealValueUSD": null,
-      "confidence": "MANUAL",
-      "confidenceReason": "user-entered manual deal",
-      "status": "pending",
-      "riskFlags": {
-        "regulatory": "standard",
-        "financing": "not-stated",
-        "goShop": false,
-        "shareholderVote": "not-stated"
-      },
-      "thesis": "Fox acquiring Roku: $96 cash PLUS 0.9693 FOX Class A shares per Roku share (June 14, 2026 agreement, ~$22-23B). CORRECTED vs the mined entry: the miner resolved the acquirer to FOX (Class B, ~$56); the merger agreement specifies Class A shares, so implied value and spread are recomputed on FOXA (~$62.65) — the mined 'NEGATIVE' verdict was an artifact of the wrong share class. Companies still guide close in H1 calendar 2027 despite the DOJ second request (Sept 8, 2026); S-4 effective Sept 1, 2026. Stock leg requires shorting FOXA; borrow data unavailable. Timeline added manually.",
-      "filingUrl": null,
-      "exhibitUrl": null,
-      "evidenceUrls": [],
-      "source": "manual",
-      "minedAt": null,
-      "addedAt": "2026-10-01",
-      "targetPrice": 160.52,
-      "targetPriceAsOf": "2026-11-06T21:00:00.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": 66.64,
-      "acquirerPriceAsOf": "2026-11-06T21:00:01.000Z",
-      "tradeable": true,
-      "tradeableReason": null,
-      "spreadPct": 0.0005,
-      "impliedValue": 160.5942,
-      "annualizedSpreadPct": 0.0007,
-      "tradingDaysToClose": 169,
-      "shortRequired": true,
-      "borrowData": "unavailable",
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": 5,
-          "annualizedGross": 7
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": 12.5,
-          "annualizedGross": 17.5
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": 25,
-          "annualizedGross": 35
-        }
-      ],
-      "verdict": "THIN — no romance"
+      ]
     },
     {
       "target": "ACVA",
@@ -602,35 +210,100 @@
       "targetPriceError": null,
       "acquirerPrice": 31.95,
       "acquirerPriceAsOf": "2026-11-06T21:00:01.000Z",
-      "tradeable": true,
-      "tradeableReason": null,
+      "tradeable": false,
+      "tradeableReason": "annualized spread 0.0% below the 8% bar",
       "spreadPct": 0,
       "impliedValue": null,
-      "annualizedSpreadPct": 0,
+      "annualizedSpreadPct": null,
       "tradingDaysToClose": 39,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "THIN — no romance",
       "capacityTable": [
         {
           "notional": 10000,
           "commissionUSD": 0,
-          "expectedGross": 0,
-          "annualizedGross": 0
+          "expectedGross": null,
+          "annualizedGross": null
         },
         {
           "notional": 25000,
           "commissionUSD": 0,
-          "expectedGross": 0,
-          "annualizedGross": 0
+          "expectedGross": null,
+          "annualizedGross": null
         },
         {
           "notional": 50000,
           "commissionUSD": 0,
-          "expectedGross": 0,
-          "annualizedGross": 0
+          "expectedGross": null,
+          "annualizedGross": null
         }
-      ],
-      "verdict": "THIN — no romance"
+      ]
+    },
+    {
+      "target": "MKTX",
+      "targetSymbol": "MKTX",
+      "targetName": "MarketAxess Holdings Inc",
+      "acquirer": "Intercontinental Exchange, Inc.",
+      "acquirerSymbol": "ICE",
+      "filerRole": null,
+      "considerationType": "cash",
+      "offerPricePerShare": 167,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "terminationFeeUSD": null,
+      "dealValueUSD": 6000000000,
+      "confidence": "MANUAL",
+      "confidenceReason": "user-entered manual deal",
+      "status": "pending",
+      "riskFlags": {
+        "regulatory": "standard",
+        "financing": "not-stated",
+        "goShop": false,
+        "shareholderVote": "not-stated"
+      },
+      "thesis": "Intercontinental Exchange acquiring MarketAxess at $167/share cash (8-K filed July 30, 2026, ~$6.0B equity value). The 8-K body carries no close-date guidance; ICE's debt-offering prospectus and press materials state the transaction 'is expected to close in the first half of 2027' — timeline added manually. Shareholder vote scheduled Oct 29, 2026; HSR waiting period refiled Sept 29, 2026. Gross spread ~1.9%.",
+      "filingUrl": null,
+      "exhibitUrl": null,
+      "evidenceUrls": [],
+      "source": "manual",
+      "minedAt": null,
+      "addedAt": "2026-10-01",
+      "targetPrice": 165.59,
+      "targetPriceAsOf": "2026-11-06T21:00:01.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": 172.27,
+      "acquirerPriceAsOf": "2026-11-06T21:00:02.000Z",
+      "tradeable": false,
+      "tradeableReason": "annualized spread 1.3% below the 8% bar",
+      "spreadPct": 0.0085,
+      "impliedValue": null,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": 169,
+      "shortRequired": false,
+      "borrowData": null,
+      "verdict": "THIN — no romance",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
     },
     {
       "target": "WBD",
@@ -675,6 +348,7 @@
       "tradingDaysToClose": 0,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -694,8 +368,267 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
+    },
+    {
+      "target": "TECH",
+      "targetSymbol": "TECH",
+      "targetName": "BIO-TECHNE Corporation",
+      "acquirer": "Merck KGaA, Darmstadt, Germany",
+      "acquirerSymbol": null,
+      "filerRole": null,
+      "considerationType": "cash",
+      "offerPricePerShare": 73,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-03-31",
+      "expectedCloseLabel": "early 2027 (by end of Q1)",
+      "terminationFeeUSD": 230500000,
+      "dealValueUSD": 11300000000,
+      "confidence": "MANUAL",
+      "confidenceReason": "user-entered manual deal",
+      "status": "pending",
+      "riskFlags": {
+        "regulatory": "standard",
+        "financing": "not-stated",
+        "goShop": false,
+        "shareholderVote": "not-stated"
+      },
+      "thesis": "Merck KGaA acquiring Bio-Techne at $73/share cash (announced June 2026, ~$11.3B enterprise value). Company guidance is 'expected to close by late 2026 or early 2027' (Merck press release; repeated in Bio-Techne's FY2026 10-K) — no quarter-level date exists, so using end of Q1 2027 as the conservative endpoint per the timeline conventions (a later date understates the annualized spread). Timeline added manually. Gross spread ~0.7%.",
+      "filingUrl": null,
+      "exhibitUrl": null,
+      "evidenceUrls": [],
+      "source": "manual",
+      "minedAt": null,
+      "addedAt": "2026-10-01",
+      "targetPrice": 72.78,
+      "targetPriceAsOf": "2026-11-06T21:00:00.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": null,
+      "acquirerPriceAsOf": null,
+      "tradeable": false,
+      "tradeableReason": "annualized spread 0.7% below the 8% bar",
+      "spreadPct": 0.003,
+      "impliedValue": null,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": 104,
+      "shortRequired": false,
+      "borrowData": null,
+      "verdict": "THIN — no romance",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
+    },
+    {
+      "target": "ROKU",
+      "targetSymbol": "ROKU",
+      "targetName": "Roku, Inc.",
+      "acquirer": "Fox Corporation",
+      "acquirerSymbol": "FOXA",
+      "filerRole": null,
+      "considerationType": "mixed",
+      "offerPricePerShare": 96,
+      "exchangeRatio": 0.9693,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "terminationFeeUSD": 866084000,
+      "dealValueUSD": null,
+      "confidence": "MANUAL",
+      "confidenceReason": "user-entered manual deal",
+      "status": "pending",
+      "riskFlags": {
+        "regulatory": "standard",
+        "financing": "not-stated",
+        "goShop": false,
+        "shareholderVote": "not-stated"
+      },
+      "thesis": "Fox acquiring Roku: $96 cash PLUS 0.9693 FOX Class A shares per Roku share (June 14, 2026 agreement, ~$22-23B). CORRECTED vs the mined entry: the miner resolved the acquirer to FOX (Class B, ~$56); the merger agreement specifies Class A shares, so implied value and spread are recomputed on FOXA (~$62.65) — the mined 'NEGATIVE' verdict was an artifact of the wrong share class. Companies still guide close in H1 calendar 2027 despite the DOJ second request (Sept 8, 2026); S-4 effective Sept 1, 2026. Stock leg requires shorting FOXA; borrow data unavailable. Timeline added manually.",
+      "filingUrl": null,
+      "exhibitUrl": null,
+      "evidenceUrls": [],
+      "source": "manual",
+      "minedAt": null,
+      "addedAt": "2026-10-01",
+      "targetPrice": 160.52,
+      "targetPriceAsOf": "2026-11-06T21:00:00.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": 66.64,
+      "acquirerPriceAsOf": "2026-11-06T21:00:01.000Z",
+      "tradeable": false,
+      "tradeableReason": "annualized spread 0.1% below the 8% bar",
+      "spreadPct": 0.0005,
+      "impliedValue": 160.5942,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": 169,
+      "shortRequired": true,
+      "borrowData": "unavailable",
+      "verdict": "THIN — no romance",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
+    },
+    {
+      "target": "MGLD",
+      "targetSymbol": "MGLD",
+      "targetName": "Marygold Companies, Inc.",
+      "acquirer": "Madison Dearborn Partners",
+      "acquirerSymbol": null,
+      "filerRole": null,
+      "considerationType": "cash",
+      "offerPricePerShare": 2,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "terminationFeeUSD": null,
+      "dealValueUSD": null,
+      "confidence": "MANUAL",
+      "confidenceReason": "research-hunt 2026-10-01 (announcement press + Finnhub snapshot), not 8-K-mined — verify proxy/8-K before sizing",
+      "status": "pending",
+      "riskFlags": {
+        "regulatory": "standard",
+        "financing": "not-stated",
+        "goShop": false,
+        "shareholderVote": "written-consent-75pct"
+      },
+      "thesis": "Madison Dearborn Partners acquiring Marygold Companies at $2.00/share cash (announced Sept 25, 2026). Company guides close in H1 2027 — using Jun 30 per timeline conventions (conservative: later date understates annualized spread). De-riskers: holders of ~75% of voting power delivered written consent (shareholder vote effectively done), unanimous board. Risks: fund-management change-of-control / regulatory consents; 5-cent absolute spread demands limit-order discipline (slippage eats it); small-cap liquidity. Source: 2026-10-01 research hunt.",
+      "filingUrl": null,
+      "exhibitUrl": null,
+      "evidenceUrls": [],
+      "source": "manual",
+      "minedAt": null,
+      "addedAt": "2026-10-01",
+      "targetPrice": 1.97,
+      "targetPriceAsOf": "2026-11-06T20:56:22.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": null,
+      "acquirerPriceAsOf": null,
+      "tradeable": false,
+      "tradeableReason": "annualized spread 2.3% below the 8% bar",
+      "spreadPct": 0.0152,
+      "impliedValue": null,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": 169,
+      "shortRequired": false,
+      "borrowData": null,
+      "verdict": "THIN — no romance",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
+    },
+    {
+      "target": "ARX",
+      "targetSymbol": "ARX",
+      "targetName": "Accelerant Holdings",
+      "acquirer": "Thoma Bravo",
+      "acquirerSymbol": null,
+      "filerRole": null,
+      "considerationType": "cash",
+      "offerPricePerShare": 20.25,
+      "exchangeRatio": null,
+      "expectedCloseDate": "2027-06-30",
+      "expectedCloseLabel": "H1 2027",
+      "terminationFeeUSD": null,
+      "dealValueUSD": null,
+      "confidence": "MANUAL",
+      "confidenceReason": "research-hunt 2026-10-01 (announcement press + Finnhub snapshot), not 8-K-mined — verify proxy/8-K before sizing",
+      "status": "pending",
+      "riskFlags": {
+        "regulatory": "elevated",
+        "financing": "none-mentioned",
+        "goShop": false,
+        "shareholderVote": "committed-82pct"
+      },
+      "thesis": "Thoma Bravo acquiring Accelerant Holdings at $20.25/share cash (announced Aug 13, 2026). Company guides close in H1 2027 — using Jun 30 per timeline conventions. De-riskers: Altamont Capital (82% voting) committed; no financing condition; 6% annualized ticking fee if regulatory delays push close (delay compensates). Risks: state insurance-commissioner approvals are the real overhang (insurance deals always carry this tail); outside-date extensions possible. Source: 2026-10-01 research hunt.",
+      "filingUrl": null,
+      "exhibitUrl": null,
+      "evidenceUrls": [],
+      "source": "manual",
+      "minedAt": null,
+      "addedAt": "2026-10-01",
+      "targetPrice": 19.89,
+      "targetPriceAsOf": "2026-11-06T21:00:03.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": null,
+      "acquirerPriceAsOf": null,
+      "tradeable": false,
+      "tradeableReason": "annualized spread 2.7% below the 8% bar",
+      "spreadPct": 0.0181,
+      "impliedValue": null,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": 169,
+      "shortRequired": false,
+      "borrowData": null,
+      "verdict": "THIN — no romance",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
     },
     {
       "target": "Apogee Therapeutics",
@@ -743,6 +676,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -762,8 +696,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Alif",
@@ -810,6 +743,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -829,8 +763,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "MaintainX Inc",
@@ -877,6 +810,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -896,8 +830,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "ADSK",
@@ -944,6 +877,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -963,8 +897,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "AES",
@@ -1015,6 +948,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1034,8 +968,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "AMD",
@@ -1082,6 +1015,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1101,8 +1035,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "AON",
@@ -1151,6 +1084,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1170,8 +1104,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "AWK",
@@ -1220,6 +1153,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1239,8 +1173,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Chart in accordance with the Merger Agreement",
@@ -1288,6 +1221,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1307,8 +1241,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "CBRE",
@@ -1355,6 +1288,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1374,8 +1308,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "RXO",
@@ -1423,6 +1356,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1442,8 +1376,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Company s previously announced acquisition of RXO Inc",
@@ -1490,6 +1423,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1509,8 +1443,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "American Oncology Network Inc",
@@ -1557,6 +1490,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1576,8 +1510,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "ACA",
@@ -1624,6 +1557,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1643,8 +1577,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Braze on the terms and subject to the conditions set forth therein",
@@ -1691,6 +1624,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1710,8 +1644,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "CSGP",
@@ -1758,6 +1691,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1777,8 +1711,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "UNF",
@@ -1825,6 +1758,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1844,8 +1778,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "D",
@@ -1940,6 +1873,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -1959,8 +1893,74 @@
           "expectedGross": null,
           "annualizedGross": null
         }
+      ]
+    },
+    {
+      "target": "RRC",
+      "targetSymbol": "RRC",
+      "targetName": "Range Resources",
+      "acquirer": "EQT Corp",
+      "acquirerSymbol": "EQT",
+      "filerRole": "acquirer",
+      "considerationType": "stock",
+      "offerPricePerShare": null,
+      "exchangeRatio": 0.987,
+      "expectedCloseDate": "2027-03-31",
+      "expectedCloseLabel": "first quarter 2027",
+      "terminationFeeUSD": 1148000000,
+      "dealValueUSD": 50000000000,
+      "confidence": "HIGH",
+      "confidenceReason": "definitive agreement text with per-share terms",
+      "status": "pending",
+      "riskFlags": {
+        "financing": "none-mentioned",
+        "goShop": false,
+        "shareholderVote": "pending",
+        "regulatory": "elevated"
+      },
+      "thesis": null,
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/33213/000121390026112242/ea0309601-8k425_eqtcorp.htm",
+      "exhibitUrl": "https://www.sec.gov/Archives/edgar/data/33213/000121390026112242/ea030960101ex99-1.htm",
+      "evidenceUrls": [
+        "https://www.sec.gov/Archives/edgar/data/33213/000121390026112242/ea0309601-8k425_eqtcorp.htm"
       ],
-      "verdict": "NOT TRADEABLE"
+      "source": "sec-8k",
+      "minedAt": "2026-10-26T12:51:51.952Z",
+      "addedAt": null,
+      "targetPrice": 48.72,
+      "targetPriceAsOf": "2026-11-06T21:00:02.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": 49.4,
+      "acquirerPriceAsOf": "2026-11-06T21:03:22.000Z",
+      "tradeable": false,
+      "tradeableReason": "annualized spread 0.2% below the 8% bar",
+      "spreadPct": 0.0008,
+      "impliedValue": 48.7578,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": 104,
+      "shortRequired": true,
+      "borrowData": "unavailable",
+      "verdict": "THIN — no romance",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
     },
     {
       "target": "Twin Eagle",
@@ -2008,6 +2008,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2027,8 +2028,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "FERG",
@@ -2075,6 +2075,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2094,8 +2095,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "ICE",
@@ -2143,6 +2143,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2162,8 +2163,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "KMB",
@@ -2210,6 +2210,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2229,8 +2230,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "KVUE",
@@ -2281,6 +2281,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2300,8 +2301,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "LLC Sub",
@@ -2349,6 +2349,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2368,8 +2369,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "NEE",
@@ -2417,6 +2417,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2436,8 +2437,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Hugging Face The following risk factor supplements",
@@ -2484,6 +2484,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2503,8 +2504,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Brazos Midland",
@@ -2551,6 +2551,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2570,8 +2571,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Ferric",
@@ -2618,6 +2618,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2637,8 +2638,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "SYNA",
@@ -2678,35 +2678,35 @@
       "targetPriceError": null,
       "acquirerPrice": 63.31,
       "acquirerPriceAsOf": "2026-11-06T21:00:01.000Z",
-      "tradeable": true,
-      "tradeableReason": null,
+      "tradeable": false,
+      "tradeableReason": "no expected close date — cannot annualize",
       "spreadPct": 0.054,
       "impliedValue": null,
       "annualizedSpreadPct": null,
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NO TIMELINE — cannot annualize",
       "capacityTable": [
         {
           "notional": 10000,
           "commissionUSD": 0,
-          "expectedGross": 540,
+          "expectedGross": null,
           "annualizedGross": null
         },
         {
           "notional": 25000,
           "commissionUSD": 0,
-          "expectedGross": 1350,
+          "expectedGross": null,
           "annualizedGross": null
         },
         {
           "notional": 50000,
           "commissionUSD": 0,
-          "expectedGross": 2700,
+          "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NO TIMELINE — cannot annualize"
+      ]
     },
     {
       "target": "PH",
@@ -2754,6 +2754,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2773,8 +2774,74 @@
           "expectedGross": null,
           "annualizedGross": null
         }
+      ]
+    },
+    {
+      "target": "National Storage Affiliates Trust",
+      "targetSymbol": null,
+      "targetName": "National Storage Affiliates Trust",
+      "acquirer": "Public Storage",
+      "acquirerSymbol": "PSA",
+      "filerRole": "acquirer",
+      "considerationType": null,
+      "offerPricePerShare": null,
+      "exchangeRatio": null,
+      "expectedCloseDate": null,
+      "expectedCloseLabel": null,
+      "terminationFeeUSD": null,
+      "dealValueUSD": null,
+      "confidence": "MEDIUM",
+      "confidenceReason": "definitive agreement announced, per-share terms not extracted",
+      "status": "pending",
+      "riskFlags": {
+        "financing": "none-mentioned",
+        "goShop": false,
+        "shareholderVote": "not-stated",
+        "regulatory": "standard"
+      },
+      "thesis": null,
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1393311/000119312526312563/d137665d8k.htm",
+      "exhibitUrl": null,
+      "evidenceUrls": [
+        "https://www.sec.gov/Archives/edgar/data/1393311/000119312526312563/d137665d8k.htm"
       ],
-      "verdict": "NOT TRADEABLE"
+      "source": "sec-8k",
+      "minedAt": "2026-10-01T03:58:22.372Z",
+      "addedAt": null,
+      "targetPrice": null,
+      "targetPriceAsOf": null,
+      "targetPriceError": "no target symbol resolved",
+      "acquirerPrice": 337.46,
+      "acquirerPriceAsOf": "2026-11-06T21:00:02.000Z",
+      "tradeable": false,
+      "tradeableReason": "no target price (no target symbol resolved)",
+      "spreadPct": null,
+      "impliedValue": null,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": null,
+      "shortRequired": false,
+      "borrowData": null,
+      "verdict": "NOT TRADEABLE",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
     },
     {
       "target": "PSKY",
@@ -2824,6 +2891,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2843,75 +2911,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
-    },
-    {
-      "target": "National Storage Affiliates Trust",
-      "targetSymbol": null,
-      "targetName": "National Storage Affiliates Trust",
-      "acquirer": "Public Storage",
-      "acquirerSymbol": "PSA",
-      "filerRole": "acquirer",
-      "considerationType": null,
-      "offerPricePerShare": null,
-      "exchangeRatio": null,
-      "expectedCloseDate": null,
-      "expectedCloseLabel": null,
-      "terminationFeeUSD": null,
-      "dealValueUSD": null,
-      "confidence": "MEDIUM",
-      "confidenceReason": "definitive agreement announced, per-share terms not extracted",
-      "status": "pending",
-      "riskFlags": {
-        "financing": "none-mentioned",
-        "goShop": false,
-        "shareholderVote": "not-stated",
-        "regulatory": "standard"
-      },
-      "thesis": null,
-      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1393311/000119312526312563/d137665d8k.htm",
-      "exhibitUrl": null,
-      "evidenceUrls": [
-        "https://www.sec.gov/Archives/edgar/data/1393311/000119312526312563/d137665d8k.htm"
-      ],
-      "source": "sec-8k",
-      "minedAt": "2026-10-01T03:58:22.372Z",
-      "addedAt": null,
-      "targetPrice": null,
-      "targetPriceAsOf": null,
-      "targetPriceError": "no target symbol resolved",
-      "acquirerPrice": 337.46,
-      "acquirerPriceAsOf": "2026-11-06T21:00:02.000Z",
-      "tradeable": false,
-      "tradeableReason": "no target price (no target symbol resolved)",
-      "spreadPct": null,
-      "impliedValue": null,
-      "annualizedSpreadPct": null,
-      "tradingDaysToClose": null,
-      "shortRequired": false,
-      "borrowData": null,
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": null,
-          "annualizedGross": null
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": null,
-          "annualizedGross": null
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": null,
-          "annualizedGross": null
-        }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "PTC",
@@ -2958,6 +2958,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -2977,8 +2978,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "QCOM",
@@ -3026,6 +3026,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3045,8 +3046,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "RCL",
@@ -3093,6 +3093,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3112,8 +3113,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "QRVO",
@@ -3162,6 +3162,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3181,8 +3182,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "TDG",
@@ -3234,6 +3234,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3253,8 +3254,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "TDY",
@@ -3301,6 +3301,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3320,8 +3321,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Talkspace",
@@ -3368,6 +3368,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3387,8 +3388,74 @@
           "expectedGross": null,
           "annualizedGross": null
         }
+      ]
+    },
+    {
+      "target": "VRSK",
+      "targetSymbol": "VRSK",
+      "targetName": "Verisk Analytics, Inc.",
+      "acquirer": null,
+      "acquirerSymbol": null,
+      "filerRole": "unclear",
+      "considerationType": null,
+      "offerPricePerShare": null,
+      "exchangeRatio": null,
+      "expectedCloseDate": null,
+      "expectedCloseLabel": null,
+      "terminationFeeUSD": null,
+      "dealValueUSD": null,
+      "confidence": "MEDIUM",
+      "confidenceReason": "definitive agreement announced, per-share terms not extracted",
+      "status": "pending",
+      "riskFlags": {
+        "financing": "none-mentioned",
+        "goShop": false,
+        "shareholderVote": "not-stated",
+        "regulatory": "standard"
+      },
+      "thesis": null,
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1442145/000095010326016441/dp255815_8k.htm",
+      "exhibitUrl": null,
+      "evidenceUrls": [
+        "https://www.sec.gov/Archives/edgar/data/1442145/000095010326016441/dp255815_8k.htm"
       ],
-      "verdict": "NOT TRADEABLE"
+      "source": "sec-8k",
+      "minedAt": "2026-10-30T13:00:13.807Z",
+      "addedAt": null,
+      "targetPrice": 204.59,
+      "targetPriceAsOf": "2026-11-06T21:00:00.000Z",
+      "targetPriceError": null,
+      "acquirerPrice": null,
+      "acquirerPriceAsOf": null,
+      "tradeable": false,
+      "tradeableReason": "terms not extracted — cannot compute spread",
+      "spreadPct": null,
+      "impliedValue": null,
+      "annualizedSpreadPct": null,
+      "tradingDaysToClose": null,
+      "shortRequired": false,
+      "borrowData": null,
+      "verdict": "NOT TRADEABLE",
+      "capacityTable": [
+        {
+          "notional": 10000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 25000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        },
+        {
+          "notional": 50000,
+          "commissionUSD": 0,
+          "expectedGross": null,
+          "annualizedGross": null
+        }
+      ]
     },
     {
       "target": "VMRK",
@@ -3440,73 +3507,6 @@
       "verdict": "NO EDGE — merger of equals"
     },
     {
-      "target": "VRSK",
-      "targetSymbol": "VRSK",
-      "targetName": "Verisk Analytics, Inc.",
-      "acquirer": null,
-      "acquirerSymbol": null,
-      "filerRole": "unclear",
-      "considerationType": null,
-      "offerPricePerShare": null,
-      "exchangeRatio": null,
-      "expectedCloseDate": null,
-      "expectedCloseLabel": null,
-      "terminationFeeUSD": null,
-      "dealValueUSD": null,
-      "confidence": "MEDIUM",
-      "confidenceReason": "definitive agreement announced, per-share terms not extracted",
-      "status": "pending",
-      "riskFlags": {
-        "financing": "none-mentioned",
-        "goShop": false,
-        "shareholderVote": "not-stated",
-        "regulatory": "standard"
-      },
-      "thesis": null,
-      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1442145/000095010326016441/dp255815_8k.htm",
-      "exhibitUrl": null,
-      "evidenceUrls": [
-        "https://www.sec.gov/Archives/edgar/data/1442145/000095010326016441/dp255815_8k.htm"
-      ],
-      "source": "sec-8k",
-      "minedAt": "2026-10-30T13:00:13.807Z",
-      "addedAt": null,
-      "targetPrice": 204.59,
-      "targetPriceAsOf": "2026-11-06T21:00:00.000Z",
-      "targetPriceError": null,
-      "acquirerPrice": null,
-      "acquirerPriceAsOf": null,
-      "tradeable": false,
-      "tradeableReason": "terms not extracted — cannot compute spread",
-      "spreadPct": null,
-      "impliedValue": null,
-      "annualizedSpreadPct": null,
-      "tradingDaysToClose": null,
-      "shortRequired": false,
-      "borrowData": null,
-      "capacityTable": [
-        {
-          "notional": 10000,
-          "commissionUSD": 0,
-          "expectedGross": null,
-          "annualizedGross": null
-        },
-        {
-          "notional": 25000,
-          "commissionUSD": 0,
-          "expectedGross": null,
-          "annualizedGross": null
-        },
-        {
-          "notional": 50000,
-          "commissionUSD": 0,
-          "expectedGross": null,
-          "annualizedGross": null
-        }
-      ],
-      "verdict": "NOT TRADEABLE"
-    },
-    {
       "target": "PESI",
       "targetSymbol": "PESI",
       "targetName": "King Environmental Services Ltd",
@@ -3552,6 +3552,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3571,8 +3572,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "VRT",
@@ -3619,6 +3619,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3638,8 +3639,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "VST",
@@ -3686,6 +3686,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3705,8 +3706,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     },
     {
       "target": "Pacira",
@@ -3753,6 +3753,7 @@
       "tradingDaysToClose": null,
       "shortRequired": false,
       "borrowData": null,
+      "verdict": "NOT TRADEABLE",
       "capacityTable": [
         {
           "notional": 10000,
@@ -3772,8 +3773,7 @@
           "expectedGross": null,
           "annualizedGross": null
         }
-      ],
-      "verdict": "NOT TRADEABLE"
+      ]
     }
   ],
   "watchlist": [
@@ -3986,19 +3986,6 @@
       "source": "sec-8k"
     },
     {
-      "target": "DUK",
-      "targetSymbol": "DUK",
-      "targetName": "Duke Energy CORP",
-      "acquirer": null,
-      "acquirerSymbol": null,
-      "confidence": "LOW",
-      "confidenceReason": "merger language, no definitive agreement or terms",
-      "status": "pending",
-      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1326160/000110465926084653/tm2620766d1_8k.htm",
-      "filingDate": "2026-07-17",
-      "source": "sec-8k"
-    },
-    {
       "target": "DTE",
       "targetSymbol": "DTE",
       "targetName": "DTE ENERGY CO",
@@ -4009,6 +3996,19 @@
       "status": "pending",
       "filingUrl": "https://www.sec.gov/Archives/edgar/data/936340/000119312526448536/d143691d8k.htm",
       "filingDate": "2026-11-05",
+      "source": "sec-8k"
+    },
+    {
+      "target": "DUK",
+      "targetSymbol": "DUK",
+      "targetName": "Duke Energy CORP",
+      "acquirer": null,
+      "acquirerSymbol": null,
+      "confidence": "LOW",
+      "confidenceReason": "merger language, no definitive agreement or terms",
+      "status": "pending",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1326160/000110465926084653/tm2620766d1_8k.htm",
+      "filingDate": "2026-07-17",
       "source": "sec-8k"
     },
     {
@@ -4285,19 +4285,6 @@
       "source": "sec-8k"
     },
     {
-      "target": "OKE",
-      "targetSymbol": "OKE",
-      "targetName": "ONEOK INC /NEW/",
-      "acquirer": "Purchaser",
-      "acquirerSymbol": null,
-      "confidence": "LOW",
-      "confidenceReason": "merger language, no definitive agreement or terms [merged 2026-09-15 filing]",
-      "status": "pending",
-      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1039684/000119312526377023/d405989d8k.htm",
-      "filingDate": "2026-08-31",
-      "source": "sec-8k"
-    },
-    {
       "target": "O",
       "targetSymbol": "O",
       "targetName": "REALTY INCOME CORP",
@@ -4308,6 +4295,19 @@
       "status": "pending",
       "filingUrl": "https://www.sec.gov/Archives/edgar/data/726728/000110465926094098/tm2622133d1_8k.htm",
       "filingDate": "2026-08-11",
+      "source": "sec-8k"
+    },
+    {
+      "target": "OKE",
+      "targetSymbol": "OKE",
+      "targetName": "ONEOK INC /NEW/",
+      "acquirer": "Purchaser",
+      "acquirerSymbol": null,
+      "confidence": "LOW",
+      "confidenceReason": "merger language, no definitive agreement or terms [merged 2026-09-15 filing]",
+      "status": "pending",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/1039684/000119312526377023/d405989d8k.htm",
+      "filingDate": "2026-08-31",
       "source": "sec-8k"
     },
     {
@@ -4324,19 +4324,6 @@
       "source": "sec-8k"
     },
     {
-      "target": "PNR",
-      "targetSymbol": "PNR",
-      "targetName": "PENTAIR plc",
-      "acquirer": null,
-      "acquirerSymbol": null,
-      "confidence": "LOW",
-      "confidenceReason": "merger language, no definitive agreement or terms",
-      "status": "pending",
-      "filingUrl": "https://www.sec.gov/Archives/edgar/data/77360/000110465926104725/tm2624576d1_8k.htm",
-      "filingDate": "2026-09-02",
-      "source": "sec-8k"
-    },
-    {
       "target": "PNW",
       "targetSymbol": "PNW",
       "targetName": "PINNACLE WEST CAPITAL CORP",
@@ -4347,6 +4334,19 @@
       "status": "pending",
       "filingUrl": "https://www.sec.gov/Archives/edgar/data/764622/000110465926090108/tm2621767d2_8k.htm",
       "filingDate": "2026-08-04",
+      "source": "sec-8k"
+    },
+    {
+      "target": "PNR",
+      "targetSymbol": "PNR",
+      "targetName": "PENTAIR plc",
+      "acquirer": null,
+      "acquirerSymbol": null,
+      "confidence": "LOW",
+      "confidenceReason": "merger language, no definitive agreement or terms",
+      "status": "pending",
+      "filingUrl": "https://www.sec.gov/Archives/edgar/data/77360/000110465926104725/tm2624576d1_8k.htm",
+      "filingDate": "2026-09-02",
       "source": "sec-8k"
     },
     {

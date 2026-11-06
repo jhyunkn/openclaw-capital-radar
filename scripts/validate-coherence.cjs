@@ -69,9 +69,14 @@ try {
     : `${equityCount} positions`;
 } catch {}
 
-const candidates = ['index.html', path.join('public', 'index.html')]
+// Validate exactly one production authority. build-vercel.cjs packages the
+// complete homepage into public/index.html; index.html is an intermediate
+// bridge and can intentionally omit final integrations. Keep the root page as
+// a fallback for focused local checks that have not packaged public/ yet.
+const candidates = [path.join('public', 'index.html'), 'index.html']
   .map(rel => path.join(root, rel))
-  .filter(f => fs.existsSync(f));
+  .filter(f => fs.existsSync(f))
+  .slice(0, 1);
 
 if (!candidates.length) {
   console.error('FAIL coherence — no built homepage found (index.html / public/index.html). Run a build first.');

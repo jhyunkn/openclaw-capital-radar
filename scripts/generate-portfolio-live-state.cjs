@@ -23,6 +23,11 @@ function ageHours(timestamp) {
   return (Date.now() - date.getTime()) / 3_600_000;
 }
 
+function timestampMs(timestamp) {
+  const value = new Date(timestamp).getTime();
+  return Number.isFinite(value) ? value : -Infinity;
+}
+
 function signalClass(signal) {
   const s = String(signal || '').toLowerCase();
   if (s.includes('exit')) return 'exit';
@@ -90,15 +95,27 @@ const positions = rh.positions.map(pos => {
   const costBasis = Number.isFinite(suppliedCostBasis)
     ? round(suppliedCostBasis, 2)
     : round(shares * avgCostPrice, 2);
-  const livePrice = round(live.livePrice ?? pos.livePrice, symbol === 'DOGE' ? 6 : 2);
-  const prevClose = round(live.prevClose ?? pos.prevClose, symbol === 'DOGE' ? 6 : 2);
+  const reportPriceAsOf = live.priceAsOf || live.asOf || null;
+  const brokerPriceAsOf = pos.priceAsOf || rh.syncedAt;
+  const brokerHasPrice = Number.isFinite(Number(pos.livePrice));
+  const reportHasPrice = Number.isFinite(Number(live.livePrice));
+  const preferBrokerQuote = brokerHasPrice && (
+    !reportHasPrice ||
+    timestampMs(brokerPriceAsOf) >= timestampMs(reportPriceAsOf)
+  );
+  const quote = preferBrokerQuote ? pos : live;
+  const fallbackQuote = preferBrokerQuote ? live : pos;
+  const livePrice = round(quote.livePrice ?? fallbackQuote.livePrice, symbol === 'DOGE' ? 6 : 2);
+  const prevClose = round(quote.prevClose ?? fallbackQuote.prevClose, symbol === 'DOGE' ? 6 : 2);
   const currentValue = round(livePrice * shares, 2);
   const unrealizedGain = round(currentValue - costBasis, 2);
   const unrealizedPct = costBasis ? round((unrealizedGain / costBasis) * 100, 2) : null;
-  const dayChangePct = round(live.dayChangePct ?? pos.dayChangePct, 2);
+  const dayChangePct = round(quote.dayChangePct ?? fallbackQuote.dayChangePct, 2);
   const dayChange = dayChangeFromPct(currentValue, dayChangePct);
   const signal = signalByTicker.get(symbol) || live.signal || live.computedSignal || null;
-  const priceAsOf = live.priceAsOf || live.asOf || pos.priceAsOf || rh.syncedAt;
+  const priceAsOf = preferBrokerQuote
+    ? brokerPriceAsOf
+    : (reportPriceAsOf || brokerPriceAsOf);
   const quoteAgeHours = ageHours(priceAsOf);
 
   return {
@@ -115,6 +132,7 @@ const positions = rh.positions.map(pos => {
     dayChangePct,
     signal,
     signalClass: signalClass(signal),
+    priceSource: preferBrokerQuote ? 'broker-live-snapshot' : 'report-state-live',
     priceAsOf,
     priceFreshness: {
       status: quoteAgeHours <= maxQuoteAgeHours ? 'OK' : 'STALE',

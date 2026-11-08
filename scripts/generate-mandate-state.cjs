@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { lastSessionClose, isMarketOpen } = require('./lib/market-session.cjs');
 
 const root = path.join(__dirname, '..');
 const outPath = path.join(root, 'outputs', 'mandate-state.json');
@@ -18,8 +19,17 @@ function ageMinutes(timestamp) {
   const parsed = Date.parse(timestamp || '');
   return Number.isFinite(parsed) ? (Date.now() - parsed) / 60000 : null;
 }
+// While the market is closed, a quote is only as stale as its lag behind the last
+// session close — a Friday-close price read on Sunday is current.
+function marketAgeMinutes(timestamp) {
+  const raw = ageMinutes(timestamp);
+  if (raw == null || isMarketOpen()) return raw;
+  const close = lastSessionClose();
+  if (close == null) return raw;
+  return Math.max(0, (close - Date.parse(timestamp)) / 60000);
+}
 function dependency(id, label, timestamp, maxMinutes, options = {}) {
-  const age = ageMinutes(timestamp);
+  const age = options.marketTime ? marketAgeMinutes(timestamp) : ageMinutes(timestamp);
   let status = 'OK';
   let reason = null;
   if (options.available === false || age == null) {
@@ -82,7 +92,7 @@ const mandates = (config.mandates || []).map(mandate => {
         available: Boolean(portfolio), source: `portfolio-live-state.${portfolio?.ownership?.method || 'legacy'}`
       }),
       dependency('quotes', 'Holding prices', quoteTimestamp, mandate.freshness.quotesMaxMinutes, {
-        available: Boolean(portfolio?.positions?.length && quoteTimestamp), source: 'portfolio-live-state.positions'
+        available: Boolean(portfolio?.positions?.length && quoteTimestamp), source: 'portfolio-live-state.positions', marketTime: true
       }),
       dependency('data_health', 'Data health', dataHealth?.generatedAt, mandate.freshness.dataHealthMaxMinutes, {
         available: Boolean(dataHealth), valid: dataHealth?.status === 'OK', source: 'data-health',

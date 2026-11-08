@@ -14,11 +14,17 @@ assert(Array.isArray(data.whyTodayMatters), 'whyTodayMatters array missing');
 assert(typeof data.totalWeightPct === 'number', 'totalWeightPct missing');
 assert(Math.abs(data.totalWeightPct - 100) <= 0.15, `exclusive bucket weights do not reconcile to 100%; got ${data.totalWeightPct}`);
 assert(data.reconciliation === 'PASS', 'portfolio exposure reconciliation did not pass');
-for (const id of ['ecommerce_cloud','cloud_software_ai','payments_financial_infrastructure','levered_tactical','index_market_beta']) assert(data.buckets.some(b => b.id === id), `missing exposure bucket ${id}`);
+// Every broker-held position must land in exactly one bucket. (This used to require a fixed
+// bucket list, which broke the build whenever a sector was sold out of — e.g. AVGO.)
+const held = (JSON.parse(fs.readFileSync(path.join(root, 'outputs', 'robinhood-positions.json'), 'utf8')).positions || []).map(p => String(p.symbol).toUpperCase());
+for (const sym of held) {
+  const homes = data.buckets.filter(b => (b.members || []).some(m => String(m.ticker).toUpperCase() === sym));
+  assert(homes.length === 1, `${sym} must appear in exactly one exposure bucket (found ${homes.length})`);
+}
 const crypto = data.buckets.find(b => b.id === 'speculative_crypto_infrastructure');
 if (crypto) assert(!(crypto.members || []).some(m => m.ticker === 'AMZN'), 'AMZN must not appear in crypto infrastructure bucket');
 const payments = data.buckets.find(b => b.id === 'payments_financial_infrastructure');
-assert(payments && (payments.members || []).some(m => m.ticker === 'MA'), 'MA must appear in payments / financial infrastructure bucket');
+if (held.includes('MA')) assert(payments && (payments.members || []).some(m => m.ticker === 'MA'), 'MA must appear in payments / financial infrastructure bucket');
 for (const b of data.buckets) {
   assert(b.label, `${b.id} missing label`);
   assert(typeof b.weightPct === 'number', `${b.id} missing numeric weightPct`);

@@ -8,6 +8,8 @@
  * four-section rule. Mirrors components/radar/narrative-reality/render.cjs.
  */
 
+const { formatEarnings } = require('../../../scripts/lib/earnings.cjs');
+
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const arr = v => Array.isArray(v) ? v : [];
@@ -53,11 +55,15 @@ function entryBadge(eq) {
   const cls = rating === 'GOOD' ? 'mom-eq-good'
     : rating === 'POOR' ? 'mom-eq-poor' : 'mom-eq-fair';
   const reasons = eq && Array.isArray(eq.reasons) ? eq.reasons.join('; ') : '';
-  const earn = eq && eq.earningsTiming === 'unknown' ? ' · earnings timing unknown' : '';
+  const et = eq && eq.earningsTiming;
+  const earn = ` · ${formatEarnings(et, { short: true })}`;
+  // Earnings inside two weeks changes the entry read, so it shows on the row, not only on hover.
+  const soon = et && et.status === 'scheduled' && et.daysAway <= 14
+    ? ` <span class="mom-earn" title="Source: ${esc(et.source)}">${esc(formatEarnings(et))}</span>` : '';
   const label = rating === 'GOOD' ? 'GOOD — constructive entry zone'
     : rating === 'POOR' ? 'POOR — chasing, wait'
     : rating === 'FAIR' ? 'FAIR — extended or consolidating, scale or wait' : '—';
-  return `<span class="mom-eq ${cls}" title="${esc(reasons)}${esc(earn)}">${esc(label)}</span>`;
+  return `<span class="mom-eq ${cls}" title="${esc(reasons)}${esc(earn)}">${esc(label)}</span>${soon}`;
 }
 
 function changeChip(sym, changes) {
@@ -159,7 +165,7 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
       <span class="mom-health ${esc(healthCls)}">Data: ${esc(health)}${state?.coverageCount ? ` · ${esc(state.coverageCount)} of ${esc(state.universeCount)} index constituents with price data` : ''}</span>
     </div>
     ${state?.excludedCount ? `<p class="mom-note">${esc(state.excludedCount)} of the symbols with data excluded from ranking (insufficient history or non-finite signals) — ${esc(state.includedCount)} ranked. Universe is current S&amp;P 500 members — historical ranks carry survivorship bias.</p>` : ''}
-    <p class="mom-note">Entry reads are display-only — they never change the mechanical monthly portfolio. Earnings timing is unknown for every name (no feed; never guessed).</p>
+    <p class="mom-note">Entry reads are display-only — they never change the mechanical monthly portfolio. Earnings dates are from the Nasdaq earnings calendar; names reporting within two weeks are flagged on the row.</p>
   </div>
 ${shellClose}`;
 }
@@ -189,6 +195,7 @@ function renderMomentumStyle() {
 .mom-health-full{color:var(--green,#2f6f4e)}
 .mom-health-partial{color:#8a6a1f}
 .mom-note{font-size:11px;color:#8a8578;margin:8px 0 0}
+.mom-earn{display:inline-block;margin-left:6px;font-size:10px;color:#9f3f35;white-space:nowrap}
 .mom-eq{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:999px;border:1px solid;white-space:nowrap}
 .mom-eq-good{color:var(--green,#2f6f4e);border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.07)}
 .mom-eq-fair{color:#8a6a1f;border-color:rgba(138,106,44,.5);background:rgba(138,106,44,.08)}

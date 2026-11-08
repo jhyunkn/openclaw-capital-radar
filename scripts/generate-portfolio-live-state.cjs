@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { lastSessionClose, isMarketOpen } = require('./lib/market-session.cjs');
 
 const root = path.join(__dirname, '..');
 const outputs = path.join(root, 'outputs');
@@ -116,7 +117,11 @@ const positions = rh.positions.map(pos => {
   const priceAsOf = preferBrokerQuote
     ? brokerPriceAsOf
     : (reportPriceAsOf || brokerPriceAsOf);
-  const quoteAgeHours = ageHours(priceAsOf);
+  // Market-time age: while the market is closed, only lag behind the last session close counts.
+  const closeMs = isMarketOpen() ? null : lastSessionClose();
+  const quoteAgeHours = closeMs == null
+    ? ageHours(priceAsOf)
+    : Math.max(0, (closeMs - timestampMs(priceAsOf)) / 3_600_000);
 
   return {
     symbol,

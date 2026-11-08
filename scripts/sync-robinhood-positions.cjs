@@ -21,7 +21,15 @@ if (ageHours > 72) {
 
 const cb       = fs.existsSync(cbPath) ? JSON.parse(fs.readFileSync(cbPath, 'utf8')) : {};
 const existing = cb.holdings || {};
-const updated  = { ...existing };
+const brokerSyms = new Set((rh.positions || []).map(p => String(p.symbol || '').toUpperCase()).filter(Boolean));
+// The broker snapshot is the ownership source of truth: anything it no longer lists was
+// sold, so drop it instead of letting a stale manual entry render as a live holding.
+const updated  = {};
+const formerHoldings = { ...(cb.formerHoldings || {}) };
+for (const [sym, entry] of Object.entries(existing)) {
+  if (brokerSyms.has(sym)) updated[sym] = entry;
+  else formerHoldings[sym] = { ...entry, removedAt: rh.syncedAt, reason: 'not in broker snapshot' };
+}
 
 for (const pos of (rh.positions || [])) {
   const sym      = String(pos.symbol).toUpperCase();
@@ -42,6 +50,7 @@ fs.writeFileSync(cbPath, JSON.stringify({
   asOf,
   rhSyncedAt: rh.syncedAt,
   holdings: updated,
+  formerHoldings,
 }, null, 2));
 
 console.log(`sync-robinhood-positions: synced ${rh.positions.length} positions → cost-basis.manual.json  (${ageHours.toFixed(1)}h old)`);
@@ -53,6 +62,9 @@ const statePath = path.join(root, 'data', 'report-state.live.json');
 if (fs.existsSync(statePath)) {
   const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
   const rhBySym = new Map((rh.positions || []).map(p => [String(p.symbol).toUpperCase(), p]));
+  const before = (state.holdings || []).map(h => String(h.ticker || '').toUpperCase());
+  const removed = before.filter(sym => !rhBySym.has(sym));
+  state.holdings = (state.holdings || []).filter(h => rhBySym.has(String(h.ticker || '').toUpperCase()));
   const stateBySym = new Map((state.holdings || []).map(h => [String(h.ticker || '').toUpperCase(), h]));
   let holdingsAdded = 0;
   for (const pos of (rh.positions || [])) {
@@ -106,10 +118,23 @@ if (fs.existsSync(statePath)) {
     const pos = rhBySym.get(String(h.ticker || '').toUpperCase());
     if (!pos) continue;
     const price = Number(pos.livePrice);
+    const qty = parseFloat(pos.quantity);
+    const avgCost = parseFloat(pos.avgCostPrice);
+    if (Number.isFinite(qty)) h.shares = qty;
+    if (Number.isFinite(avgCost)) {
+      h.avgCostPrice = avgCost;
+      h.totalCostBasis = Number.isFinite(Number(pos.costBasis))
+        ? Math.round(Number(pos.costBasis) * 100) / 100
+        : Math.round(qty * avgCost * 100) / 100;
+    }
     if (!Number.isFinite(price)) continue;
     h.livePrice = price;
     h.priceAsOf = rh.syncedAt;
-    h.marketValue = Math.round(price * parseFloat(pos.quantity) * 100) / 100;
+    h.marketValue = Math.round(price * qty * 100) / 100;
+    if (Number.isFinite(h.totalCostBasis) && h.totalCostBasis > 0) {
+      h.unrealizedGain = Math.round((h.marketValue - h.totalCostBasis) * 100) / 100;
+      h.unrealizedPct = Math.round((h.unrealizedGain / h.totalCostBasis) * 10000) / 100;
+    }
     priceUpdated++;
   }
   const portfolioTotal = Number(rh.portfolio?.totalValue);
@@ -126,5 +151,5 @@ if (fs.existsSync(statePath)) {
   state.meta.holdingsSource = 'Robinhood MCP live sync (read-only)';
   state.meta.holdingsSyncNote = `${(rh.positions || []).length} live broker positions reconciled; quantities, exact cost basis, cash, buying power, and portfolio totals refreshed.`;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
-  console.log(`sync-robinhood-positions: refreshed ${priceUpdated} holdings and added ${holdingsAdded} missing broker holding(s) in report-state.live.json`);
+  console.log(`sync-robinhood-positions: refreshed ${priceUpdated} holdings, added ${holdingsAdded}, removed ${removed.length} no longer held${removed.length ? ` (${removed.join(', ')})` : ''} in report-state.live.json`);
 }

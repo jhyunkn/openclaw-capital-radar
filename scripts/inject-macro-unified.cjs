@@ -1110,9 +1110,21 @@ const _creditVal = mvMap.hy_oas?.value != null ? Number(mvMap.hy_oas.value).toFi
 const _vixVal    = mvMap.vix?.value    != null ? Number(mvMap.vix.value).toFixed(1)          : '—';
 const _dgs10Val  = mvMap.dgs10?.value  != null ? Number(mvMap.dgs10.value).toFixed(2) + '%' : '—';
 // Live Fed Funds Rate (DFF) from liveRatesCredit — used as the "now" data point
+// Effective fed funds: live-state FRED row first, then the committed FRED DFF cache. No
+// hardcoded fallback — a missing rate fails the build instead of printing a stale number.
 const _dffEntry  = (liveState.liveRatesCredit || []).find(r => r.id === 'DFF');
-const _dffRate   = _dffEntry?.value != null ? Number(_dffEntry.value).toFixed(2) : '3.62';
-const _dffDate   = _dffEntry?.latestDate || _dffEntry?.asOf || new Date().toISOString().slice(0, 10);
+const _dffCache  = (() => {
+  try {
+    const s = JSON.parse(fs.readFileSync(path.join(root, 'data', 'cache', 'money-cash-series.json'), 'utf8')).series.DFF;
+    const pts = Array.isArray(s) ? s : (s?.points || []);
+    return pts.length ? pts[pts.length - 1] : null;
+  } catch { return null; }
+})();
+const _dffUseCache = _dffCache && (!_dffEntry?.value || String(_dffCache.date) > String(_dffEntry.latestDate || _dffEntry.asOf || ''));
+const _dffRateNum = _dffUseCache ? _dffCache.value : _dffEntry?.value;
+if (_dffRateNum == null) throw new Error('inject-macro-unified: no FRED DFF value in live state or data/cache/money-cash-series.json');
+const _dffRate   = Number(_dffRateNum).toFixed(2);
+const _dffDate   = _dffUseCache ? _dffCache.date : (_dffEntry.latestDate || _dffEntry.asOf);
 const _dffDateObj = new Date(`${String(_dffDate).slice(0, 10)}T00:00:00Z`);
 const _dffMonthLabel = Number.isFinite(_dffDateObj.getTime())
   ? _dffDateObj.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }) + " '" + String(_dffDateObj.getUTCFullYear()).slice(-2)
@@ -1143,7 +1155,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     <canvas id="${_cycleCanvasId}"></canvas>
   </div>
   <div class="mu-arc-legend">
-    <span><span class="mu-leg mu-leg-actual"></span>Actual rate \u00b7 FRED DFF last-known-good</span>
+    <span><span class="mu-leg mu-leg-actual"></span>Actual rate \u00b7 FRED DFF</span>
     <span><span class="mu-leg mu-leg-proj"></span>Projected path</span>
     <span><span class="mu-leg mu-leg-plateau"></span>Rate plateau · 13 mo held</span>
     <span><span class="mu-leg mu-leg-neutral"></span>Neutral ~3.2% \u00b7 SEP longer-run</span>
@@ -1188,7 +1200,7 @@ const cycleHtml = `<div class="mu-arc-wrap">
     {d:"Sep '25",r:4.08,phase:"C"},           // 17 ← FRED Q3-2025 avg 4.10% → ~4.08 point-in-time
     {d:"Dec '25",r:3.83,phase:"C"},           // 18 ← FRED Q4-2025 avg 3.95% → ~3.83 point-in-time
     {d:"Mar '26",r:3.62,phase:"C"},           // 19 ← estimated
-    {d:"${_dffMonthLabel}",r:${_dffRate},phase:"D",current:true}, // 20 ← last-known-good DFF ${_dffDate} (FRED feed down since 9/18)
+    {d:"${_dffMonthLabel}",r:${_dffRate},phase:"D",current:true}, // 20 ← latest FRED DFF ${_dffDate}
     {d:"Dec '26",r:4.10,phase:"D",projected:true},      // 21 ← Sep 2026 SEP median end-2026
     {d:"Jun '27",r:4.10,phase:"D",projected:true},      // 22 ← Sep 2026 SEP median path
     {d:"Dec '27",r:4.10,phase:"E",projected:true},      // 23 ← Sep 2026 SEP median end-2027
@@ -2336,7 +2348,7 @@ const section = `<section id="decision-brief-section" class="macro-unified">
 
   <!-- 2. Rate cycle (Fed diagram — chart geometry unchanged; annotations corrected Sep 2026) -->
   <details class="mu-cycle-arc-det" open><summary class="mu-arc-sum">Rate cycle · Fed funds vs Phase ${phaseCode}</summary><div class="mu-cycle-arc-col">${cycleHtml}</div>
-  <p class="mu-arc-note">Actual rate = FRED DFF, last-known-good ${_dffDateShort} (daily feed unavailable since Sep 18). Projected path = September 2026 FOMC SEP median: 4.1% end-2026, 4.1% end-2027, 3.2% longer-run.</p></details>
+  <p class="mu-arc-note">Actual rate = FRED DFF, latest print ${_dffDateShort} (FRED publishes with a one-business-day lag). Projected path = September 2026 FOMC SEP median: 4.1% end-2026, 4.1% end-2027, 3.2% longer-run.</p></details>
 
 
   <!-- 6. SPX chart: price confirmation -->

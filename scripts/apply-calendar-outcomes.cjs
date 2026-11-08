@@ -26,8 +26,8 @@
  * — the exact schema of the Sep 16 FOMC outcome; provenance (source,
  * verifiedAt) stays in the ledger.
  *
- * GATE — OFF BY DEFAULT: the step runs only when the environment sets
- * CAPITAL_RADAR_CALENDAR_OUTCOMES=1. As of 2026-10-23 no pipeline stage
+ * GATE — ON BY DEFAULT (was off until 2026-11-08): set
+ * CAPITAL_RADAR_CALENDAR_OUTCOMES=0 to skip the step. As of 2026-10-23 no pipeline stage
  * emits the ledger automatically, so entries are added deliberately, the
  * same curation model as data/market-calendar.json itself (see the
  * sync-market-events.cjs header). Enabling the step with no new ledger
@@ -42,7 +42,9 @@ const root = path.join(__dirname, '..');
 const calPath = path.join(root, 'data', 'market-calendar.json');
 const ledgerPath = path.join(root, 'data', 'market-calendar-outcomes.json');
 
-const ENABLED = process.env.CAPITAL_RADAR_CALENDAR_OUTCOMES === '1';
+// On by default since 2026-11-08: with the gate off, the Oct 28 FOMC, Nov 3 midterms and
+// Nov 6 payrolls all sat as pre-event preview text. Set CAPITAL_RADAR_CALENDAR_OUTCOMES=0 to disable.
+const ENABLED = process.env.CAPITAL_RADAR_CALENDAR_OUTCOMES !== '0';
 
 function sortKeysDeep(value) {
   if (Array.isArray(value)) return value.map(sortKeysDeep);

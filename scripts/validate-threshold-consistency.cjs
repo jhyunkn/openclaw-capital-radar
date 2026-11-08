@@ -21,9 +21,14 @@ const uniqueTrim = new Set(rows.map(r => Number(r.trimPct).toFixed(2)));
 const uniqueReview = new Set(rows.map(r => Number(r.riskReviewPct).toFixed(2)));
 ok(uniqueAdd.size >= 4, `add bands too uniform: ${[...uniqueAdd].join(', ')}`); ok(uniqueTrim.size >= 4, `trim bands too uniform: ${[...uniqueTrim].join(', ')}`); ok(uniqueReview.size >= 4, `review bands too uniform: ${[...uniqueReview].join(', ')}`);
 function row(t){ return rows.find(r => r.ticker === t); }
-for (const t of ['CONL','TSLT','BMNR','SPY','AVGO','MA']) ok(row(t), `${t} row missing`); // AVGO replaced MSFT 2026-09-25: holdings rotation, same tight-band role
-const wideAvg = ['CONL','TSLT','BMNR'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
-const tightAvg = ['SPY','AVGO','MA'].reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/3;
+// Wide-band (levered/speculative) vs tight-band (index/quality) names, taken from whatever is
+// currently held — a fixed ticker list broke the build each time a named holding was sold.
+const WIDE = ['CONL','TSLT','BMNR','TQQQ','SOXL','DOGE'];
+const TIGHT = ['SPY','MA','AVGO','MSFT','AMZN','IAU'];
+const heldWide = WIDE.filter(row); const heldTight = TIGHT.filter(row);
+ok(heldWide.length >= 2 && heldTight.length >= 2, `need >=2 wide and >=2 tight-band holdings to compare (wide ${heldWide.join(',')}; tight ${heldTight.join(',')})`);
+const wideAvg = heldWide.reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/heldWide.length;
+const tightAvg = heldTight.reduce((s,t)=>s+Math.abs(row(t).riskReviewPct),0)/heldTight.length;
 ok(wideAvg > tightAvg * 2, `wide bands not wider enough: ${wideAvg}/${tightAvg}`);
 ok(Array.isArray(interp.interpretations), 'interpretations missing');
 for (const item of interp.interpretations) ok(item.thresholdPolicy && /volatility_adjusted|signalThresholds/i.test(item.thresholdPolicy), `${item.ticker} not using threshold policy`);

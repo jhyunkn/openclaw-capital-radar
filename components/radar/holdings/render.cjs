@@ -1,6 +1,15 @@
 'use strict';
 const fs   = require('fs');
 const path = require('path');
+const { earningsFor, formatEarnings, hasEarnings } = require('../../../scripts/lib/earnings.cjs');
+
+// Next earnings from the Nasdaq calendar cache; red when inside two weeks (gap risk on the zone).
+function earningsChip(ticker) {
+  if (!hasEarnings(ticker)) return '';
+  const e = earningsFor(ticker);
+  const soon = e && e.status === 'scheduled' && e.daysAway <= 14;
+  return `<span class="mu-earn${soon ? ' mu-earn-soon' : ''}" title="${e && e.source ? `Source: ${e.source}` : 'Earnings feed unavailable'}">${formatEarnings(e, { short: true }).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</span>`;
+}
 
 const ROOT       = path.join(__dirname, '../../..');
 const CANDLE_DIR = path.join(ROOT, 'data', 'market-candles');
@@ -485,6 +494,7 @@ ${inBuyZoneBadge}${inTrimBadge}${belowBadge}${exitBadge}
       <div class="mu-sub-row">
         ${h.role ? `<span class="mu-role">${esc(h.role)}</span>` : ''}
         <span class="mu-perf3m" style="color:${perf3mColor}">3M ${perf3m}</span>
+        ${earningsChip(ticker)}
       </div>
     </div>
     <div class="mu-header-right">
@@ -729,6 +739,7 @@ function renderHoldingsStyle() {
 .mu-sub-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:5px}
 .mu-role{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
 .mu-perf3m{font-size:12px;font-weight:600}
+.mu-earn{font-size:11px;color:rgba(36,35,31,.55);margin-left:8px}.mu-earn-soon{color:#9f3f35;font-weight:600}
 .mu-price{font-size:22px;font-weight:700;line-height:1}
 .mu-day-chg{font-size:13px;font-weight:600;margin-top:3px}
 /* Chart toggle */

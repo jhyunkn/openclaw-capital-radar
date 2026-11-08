@@ -929,10 +929,10 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
 .tqw-fresh.tqw-stale b{color:var(--neg,#9f3f35)}
 .tqw-fresh.tqw-live{border-color:var(--pos,#2f6f4e);background:rgba(47,111,78,.05)}
 .tqw-fresh.tqw-live b{color:var(--pos,#2f6f4e)}
-.tqw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-bottom:22px}
+.tqw-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-bottom:22px}
 .tqw-card{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px}
 .tqw-card span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-.tqw-card b{display:block;font-size:24px;letter-spacing:-.04em;font-weight:500;margin:8px 0 4px;overflow-wrap:anywhere}
+.tqw-card b{display:block;font-size:24px;letter-spacing:-.04em;font-weight:500;margin:8px 0 4px;overflow-wrap:break-word}
 .tqw-card small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
 .tqw-dim{color:var(--muted);font-style:normal}
 .tqw-gates-head{font-size:13px;color:var(--muted);margin-bottom:10px}
@@ -961,6 +961,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
 .tqw-evidence li span{color:var(--muted)}
 @media(max-width:700px){.tqw-head{display:block}.tqw-fresh{margin-top:12px;text-align:left}}
 @media(max-width:700px){.tqw-evidence{grid-template-columns:1fr}}
+@media(max-width:900px){.tqw-grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}}
 </style>
 </head>
 <body>
@@ -968,7 +969,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <div class="topbar">
       <div class="brand"><span class="mark">◇</span><div>OpenClaw Capital Radar</div></div>
       <nav class="nav"><a href="#decision-brief-section">Macro</a><a href="#market-calendar-section">Calendar</a><a href="#operational-chart-section">Decision chart</a><a href="#holdings-section">Holdings</a><a href="#opportunities-section">Opportunity</a></nav>
-      <div id="generated">Operational render · 2026-11-08T18:28:46.360Z</div>
+      <div id="generated">Operational render · 2026-11-08T19:27:13.316Z</div>
     </div>
     <header class="hero">
       <div>
@@ -1358,7 +1359,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
     <span class="mu-arc-meta">One of five inputs &middot; ~56 mo &middot; Next phase: Euphoria</span>
   </div>
   <div class="mu-arc-canvas-box">
-    <canvas id="mcc_mw8633ix"></canvas>
+    <canvas id="mcc_mw886cvx"></canvas>
   </div>
   <div class="mu-arc-legend">
     <span><span class="mu-leg mu-leg-actual"></span>Actual rate · FRED DFF</span>
@@ -1427,7 +1428,7 @@ html,body{background:#ffffff!important;margin:0}:root{--macro-bone:#EFEAE0;--mac
   RATE_DATA.forEach(function(d,i){var m=parseMo(d.d);d.mo=(m!==null)?m:(i>0?RATE_DATA[i-1].mo+6:60);});
   var TOTAL_MO=RATE_DATA[RATE_DATA.length-1].mo;
   var RATE_MIN=0, RATE_MAX=6.5;
-  var canvas=document.getElementById("mcc_mw8633ix");
+  var canvas=document.getElementById("mcc_mw886cvx");
   if(!canvas)return;
   var c=canvas.getContext("2d");
   var anim=0, raf;
@@ -3097,6 +3098,9 @@ const PATHS={
 const D2030=function(p){return '$'+(Math.round(p[48].y/10)*10).toLocaleString('en-US');};
 // Anchor card value, built from the anchor identity itself: EPS0 × PE0 = NOW_SP.
 const ANCHOR_TXT='$'+EPS0+' × '+PE0.toFixed(2)+'× = $'+NOW_SP.toLocaleString('en-US');
+// Rate formatter for Model 3 cards (mid/high/low are {r, src, note?}).
+// Returns a percent string like "3.8%" or "-2.7% nominal" — no $ level.
+const PCT3=function(x){return (x.r*100).toFixed(1).replace(/.0$/,'')+'%'+(x.note?' '+x.note:'');};
 // ── scenario definitions — parameters drive the math, not hardcoded prices ──
 const SC={
   base:{name:'Base',color:'#1d9e75',
@@ -3230,7 +3234,7 @@ function buildRateChart(sc){
   const S=SC[sc];
   const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
   const ann={
-    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
+    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',textAlign:'right',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
     nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'y',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3]},
   };
   // Phase labels are drawn by Chart.js at the bottom of each phase column,
@@ -3254,7 +3258,9 @@ function buildRateChart(sc){
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'nearest',axis:'x',intersect:false},
-      layout:{padding:{top:6,right:8,bottom:4,left:4}},
+      // Extra right padding so the "FOMC neutral 3%" label (anchored at the
+      // line's right end) has breathing room and cannot clip at the edge.
+      layout:{padding:{top:6,right:24,bottom:4,left:4}},
       plugins:{
         legend:{display:false},
         annotation:{annotations:ann},
@@ -3280,9 +3286,40 @@ function buildLegend(model){
     '<div class="kp-leg-item"><span style="width:20px;height:0;border-top:2px dashed #ba7517;display:inline-block;"></span>Now</div>';
 }
 
-function buildStats(sc){
+// Stat tiles follow the selected model tab: they used to describe Model 1
+// (EPS × P/E) on every tab. Each model's tiles are computed from that
+// model's own data — D2030() formats computed endpoints, ANCHOR_TXT is
+// computed from the anchor identity; no hand-typed $X,XXX (check (g)).
+// 40.54 / Shiller CAPE (multpl) below are build-time interpolations (the same
+// pattern the scenario cards already use), not runtime variables.
+function modelCards(sc, model){
   const S=SC[sc];
-  document.getElementById('kp-stat-grid').innerHTML=S.cards.map(s=>'<div class="kp-stat" style="background:'+S.color+'10;border-bottom:2px solid '+S.color+'60;"><div class="kp-stat-val" style="color:'+S.color+';">'+s.val+'</div><div class="kp-stat-lbl" style="font-weight:500;color:var(--ink,#24231f);">'+s.lbl+'</div><div class="kp-stat-lbl">'+s.sub+'</div><div class="kp-stat-src">'+s.src+'</div></div>').join('');
+  if(model==='m2'){
+    const tgt = sc==='bear' ? {v:'17.3', yrs:'7yr'} : sc==='bull' ? {v:'32', yrs:'10yr'} : {v:'27.6', yrs:'10yr'};
+    const eps = sc==='bear' ? '4%' : sc==='bull' ? '10%' : '8%';
+    return [
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start — CAPE gravity shapes the path',src:'FactSet/Goldman'},
+      {val:'CAPE 40.54× → '+tgt.v+'×',lbl:'CAPE target ('+tgt.yrs+')',sub:'Reversion toward the long-run mean',src:'Shiller CAPE (multpl)'},
+      {val:eps+' / yr',lbl:'EPS growth assumed',sub:'Offsets part of the reversion drag',src:'Shiller/Yale'},
+      {val:D2030(S.m2),lbl:'2030 implied price',sub:'CAPE reversion path',src:'Model 2'},
+    ];
+  }
+  if(model==='m3'){
+    const R=M3_RATES[sc];
+    return [
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start — compounded at forecast returns',src:'FactSet/Goldman'},
+      {val:PCT3(R.mid)+' / yr',lbl:'Mid forecast ('+R.mid.src+')',sub:'The central house forecast',src:R.mid.src},
+      {val:PCT3(R.low)+' – '+PCT3(R.high),lbl:'Forecast range',sub:'Low – high across the three houses',src:'Vanguard · RA · GMO'},
+      {val:D2030(S.m3l)+' – '+D2030(S.m3h),lbl:'2030 price range',sub:'Compounding the current level',src:'Model 3'},
+    ];
+  }
+  return S.cards;
+}
+
+function buildStats(sc, model){
+  const S=SC[sc];
+  const cards = modelCards(sc, model || 'm1');
+  document.getElementById('kp-stat-grid').innerHTML=cards.map(s=>'<div class="kp-stat" style="background:'+S.color+'10;border-bottom:2px solid '+S.color+'60;"><div class="kp-stat-val" style="color:'+S.color+';">'+s.val+'</div><div class="kp-stat-lbl" style="font-weight:500;color:var(--ink,#24231f);">'+s.lbl+'</div><div class="kp-stat-lbl">'+s.sub+'</div><div class="kp-stat-src">'+s.src+'</div></div>').join('');
 }
 
 function buildInfo(sc){
@@ -3326,7 +3363,7 @@ function setSc(sc){
     if(s===sc){el.classList.add('active');el.style.background=SC[sc].color;el.style.color='#fff';el.style.borderColor='transparent';}
     else{el.classList.remove('active');el.style.background='';el.style.color=colors[s];el.style.borderColor=colors[s];}
   });
-  buildChart(sc,kpModel);buildRateChart(sc);buildStats(sc);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
+  buildChart(sc,kpModel);buildRateChart(sc);buildStats(sc,kpModel);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
 }
 
 function setModel(m){
@@ -3336,7 +3373,7 @@ function setModel(m){
     if(mm===m){el.classList.add('active');el.style.background=MODELS[m].color;el.style.color='#fff';el.style.borderColor='transparent';}
     else{el.classList.remove('active');el.style.background='';el.style.color=MODELS[mm].color;el.style.borderColor=MODELS[mm].color;}
   });
-  buildChart(kpSc,m);buildLegend(m);
+  buildChart(kpSc,m);buildLegend(m);buildStats(kpSc,m);
 }
 
 document.querySelectorAll('[data-kp-sc]').forEach(el=>{
@@ -3347,7 +3384,7 @@ document.querySelectorAll('[data-kp-model]').forEach(el=>{
   el.addEventListener('click',()=>setModel(el.dataset.kpModel));
 });
 
-function init(){buildChart('base','m1');buildRateChart('base');buildLegend('m1');buildStats('base');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
+function init(){buildChart('base','m1');buildRateChart('base');buildLegend('m1');buildStats('base','m1');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
 if(window.Chart&&window.Chart.register){init();}
 else{window.addEventListener('load',init);}
 })();
@@ -4514,7 +4551,7 @@ pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,1);pl(b.d
         <p class="tqw-kicker">Agentic ••••2775 · TQQQ watcher</p>
         <h2 class="tqw-title">TQQQ Bottoming Watch</h2>
       </div>
-      <div class="tqw-fresh tqw-stale" data-tqw-freshness><span>Data status</span><b>STALE · observed 8729m ago (max 20m)</b></div>
+      <div class="tqw-fresh tqw-stale" data-tqw-freshness><span>Data status</span><b>STALE · observed 8788m ago (max 20m)</b></div>
     </div>
 
     <div class="tqw-grid">
@@ -4523,7 +4560,7 @@ pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,1);pl(b.d
         <small data-tqw-action-reason>QQQ and TQQQ are below VWAP, neither has two rising completed 15-minute bars, and credit confirmation is negative.</small>
       </article>
       <article class="tqw-card">
-        <span>Regime / market</span><b>REBOUND_UNCONFIRMED</b>
+        <span>Regime / market</span><b>REBOUND UNCONFIRMED</b>
         <small>OPEN · session 2026-11-02</small>
       </article>
       <article class="tqw-card">
@@ -4800,7 +4837,7 @@ pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,1);pl(b.d
 </section>
     
     
-    <footer class="footer">OpenClaw Capital Radar · generated 2026-11-08T18:28:46.360Z <span class="footer-sep">·</span> <span class="build-version">build: aebe853</span></footer>
+    <footer class="footer">OpenClaw Capital Radar · generated 2026-11-08T19:27:13.316Z <span class="footer-sep">·</span> <span class="build-version">build: 7ebd93e</span></footer>
   </main>
 
 <!-- Static homepage baseline: no runtime dashboard scripts. -->

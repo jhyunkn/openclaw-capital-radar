@@ -263,6 +263,9 @@ const PATHS={
 const D2030=function(p){return '$'+(Math.round(p[48].y/10)*10).toLocaleString('en-US');};
 // Anchor card value, built from the anchor identity itself: EPS0 × PE0 = NOW_SP.
 const ANCHOR_TXT='$'+EPS0+' \xd7 '+PE0.toFixed(2)+'\xd7 = $'+NOW_SP.toLocaleString('en-US');
+// Rate formatter for Model 3 cards (mid/high/low are {r, src, note?}).
+// Returns a percent string like "3.8%" or "-2.7% nominal" — no $ level.
+const PCT3=function(x){return (x.r*100).toFixed(1).replace(/\.0$/,'')+'%'+(x.note?' '+x.note:'');};
 // ── scenario definitions — parameters drive the math, not hardcoded prices ──
 const SC={
   base:{name:'Base',color:'#1d9e75',
@@ -396,7 +399,7 @@ function buildRateChart(sc){
   const S=SC[sc];
   const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
   const ann={
-    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
+    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',textAlign:'right',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
     nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'y',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3]},
   };
   // Phase labels are drawn by Chart.js at the bottom of each phase column,
@@ -420,7 +423,9 @@ function buildRateChart(sc){
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'nearest',axis:'x',intersect:false},
-      layout:{padding:{top:6,right:8,bottom:4,left:4}},
+      // Extra right padding so the "FOMC neutral 3%" label (anchored at the
+      // line's right end) has breathing room and cannot clip at the edge.
+      layout:{padding:{top:6,right:24,bottom:4,left:4}},
       plugins:{
         legend:{display:false},
         annotation:{annotations:ann},
@@ -446,9 +451,40 @@ function buildLegend(model){
     '<div class="kp-leg-item"><span style="width:20px;height:0;border-top:2px dashed #ba7517;display:inline-block;"></span>Now</div>';
 }
 
-function buildStats(sc){
+// Stat tiles follow the selected model tab: they used to describe Model 1
+// (EPS × P/E) on every tab. Each model's tiles are computed from that
+// model's own data — D2030() formats computed endpoints, ANCHOR_TXT is
+// computed from the anchor identity; no hand-typed $X,XXX (check (g)).
+// ${CAPE_TXT} / ${capeSrc} below are build-time interpolations (the same
+// pattern the scenario cards already use), not runtime variables.
+function modelCards(sc, model){
   const S=SC[sc];
-  document.getElementById('kp-stat-grid').innerHTML=S.cards.map(s=>'<div class="kp-stat" style="background:'+S.color+'10;border-bottom:2px solid '+S.color+'60;"><div class="kp-stat-val" style="color:'+S.color+';">'+s.val+'</div><div class="kp-stat-lbl" style="font-weight:500;color:var(--ink,#24231f);">'+s.lbl+'</div><div class="kp-stat-lbl">'+s.sub+'</div><div class="kp-stat-src">'+s.src+'</div></div>').join('');
+  if(model==='m2'){
+    const tgt = sc==='bear' ? {v:'17.3', yrs:'7yr'} : sc==='bull' ? {v:'32', yrs:'10yr'} : {v:'27.6', yrs:'10yr'};
+    const eps = sc==='bear' ? '4%' : sc==='bull' ? '10%' : '8%';
+    return [
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start — CAPE gravity shapes the path',src:'FactSet/Goldman'},
+      {val:'CAPE ${CAPE_TXT}× → '+tgt.v+'×',lbl:'CAPE target ('+tgt.yrs+')',sub:'Reversion toward the long-run mean',src:'${capeSrc}'},
+      {val:eps+' / yr',lbl:'EPS growth assumed',sub:'Offsets part of the reversion drag',src:'Shiller/Yale'},
+      {val:D2030(S.m2),lbl:'2030 implied price',sub:'CAPE reversion path',src:'Model 2'},
+    ];
+  }
+  if(model==='m3'){
+    const R=M3_RATES[sc];
+    return [
+      {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start — compounded at forecast returns',src:'FactSet/Goldman'},
+      {val:PCT3(R.mid)+' / yr',lbl:'Mid forecast ('+R.mid.src+')',sub:'The central house forecast',src:R.mid.src},
+      {val:PCT3(R.low)+' – '+PCT3(R.high),lbl:'Forecast range',sub:'Low – high across the three houses',src:'Vanguard · RA · GMO'},
+      {val:D2030(S.m3l)+' – '+D2030(S.m3h),lbl:'2030 price range',sub:'Compounding the current level',src:'Model 3'},
+    ];
+  }
+  return S.cards;
+}
+
+function buildStats(sc, model){
+  const S=SC[sc];
+  const cards = modelCards(sc, model || 'm1');
+  document.getElementById('kp-stat-grid').innerHTML=cards.map(s=>'<div class="kp-stat" style="background:'+S.color+'10;border-bottom:2px solid '+S.color+'60;"><div class="kp-stat-val" style="color:'+S.color+';">'+s.val+'</div><div class="kp-stat-lbl" style="font-weight:500;color:var(--ink,#24231f);">'+s.lbl+'</div><div class="kp-stat-lbl">'+s.sub+'</div><div class="kp-stat-src">'+s.src+'</div></div>').join('');
 }
 
 function buildInfo(sc){
@@ -492,7 +528,7 @@ function setSc(sc){
     if(s===sc){el.classList.add('active');el.style.background=SC[sc].color;el.style.color='#fff';el.style.borderColor='transparent';}
     else{el.classList.remove('active');el.style.background='';el.style.color=colors[s];el.style.borderColor=colors[s];}
   });
-  buildChart(sc,kpModel);buildRateChart(sc);buildStats(sc);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
+  buildChart(sc,kpModel);buildRateChart(sc);buildStats(sc,kpModel);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
 }
 
 function setModel(m){
@@ -502,7 +538,7 @@ function setModel(m){
     if(mm===m){el.classList.add('active');el.style.background=MODELS[m].color;el.style.color='#fff';el.style.borderColor='transparent';}
     else{el.classList.remove('active');el.style.background='';el.style.color=MODELS[mm].color;el.style.borderColor=MODELS[mm].color;}
   });
-  buildChart(kpSc,m);buildLegend(m);
+  buildChart(kpSc,m);buildLegend(m);buildStats(kpSc,m);
 }
 
 document.querySelectorAll('[data-kp-sc]').forEach(el=>{
@@ -513,7 +549,7 @@ document.querySelectorAll('[data-kp-model]').forEach(el=>{
   el.addEventListener('click',()=>setModel(el.dataset.kpModel));
 });
 
-function init(){buildChart('base','m1');buildRateChart('base');buildLegend('m1');buildStats('base');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
+function init(){buildChart('base','m1');buildRateChart('base');buildLegend('m1');buildStats('base','m1');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
 if(window.Chart&&window.Chart.register){init();}
 else{window.addEventListener('load',init);}
 })();

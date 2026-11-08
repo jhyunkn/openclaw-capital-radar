@@ -169,7 +169,7 @@ function renderTqqqWatcherModule(state = {}) {
         <small data-tqw-action-reason>${esc(actionReason)}</small>
       </article>
       <article class="tqw-card">
-        <span>Regime / market</span><b>${esc(regime)}</b>
+        <span>Regime / market</span><b>${esc(regime).replace(/_/g, ' ')}</b>
         <small>${esc(marketStatus)}${market.session ? ' · session ' + esc(market.session) : ''}</small>
       </article>
       <article class="tqw-card">
@@ -283,10 +283,10 @@ function renderTqqqWatcherStyle() {
 .tqw-fresh.tqw-stale b{color:var(--neg,#9f3f35)}
 .tqw-fresh.tqw-live{border-color:var(--pos,#2f6f4e);background:rgba(47,111,78,.05)}
 .tqw-fresh.tqw-live b{color:var(--pos,#2f6f4e)}
-.tqw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-bottom:22px}
+.tqw-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin-bottom:22px}
 .tqw-card{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px}
 .tqw-card span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-.tqw-card b{display:block;font-size:24px;letter-spacing:-.04em;font-weight:500;margin:8px 0 4px;overflow-wrap:anywhere}
+.tqw-card b{display:block;font-size:24px;letter-spacing:-.04em;font-weight:500;margin:8px 0 4px;overflow-wrap:break-word}
 .tqw-card small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
 .tqw-dim{color:var(--muted);font-style:normal}
 .tqw-gates-head{font-size:13px;color:var(--muted);margin-bottom:10px}
@@ -315,6 +315,7 @@ function renderTqqqWatcherStyle() {
 .tqw-evidence li span{color:var(--muted)}
 @media(max-width:700px){.tqw-head{display:block}.tqw-fresh{margin-top:12px;text-align:left}}
 @media(max-width:700px){.tqw-evidence{grid-template-columns:1fr}}
+@media(max-width:900px){.tqw-grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}}
 </style>`;
 }
 

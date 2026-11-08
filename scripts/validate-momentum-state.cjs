@@ -11,7 +11,7 @@
  *   outputs/momentum/momentum-rebalance-snapshot.json
  *
  * Enforces the display-only contracts: every table row carries an
- * entryQuality read (GOOD/FAIR/POOR + reasons, earningsTiming always
+ * entryQuality read (GOOD/FAIR/POOR + reasons, earningsTiming 'unknown' or sourced feed record;
  * 'unknown' — never guessed), and the rebalance artifact carries
  * rebalance-anchored NEW IN / NEW OUT / rank changes.
  */
@@ -96,7 +96,13 @@ if (state) {
       const eq = row.entryQuality;
       if (!eq || !['GOOD', 'FAIR', 'POOR'].includes(eq.rating)) errors.push(`momentum-state entryQuality.rating invalid for ${row.symbol}`);
       if (!eq || !Array.isArray(eq.reasons) || !eq.reasons.length || !eq.reasons.every(r => typeof r === 'string' && r.length)) errors.push(`momentum-state entryQuality.reasons invalid for ${row.symbol}`);
-      if (!eq || eq.earningsTiming !== 'unknown') errors.push(`momentum-state entryQuality.earningsTiming must be 'unknown' for ${row.symbol} (never guessed)`);
+      // Earnings timing is either 'unknown' or a sourced feed fact — never a free-form guess.
+      const et = eq?.earningsTiming;
+      const etOk = et === 'unknown'
+        || (et && typeof et === 'object' && et.source && et.asOf && (
+          (et.status === 'scheduled' && /^\d{4}-\d\d-\d\d$/.test(et.date || '') && Number.isFinite(et.daysAway))
+          || (et.status === 'none_in_window' && /^\d{4}-\d\d-\d\d$/.test(et.windowEnd || ''))));
+      if (!etOk) errors.push(`momentum-state entryQuality.earningsTiming must be 'unknown' or a sourced feed record for ${row.symbol} (never guessed)`);
       for (const k of ['ret20d', 'distSMA20', 'distSMA50', 'off20dHigh']) {
         if (!finiteNum(eq?.inputs?.[k])) errors.push(`momentum-state entryQuality.inputs.${k} non-finite for ${row.symbol}`);
       }

@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { earningsFor } = require('./lib/earnings.cjs');
 
 const root = path.join(__dirname, '..');
 
@@ -130,14 +131,19 @@ function tier(s) {
   return 'D';
 }
 
+// Earnings window from the Nasdaq earnings-calendar feed. TIMING keeps only the catalyst text —
+// its hand-typed month strings went stale (they still read "Jul/Aug 2026" in November).
 function assessTiming(ticker) {
   const t = TIMING[ticker];
-  if (!t) return { status: 'No earnings data', note: 'Verify next catalyst.', window_score: 1 };
-  const isJun = t.nextEarnings === 'Jun 2026';
-  const isJul = t.nextEarnings === 'Jul 2026';
-  if (isJun) return { status: 'Earnings THIS MONTH — high urgency', note: `Watch: ${t.catalyst}`, window_score: 3 };
-  if (isJul) return { status: 'Earnings Jul 2026 — build research now', note: `Watch: ${t.catalyst}`, window_score: 2 };
-  return { status: `Earnings ${t.nextEarnings}`, note: `Watch: ${t.catalyst}`, window_score: 2 };
+  const watch = t?.catalyst ? `Watch: ${t.catalyst}` : 'Verify next catalyst.';
+  const e = earningsFor(ticker);
+  if (e === 'unknown') return { status: 'Earnings date unknown (feed unavailable)', note: watch, window_score: 1, next_earnings: null };
+  if (e.status === 'scheduled') {
+    const score = e.daysAway <= 14 ? 3 : e.daysAway <= 35 ? 2 : 1;
+    const label = e.daysAway <= 14 ? 'Earnings within 2 weeks — high urgency' : `Earnings ${e.date}`;
+    return { status: `${label} (${e.date}${e.time ? ' ' + e.time : ''})`, note: watch, window_score: score, next_earnings: e.date };
+  }
+  return { status: `No earnings before ${e.windowEnd}${e.lastReported ? ` (reported ${e.lastReported})` : ''}`, note: watch, window_score: 1, next_earnings: null };
 }
 
 // ── FLATTEN SCANNER CANDIDATES ────────────────────────────────────────────────
@@ -175,7 +181,7 @@ const ranked = allCandidates.map(item => {
     timing_note: timing.note,
     window_score: timing.window_score,
     next_catalyst: timingEntry.catalyst ?? null,
-    next_earnings: timingEntry.nextEarnings ?? null,
+    next_earnings: timing.next_earnings,
     live_price: item.live_price ?? null,
     pct_from_52w_high: item.pct_from_52w_high ?? null,
     trend_1m_pct: item.trend_1m_pct ?? null,
@@ -260,7 +266,7 @@ for (const opp of (oppUniverse?.tickers || [])) {
     timing_note: timing.note,
     window_score: timing.window_score,
     next_catalyst: opp.catalystWindow ?? (TIMING[t]?.catalyst ?? null),
-    next_earnings: TIMING[t]?.nextEarnings ?? null,
+    next_earnings: assessTiming(t).next_earnings,
     live_price: mkt?.currentPrice ?? null,
     pct_from_52w_high: mkt?.pctFrom52wHigh ?? null,
     trend_1m_pct: mkt?.trend1mPct ?? null,

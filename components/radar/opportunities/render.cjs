@@ -1,4 +1,5 @@
 'use strict';
+const { earningsFor, formatEarnings } = require('../../../scripts/lib/earnings.cjs');
 
 /*
  * Opportunity decision surface — engine-fed render (2026-10-01).
@@ -49,8 +50,17 @@ function cardHtml(c) {
     ${rr}
     <div class="opp-row"><span class="opp-k">Duration</span><span class="opp-v">through ${dur}</span></div>
     <div class="opp-row"><span class="opp-k">Catalyst</span><span class="opp-v">${esc(c.catalyst)}</span></div>
+    ${earningsRow(c.symbol)}
     <div class="opp-ev">Evidence · ${evLine}</div>
   </article>`;
+}
+
+// Sourced next-earnings line; a report inside the holding window is a gap risk the entry
+// plan has to own, so it is flagged.
+function earningsRow(symbol) {
+  const e = earningsFor(symbol);
+  const flag = e && e.status === 'scheduled' && e.daysAway <= 14 ? ' opp-earn-soon' : '';
+  return `<div class="opp-row"><span class="opp-k">Earnings</span><span class="opp-v${flag}">${esc(formatEarnings(e))}</span></div>`;
 }
 
 function watchRow(w) {
@@ -58,7 +68,7 @@ function watchRow(w) {
   return `<div class="opp-watchrow">
     <div class="opp-watchhead"><span class="opp-sym">${esc(w.symbol)}</span><span class="opp-name">${esc(w.name || '')}</span><span class="${chip}">${esc(w.entryRating)}</span>${w.momentumRank ? `<span class="opp-rank">mom #${esc(w.momentumRank)}</span>` : ''}</div>
     <div class="opp-wait">${esc(w.waitingFor)}</div>
-    <div class="opp-watchmeta">${fmt$(w.current.price)} · ${fmtPct(w.current.offHighPct)} off 20-day high · SMA50 ${fmt$(w.current.sma50)}</div>
+    <div class="opp-watchmeta">${fmt$(w.current.price)} · ${fmtPct(w.current.offHighPct)} off 20-day high · SMA50 ${fmt$(w.current.sma50)} · ${esc(formatEarnings(earningsFor(w.symbol), { short: true }))}</div>
   </div>`;
 }
 
@@ -133,7 +143,7 @@ function renderOpportunitiesSection(state) {
     ${probes.length ? `<div class="opp-grid">${probes.map(anticipatoryCard).join('')}</div>` : `<p class="opp-empty">Unavailable this cycle. ${probeBlocked.length ? `${probeBlocked.length} candidate(s) failed calibration, validation, reward/risk, or regime gates.` : 'No qualified pullback candidates entered the calibration gate.'}</p>`}
     <h3 class="opp-tier">Watchlist <span class="opp-count">${watch.length}</span> <span class="opp-tiersub">momentum candidates waiting on entry — POOR stays visible, never hidden</span></h3>
     ${watchHtml}
-    <p class="opp-foot">Recognizability gate: top 200 S&amp;P 500 by market cap${gate.asOf ? ` (ranks ${esc(gate.asOf)})` : ''} — the momentum engine itself is unfiltered. Entry reads are display-only; they never change the mechanical monthly portfolio. Earnings timing unknown for every name (no feed; never guessed).</p>
+    <p class="opp-foot">Recognizability gate: top 200 S&amp;P 500 by market cap${gate.asOf ? ` (ranks ${esc(gate.asOf)})` : ''} — the momentum engine itself is unfiltered. Entry reads are display-only; they never change the mechanical monthly portfolio. Earnings dates: Nasdaq earnings calendar — a report within 14 days is flagged in red.</p>
   </div>
 ${shellClose}`;
 }
@@ -159,6 +169,7 @@ function renderOpportunitiesStyle() {
 .opp-row:first-of-type{border-top:none}
 .opp-k{flex:0 0 86px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(44,42,37,.42);padding-top:2px}
 .opp-v{flex:1;color:rgba(44,42,37,.85)}
+.opp-earn-soon{color:#9f3f35;font-weight:600}
 .opp-sub{color:rgba(44,42,37,.5);font-size:11.5px}
 .opp-margin{color:#1e5a3c}.opp-risk{color:#b3541e}
 .opp-ev{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(201,191,173,.4);font-size:11px;color:rgba(44,42,37,.5);font-family:var(--mono,monospace)}

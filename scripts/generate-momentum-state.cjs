@@ -32,13 +32,14 @@
  *
  * Display-only additions (never touch the backtested engine):
  *   - per-row entryQuality: GOOD / FAIR / POOR purchase-now read + reasons;
- *     earningsTiming is always 'unknown' (no feed — never guessed)
+ *     earningsTiming from the Nasdaq earnings-calendar cache, else 'unknown' (never guessed)
  *   - rebalance.changes: NEW IN / NEW OUT / rank changes vs the previous
  *     monthly rebalance
  */
 
 const fs = require('fs');
 const path = require('path');
+const { earningsFor } = require('./lib/earnings.cjs');
 const gateV2 = require('./momentum-gate-v2.cjs'); // shared v2 gate: live + backtest use one implementation
 
 const root = path.join(__dirname, '..');
@@ -81,10 +82,11 @@ const r4 = v => Math.round(v * 10000) / 10000;
  *   FAIR — everything else: extended, consolidating, or soft trend.
  *            Scale in or wait — no clean entry.
  *
- * earningsTiming is ALWAYS 'unknown': no earnings-date feed exists for the
- * momentum universe, and the rule is unknown-not-guessed.
+ * earningsTiming comes from the Nasdaq earnings-calendar cache (scripts/lib/earnings.cjs):
+ * a sourced { status, date, ... } object, or 'unknown' when the feed is missing or stale —
+ * never guessed.
  */
-function computeEntryQuality(adj) {
+function computeEntryQuality(adj, symbol) {
   const t = adj.length - 1;
   const price = adj[t];
   const sma20 = sma(adj, 20, t);
@@ -117,7 +119,7 @@ function computeEntryQuality(adj) {
   return {
     rating,
     reasons,
-    earningsTiming: 'unknown',
+    earningsTiming: earningsFor(symbol),
     inputs: { ret20d: r4(ret20d), distSMA20: r4(distSMA20), distSMA50: r4(distSMA50), off20dHigh: r4(off20dHigh), above50 },
   };
 }
@@ -394,7 +396,7 @@ function main() {
       price: s.adj[s.adj.length - 1],
       asOf: new Date(s.dates[s.dates.length - 1] * 1000).toISOString().slice(0, 10),
       signals,
-      entryQuality: computeEntryQuality(s.adj),
+      entryQuality: computeEntryQuality(s.adj, symbol),
     });
   }
 
@@ -551,7 +553,7 @@ function main() {
         'Next-rebalance date is a weekday estimate; exchange holidays are not modeled.',
       ],
       entryQuality: 'Per-symbol purchase-now read: GOOD (constructive pullback/support inside an intact trend), FAIR (extended, consolidating, or soft trend — scale in or wait), POOR (parabolic trailing month or severely stretched above the 20-day mean — chasing, wait). Inputs: trailing-20d return, distance vs 20-day and 50-day means, distance off the 20-day high. Heuristic and DISPLAY-ONLY: it never changes the mechanical monthly top-decile portfolio, the regime gate, or any backtest number.',
-      earningsTiming: 'No earnings-date feed exists for the momentum universe. earningsTiming is "unknown" for every name — never guessed.',
+      earningsTiming: 'Next earnings date per name from the Nasdaq earnings calendar (data/cache/earnings-calendar.json, ~9-week window). "unknown" when the feed is missing or older than 7 days — never guessed.',
       rebalanceChanges: 'NEW IN / NEW OUT / rank changes are measured against the top-decile list as of the previous monthly rebalance (persistent snapshot seeded from the backtest 2026-09-01 list), not against the last twice-daily run.',
     },
     table: included.map(r => ({

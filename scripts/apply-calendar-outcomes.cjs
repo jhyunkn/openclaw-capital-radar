@@ -30,8 +30,12 @@
  * a reaction exists, { decision } alone for machine entries — provenance
  * (source, verifiedAt) stays in the ledger.
  *
- * GATE — enabled by the lane runner (scripts/run-build-lane.cjs sets
- * CAPITAL_RADAR_CALENDAR_OUTCOMES=1 by default, overridable to '0').
+ * GATE — ON BY DEFAULT since 2026-11-08 (was off until then): set
+ * CAPITAL_RADAR_CALENDAR_OUTCOMES=0 to skip the step; the lane runner
+ * (scripts/run-build-lane.cjs) sets it to 1 by default. Entries are added
+ * deliberately to the ledger (the same curation model as
+ * data/market-calendar.json itself — see the sync-market-events.cjs
+ * header) and by scripts/fetch-calendar-outcomes.cjs machine entries.
  * With no new ledger entries the step is a no-op.
  */
 const fs = require('fs');
@@ -41,7 +45,9 @@ const root = path.join(__dirname, '..');
 const calPath = path.join(root, 'data', 'market-calendar.json');
 const ledgerPath = path.join(root, 'data', 'market-calendar-outcomes.json');
 
-const ENABLED = process.env.CAPITAL_RADAR_CALENDAR_OUTCOMES === '1';
+// On by default since 2026-11-08: with the gate off, the Oct 28 FOMC, Nov 3 midterms and
+// Nov 6 payrolls all sat as pre-event preview text. Set CAPITAL_RADAR_CALENDAR_OUTCOMES=0 to disable.
+const ENABLED = process.env.CAPITAL_RADAR_CALENDAR_OUTCOMES !== '0';
 
 function sortKeysDeep(value) {
   if (Array.isArray(value)) return value.map(sortKeysDeep);

@@ -51,8 +51,13 @@ function round(value, digits = 4) {
 }
 
 function compactRows(rows, maxRows = 900) {
+  // Yahoo returns null closes for non-trading days. Number(null) is 0, so
+  // a bare Number.isFinite check lets nulls through as 0.00 values — 134
+  // such rows accumulated in the DXY cache and the latest one (a Sunday)
+  // printed as DXY 0.00 with a -100% change. Reject null/undefined/empty
+  // before any Number() coercion.
   const clean = rows
-    .filter(row => row && row.date && Number.isFinite(Number(row.value)))
+    .filter(row => row && row.date && row.value !== null && row.value !== undefined && row.value !== '' && Number.isFinite(Number(row.value)))
     .map(row => ({ date: row.date, value: round(row.value) }))
     .sort((a, b) => a.date.localeCompare(b.date));
   if (clean.length <= maxRows) return clean;

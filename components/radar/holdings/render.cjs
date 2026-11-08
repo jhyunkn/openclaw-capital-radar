@@ -225,14 +225,22 @@ function permissionTone(permission, capitalAllowed, lossMinimizationRequired) {
 function renderPermissionRow(route = {}) {
   const permission = route.execution_permission || route.route_permission || 'HOLD / VERIFY';
   const tone = permissionTone(permission, route.capital_allowed, route.loss_minimization_required);
+  // Plain words for the permission state: the raw values ("VERIFY FIRST",
+  // "ADD REVIEW ALLOWED") read like error codes. Tone is still computed
+  // from the raw value above.
+  const permissionDisplay = {
+    'VERIFY FIRST': 'Verify first',
+    'ADD REVIEW ALLOWED': 'Add on review',
+    'HOLD / VERIFY': 'Hold — verify first',
+  }[String(permission).toUpperCase()] || permission;
   const capitalText = route.capital_allowed === true
-    ? 'capital allowed only after add-review gates'
-    : 'new capital blocked';
+    ? 'allowed only after add-review gates'
+    : 'blocked until verification clears';
   const blocker = route.permission_blocker || route.route_overlay || route.route_action || 'Require confirmation before changing exposure.';
   return `<div class="mu-permission-row ${tone}">
     <div><span>Zone signal</span><b>${esc(route.zone_status || 'price zone check')}</b></div>
-    <div><span>Execution permission</span><b>${esc(permission)}</b></div>
-    <div><span>Capital use</span><b>${esc(capitalText)}</b><small>${esc(blocker)}</small></div>
+    <div><span>What you can do</span><b>${esc(permissionDisplay)}</b></div>
+    <div><span>New money</span><b>${esc(capitalText)}</b><small>${esc(blocker)}</small></div>
   </div>`;
 }
 
@@ -476,8 +484,8 @@ function renderHoldingCard(h, route = {}, translation = {}, rhPos = null) {
     return `<div class="mu-substance-strip">
     <div class="mu-substance-bar"><div class="mu-substance-seg mu-sub" style="width:${subW}%"></div><div class="mu-substance-seg mu-hop" style="width:${hopW}%"></div></div>
     <div class="mu-substance-meta">
-      <span class="mu-sub-label">Floor <b>$${fmt(sf.floor15,0)}</b> · ${sf.substancePct}% substance</span>
-      <span class="mu-hop-label">+${sf.balloonPct}% hope · ${esc(sf.cycleRead)}</span>
+      <span class="mu-sub-label">Floor <b>$${fmt(sf.floor15,0)}</b> · ${sf.substancePct}% substance (backed by earnings at 15×)</span>
+      <span class="mu-hop-label">+${sf.balloonPct}% hope (above the floor — paying for future growth) · ${esc(sf.cycleRead)}</span>
     </div>
   </div>`;
   })() : '';

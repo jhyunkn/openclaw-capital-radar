@@ -100,17 +100,50 @@ function renderTqqqWatcherModule(state = {}) {
     ? `${(((Number(priceLast) - Number(primary.high)) / Number(primary.high)) * 100).toFixed(1)}%`
     : '<i class="tqw-dim">— (stale)</i>';
 
-  const gates = arr(state.gates).map(g => {
-    const tone = gateTone(g.status, f.stale);
-    return `<li class="tqw-gate tqw-${tone}">
-      <div class="tqw-gate-top"><b data-tqw-gate-status>${esc(gateText(g.status, f.stale))}</b><span>${esc(g.label)}</span></div>
-      <p class="tqw-gate-detail" data-tqw-gate-detail>${esc(f.stale ? 'Not confirmable — data is stale.' : (g.detail || ''))}</p>
-    </li>`;
-  }).join('');
+  const noPosition = !(Number(holdings.shares) > 0);
+  const holdingsSub = noPosition
+    ? 'No position held — avg cost and halt level appear once shares are deployed'
+    : `Avg cost ${money(holdings.avgDeployedCost)} · −12% halt ${money(holdings.haltTriggerPrice)}`;
 
+  // When stale, the eight per-gate rows all say the same thing ("STALE /
+  // Not confirmable"). Collapse them to ONE summary — the gates show again
+  // once a fresh observation arrives.
+  const gateList = arr(state.gates);
+  const gates = f.stale
+    ? `<li class="tqw-gate tqw-unknown" data-tqw-stale-summary="true"><div class="tqw-gate-top"><b>STALE</b><span>All ${gateList.length || 8} confirmation gates</span></div><p class="tqw-gate-detail">Not confirmable — the last observation was ${esc(sourceTime(state.observedAt))}, past the ${f.max}-minute freshness limit. Gates show again once a fresh observation arrives.</p></li>`
+    : gateList.map(g => {
+        const tone = gateTone(g.status, f.stale);
+        return `<li class="tqw-gate tqw-${tone}">
+      <div class="tqw-gate-top"><b data-tqw-gate-status>${esc(gateText(g.status, f.stale))}</b><span>${esc(g.label)}</span></div>
+      <p class="tqw-gate-detail" data-tqw-gate-detail>${esc(g.detail || '')}</p>
+    </li>`;
+      }).join('');
+
+  // Source labels in plain words: the stored labels carry agent codes
+  // ("O deterministic entry watcher") that mean nothing on the page.
+  const plainSourceLabel = (label) => {
+    const map = { 'O deterministic entry watcher': 'Entry watcher', 'C independent review': 'Independent review' };
+    if (map[label]) return map[label];
+    return String(label || '').replace(/^[A-Z]\s+/, '');
+  };
+  // A source's freshness tag must reflect its data age, not the stored
+  // status: the gateway wrote FRESH for sources last observed Nov 2.
+  // PENDING is a state, not a freshness claim — it stays PENDING.
+  const sourceStatus = (source) => {
+    const s = String(source.status || 'UNKNOWN').toUpperCase();
+    if (s === 'PENDING') return 'PENDING';
+    const age = ageMinutes(source.asOf);
+    if (!source.asOf || !Number.isFinite(age) || age > f.max) return 'STALE';
+    return String(source.status || 'UNKNOWN');
+  };
+
+  const reviewStatusText = (status) => {
+    const map = { REVIEW_PENDING: 'Review pending', APPROVED: 'Approved', REJECTED: 'Rejected' };
+    return map[String(status || '').toUpperCase()] || String(status || '');
+  };
   const reviewLine = review.status && review.status !== 'NONE'
-    ? `${esc(review.by || 'C')} · ${esc(review.status)}${review.at ? ' · ' + esc(review.at) : ''}`
-    : 'No current C review stamp';
+    ? `${esc(reviewStatusText(review.status))}${review.at ? ' · ' + esc(review.at) : ''}`
+    : 'No current independent review';
 
   const action = String(decision.action || 'WAIT').toUpperCase();
   const actionReason = decision.blocker || decision.summary || state.staleReason || 'Awaiting a fresh market observation.';
@@ -118,7 +151,7 @@ function renderTqqqWatcherModule(state = {}) {
   const marketStatus = String(market.status || 'UNKNOWN').toUpperCase();
   const approvalStatus = approval.status || (approval.authorized ? 'AUTHORIZED' : 'NOT AUTHORIZED');
   const sourceRows = sources.length
-    ? sources.map(source => `<li><b>${esc(source.label || source.id || 'Source')}</b><span data-tqw-source-status>${esc(source.status || 'UNKNOWN')} · ${esc(sourceTime(source.asOf))}</span></li>`).join('')
+    ? sources.map(source => `<li><b>${esc(plainSourceLabel(source.label || source.id || 'Source'))}</b><span data-tqw-source-status>${esc(sourceStatus(source))} · ${esc(sourceTime(source.asOf))}</span></li>`).join('')
     : '<li><b>Sources</b><span>Missing</span></li>';
 
   return `<section class="tqqq-watcher" id="tqqq-watcher" data-observed-at="${esc(state.observedAt || '')}" data-max-age-minutes="${esc(f.max)}" data-stale="${f.stale ? 'true' : 'false'}" data-declared-stale="${state.stale === true ? 'true' : 'false'}">
@@ -150,7 +183,7 @@ function renderTqqqWatcherModule(state = {}) {
       </article>
       <article class="tqw-card">
         <span>Agentic holdings</span><b>${esc(String(holdings.shares ?? 0))} sh</b>
-        <small>Avg cost ${money(holdings.avgDeployedCost)} · −12% halt ${money(holdings.haltTriggerPrice)}</small>
+        <small>${esc(holdingsSub)}</small>
       </article>
       <article class="tqw-card">
         <span>Distance to zone</span><b>${distBig}</b>
@@ -179,7 +212,6 @@ function renderTqqqWatcherModule(state = {}) {
       <div class="tqw-blueprint"><span>System blueprint</span><b><a href="/pages/tqqq-strategy.html">How TQQQ is invested here — PARTIAL-ROT 30% rule, evidence, live grade</a></b><small>Machine-readable spec: <a href="/data/tqqq-strategy.json">data/tqqq-strategy.json</a> · the watcher above hunts intraday bottoms; the blueprint is the monthly position system. Do not merge them.</small></div>
     </div>
     <div class="tqw-evidence">
-      <div><span>Evidence fingerprint</span><b>${esc(state.fingerprint || 'not available')}</b><small>C's review is valid only for this exact fingerprint and freshness state.</small></div>
       <ul>${sourceRows}</ul>
     </div>
   </section>
@@ -192,7 +224,7 @@ function renderTqqqWatcherModule(state = {}) {
     const maxAgeMinutes = Number(panel.dataset.maxAgeMinutes) || 20;
     const declaredStale = panel.dataset.declaredStale === 'true';
     const reviewNode = panel.querySelector('[data-tqw-review]');
-    const originalReview = reviewNode ? reviewNode.textContent : 'C · REVIEW_PENDING';
+    const originalReview = reviewNode ? reviewNode.textContent : 'Review pending';
     const update = () => {
       const ageMinutes = Number.isFinite(observedAt) ? (Date.now() - observedAt) / 60000 : Infinity;
       const stale = declaredStale || !Number.isFinite(ageMinutes) || ageMinutes > maxAgeMinutes;
@@ -217,6 +249,9 @@ function renderTqqqWatcherModule(state = {}) {
       if (price) price.innerHTML = '<i class="tqw-dim">— (stale)</i>';
       if (priceAsOf) priceAsOf.textContent = 'Awaiting fresh observation';
       panel.querySelectorAll('.tqw-gate').forEach(gate => {
+        // A server-rendered stale summary already says this in plain words;
+        // do not overwrite it with the generic runtime message.
+        if (gate.dataset.tqwStaleSummary === 'true') return;
         gate.classList.remove('tqw-pass', 'tqw-fail');
         gate.classList.add('tqw-unknown');
         const status = gate.querySelector('[data-tqw-gate-status]');
@@ -273,10 +308,7 @@ function renderTqqqWatcherStyle() {
 .tqw-foot b{font-size:14px;font-weight:500;line-height:1.3}
 .tqw-foot small{display:block;color:var(--muted);font-size:12px;margin-top:5px;line-height:1.35}
 .tqw-decision{background:rgba(36,35,31,.025)}
-.tqw-evidence{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(280px,1.3fr);gap:18px;border-top:1px solid var(--rule);margin-top:16px;padding-top:16px}
-.tqw-evidence>div>span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
-.tqw-evidence>div>b{display:block;font-size:12px;overflow-wrap:anywhere}
-.tqw-evidence>div>small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.35}
+.tqw-evidence{border-top:1px solid var(--rule);margin-top:16px;padding-top:16px}
 .tqw-evidence ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
 .tqw-evidence li{border-left:2px solid var(--rule);padding-left:10px}
 .tqw-evidence li b,.tqw-evidence li span{display:block;font-size:11px;line-height:1.35}

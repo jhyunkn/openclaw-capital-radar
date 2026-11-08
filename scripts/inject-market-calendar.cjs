@@ -63,6 +63,20 @@ for (const ev of upcoming) {
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// The type badge already shows the event kind (CPI / FOMC / PCE …), so a
+// label that starts with the same word reads doubled — "CPI CPI Oct 2026".
+// Strip a leading word that matches the badge label, once, at render time.
+// (The data file is left untouched: outcome matching reads ev.label.)
+function cleanLabel(ev) {
+  const meta = TYPE_META[ev.type] || TYPE_META.cpi;
+  const label = String(ev.label || '');
+  const first = label.split(/\s+/, 1)[0] || '';
+  if (first && first.toUpperCase() === String(meta.label).toUpperCase()) {
+    return label.slice(first.length).trim();
+  }
+  return label;
+}
+
 function renderEventRow(ev) {
   const days = daysFrom(ev.date);
   const meta = TYPE_META[ev.type] || TYPE_META.cpi;
@@ -81,7 +95,7 @@ function renderEventRow(ev) {
   <div class="mc-row">
     <span class="mc-date">${formatDate(ev.date)}</span>
     ${badge}
-    <span class="mc-label">${esc(ev.label)}</span>
+    <span class="mc-label">${esc(cleanLabel(ev))}</span>
     ${daysLabel}
   </div>
   ${ev.detail ? `<p class="mc-detail">${esc(ev.detail)}</p>` : ''}
@@ -99,7 +113,7 @@ function renderDecidedEvent(ev) {
   <div class="mc-row">
     <span class="mc-date">${formatDate(ev.date)}</span>
     ${badge}
-    <span class="mc-label">${esc(ev.label)}</span>
+    <span class="mc-label">${esc(cleanLabel(ev))}</span>
     <span class="mc-decided">decided</span>
   </div>
   ${decision ? `<p class="mc-outcome"><span>Outcome</span> ${decision}</p>` : ''}
@@ -118,7 +132,7 @@ function renderPendingEvent(ev) {
   <div class="mc-row">
     <span class="mc-date">${formatDate(ev.date)}</span>
     ${badge}
-    <span class="mc-label">${esc(ev.label)}</span>
+    <span class="mc-label">${esc(cleanLabel(ev))}</span>
     <span class="mc-pending">${Math.abs(days)}d ago · outcome pending</span>
   </div>
   ${ev.detail ? `<p class="mc-detail">${esc(ev.detail)}</p>` : ''}

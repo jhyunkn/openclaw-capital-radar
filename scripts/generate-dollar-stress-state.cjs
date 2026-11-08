@@ -10,8 +10,13 @@ function readJson(rel) {
   try { return JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8')); } catch (_) { return null; }
 }
 function rows(series) {
+  // A series value of 0 is never a real observation for a price/index
+  // series (DXY, SPY, VIX, yields, gold are all strictly positive). Yahoo
+  // returns null closes for non-trading days; Number(null) is 0, so an
+  // unfiltered 0 silently becomes the "latest" value and prints as 0.00
+  // with a -100% change. Treat 0 / negative / non-finite as missing.
   return (Array.isArray(series) ? series : [])
-    .filter(r => r && r.date && Number.isFinite(Number(r.value)))
+    .filter(r => r && r.date && Number.isFinite(Number(r.value)) && Number(r.value) > 0)
     .map(r => ({ date: r.date, value: Number(r.value) }))
     .sort((a, b) => a.date.localeCompare(b.date));
 }

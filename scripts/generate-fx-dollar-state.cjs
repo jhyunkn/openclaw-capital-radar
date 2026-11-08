@@ -6,7 +6,7 @@ const out=[path.join(root,'outputs','fx-dollar-state.json'),path.join(root,'publ
 const round=(v,d=3)=>Number.isFinite(Number(v))?Number(Number(v).toFixed(d)):null;
 function read(f){return JSON.parse(fs.readFileSync(f,'utf8'));}
 function write(f,d){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,JSON.stringify(d,null,2)+'\n');}
-function rows(v){return Array.isArray(v)?v.filter(r=>r&&r.date&&Number.isFinite(Number(r.value))).map(r=>({date:r.date,value:Number(r.value)})).sort((a,b)=>a.date.localeCompare(b.date)):[];}
+function rows(v){return Array.isArray(v)?v.filter(r=>r&&r.date&&Number.isFinite(Number(r.value))&&Number(r.value)>0).map(r=>({date:r.date,value:Number(r.value)})).sort((a,b)=>a.date.localeCompare(b.date)):[];}
 function last(v){return rows(v).at(-1)||null;}
 function pct(vals,current){const a=vals.filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length||!Number.isFinite(Number(current)))return null;return round(a.filter(x=>x<=current).length/a.length*100,1);}
 function pval(vals,p){const a=vals.filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length)return null;return round(a[Math.min(a.length-1,Math.max(0,Math.round((p/100)*(a.length-1))))]);}

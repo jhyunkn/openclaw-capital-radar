@@ -109,11 +109,15 @@ function renderPostureDisagreement(gate, options = {}) {
     : '';
   const epAsOf = episode.dataThrough ? fmtRebalanceDate(episode.dataThrough) : '';
   const exposurePct = Math.round((gate.exposure ?? 1) * 100);
-  const reasons = [];
-  if (standdownOn) reasons.push(`ladder stand-down ON — VIX ${fmtNum(epVix, 2)} above 25`);
-  if (smhBelowZone2) reasons.push('SMH below Zone 2');
-  const reasonText = reasons.length ? ` — ${reasons.join('; ')}` : '';
-  return `<p class="mom-disagree"><strong>Posture disagreement.</strong> Engine ${esc(gate.tierLabel || '?')} · ${exposurePct}%${gateAsOf ? ` (${esc(gateAsOf)}, gate VIX ${gateVix === null ? 'n/a' : fmtNum(gateVix, 1)})` : ''} vs ladder ${esc(stance)}${epAsOf ? ` at the ${esc(epAsOf)} close` : ''}${esc(reasonText)}. The engine's gate trips only at VIX &ge;30 / HY OAS &ge;4%; the ladder stands down at VIX &gt;25. Engine math unchanged — the two systems disagree, and the disagreement is the signal.</p>`;
+  const smhNote = smhBelowZone2 ? ' SMH is below Zone 2.' : '';
+  // Lead with the two thresholds in plain words: the same VIX number reads
+  // differently because the two systems trip at different levels. Without
+  // that sentence the badge ("stress 0") and the stand-down ("VIX above 25")
+  // look like a contradiction.
+  if (standdownOn) {
+    return `<p class="mom-disagree"><strong>Two different thresholds — not a contradiction.</strong> The engine stays ${esc(gate.tierLabel || '?')} until VIX reaches 30 or HY OAS reaches 4%; the ladder stands down as soon as VIX passes 25. Right now the engine reads VIX ${gateVix === null ? 'n/a' : fmtNum(gateVix, 1)}${gateAsOf ? ` (${esc(gateAsOf)} — below its 30 line)` : ''} and says ${esc(gate.tierLabel || '?')} · ${exposurePct}%, while the ladder reads the ${epAsOf ? esc(epAsOf) + ' ' : ''}close, VIX ${epVix === null ? 'n/a' : fmtNum(epVix, 2)} (above its 25 line), and says ${esc(stance)}.${esc(smhNote)} Engine math unchanged — the two systems disagree, and the disagreement is the signal.</p>`;
+  }
+  return `<p class="mom-disagree"><strong>Posture disagreement.</strong> Engine ${esc(gate.tierLabel || '?')} · ${exposurePct}% vs ladder ${esc(stance)} — the two systems use different gates, so they can point different ways.${esc(smhNote)} Engine math unchanged — the disagreement is the signal.</p>`;
 }
 
 function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) {
@@ -155,7 +159,8 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
 
   const topCount = topDecile.activeCount;
   const universeN = state?.includedCount || '';
-  const scope = `top decile of ${universeN} ranked names · ${Math.round((topDecile.exposure ?? gate.exposure ?? 1) * 100)}% invested, rest cash`;
+  const sleevePct = Math.round((topDecile.exposure ?? gate.exposure ?? 1) * 100);
+  const scope = `top decile of ${universeN} ranked names · the sleeve is ${sleevePct}% invested in these names${sleevePct < 100 ? ', the rest in cash' : ''}`;
 
   const moduleMode = options.module === true;
   const shellOpen = moduleMode
@@ -180,19 +185,20 @@ function renderMomentumSection(topDecile, gate, rebalance, state, options = {}) 
     ${list.length ? `<div class="mom-tablewrap"><table class="mom-table">
       <thead><tr>
         <th class="mom-num">#</th><th>Symbol</th><th>Entry</th><th class="mom-num" title="Rank change vs previous monthly rebalance">Δ</th><th class="mom-num">Composite</th>
-        <th class="mom-num">Price</th><th class="mom-num">12m−1m</th><th class="mom-num">vs 52wH</th>
+        <th class="mom-num">Price</th><th class="mom-num" title="12-month return excluding the latest month — the momentum signal">12-month momentum</th><th class="mom-num" title="Distance below the 52-week high (0% = at the high)">vs 52-week high</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
     <p class="mom-scope">Showing top 10 of ${esc(topCount)} active portfolio names (${esc(scope)})</p>
+    <p class="mom-note">The 12-month column excludes the latest month (the standard momentum window). Triple-digit values are real multi-baggers over the past year, not data errors.</p>
     ${(() => {
       if (!changes) return '';
       const base = fmtRebalanceDate(changes.vsRebalanceDate);
       const fromBacktest = /backtest/i.test(changes.baselineSource || '');
       const baseNote = fromBacktest ? ' <span class="mom-baseline" title="' + esc(changes.baselineSource || '') + '">(baseline: the actual Sep 1 rebalance list)</span>' : '';
       let out = '';
-      if (changes.newIn && changes.newIn.length) out += `<p class="mom-changes">New in since ${esc(base)} rebalance: <strong>${changes.newIn.map(esc).join(', ')}</strong>${baseNote}</p>`;
-      if (changes.newOut && changes.newOut.length) out += `<p class="mom-changes">Out since ${esc(base)} rebalance: <strong>${changes.newOut.map(esc).join(', ')}</strong></p>`;
+      if (changes.newIn && changes.newIn.length) out += `<details class="mom-changes"><summary>New in since ${esc(base)} rebalance — ${changes.newIn.length} names</summary><strong>${changes.newIn.map(esc).join(', ')}</strong>${baseNote}</details>`;
+      if (changes.newOut && changes.newOut.length) out += `<details class="mom-changes"><summary>Out since ${esc(base)} rebalance — ${changes.newOut.length} names</summary><strong>${changes.newOut.map(esc).join(', ')}</strong></details>`;
       return out;
     })()}`
     : `<p class="mom-empty">No active momentum names — engine data unavailable.</p>`}
@@ -252,6 +258,9 @@ function renderMomentumStyle() {
 .mom-up{color:var(--green,#2f6f4e)}
 .mom-down{color:#a4502f}
 .mom-changes{font-size:12px;color:#4a463c;margin:8px 0 0}
+.mom-changes summary{cursor:pointer}
+.mom-changes summary:hover{color:#24231f}
+.mom-changes strong{font-weight:400}
 .mom-baseline{color:#8a8578;font-size:11px}
 </style>`;
 }

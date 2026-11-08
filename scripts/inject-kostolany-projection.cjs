@@ -46,6 +46,9 @@ const style = `<style id="kostolany-projection-style">
 .kp-leg-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--muted,#747168);align-items:center}
 .kp-leg-item{display:flex;align-items:center;gap:5px}
 .kp-chart-wrap{position:relative;width:100%;height:420px;border:1px solid var(--rule,#dedbd2);background:var(--bg,#ffffff)}
+.kp-rate-wrap{position:relative;width:100%;height:150px;border:1px solid var(--rule,#dedbd2);background:var(--bg,#ffffff);margin-top:10px}
+.kp-rate-title{font-size:11px;color:var(--muted,#747168);margin:14px 0 6px}
+.kp-model-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .kp-read{background:#ffffff;border:1px solid var(--rule,#dedbd2);padding:12px 16px;margin-bottom:12px;font-size:12px;color:var(--ink,#24231f);line-height:1.6}
 .kp-read b{font-weight:600}
 .kp-method-row{display:flex;gap:10px;align-items:baseline;margin-top:8px}
@@ -141,11 +144,16 @@ const section = `<!-- KP_PROJECTION_START -->
     </div>
   </div>
   <div class="kp-read">
-    <b>How to read this chart:</b> each shaded band is one model. Its <b>bottom edge = bear scenario</b>, its <b>top edge = bull scenario</b>, its <b>center line = the scenario selected below</b>. Where bands overlap, the models agree; where they don't, that's genuine uncertainty.
-    <div class="kp-method-row"><span class="kp-method-chip">Model 1 · EPS × P/E</span><p><strong>In:</strong> FactSet EPS trajectory × Goldman P/E path. <strong>Out:</strong> year-end S&P 500 price.</p></div>
-    <div class="kp-method-row"><span class="kp-method-chip">Model 2 · CAPE reversion</span><p><strong>In:</strong> current CAPE ${CAPE_TXT}× pulled toward its long-run average at a chosen speed + EPS growth. <strong>Out:</strong> implied price level.</p></div>
-    <div class="kp-method-row"><span class="kp-method-chip">Model 3 · Institutional</span><p><strong>In:</strong> Vanguard / Research Affiliates / GMO annualized return forecasts. <strong>Out:</strong> price range from compounding today's level.</p></div>
-    <div class="kp-method-row"><span class="kp-method-chip">Rate path</span><p>FOMC SEP median (FRED FEDTARMD, Mar 2026) — context only, not a return driver.</p></div>
+    <b>How to read this chart:</b> one model at a time — pick a model above. Its <b>bottom edge = bear scenario</b>, its <b>top edge = bull scenario</b>, its <b>center line = the scenario selected below</b>. The table underneath compares all three models at 2030, so you can see where they agree and where they don't.
+    <div class="kp-method-row"><span class="kp-method-chip">Model 1 · EPS × P/E</span><p><strong>Uses:</strong> FactSet EPS trajectory × Goldman P/E path. <strong>Gives:</strong> year-end S&P 500 price.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Model 2 · CAPE reversion</span><p><strong>Uses:</strong> current CAPE ${CAPE_TXT}× pulled toward its long-run average at a chosen speed + EPS growth. <strong>Gives:</strong> implied price level.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Model 3 · Institutional</span><p><strong>Uses:</strong> Vanguard / Research Affiliates / GMO annualized return forecasts. <strong>Gives:</strong> price range from compounding today's level.</p></div>
+    <div class="kp-method-row"><span class="kp-method-chip">Rate path</span><p>FOMC SEP median, Mar 2026 — shown on the small rate chart below; context only, not a return driver.</p></div>
+  </div>
+  <div class="kp-model-tabs" id="kp-model-tabs">
+    <div class="kp-stab active" data-kp-model="m1" style="background:#2563a8;border-color:#2563a8;color:#fff;">EPS × P/E</div>
+    <div class="kp-stab" data-kp-model="m2" style="border-color:#b45f06;color:#b45f06;">CAPE reversion</div>
+    <div class="kp-stab" data-kp-model="m3" style="border-color:#6d28d9;color:#6d28d9;">Institutional</div>
   </div>
   <div class="kp-sc-tabs" id="kp-sc-tabs">
     <div class="kp-stab active" data-kp-sc="base" style="background:#1d9e75;border-color:#1d9e75;color:#fff;">Base — EPS delivers, multiple flat</div>
@@ -153,16 +161,15 @@ const section = `<!-- KP_PROJECTION_START -->
     <div class="kp-stab" data-kp-sc="bear" style="border-color:#e24b4a;color:#e24b4a;">Bear — CAPE mean-reverts / EPS misses</div>
   </div>
   <div class="kp-stat-grid" id="kp-stat-grid"></div>
-  <div class="kp-leg-row">
-    <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#24231f;display:inline-block;"></span>Fed funds (history)</div>
-    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2.5px dashed #747168;display:inline-block;"></span>Fed funds (FOMC SEP)</div>
+  <div class="kp-leg-row" id="kp-leg-row">
     <div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#405f9f;display:inline-block;"></span>S&amp;P 500 (history)</div>
-    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#2563a822;border-top:2.5px solid #2563a8;"></span>M1 · EPS × P/E fan</div>
-    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#b45f0622;border-top:2.5px dashed #b45f06;"></span>M2 · CAPE reversion fan</div>
-    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#6d28d922;border-top:2.5px dotted #6d28d9;"></span>M3 · Institutional fan</div>
+    <div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:#2563a822;border-top:2.5px solid #2563a8;"></span>EPS × P/E fan</div>
+    <div class="kp-leg-item"><span style="width:20px;height:0;border-top:2px dashed #ba7517;display:inline-block;"></span>Now</div>
   </div>
-  <p class="kp-leg-note">Models are told apart by line style as well as color: M1 solid, M2 dashed, M3 dotted. Fan bottom edge = bear scenario, fan top edge = bull scenario, center line = the scenario tab you selected. Every fan starts at the same anchor — today's S&amp;P 500 (${nowSp}); the 2026 point is the current level, not a 2026 year-end forecast. M1 reaches the anchor as EPS₀ × implied P/E₀; M2 and M3 start from the level directly.</p>
+  <p class="kp-leg-note">Fan bottom edge = bear scenario, fan top edge = bull scenario, center line = the scenario tab you selected. Every fan starts at the same anchor — today's S&amp;P 500 level; the 2026 point is the current level, not a 2026 year-end forecast.</p>
   <div class="kp-chart-wrap"><canvas id="kp-proj-chart"></canvas></div>
+  <p class="kp-rate-title">Fed funds rate — history and FOMC SEP projection (context only, not a return driver)</p>
+  <div class="kp-rate-wrap"><canvas id="kp-rate-chart"></canvas></div>
   <div class="kp-info-box" id="kp-info-box">Select a scenario to see the model assumptions and outputs.</div>
   <div>
     <p class="kp-table-head">Model comparison — 2030 S&amp;P 500 implied price</p>
@@ -305,36 +312,34 @@ const SC={
     bear:['GMO 7yr US Large Cap: -5.4% real (Q1 2026)','GuruFocus CAPE implied: 1.6%/yr at ${CAPE_TXT}×','CAPE above 40× occurred twice in 145yr — both preceded major drawdowns','JPMorgan re-hike risk: PCE 2.7% end-2026 > 2% target'],
   },
 };
-let kpChart,kpSc='base';
+let kpChart,kpRateChart,kpSc='base',kpModel='m1';
 const cmap={hike:'#e24b4a',cut:'#1d9e75',plateau:'#378add'};
 const bgmap={hike:'#e24b4a0d',cut:'#1d9e750d',plateau:'#378add0d'};
+// One model at a time on the main chart (readability fix): the three fans
+// used to overlap into one blob. The model tabs pick which one is drawn.
+const MODELS={
+  m1:{name:'EPS × P/E',color:'#2563a8',dash:[],width:2.6,legStyle:'solid'},
+  m2:{name:'CAPE reversion',color:'#b45f06',dash:[7,4],width:2.2,legStyle:'dashed'},
+  m3:{name:'Institutional',color:'#6d28d9',dash:[2,3],width:2.0,legStyle:'dotted'},
+};
 
-function buildChart(sc){
+function buildChart(sc,model){
   const S=SC[sc];
+  const M=MODELS[model]||MODELS.m1;
   // Historical: annual points 2015–2026
   const histSP=HIST_YEARS.map((y,i)=>({x:y,y:HIST_SP[i]}));
-  const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
   // Projections: monthly paths 2026–2030 (49 pts).
   // Each path already starts at x=2026 / y=NOW_SP so lines connect seamlessly.
-  // Model identity: distinct hue AND distinct line style (color-blind safe).
   const M1C='#2563a8',M2C='#b45f06',M3C='#6d28d9';
+  // Annotations are few and large on purpose: the old chart crowded six
+  // phase boxes plus a projection box plus a neutral line plus a small CAPE
+  // warning around the 2026 anchor. Only the Now line and the CAPE warning
+  // stay on the main chart; the rate path and phase boxes live on the small
+  // rate chart below it.
   const ann={
-    projBox:{type:'box',xMin:2026,xMax:2031,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:'rgba(240,192,64,0.05)',borderColor:'rgba(240,192,64,0.20)',borderWidth:1,label:{display:true,content:'← Projection fan: 3 models × 3 scenarios',position:{x:'start',y:'center'},font:{size:9},color:'rgba(160,130,20,0.55)',backgroundColor:'transparent'}},
-    nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'yRate',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3],label:{display:true,content:'Now — $'+NOW_SP.toLocaleString('en-US')+(ANCHOR_DATE?' ('+ANCHOR_DATE+')':''),position:'start',font:{size:10,weight:'bold'},color:'#ba7517',backgroundColor:'transparent'}},
-    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'yRate',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
-    capeWarn:{type:'label',xValue:2023.5,yValue:7.1,content:['CAPE ${CAPE_TXT}× · 2nd highest since 1881','Implied 10yr return: 1.6%/yr'],font:{size:8.5},color:'rgba(196,97,58,0.65)',textAlign:'center',backgroundColor:'rgba(255,248,240,0.9)',borderRadius:3,padding:{top:3,bottom:3,left:6,right:6}},
+    nowLine:{type:'line',xMin:2026,xMax:2026,yMin:1000,yMax:16000,yScaleID:'ySP',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3],label:{display:true,content:'Now — $'+NOW_SP.toLocaleString('en-US')+(ANCHOR_DATE?' ('+ANCHOR_DATE+')':''),position:'start',font:{size:11,weight:'bold'},color:'#ba7517',backgroundColor:'transparent'}},
+    capeWarn:{type:'label',xValue:2021.5,yValue:14500,content:['CAPE ${CAPE_TXT}× · 2nd highest since 1881','Implied 10yr return: 1.6%/yr'],font:{size:11},color:'rgba(196,97,58,0.9)',textAlign:'center',backgroundColor:'rgba(255,248,240,0.95)',borderRadius:3,padding:{top:4,bottom:4,left:8,right:8}},
   };
-  // Phase labels are drawn by Chart.js at the bottom of each phase column,
-  // so they always align with the x-axis years they describe (no separate strip).
-  const phases=[
-    {x1:2015,x2:2019,t:'hike',l:'A–B · trim'},
-    {x1:2019,x2:2022,t:'cut', l:'F–D · COVID'},
-    {x1:2022,x2:2024,t:'hike',l:'B · cash king'},
-    {x1:2024,x2:2026,t:'cut', l:'C · Verification ← now'},
-    {x1:2026,x2:sc==='bear'?2027.5:2028,t:'cut', l:'D · Expansion'},
-    sc==='bear'?{x1:2027.5,x2:2031,t:'hike',l:'A · re-hike'}:{x1:2028,x2:2031,t:'plateau',l:'E · Euphoria'},
-  ];
-  phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'yRate',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5,label:{display:true,content:p.l,position:{x:'center',y:'end'},font:{size:9,weight:'600'},color:'#5b574e',backgroundColor:'rgba(255,255,255,0.85)',borderRadius:3,padding:{top:2,bottom:2,left:5,right:5}}};});
   // ── Honest fan: each model is a band. Bottom edge = bear-scenario path,
   // top edge = bull-scenario path, center line = the selected scenario. ──
   function fan(lowPath,highPath,centerPath,color,dash,width,label){
@@ -346,14 +351,12 @@ function buildChart(sc){
   }
   const ds=[
     // Historical lines — annual, tension 0.35 for smooth look
-    {label:'Fed funds (history)',data:histRate,borderColor:'#24231f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.35,showLine:true,yAxisID:'yRate',spanGaps:false},
-    // Projection rate — monthly, dashed
-    {label:'Fed funds (FOMC SEP)',data:S.rateMo,borderColor:'#747168',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,showLine:true,yAxisID:'yRate',spanGaps:false},
     {label:'S&P 500 (history)',data:histSP,borderColor:'#405f9f',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0,showLine:true,yAxisID:'ySP',spanGaps:false},
-    // Fan bands — monthly derived paths, tension:0 (math already smooth)
-    ...fan(SC.bear.m1,SC.bull.m1,S.m1,M1C,[],2.6,'Model 1 · EPS\xd7P/E'),
-    ...fan(SC.bear.m2,SC.bull.m2,S.m2,M2C,[7,4],2.2,'Model 2 · CAPE reversion'),
-    ...fan(SC.bear.m3l,SC.bull.m3h,S.m3,M3C,[2,3],2.0,'Model 3 · Institutional'),
+    // Fan band — ONLY the selected model. Monthly derived paths, tension:0
+    // (math already smooth). The other two models are one tab away.
+    ...(model==='m2' ? fan(SC.bear.m2,SC.bull.m2,S.m2,M2C,[7,4],2.2,'Model 2 · CAPE reversion')
+      : model==='m3' ? fan(SC.bear.m3l,SC.bull.m3h,S.m3,M3C,[2,3],2.0,'Model 3 · Institutional')
+      : fan(SC.bear.m1,SC.bull.m1,S.m1,M1C,[],2.6,'Model 1 · EPS×P/E')),
   ];
   if(kpChart)kpChart.destroy();
   kpChart=new Chart(document.getElementById('kp-proj-chart'),{
@@ -370,7 +373,6 @@ function buildChart(sc){
           label:item=>{
             const l=item.dataset.label;
             if(!l||l.indexOf('band:')===0)return null;
-            if(l.includes('Fed funds'))return l+': '+item.parsed.y?.toFixed(2)+'%';
             if(item.parsed.y==null)return null;
             return l+': $'+Math.round(item.parsed.y).toLocaleString();
           }
@@ -378,11 +380,70 @@ function buildChart(sc){
       },
       scales:{
         x:{type:'linear',min:2014,max:2031,ticks:{stepSize:1,autoSkip:false,callback:v=>Number.isInteger(v)&&v>=2015?String(v):'',font:{size:10},color:'#747168'},grid:{color:'rgba(36,35,31,.05)'}},
-        yRate:{type:'linear',position:'left',min:0,max:8,ticks:{callback:v=>v+'%',font:{size:11},color:'#24231f'},grid:{color:'rgba(36,35,31,.05)'},title:{display:true,text:'Fed Funds Rate (FRED)',font:{size:10},color:'#747168'}},
-        ySP:{type:'linear',position:'right',min:1000,max:16000,ticks:{callback:v=>[2000,4000,6000,8000,10000,12000,14000].includes(v)?'$'+v.toLocaleString():'',font:{size:11},color:'#405f9f'},grid:{drawOnChartArea:false},title:{display:true,text:'S&P 500 (year-end)',font:{size:10},color:'#405f9f'}},
+        // Single axis — S&P 500 only. The Fed funds rate used to share this
+        // chart on a second axis (0–6% left, 0–12,000 right); it now has its
+        // own small chart below (buildRateChart).
+        ySP:{type:'linear',position:'left',min:1000,max:16000,ticks:{callback:v=>[2000,4000,6000,8000,10000,12000,14000].includes(v)?'$'+v.toLocaleString():'',font:{size:11},color:'#405f9f'},grid:{color:'rgba(36,35,31,.05)'},title:{display:true,text:'S&P 500 (year-end)',font:{size:10},color:'#405f9f'}},
       }
     }
   });
+}
+
+// Small rate chart below the main chart: Fed funds history + FOMC SEP
+// projection, with the Kostolany phase bands and the neutral rate. Same
+// data as before, just no longer sharing an axis with the S&P 500.
+function buildRateChart(sc){
+  const S=SC[sc];
+  const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
+  const ann={
+    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
+    nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'y',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3]},
+  };
+  // Phase labels are drawn by Chart.js at the bottom of each phase column,
+  // so they always align with the x-axis years they describe (no separate strip).
+  const phases=[
+    {x1:2015,x2:2019,t:'hike',l:'A–B · trim'},
+    {x1:2019,x2:2022,t:'cut', l:'F–D · COVID'},
+    {x1:2022,x2:2024,t:'hike',l:'B · cash king'},
+    {x1:2024,x2:2026,t:'cut', l:'C · Verification ← now'},
+    {x1:2026,x2:sc==='bear'?2027.5:2028,t:'cut', l:'D · Expansion'},
+    sc==='bear'?{x1:2027.5,x2:2031,t:'hike',l:'A · re-hike'}:{x1:2028,x2:2031,t:'plateau',l:'E · Euphoria'},
+  ];
+  phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'y',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5,label:{display:true,content:p.l,position:{x:'center',y:'end'},font:{size:9,weight:'600'},color:'#5b574e',backgroundColor:'rgba(255,255,255,0.85)',borderRadius:3,padding:{top:2,bottom:2,left:5,right:5}}};});
+  if(kpRateChart)kpRateChart.destroy();
+  kpRateChart=new Chart(document.getElementById('kp-rate-chart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Fed funds (history)',data:histRate,borderColor:'#24231f',backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:0.35,showLine:true,yAxisID:'y',spanGaps:false},
+      {label:'Fed funds (FOMC SEP)',data:S.rateMo,borderColor:'#747168',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,showLine:true,yAxisID:'y',spanGaps:false},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'nearest',axis:'x',intersect:false},
+      layout:{padding:{top:6,right:8,bottom:4,left:4}},
+      plugins:{
+        legend:{display:false},
+        annotation:{annotations:ann},
+        tooltip:{callbacks:{
+          title:items=>'Year: '+Math.round(items[0].parsed.x),
+          label:item=>item.dataset.label+': '+item.parsed.y?.toFixed(2)+'%'
+        }}
+      },
+      scales:{
+        x:{type:'linear',min:2014,max:2031,ticks:{stepSize:1,autoSkip:false,callback:v=>Number.isInteger(v)&&v>=2015?String(v):'',font:{size:10},color:'#747168'},grid:{color:'rgba(36,35,31,.05)'}},
+        y:{type:'linear',position:'left',min:0,max:8,ticks:{callback:v=>v+'%',font:{size:10},color:'#24231f'},grid:{color:'rgba(36,35,31,.05)'},title:{display:true,text:'Fed Funds Rate',font:{size:10},color:'#747168'}},
+      }
+    }
+  });
+}
+
+// The legend follows the visible model: S&P history + the selected fan + Now.
+function buildLegend(model){
+  const M=MODELS[model]||MODELS.m1;
+  document.getElementById('kp-leg-row').innerHTML=
+    '<div class="kp-leg-item"><span style="width:20px;height:2.5px;background:#405f9f;display:inline-block;"></span>S&P 500 (history)</div>'+
+    '<div class="kp-leg-item"><span style="width:20px;height:10px;display:inline-block;background:'+M.color+'22;border-top:2.5px '+M.legStyle+' '+M.color+';"></span>'+M.name+' fan</div>'+
+    '<div class="kp-leg-item"><span style="width:20px;height:0;border-top:2px dashed #ba7517;display:inline-block;"></span>Now</div>';
 }
 
 function buildStats(sc){
@@ -431,14 +492,28 @@ function setSc(sc){
     if(s===sc){el.classList.add('active');el.style.background=SC[sc].color;el.style.color='#fff';el.style.borderColor='transparent';}
     else{el.classList.remove('active');el.style.background='';el.style.color=colors[s];el.style.borderColor=colors[s];}
   });
-  buildChart(sc);buildStats(sc);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
+  buildChart(sc,kpModel);buildRateChart(sc);buildStats(sc);buildInfo(sc);buildModelTable(sc);buildRiskGrid(sc);
+}
+
+function setModel(m){
+  kpModel=m;
+  document.querySelectorAll('[data-kp-model]').forEach(el=>{
+    const mm=el.dataset.kpModel;
+    if(mm===m){el.classList.add('active');el.style.background=MODELS[m].color;el.style.color='#fff';el.style.borderColor='transparent';}
+    else{el.classList.remove('active');el.style.background='';el.style.color=MODELS[mm].color;el.style.borderColor=MODELS[mm].color;}
+  });
+  buildChart(kpSc,m);buildLegend(m);
 }
 
 document.querySelectorAll('[data-kp-sc]').forEach(el=>{
   el.addEventListener('click',()=>setSc(el.dataset.kpSc));
 });
 
-function init(){buildChart('base');buildStats('base');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
+document.querySelectorAll('[data-kp-model]').forEach(el=>{
+  el.addEventListener('click',()=>setModel(el.dataset.kpModel));
+});
+
+function init(){buildChart('base','m1');buildRateChart('base');buildLegend('m1');buildStats('base');buildInfo('base');buildModelTable('base');buildRiskGrid('base');}
 if(window.Chart&&window.Chart.register){init();}
 else{window.addEventListener('load',init);}
 })();

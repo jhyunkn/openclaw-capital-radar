@@ -399,11 +399,13 @@ function buildRateChart(sc){
   const S=SC[sc];
   const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
   const ann={
-    // The label floats just above the dashed line on a white chip: anchored
-    // at the line's right end with a transparent background it sat ON the
-    // line and ran hard against the edge. yAdjust lifts it clear; the chip
-    // keeps the line from showing through.
-    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',textAlign:'right',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'rgba(255,255,255,0.92)',borderRadius:3,padding:3,yAdjust:-12}},
+    // The neutral line itself carries NO label: chartjs-plugin-annotation
+    // 3.0.1 forcibly overrides a line label's backgroundColor to
+    // "transparent" (its line-label resolver), so no background/border
+    // value ever renders a chip there — the text stays plain. The chip is
+    // a standalone label annotation (neutralChip, added after the phase
+    // boxes below so it draws on top), which honors backgroundColor.
+    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4]},
     nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'y',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3]},
   };
   // Phase labels are drawn by Chart.js at the bottom of each phase column,
@@ -421,6 +423,13 @@ function buildRateChart(sc){
     sc==='bear'?{x1:2027.5,x2:2031,t:'hike',l:'Re-hike'}:{x1:2028,x2:2031,t:'plateau',l:'Euphoria'},
   ];
   phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'y',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5,label:{display:true,content:p.l,position:{x:'center',y:'end'},font:{size:9,weight:'600'},color:'#5b574e',backgroundColor:'rgba(255,255,255,0.85)',borderRadius:3,padding:{top:2,bottom:2,left:5,right:5}}};});
+  // White chip for the neutral rate, floating just above the dashed line:
+  // anchored at the x-axis max with a pixel xAdjust so its right edge
+  // lands just inside the plot edge on any container width (a data-x
+  // center would clip on narrow screens — the chip has a fixed pixel
+  // width). yAdjust lifts it clear of the line. z:1 draws it above the
+  // phase boxes. The label box is centered on (xValue, yValue).
+  ann.neutralChip={type:'label',xValue:2031,yValue:3.0,xScaleID:'x',yScaleID:'y',xAdjust:-48,yAdjust:-12,content:'FOMC neutral 3%',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'rgba(255,255,255,0.92)',borderColor:'rgba(29,158,117,0.35)',borderWidth:1,borderRadius:3,padding:3,textAlign:'center',z:1};
   if(kpRateChart)kpRateChart.destroy();
   kpRateChart=new Chart(document.getElementById('kp-rate-chart'),{
     type:'scatter',

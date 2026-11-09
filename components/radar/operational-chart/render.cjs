@@ -74,15 +74,25 @@ function buildChartPayload(state) {
 function renderChartRuntime(payload) {
   const data = JSON.stringify(payload);
   const src = '<scr' + 'ipt src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></scr' + 'ipt>';
-  const runtime = `(function(){const payload=${data};function ok(v){return Number.isFinite(Number(v))&&Number(v)>0;}function applyAutoscale(chart){try{const p=payload.policy&&payload.policy.autoscale;if(p&&Number.isFinite(p.minValue)&&Number.isFinite(p.maxValue)){chart.applyOptions({autoscaleInfoProvider:()=>({priceRange:{minValue:p.minValue,maxValue:p.maxValue}})});}}catch(e){}}function build(){const el=document.getElementById('${CHART_ID}');if(!el||!window.LightweightCharts)return;const chart=LightweightCharts.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#2c2a25'},grid:{vertLines:{color:'rgba(44,42,37,.08)'},horzLines:{color:'rgba(44,42,37,.08)'}},rightPriceScale:{borderColor:'rgba(44,42,37,.18)'},timeScale:{borderColor:'rgba(44,42,37,.18)',timeVisible:true},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});applyAutoscale(chart);const candle=chart.addCandlestickSeries({upColor:'#4f9b82',downColor:'#c76b60',borderUpColor:'#4f9b82',borderDownColor:'#c76b60',wickUpColor:'#4f9b82',wickDownColor:'#c76b60',priceLineVisible:false});candle.setData(payload.series);function line(key,color,width,style){const d=payload.series.filter(r=>ok(r[key])).map(r=>({time:r.time,value:Number(r[key])}));if(!d.length)return;const s=chart.addLineSeries({color,lineWidth:width,lineStyle:style,priceLineVisible:false,lastValueVisible:false});s.setData(d);}line('ma50','#6f6a5f',1.4,LightweightCharts.LineStyle.Solid);line('ma200','#4088a8',2.1,LightweightCharts.LineStyle.Solid);const b=payload.bands||{};function pl(price,title,color,style,width){if(!ok(price))return;candle.createPriceLine({price:Number(price),color,lineWidth:width,lineStyle:style,axisLabelVisible:true,title});}
+  const runtime = `(function(){const payload=${data};function ok(v){return Number.isFinite(Number(v))&&Number(v)>0;}function applyAutoscale(chart){try{const p=payload.policy&&payload.policy.autoscale;if(p&&Number.isFinite(p.minValue)&&Number.isFinite(p.maxValue)){chart.applyOptions({autoscaleInfoProvider:()=>({priceRange:{minValue:p.minValue,maxValue:p.maxValue}})});}}catch(e){}}function build(){const el=document.getElementById('${CHART_ID}');if(!el||!window.LightweightCharts)return;const chart=LightweightCharts.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#2c2a25'},grid:{vertLines:{color:'rgba(44,42,37,.08)'},horzLines:{color:'rgba(44,42,37,.08)'}},rightPriceScale:{borderColor:'rgba(44,42,37,.18)'},timeScale:{borderColor:'rgba(44,42,37,.18)',timeVisible:true,rightOffset:6},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});applyAutoscale(chart);const candle=chart.addCandlestickSeries({upColor:'#4f9b82',downColor:'#c76b60',borderUpColor:'#4f9b82',borderDownColor:'#c76b60',wickUpColor:'#4f9b82',wickDownColor:'#c76b60',priceLineVisible:false,lastValueVisible:false});candle.setData(payload.series);function line(key,color,width,style){const d=payload.series.filter(r=>ok(r[key])).map(r=>({time:r.time,value:Number(r[key])}));if(!d.length)return;const s=chart.addLineSeries({color,lineWidth:width,lineStyle:style,priceLineVisible:false,lastValueVisible:false});s.setData(d);}line('ma50','#6f6a5f',1.4,LightweightCharts.LineStyle.Solid);line('ma200','#4088a8',2.1,LightweightCharts.LineStyle.Solid);const b=payload.bands||{};function pl(price,title,color,style,width){if(!ok(price))return;candle.createPriceLine({price:Number(price),color,lineWidth:width,lineStyle:style,axisLabelVisible:true,title});}
 // Price lines on the chart: only the three that decide the route — target,
 // 200-day defense, hard risk. The Add zone is a band, not lines: its two
 // dotted edges sat within ~200 points of Defense and Hard Risk and stacked
 // into an unreadable clump on the right edge. The full zone list lives in
 // the Action Zones card below the chart.
-// No series price line (priceLineVisible:false on the candle series): the
-// NOW marker already shows the last close, and the line's red axis pill
-// sat ~6px from the blue DEFENSE pill, their two lines merging into one.
+// No series price line or last-value pill on the candle series: the NOW
+// marker already shows the last close. priceLineVisible:false hides only
+// the horizontal line — the red axis pill is the series' last-value label,
+// which lightweight-charts v4 draws whenever lastValueVisible is true
+// (its default), so that must be false too (verified in the v4.2.3
+// source: SeriesPriceAxisView gates the pill on lastValueVisible, the
+// pane line on priceLineVisible). Without it the pill sat ~6px from the
+// blue DEFENSE pill, their two lines merging into one.
+// The time scale carries rightOffset:6 so the last bar sits left of the
+// pane edge — the NOW marker text above it is centered on the bar and was
+// clipped at the right edge on first load. fitContent() honors
+// rightOffset (v4.2.3: the visible range runs to last + rightOffset), so
+// the resize handler keeps it too.
 // The autoscale policy is applied at the CHART level (applyAutoscale, in
 // build): applied to the candle series it did not constrain the live
 // range — ticks appeared above the intended max — so it lives here, where

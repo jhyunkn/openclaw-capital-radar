@@ -248,7 +248,7 @@ function renderMomentumStyle() {
 .mom-health-full{color:var(--green,#2f6f4e)}
 .mom-health-partial{color:#8a6a1f}
 .mom-note{font-size:11px;color:#8a8578;margin:8px 0 0}
-.mom-earn{display:inline-block;margin-left:6px;font-size:10px;color:#9f3f35;white-space:nowrap}
+.mom-earn{display:inline-block;margin-left:10px;font-size:10px;color:#9f3f35;white-space:nowrap}
 .mom-eq{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:999px;border:1px solid;white-space:nowrap}
 .mom-eq-good{color:var(--green,#2f6f4e);border-color:rgba(47,111,78,.4);background:rgba(47,111,78,.07)}
 .mom-eq-fair{color:#8a6a1f;border-color:rgba(138,106,44,.5);background:rgba(138,106,44,.08)}

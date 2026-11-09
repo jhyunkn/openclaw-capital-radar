@@ -21,6 +21,22 @@ function ageMinutes(iso) {
   return Number.isFinite(t) ? (Date.now() - t) / 60000 : Infinity;
 }
 
+// Humanize an age in minutes: a 6-day-old observation reading "9038m ago"
+// looks like a bug. Days past a day, hours past an hour, minutes below.
+// The runtime script below carries the same helper — keep them in sync.
+function fmtAge(ageMin) {
+  if (!Number.isFinite(ageMin)) return 'unknown age';
+  const m = Math.max(0, Math.round(ageMin));
+  if (m < 1) return 'just now';
+  if (m < 60) return m + 'm ago';
+  if (m < 1440) {
+    const h = Math.floor(m / 60), r = m % 60;
+    return r ? h + 'h ' + r + 'm ago' : h + 'h ago';
+  }
+  const d = Math.floor(m / 1440);
+  return d + (d === 1 ? ' day ago' : ' days ago');
+}
+
 // The single source of truth for freshness. Fail closed: anything we cannot
 // positively confirm as fresh is treated as stale.
 function freshness(state) {
@@ -31,13 +47,13 @@ function freshness(state) {
   const stale = declaredStale || ageStale;
   let label;
   if (!state.observedAt) label = 'STALE · no observation yet';
-  else if (stale) label = `STALE · observed ${Math.round(age)}m ago (max ${max}m)`;
-  else label = `Live · observed ${Math.round(age)}m ago`;
+  else if (stale) label = `STALE · observed ${fmtAge(age)} (max ${max}m)`;
+  else label = `Live · observed ${fmtAge(age)}`;
   return { stale, label, max, age };
 }
 
 function sourceTime(value) {
-  if (!value) return 'missing';
+  if (!value) return 'no time recorded';
   const date = new Date(value);
   return Number.isFinite(date.getTime())
     ? date.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
@@ -150,8 +166,15 @@ function renderTqqqWatcherModule(state = {}) {
   const regime = String(decision.regime || 'UNKNOWN').toUpperCase();
   const marketStatus = String(market.status || 'UNKNOWN').toUpperCase();
   const approvalStatus = approval.status || (approval.authorized ? 'AUTHORIZED' : 'NOT AUTHORIZED');
+  // A source with no observation time (the independent review, PENDING)
+  // rendered "PENDING · missing" — a cryptic fragment. Show just the
+  // status when there is no time to show.
   const sourceRows = sources.length
-    ? sources.map(source => `<li><b>${esc(plainSourceLabel(source.label || source.id || 'Source'))}</b><span data-tqw-source-status>${esc(sourceStatus(source))} · ${esc(sourceTime(source.asOf))}</span></li>`).join('')
+    ? sources.map(source => {
+        const st = sourceStatus(source);
+        const t = source.asOf ? sourceTime(source.asOf) : null;
+        return `<li><b>${esc(plainSourceLabel(source.label || source.id || 'Source'))}</b><span data-tqw-source-status>${esc(st)}${t ? ' · ' + esc(t) : ''}</span></li>`;
+      }).join('')
     : '<li><b>Sources</b><span>Missing</span></li>';
 
   return `<section class="tqqq-watcher" id="tqqq-watcher" data-observed-at="${esc(state.observedAt || '')}" data-max-age-minutes="${esc(f.max)}" data-stale="${f.stale ? 'true' : 'false'}" data-declared-stale="${state.stale === true ? 'true' : 'false'}">
@@ -223,6 +246,17 @@ function renderTqqqWatcherModule(state = {}) {
     const observedAt = Date.parse(panel.dataset.observedAt || '');
     const maxAgeMinutes = Number(panel.dataset.maxAgeMinutes) || 20;
     const declaredStale = panel.dataset.declaredStale === 'true';
+    // Same humanizer as the server render — a stale label the runtime
+    // rewrites must not revert to "9038m ago".
+    const fmtAge = (ageMin) => {
+      if (!Number.isFinite(ageMin)) return 'unknown age';
+      const m = Math.max(0, Math.round(ageMin));
+      if (m < 1) return 'just now';
+      if (m < 60) return m + 'm ago';
+      if (m < 1440) { const h = Math.floor(m / 60), r = m % 60; return r ? h + 'h ' + r + 'm ago' : h + 'h ago'; }
+      const d = Math.floor(m / 1440);
+      return d + (d === 1 ? ' day ago' : ' days ago');
+    };
     const reviewNode = panel.querySelector('[data-tqw-review]');
     const originalReview = reviewNode ? reviewNode.textContent : 'Review pending';
     const update = () => {
@@ -232,13 +266,13 @@ function renderTqqqWatcherModule(state = {}) {
       const freshnessText = freshnessNode ? freshnessNode.querySelector('b') : null;
       if (!stale) {
         if (freshnessNode) freshnessNode.className = 'tqw-fresh tqw-live';
-        if (freshnessText) freshnessText.textContent = 'Live · observed ' + Math.max(0, Math.round(ageMinutes)) + 'm ago';
+        if (freshnessText) freshnessText.textContent = 'Live · observed ' + fmtAge(ageMinutes);
         return;
       }
       panel.dataset.runtimeStale = 'true';
       if (freshnessNode) freshnessNode.className = 'tqw-fresh tqw-stale';
       if (freshnessText) freshnessText.textContent = Number.isFinite(ageMinutes)
-        ? 'STALE · observed ' + Math.max(0, Math.round(ageMinutes)) + 'm ago (max ' + maxAgeMinutes + 'm)'
+        ? 'STALE · observed ' + fmtAge(ageMinutes) + ' (max ' + maxAgeMinutes + 'm)'
         : 'STALE · no valid observation';
       const action = panel.querySelector('[data-tqw-action]');
       const actionReason = panel.querySelector('[data-tqw-action-reason]');

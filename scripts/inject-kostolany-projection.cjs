@@ -278,7 +278,7 @@ const SC={
       {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'EPS0 \xd7 implied PE0 — the anchor, by construction',src:'FactSet/Goldman'},
       {val:'+14% / +8% / +7% / +6%',lbl:'EPS growth (yr 1–4)',sub:'FactSet deceleration consensus',src:'FactSet Jun 2026'},
       {val:PE0_TXT+'x → 19.5x by 2030',lbl:'P/E path',sub:'Goldman mild compression',src:'Goldman May 2026'},
-      {val:'CAPE ${CAPE_TXT}\xd7 → 27.6\xd7',lbl:'CAPE reversion (10yr)',sub:'Partial reversion to 20yr avg',src:'${capeSrc}'},
+      {val:D2030(PATHS.base.m1),lbl:'2030 implied price',sub:'EPS × P/E path',src:'Model 1'},
     ],
     info:'<strong style="color:#1d9e75">Base — three models, three answers:</strong><br><strong>Model 1 (EPS\xd7P/E):</strong> $'+EPS0+' \xd7 '+PE0_TXT+'x today. EPS compounds at +14%/+8%/+7%/+6% with P/E drifting '+PE0_TXT+'x→19.5x → '+D2030(PATHS.base.m1)+' by 2030.<br><strong>Model 2 (CAPE reversion):</strong> 8% annual EPS offset by CAPE reverting ${CAPE_TXT}x→27.6x over 10yr at -4%/yr → ~'+D2030(PATHS.base.m2)+'.<br><strong>Model 3 (Institutional):</strong> Vanguard 3.8% → '+D2030(PATHS.base.m3)+', Vanguard upside 5% → '+D2030(PATHS.base.m3h)+', GMO -2.7% nominal → '+D2030(PATHS.base.m3l)+'.',
     bull:['FactSet Q1 2026 actual EPS growth +27.1% YoY','AI capex $650–700bn begins monetising in 2027','Rate cuts to 3.0% by 2028 support multiple expansion','M2 +4.6% YoY provides liquidity'],
@@ -293,7 +293,7 @@ const SC={
       {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start, higher path required',src:'FactSet'},
       {val:'+21% / +12% / +10% / +8%',lbl:'EPS growth (yr 1–4)',sub:'AI monetises — Goldman bull case',src:'Goldman bull'},
       {val:PE0_TXT+'x → 22x by 2030',lbl:'P/E holds',sub:'Multiple sustained on AI earnings',src:'Goldman/Yardeni'},
-      {val:'CAPE ${CAPE_TXT}\xd7 → 32\xd7',lbl:'CAPE new mean (bull)',sub:'Structural AI premium assumption',src:'Bull assumption'},
+      {val:D2030(PATHS.bull.m1),lbl:'2030 implied price',sub:'EPS × P/E path',src:'Model 1'},
     ],
     info:'<strong style="color:#185fa5">Bull — what has to be true:</strong><br><strong>Model 1:</strong> EPS compounds at +21%/+12%/+10%/+8% with P/E holding 23x → ~'+D2030(PATHS.bull.m1)+' by 2030. Requires AI monetisation.<br><strong>Model 2:</strong> If AI shifts structural CAPE mean to 32x over 10yr + 10% EPS → ~'+D2030(PATHS.bull.m2)+'.<br><strong>Model 3:</strong> Vanguard upside 5%/yr → '+D2030(PATHS.bull.m3)+', optimistic 8% → '+D2030(PATHS.bull.m3h)+'.',
     bull:['Goldman EPS $340 tracking (+24% Q1 2026 actual)','Mag7 FCF $350bn 2025 — earnings base is real','Deeper cuts = lower discount rate = higher justified multiple','Vanguard upside: AI diffusion → 3% GDP growth'],
@@ -308,7 +308,7 @@ const SC={
       {val:ANCHOR_TXT,lbl:'Anchored to today',sub:'Same start, CAPE headwind compresses path',src:'FactSet'},
       {val:'+8% / +4% / +3% / +3%',lbl:'EPS growth (yr 1–4)',sub:'AI not monetising (MIT <5% tasks)',src:'Bear/MIT'},
       {val:PE0_TXT+'x → 16x by 2030',lbl:'P/E compression',sub:'CAPE mean-reversion to long-run avg',src:'GMO/CAPE'},
-      {val:'CAPE ${CAPE_TXT}\xd7 → 17.3\xd7',lbl:'CAPE target (7yr)',sub:'Full reversion to 145yr mean',src:'Shiller/Yale'},
+      {val:D2030(PATHS.bear.m1),lbl:'2030 implied price',sub:'EPS × P/E path',src:'Model 1'},
     ],
     info:'<strong style="color:#e24b4a">Bear — what data-driven pessimists say:</strong><br><strong>Model 1:</strong> EPS misses at +8%/+4%/+3%/+3% with P/E compressing '+PE0_TXT+'x→16x (CAPE gravity) → ~'+D2030(PATHS.bear.m1)+'.<br><strong>Model 2:</strong> Full CAPE reversion ${CAPE_TXT}x→17.3x over 7yr (GMO horizon) + 4% EPS → ~'+D2030(PATHS.bear.m2)+'.<br><strong>Model 3:</strong> GMO -2.7% nominal → '+D2030(PATHS.bear.m3)+', CAPE implied 1.6%/yr → '+D2030(PATHS.bear.m3h)+'.',
     bull:['FactSet Q1 2026 actual +27.1% far outpacing bear EPS assumption','HY OAS 275bps — no credit stress signal','Fed still cutting — rate environment broadly supportive','GMO wrong on US equities for 10+ years'],
@@ -399,18 +399,26 @@ function buildRateChart(sc){
   const S=SC[sc];
   const histRate=HIST_YEARS.map((y,i)=>({x:y,y:HIST_RATES[i]}));
   const ann={
-    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',textAlign:'right',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'transparent'}},
+    // The label floats just above the dashed line on a white chip: anchored
+    // at the line's right end with a transparent background it sat ON the
+    // line and ran hard against the edge. yAdjust lifts it clear; the chip
+    // keeps the line from showing through.
+    neutralLine:{type:'line',yMin:3.0,yMax:3.0,yScaleID:'y',borderColor:'rgba(29,158,117,0.30)',borderWidth:1,borderDash:[4,4],label:{display:true,content:'FOMC neutral 3%',position:'end',textAlign:'right',font:{size:9},color:'rgba(29,158,117,0.65)',backgroundColor:'rgba(255,255,255,0.92)',borderRadius:3,padding:3,yAdjust:-12}},
     nowLine:{type:'line',xMin:2026,xMax:2026,yMin:0,yMax:8,yScaleID:'y',borderColor:'#ba7517',borderWidth:1.5,borderDash:[4,3]},
   };
   // Phase labels are drawn by Chart.js at the bottom of each phase column,
   // so they always align with the x-axis years they describe (no separate strip).
+  // Phase names are plain and chronological: the Kostolany letters (A–B,
+  // F–D, B, C, D, E) ran backwards and repeated, so they read as a puzzle
+  // instead of a timeline. The rate regime (hike/cut/plateau) still colors
+  // each column; the name now says what happened in that stretch.
   const phases=[
-    {x1:2015,x2:2019,t:'hike',l:'A–B · trim'},
-    {x1:2019,x2:2022,t:'cut', l:'F–D · COVID'},
-    {x1:2022,x2:2024,t:'hike',l:'B · cash king'},
-    {x1:2024,x2:2026,t:'cut', l:'C · Verification ← now'},
-    {x1:2026,x2:sc==='bear'?2027.5:2028,t:'cut', l:'D · Expansion'},
-    sc==='bear'?{x1:2027.5,x2:2031,t:'hike',l:'A · re-hike'}:{x1:2028,x2:2031,t:'plateau',l:'E · Euphoria'},
+    {x1:2015,x2:2019,t:'hike',l:'Hiking cycle'},
+    {x1:2019,x2:2022,t:'cut', l:'COVID cuts'},
+    {x1:2022,x2:2024,t:'hike',l:'Hikes · cash king'},
+    {x1:2024,x2:2026,t:'cut', l:'Verification · now'},
+    {x1:2026,x2:sc==='bear'?2027.5:2028,t:'cut', l:'Expansion'},
+    sc==='bear'?{x1:2027.5,x2:2031,t:'hike',l:'Re-hike'}:{x1:2028,x2:2031,t:'plateau',l:'Euphoria'},
   ];
   phases.forEach((p,i)=>{ann['ph'+i]={type:'box',xMin:p.x1,xMax:p.x2,yMin:0,yMax:8,yScaleID:'y',backgroundColor:bgmap[p.t],borderColor:cmap[p.t]+'33',borderWidth:0.5,label:{display:true,content:p.l,position:{x:'center',y:'end'},font:{size:9,weight:'600'},color:'#5b574e',backgroundColor:'rgba(255,255,255,0.85)',borderRadius:3,padding:{top:2,bottom:2,left:5,right:5}}};});
   if(kpRateChart)kpRateChart.destroy();

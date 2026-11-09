@@ -33,7 +33,7 @@ function buildChartPayload(state) {
   const overlays = state.chart?.overlays || {};
   const sourceSeries = arr(state.chart?.series);
   const events = arr(state.chart?.annotated_events);
-  const series = sourceSeries.map(row => ({
+  const allSeries = sourceSeries.map(row => ({
     time: Math.floor((row.t || 0) / 1000),
     open: row.o,
     high: row.h,
@@ -42,6 +42,15 @@ function buildChartPayload(state) {
     ma50: pos(row.ma50),
     ma200: pos(row.ma200),
   })).filter(row => row.time && num(row.close) !== null);
+  // Show the recent window only (last 120 trading days ≈ 6 months, the
+  // same window the 120-day high on the page is measured over). The state
+  // carries 2 years of bars, but the autoscale policy floors the price axis
+  // at hard risk minus padding — bars priced below that floor are
+  // invisible, so the full 2-year series left the left ~40% of the plot
+  // blank. The last 120 bars all sit inside the visible price range; the
+  // 50/200-day lines are precomputed per row in the state, so slicing the
+  // display window does not change them.
+  const series = allSeries.slice(-120);
   return {
     series,
     events: events.map(e => ({
@@ -65,13 +74,24 @@ function buildChartPayload(state) {
 function renderChartRuntime(payload) {
   const data = JSON.stringify(payload);
   const src = '<scr' + 'ipt src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></scr' + 'ipt>';
-  const runtime = `(function(){const payload=${data};function ok(v){return Number.isFinite(Number(v))&&Number(v)>0;}function applyAutoscale(candle,b){try{const p=payload.policy&&payload.policy.autoscale;if(p&&Number.isFinite(p.minValue)&&Number.isFinite(p.maxValue)){candle.applyOptions({autoscaleInfoProvider:()=>({priceRange:{minValue:p.minValue,maxValue:p.maxValue}})});}}catch(e){}}function build(){const el=document.getElementById('${CHART_ID}');if(!el||!window.LightweightCharts)return;const chart=LightweightCharts.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#2c2a25'},grid:{vertLines:{color:'rgba(44,42,37,.08)'},horzLines:{color:'rgba(44,42,37,.08)'}},rightPriceScale:{borderColor:'rgba(44,42,37,.18)'},timeScale:{borderColor:'rgba(44,42,37,.18)',timeVisible:true},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});const candle=chart.addCandlestickSeries({upColor:'#4f9b82',downColor:'#c76b60',borderUpColor:'#4f9b82',borderDownColor:'#c76b60',wickUpColor:'#4f9b82',wickDownColor:'#c76b60',priceLineVisible:true});candle.setData(payload.series);function line(key,color,width,style){const d=payload.series.filter(r=>ok(r[key])).map(r=>({time:r.time,value:Number(r[key])}));if(!d.length)return;const s=chart.addLineSeries({color,lineWidth:width,lineStyle:style,priceLineVisible:false,lastValueVisible:false});s.setData(d);}line('ma50','#6f6a5f',1.4,LightweightCharts.LineStyle.Solid);line('ma200','#4088a8',2.1,LightweightCharts.LineStyle.Solid);const b=payload.bands||{};function pl(price,title,color,style,width){if(!ok(price))return;candle.createPriceLine({price:Number(price),color,lineWidth:width,lineStyle:style,axisLabelVisible:true,title});}
+  const runtime = `(function(){const payload=${data};function ok(v){return Number.isFinite(Number(v))&&Number(v)>0;}function applyAutoscale(chart){try{const p=payload.policy&&payload.policy.autoscale;if(p&&Number.isFinite(p.minValue)&&Number.isFinite(p.maxValue)){chart.applyOptions({autoscaleInfoProvider:()=>({priceRange:{minValue:p.minValue,maxValue:p.maxValue}})});}}catch(e){}}function build(){const el=document.getElementById('${CHART_ID}');if(!el||!window.LightweightCharts)return;const chart=LightweightCharts.createChart(el,{autoSize:true,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#2c2a25'},grid:{vertLines:{color:'rgba(44,42,37,.08)'},horzLines:{color:'rgba(44,42,37,.08)'}},rightPriceScale:{borderColor:'rgba(44,42,37,.18)'},timeScale:{borderColor:'rgba(44,42,37,.18)',timeVisible:true},crosshair:{mode:LightweightCharts.CrosshairMode.Normal}});applyAutoscale(chart);const candle=chart.addCandlestickSeries({upColor:'#4f9b82',downColor:'#c76b60',borderUpColor:'#4f9b82',borderDownColor:'#c76b60',wickUpColor:'#4f9b82',wickDownColor:'#c76b60',priceLineVisible:false});candle.setData(payload.series);function line(key,color,width,style){const d=payload.series.filter(r=>ok(r[key])).map(r=>({time:r.time,value:Number(r[key])}));if(!d.length)return;const s=chart.addLineSeries({color,lineWidth:width,lineStyle:style,priceLineVisible:false,lastValueVisible:false});s.setData(d);}line('ma50','#6f6a5f',1.4,LightweightCharts.LineStyle.Solid);line('ma200','#4088a8',2.1,LightweightCharts.LineStyle.Solid);const b=payload.bands||{};function pl(price,title,color,style,width){if(!ok(price))return;candle.createPriceLine({price:Number(price),color,lineWidth:width,lineStyle:style,axisLabelVisible:true,title});}
 // Price lines on the chart: only the three that decide the route — target,
 // 200-day defense, hard risk. The Add zone is a band, not lines: its two
 // dotted edges sat within ~200 points of Defense and Hard Risk and stacked
 // into an unreadable clump on the right edge. The full zone list lives in
 // the Action Zones card below the chart.
-pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,1);pl(b.defenseBelow,'DEFENSE','#4088a8',LightweightCharts.LineStyle.Dashed,2);pl(b.hardRisk,'HARD RISK','#9f3f35',LightweightCharts.LineStyle.LargeDashed,2);const last=payload.series[payload.series.length-1];applyAutoscale(candle,b);const markers=[];if(last)markers.push({time:last.time,position:'aboveBar',color:'#2c2a25',shape:'circle',text:'NOW '+Math.round(last.close).toLocaleString()});candle.setMarkers(markers);chart.timeScale().fitContent();window.addEventListener('resize',()=>{try{chart.timeScale().fitContent();}catch(e){}});}build();})();`;
+// No series price line (priceLineVisible:false on the candle series): the
+// NOW marker already shows the last close, and the line's red axis pill
+// sat ~6px from the blue DEFENSE pill, their two lines merging into one.
+// The autoscale policy is applied at the CHART level (applyAutoscale, in
+// build): applied to the candle series it did not constrain the live
+// range — ticks appeared above the intended max — so it lives here, where
+// v4 honors it. "8721.88" from the recheck is not a level in any data or
+// code (verified: absent from the state, the payload and the built HTML);
+// the only element that can show an arbitrary price on the axis is the
+// crosshair hover label, which the now-constrained range keeps inside the
+// intended max. There is no 8721.88 pill or line to label or remove.
+pl(b.target,'TARGET','#2f6f4e',LightweightCharts.LineStyle.LargeDashed,1);pl(b.defenseBelow,'DEFENSE','#4088a8',LightweightCharts.LineStyle.Dashed,2);pl(b.hardRisk,'HARD RISK','#9f3f35',LightweightCharts.LineStyle.LargeDashed,2);const last=payload.series[payload.series.length-1];const markers=[];if(last)markers.push({time:last.time,position:'aboveBar',color:'#2c2a25',shape:'circle',text:'NOW '+Math.round(last.close).toLocaleString()});candle.setMarkers(markers);chart.timeScale().fitContent();window.addEventListener('resize',()=>{try{chart.timeScale().fitContent();}catch(e){}});}build();})();`;
   return `${src}<scr` + `ipt>${runtime}</scr` + `ipt>`;
 }
 
@@ -188,15 +208,17 @@ function renderBottomBands(state) {
   if (!bb || !Array.isArray(bb.bands) || !bb.bands.length) return '';
   const current = num(state.action_bands && state.action_bands.current);
   const rows = bb.bands.map(b => {
-    const range = b.low != null ? `${fmtLevel(b.low)}–${fmtLevel(b.high)}` : `below ${fmtLevel(b.high)}`;
+    // Open-ended band ("Below 7,000"): the label already says "below", so
+    // rendering the range as "below 7,000" read "Below 7,000 below 7,000".
+    const range = b.low != null ? `${fmtLevel(b.low)}–${fmtLevel(b.high)}` : 'no lower bound';
     const prob = b.probabilityPct != null ? `${b.probabilityPct}%` : '—';
     let pos = '';
     if (Number.isFinite(current) && b.low != null && b.high != null) {
-      if (current > b.high) pos = ' · price above band';
-      else if (current < b.low) pos = ' · price below band';
-      else pos = ' · price inside band';
+      if (current > b.high) pos = ' · S&P is above this band';
+      else if (current < b.low) pos = ' · S&P is below this band';
+      else pos = ' · S&P is inside this band';
     } else if (Number.isFinite(current) && b.low == null && b.high != null && current < b.high) {
-      pos = ' · price inside band';
+      pos = ' · S&P is inside this band';
     }
     return `<div class="op-band-row"><b>${esc(b.label)}</b><span class="op-band-range">${esc(range)}</span><span class="op-band-prob">${esc(prob)}</span><span class="op-band-note">${esc(b.note || '')}${esc(pos)}</span></div>`;
   }).join('');
@@ -241,9 +263,9 @@ function renderOperationalChartStyle() {
 .op-ladder-rung--defense{border-top:2px dashed #4088a8}
 .op-ladder-rung--risk{border-top-color:#9f3f35}
 .op-ladder-label{position:absolute;left:40px;right:6px;transform:translateY(-50%);z-index:3;pointer-events:none}
-.op-ladder-label>span{display:inline-block;background:rgba(255,255,255,.94);border:1px solid rgba(44,42,37,.08);padding:3px 9px}
-.op-ladder-label b{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink,#24231f);line-height:1.5}
-.op-ladder-label i{display:block;font-style:normal;font-size:12px;color:var(--muted);line-height:1.4}
+.op-ladder-label>span{display:inline-block;background:rgba(255,255,255,.94);border:1px solid rgba(44,42,37,.08);padding:3px 9px;white-space:nowrap}
+.op-ladder-label b{display:inline;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--ink,#24231f);line-height:1.5;margin-right:6px}
+.op-ladder-label i{display:inline;font-style:normal;font-size:12px;color:var(--muted);line-height:1.4}
 .op-ladder-now{position:absolute;left:0;right:0;border-top:2px solid #1c1a17;z-index:2}
 .op-ladder-nowtag{position:absolute;left:0;top:0;transform:translateY(calc(-100% - 4px));background:#1c1a17;color:#ffffff;font-size:11px;font-weight:600;letter-spacing:.02em;padding:3px 10px;white-space:nowrap}
 .op-ladder-nowtag--below{transform:translateY(4px)}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T02:26:42.054Z",
+  "generatedAt": "2026-11-11T05:09:42.157Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -7,28 +7,28 @@
       "id": "core",
       "label": "Core portfolio",
       "description": "Longer-horizon portfolio oversight, concentration control, thesis verification, and measured exposure changes.",
-      "state": "READY_REVIEW",
+      "state": "PAUSED_STALE",
       "actionAllowed": false,
-      "permission": "HUMAN_REVIEW_REQUIRED",
-      "reason": "Evidence is current enough for human review; Capital Radar does not authorize execution.",
+      "permission": "NO_ACTION",
+      "reason": "1 required dependency blocker(s).",
       "dependencies": [
         {
           "id": "positions",
           "label": "Positions",
           "required": true,
-          "status": "OK",
+          "status": "STALE",
           "asOf": "2026-11-08T03:34:51.426Z",
-          "ageMinutes": 1371.8,
+          "ageMinutes": 4414.8,
           "maxMinutes": 4320,
           "source": "portfolio-live-state.BROKER_SYNC",
-          "reason": null
+          "reason": "Positions is 4415 minutes old; maximum is 4320."
         },
         {
           "id": "quotes",
           "label": "Holding prices",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-08T03:34:51.426Z",
+          "asOf": "2026-11-11T00:28:02.000Z",
           "ageMinutes": 0,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
@@ -39,8 +39,8 @@
           "label": "Data health",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-09T02:26:26.130Z",
-          "ageMinutes": 0.3,
+          "asOf": "2026-11-11T05:09:40.811Z",
+          "ageMinutes": 0,
           "maxMinutes": 1440,
           "source": "data-health",
           "reason": null
@@ -50,19 +50,25 @@
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-09",
-          "ageMinutes": 146.7,
+          "asOf": "2026-11-11",
+          "ageMinutes": 309.7,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
         }
       ],
-      "blockers": [],
+      "blockers": [
+        {
+          "id": "positions",
+          "status": "STALE",
+          "reason": "Positions is 4415 minutes old; maximum is 4320."
+        }
+      ],
       "portfolio": {
         "totalValue": 86899.71,
         "buyingPower": 4104.05,
         "positionCount": 13,
-        "dayChange": 651.27
+        "dayChange": -253.94
       }
     },
     {
@@ -134,8 +140,8 @@
           "label": "Market data health",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-09T02:26:26.130Z",
-          "ageMinutes": 0.3,
+          "asOf": "2026-11-11T05:09:40.811Z",
+          "ageMinutes": 0,
           "maxMinutes": 15,
           "source": "data-health",
           "reason": null
@@ -145,8 +151,8 @@
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-09",
-          "ageMinutes": 146.7,
+          "asOf": "2026-11-11",
+          "ageMinutes": 309.7,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -262,9 +268,9 @@
     }
   ],
   "summary": {
-    "readyForReview": 1,
+    "readyForReview": 0,
     "armed": 0,
-    "paused": 0,
+    "paused": 1,
     "executionAuthorized": 0
   }
 }

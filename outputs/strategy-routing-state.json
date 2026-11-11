@@ -1,20 +1,20 @@
 {
-  "as_of": "2026-11-09T02:26:28.593Z",
+  "as_of": "2026-11-11T05:09:41.517Z",
   "artifact": "strategy-routing-state",
-  "route_id": "defensive",
-  "route": "defensive",
-  "risk_budget": "reduced",
+  "route_id": "transition_verify",
+  "route": "transition / verify",
+  "risk_budget": "neutral",
   "add_permission": "blocked",
-  "trim_permission": "active",
-  "opportunity_permission": "blocked_until_reclaim",
-  "confirmation_score": 45,
+  "trim_permission": "selective",
+  "opportunity_permission": "research_only",
+  "confirmation_score": 64,
   "market_lens_regime": "defensive pressure",
   "inputs": {
     "SPX": "VERIFY",
     "QQQ": "DEFENSIVE",
     "TLT": "DEFENSIVE",
     "BTC": "VERIFY",
-    "VIX": "STRESS",
+    "VIX": "CONTAINED",
     "operational_chart": "Trend weakening, still above the 200-day average"
   },
   "permissions": [
@@ -36,19 +36,20 @@
     {
       "domain": "Speculative liquidity / crypto beta",
       "permission": "VERIFY",
-      "driver": "BTC VERIFY; VIX STRESS"
+      "driver": "BTC VERIFY; VIX CONTAINED"
     },
     {
       "domain": "Opportunity promotion",
-      "permission": "BLOCKED UNTIL RECLAIM",
-      "driver": "route defensive"
+      "permission": "RESEARCH ONLY",
+      "driver": "route transition / verify"
     }
   ],
   "blocks": [
-    "Volatility stress blocks new risk until VIX cools.",
     "Rate pressure constrains duration/growth multiple expansion."
   ],
-  "promotes": [],
+  "promotes": [
+    "Contained volatility supports staying invested."
+  ],
   "action_protocol": [
     {
       "rule": "ADD",
@@ -62,17 +63,17 @@
     },
     {
       "rule": "TRIM",
-      "permission": "active",
+      "permission": "selective",
       "condition": "Trim weak beta or concentration when price enters trim zones or route deteriorates."
     },
     {
       "rule": "PROMOTE OPPORTUNITY",
-      "permission": "blocked_until_reclaim",
+      "permission": "research_only",
       "condition": "Candidate must match active route and pass evidence/valuation/asymmetry gates."
     },
     {
       "rule": "DEFEND",
-      "permission": "active",
+      "permission": "standby",
       "condition": "Activate if SPX loses defense line or VIX enters stress."
     }
   ],

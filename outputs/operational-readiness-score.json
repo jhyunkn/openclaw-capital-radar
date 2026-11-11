@@ -1,29 +1,33 @@
 {
-  "generatedAt": "2026-11-09T02:26:42.559Z",
+  "generatedAt": "2026-11-11T05:09:12.913Z",
   "name": "CROS — Capital Radar Operational Score",
-  "score": 74,
-  "rawScore": 84,
+  "score": 59,
+  "rawScore": 87,
   "target": 80,
-  "stage": "Operational beta",
+  "stage": "Structured but fragile",
   "capsApplied": [
+    {
+      "cap": 87,
+      "reason": "Reaction-state delta layer exists, but only as a first baseline; it needs a second run to prove real change detection."
+    },
     {
       "cap": 89,
       "reason": "High-trust status requires source reliability and decision-outcome ledgers."
     },
     {
-      "cap": 74,
-      "reason": "At least one mandate has a stale or missing required action dependency."
+      "cap": 59,
+      "reason": "All mandates are paused by stale/missing dependencies or blackout."
     }
   ],
   "categories": [
     {
       "label": "Live Data Integrity",
-      "score": 16,
+      "score": 19,
       "max": 20,
-      "pct": 80,
+      "pct": 95,
       "evidence": [
         "OK data health",
-        "0/13 holdings have live freshness status",
+        "15/15 holdings have live freshness status",
         "1-minute live quote endpoint exists",
         "Main API cache set to no-store"
       ],
@@ -39,7 +43,7 @@
       "max": 20,
       "pct": 100,
       "evidence": [
-        "13/13 holdings evaluated",
+        "15/15 holdings evaluated",
         "All evaluated holdings include numeric levels",
         "Every evaluated holding has reaction state and permission",
         "Signal blocks can override price proximity"
@@ -56,7 +60,7 @@
       "max": 15,
       "pct": 80,
       "evidence": [
-        "13/13 holdings have analysis chart models",
+        "15/15 holdings have analysis chart models",
         "Portfolio story chart model exists",
         "Reaction chips exist in chart renderer"
       ],
@@ -140,7 +144,7 @@
       "max": 20,
       "pct": 100,
       "evidence": [
-        "13/13 holdings evaluated",
+        "15/15 holdings evaluated",
         "All evaluated holdings include numeric levels",
         "Every evaluated holding has reaction state and permission",
         "Signal blocks can override price proximity"
@@ -203,29 +207,12 @@
       ]
     },
     {
-      "label": "Live Data Integrity",
-      "score": 16,
-      "max": 20,
-      "pct": 80,
-      "evidence": [
-        "OK data health",
-        "0/13 holdings have live freshness status",
-        "1-minute live quote endpoint exists",
-        "Main API cache set to no-store"
-      ],
-      "gaps": [
-        "Wire live quote endpoint into visible dashboard auto-refresh.",
-        "Add explicit market-hours stale action blocker to UI.",
-        "Add secondary quote source fallback if Yahoo public endpoint degrades."
-      ]
-    },
-    {
       "label": "Visual Decision Surface",
       "score": 12,
       "max": 15,
       "pct": 80,
       "evidence": [
-        "13/13 holdings have analysis chart models",
+        "15/15 holdings have analysis chart models",
         "Portfolio story chart model exists",
         "Reaction chips exist in chart renderer"
       ],
@@ -233,6 +220,23 @@
         "Add dashboard panel for live reaction state table.",
         "Add visible stale/fresh badges beside every holding card price.",
         "Add candidate visual funnel."
+      ]
+    },
+    {
+      "label": "Alert / Human Judgment Queue",
+      "score": 8,
+      "max": 10,
+      "pct": 80,
+      "evidence": [
+        "3 action-now items",
+        "2 review-soon items",
+        "3 human review rules in report"
+      ],
+      "gaps": [
+        "Run a second delta pass after market movement to prove change detection.",
+        "Add alert rules only for state changes.",
+        "Add human judgment queue to dashboard.",
+        "Suppress repeated no-action alerts."
       ]
     }
   ],

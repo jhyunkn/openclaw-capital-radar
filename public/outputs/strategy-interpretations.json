@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T06:07:57.448Z",
+  "generatedAt": "2026-11-12T13:31:33.396Z",
   "policy": "Strategy Interpreter uses h.signalThresholds as the authoritative signal-change source. Index instruments use the index ballast cap framework rather than the single-name cap.",
   "homepage": {
     "actNow": [
@@ -577,6 +577,78 @@
         ]
       },
       {
+        "ticker": "BMNR",
+        "signal": "INVESTIGATE",
+        "role": "Single-name equity exposure",
+        "exposureType": "equity",
+        "riskCap": 15,
+        "capFramework": "Single-name concentration framework",
+        "thresholdPolicy": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
+        "thesisStatus": {
+          "status": "Unverified",
+          "tone": "caution",
+          "reason": "Signal requires source/thesis validation before action."
+        },
+        "actionPermission": {
+          "status": "No action until verified",
+          "tone": "caution",
+          "reason": "Investigate means resolve thesis/data before capital movement."
+        },
+        "urgency": {
+          "level": "Soon",
+          "tone": "caution",
+          "reason": "Trend deterioration should be monitored."
+        },
+        "newInformation": [
+          "Missing forwardPE.",
+          "5D, 1M, and 3M are negative."
+        ],
+        "nearestDecisionBoundary": {
+          "label": "vol-adjusted add zone",
+          "value": 17.7,
+          "thresholdPct": -7.99,
+          "tone": "positive",
+          "distancePct": -8.004158004158,
+          "source": "signalThresholds"
+        },
+        "positionPressure": {
+          "status": "Inside budget",
+          "tone": "positive",
+          "cap": 15,
+          "framework": "Single-name concentration framework",
+          "reason": "9.69% is inside 15% single-name concentration framework cap."
+        },
+        "trendRead": {
+          "status": "Deteriorating",
+          "tone": "danger",
+          "reason": "5D, 1M, and 3M are negative."
+        },
+        "dataConfidence": {
+          "status": "Partial data",
+          "tone": "caution",
+          "missing": [
+            "forwardPE"
+          ],
+          "reason": "Missing forwardPE."
+        },
+        "portfolioConflict": {
+          "status": "No major conflict",
+          "tone": "positive",
+          "reason": "No dominant portfolio conflict detected from current tags."
+        },
+        "decisionConfidence": {
+          "level": "Medium",
+          "score": 60,
+          "tone": "caution",
+          "reason": "Several factors conflict or require verification."
+        },
+        "signalChangeConditions": [
+          "Add review only near $17.70 (-7.99% vol-adjusted band) with thesis/data gates clear.",
+          "Trim/rebalance review near $24.91 (+29.45% vol-adjusted band) or if weight exceeds cap.",
+          "Risk/exit review if price breaks $13.48 (-29.94% vol-adjusted band) or thesis invalidation triggers."
+        ]
+      },
+      {
         "ticker": "IAU",
         "signal": "REVIEW",
         "role": "Single-name equity exposure",
@@ -753,7 +825,7 @@
         "newInformation": [
           "Near vol-adjusted add zone (-2.43%; -2.43% threshold).",
           "Missing forwardPE, fcfYield, nextEarningsDate.",
-          "5D, 1M, and 3M are negative."
+          "1M and 3M trend are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
@@ -771,9 +843,9 @@
           "reason": "3.17% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Deteriorating",
-          "tone": "danger",
-          "reason": "5D, 1M, and 3M are negative."
+          "status": "Weakening",
+          "tone": "caution",
+          "reason": "1M and 3M trend are negative."
         },
         "dataConfidence": {
           "status": "Weak data",
@@ -792,7 +864,7 @@
         },
         "decisionConfidence": {
           "level": "Medium",
-          "score": 50,
+          "score": 60,
           "tone": "caution",
           "reason": "Several factors conflict or require verification."
         },
@@ -1189,13 +1261,13 @@
           "reason": "Investigate means resolve thesis/data before capital movement."
         },
         "urgency": {
-          "level": "Monitor",
-          "tone": "positive",
-          "reason": "No urgent conflict detected."
+          "level": "Soon",
+          "tone": "caution",
+          "reason": "Trend deterioration should be monitored."
         },
         "newInformation": [
           "Missing forwardPE.",
-          "Momentum signals are split."
+          "5D, 1M, and 3M are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
@@ -1213,9 +1285,9 @@
           "reason": "9.69% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Mixed",
-          "tone": "caution",
-          "reason": "Momentum signals are split."
+          "status": "Deteriorating",
+          "tone": "danger",
+          "reason": "5D, 1M, and 3M are negative."
         },
         "dataConfidence": {
           "status": "Partial data",
@@ -1232,7 +1304,7 @@
         },
         "decisionConfidence": {
           "level": "Medium",
-          "score": 70,
+          "score": 60,
           "tone": "caution",
           "reason": "Several factors conflict or require verification."
         },
@@ -1419,7 +1491,7 @@
         "newInformation": [
           "Near vol-adjusted add zone (-2.43%; -2.43% threshold).",
           "Missing forwardPE, fcfYield, nextEarningsDate.",
-          "5D, 1M, and 3M are negative."
+          "1M and 3M trend are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
@@ -1437,9 +1509,9 @@
           "reason": "3.17% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Deteriorating",
-          "tone": "danger",
-          "reason": "5D, 1M, and 3M are negative."
+          "status": "Weakening",
+          "tone": "caution",
+          "reason": "1M and 3M trend are negative."
         },
         "dataConfidence": {
           "status": "Weak data",
@@ -1458,7 +1530,7 @@
         },
         "decisionConfidence": {
           "level": "Medium",
-          "score": 50,
+          "score": 60,
           "tone": "caution",
           "reason": "Several factors conflict or require verification."
         },
@@ -1716,13 +1788,13 @@
           "reason": "Investigate means resolve thesis/data before capital movement."
         },
         "urgency": {
-          "level": "Monitor",
-          "tone": "positive",
-          "reason": "No urgent conflict detected."
+          "level": "Soon",
+          "tone": "caution",
+          "reason": "Trend deterioration should be monitored."
         },
         "newInformation": [
           "Missing forwardPE.",
-          "Momentum signals are split."
+          "5D, 1M, and 3M are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
@@ -1740,9 +1812,9 @@
           "reason": "9.69% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Mixed",
-          "tone": "caution",
-          "reason": "Momentum signals are split."
+          "status": "Deteriorating",
+          "tone": "danger",
+          "reason": "5D, 1M, and 3M are negative."
         },
         "dataConfidence": {
           "status": "Partial data",
@@ -1759,7 +1831,7 @@
         },
         "decisionConfidence": {
           "level": "Medium",
-          "score": 70,
+          "score": 60,
           "tone": "caution",
           "reason": "Several factors conflict or require verification."
         },
@@ -1946,7 +2018,7 @@
         "newInformation": [
           "Near vol-adjusted add zone (-2.43%; -2.43% threshold).",
           "Missing forwardPE, fcfYield, nextEarningsDate.",
-          "5D, 1M, and 3M are negative."
+          "1M and 3M trend are negative."
         ],
         "nearestDecisionBoundary": {
           "label": "vol-adjusted add zone",
@@ -1964,9 +2036,9 @@
           "reason": "3.17% is inside 15% single-name concentration framework cap."
         },
         "trendRead": {
-          "status": "Deteriorating",
-          "tone": "danger",
-          "reason": "5D, 1M, and 3M are negative."
+          "status": "Weakening",
+          "tone": "caution",
+          "reason": "1M and 3M trend are negative."
         },
         "dataConfidence": {
           "status": "Weak data",
@@ -1985,7 +2057,7 @@
         },
         "decisionConfidence": {
           "level": "Medium",
-          "score": 50,
+          "score": 60,
           "tone": "caution",
           "reason": "Several factors conflict or require verification."
         },
@@ -3375,13 +3447,13 @@
         "reason": "Investigate means resolve thesis/data before capital movement."
       },
       "urgency": {
-        "level": "Monitor",
-        "tone": "positive",
-        "reason": "No urgent conflict detected."
+        "level": "Soon",
+        "tone": "caution",
+        "reason": "Trend deterioration should be monitored."
       },
       "newInformation": [
         "Missing forwardPE.",
-        "Momentum signals are split."
+        "5D, 1M, and 3M are negative."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
@@ -3399,9 +3471,9 @@
         "reason": "9.69% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
-        "status": "Mixed",
-        "tone": "caution",
-        "reason": "Momentum signals are split."
+        "status": "Deteriorating",
+        "tone": "danger",
+        "reason": "5D, 1M, and 3M are negative."
       },
       "dataConfidence": {
         "status": "Partial data",
@@ -3418,7 +3490,7 @@
       },
       "decisionConfidence": {
         "level": "Medium",
-        "score": 70,
+        "score": 60,
         "tone": "caution",
         "reason": "Several factors conflict or require verification."
       },
@@ -3605,7 +3677,7 @@
       "newInformation": [
         "Near vol-adjusted add zone (-2.43%; -2.43% threshold).",
         "Missing forwardPE, fcfYield, nextEarningsDate.",
-        "5D, 1M, and 3M are negative."
+        "1M and 3M trend are negative."
       ],
       "nearestDecisionBoundary": {
         "label": "vol-adjusted add zone",
@@ -3623,9 +3695,9 @@
         "reason": "3.17% is inside 15% single-name concentration framework cap."
       },
       "trendRead": {
-        "status": "Deteriorating",
-        "tone": "danger",
-        "reason": "5D, 1M, and 3M are negative."
+        "status": "Weakening",
+        "tone": "caution",
+        "reason": "1M and 3M trend are negative."
       },
       "dataConfidence": {
         "status": "Weak data",
@@ -3644,7 +3716,7 @@
       },
       "decisionConfidence": {
         "level": "Medium",
-        "score": 50,
+        "score": 60,
         "tone": "caution",
         "reason": "Several factors conflict or require verification."
       },

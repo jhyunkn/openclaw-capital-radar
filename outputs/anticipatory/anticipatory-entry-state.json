@@ -1,8 +1,8 @@
 {
   "artifact": "anticipatory-entry-state",
   "version": 1,
-  "generatedAt": "2026-11-12T13:47:58.446Z",
-  "asOf": "2026-11-11",
+  "generatedAt": "2026-11-12T19:17:38.844Z",
+  "asOf": "2026-11-12",
   "permission": "PROBE_AVAILABLE",
   "policy": "Anticipatory entries are capped PROBE decisions. They never authorize ADD/BUY, never bypass confirmation, and risk at most 0.25% of portfolio value per candidate.",
   "methodology": {
@@ -20,9 +20,9 @@
     ]
   },
   "summary": {
-    "candidates": 24,
-    "eligible": 1,
-    "blocked": 23,
+    "candidates": 27,
+    "eligible": 2,
+    "blocked": 25,
     "historicalEvents": 1144,
     "calibrationEvents": 723,
     "validationEvents": 421,
@@ -34,21 +34,99 @@
       "state": "PROBE_ELIGIBLE",
       "confidence": "MEDIUM",
       "cohort": "top5:medium",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 257.87,
-        "high": 263.15,
-        "referencePrice": 261.39,
+        "low": 257.53,
+        "high": 262.78,
+        "referencePrice": 261.03,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 237.76,
-        "riskPct": 9.04,
+        "price": 237.52,
+        "riskPct": 9.01,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 309.82,
-        "rewardPct": 18.53,
+        "price": 309.21,
+        "rewardPct": 18.46,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 119,
+        "pPositive21": 0.6529,
+        "pTargetBeforeStop": 0.281,
+        "returns5dPct": {
+          "p10": -3.2,
+          "median": 1.56,
+          "p90": 7.89
+        },
+        "returns21dPct": {
+          "p10": -9.9,
+          "median": 3.39,
+          "p90": 15.11
+        }
+      },
+      "validation": {
+        "n": 79,
+        "pPositive21": 0.5309,
+        "pTargetBeforeStop": 0.2469,
+        "returns5dPct": {
+          "p10": -7.61,
+          "median": 1.19,
+          "p90": 6.93
+        },
+        "returns21dPct": {
+          "p10": -13.06,
+          "median": 0.9,
+          "p90": 21.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.2,
+          "median": 1.56,
+          "p90": 7.89
+        },
+        "oneMonthPct": {
+          "p10": -9.9,
+          "median": 3.39,
+          "p90": 15.11
+        }
+      },
+      "sizing": {
+        "action": "PROBE",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "EXPD",
+      "state": "PROBE_ELIGIBLE",
+      "confidence": "MEDIUM",
+      "cohort": "top5:medium",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 194.33,
+        "high": 197.05,
+        "referencePrice": 196.14,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 183.99,
+        "riskPct": 6.19,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 221.03,
+        "rewardPct": 12.69,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
@@ -112,21 +190,101 @@
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:medium",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 155.81,
-        "high": 159.47,
-        "referencePrice": 158.25,
+        "low": 155.15,
+        "high": 158.78,
+        "referencePrice": 157.57,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 141.85,
-        "riskPct": 10.36,
+        "price": 141.34,
+        "riskPct": 10.3,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 191.85,
-        "rewardPct": 21.23,
+        "price": 190.84,
+        "rewardPct": 21.11,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 119,
+        "pPositive21": 0.6529,
+        "pTargetBeforeStop": 0.281,
+        "returns5dPct": {
+          "p10": -3.2,
+          "median": 1.56,
+          "p90": 7.89
+        },
+        "returns21dPct": {
+          "p10": -9.9,
+          "median": 3.39,
+          "p90": 15.11
+        }
+      },
+      "validation": {
+        "n": 79,
+        "pPositive21": 0.5309,
+        "pTargetBeforeStop": 0.2469,
+        "returns5dPct": {
+          "p10": -7.61,
+          "median": 1.19,
+          "p90": 6.93
+        },
+        "returns21dPct": {
+          "p10": -13.06,
+          "median": 0.9,
+          "p90": 21.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.2,
+          "median": 1.56,
+          "p90": 7.89
+        },
+        "oneMonthPct": {
+          "p10": -9.9,
+          "median": 3.39,
+          "p90": 15.11
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "invalidation risk 10.3% > 10%"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "TRGP",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top5:medium",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 293.65,
+        "high": 300.61,
+        "referencePrice": 298.29,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 267.18,
+        "riskPct": 10.43,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 362.04,
+        "rewardPct": 21.37,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
@@ -188,121 +346,41 @@
       ]
     },
     {
-      "symbol": "TRGP",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top5:medium",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 287.18,
-        "high": 294.08,
-        "referencePrice": 291.78,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 260.92,
-        "riskPct": 10.58,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 355.03,
-        "rewardPct": 21.68,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.05,
-      "calibration": {
-        "n": 119,
-        "pPositive21": 0.6529,
-        "pTargetBeforeStop": 0.281,
-        "returns5dPct": {
-          "p10": -3.2,
-          "median": 1.56,
-          "p90": 7.89
-        },
-        "returns21dPct": {
-          "p10": -9.9,
-          "median": 3.39,
-          "p90": 15.11
-        }
-      },
-      "validation": {
-        "n": 79,
-        "pPositive21": 0.5309,
-        "pTargetBeforeStop": 0.2469,
-        "returns5dPct": {
-          "p10": -7.61,
-          "median": 1.19,
-          "p90": 6.93
-        },
-        "returns21dPct": {
-          "p10": -13.06,
-          "median": 0.9,
-          "p90": 21.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.2,
-          "median": 1.56,
-          "p90": 7.89
-        },
-        "oneMonthPct": {
-          "p10": -9.9,
-          "median": 3.39,
-          "p90": 15.11
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "invalidation risk 10.6% > 10%"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "TGT",
+      "symbol": "HUM",
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 160.64,
-        "high": 163.73,
-        "referencePrice": 162.7,
+        "low": 437.75,
+        "high": 444.96,
+        "referencePrice": 442.56,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 148.87,
-        "riskPct": 8.5,
+        "price": 403.03,
+        "riskPct": 8.93,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 191.04,
-        "rewardPct": 17.42,
+        "price": 508.66,
+        "rewardPct": 14.94,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 2.05,
+      "rewardRisk": 1.67,
       "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
@@ -322,14 +400,14 @@
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -339,7 +417,171 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
+        "calibrated 21d probability 51.2% < 55%",
+        "validation 21d hit rate 49.4% < 52%",
+        "validation median 21d return -0.42% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "TRV",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top5:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 403.24,
+        "high": 407.77,
+        "referencePrice": 406.26,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 376.53,
+        "riskPct": 7.32,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 447.75,
+        "rewardPct": 10.21,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 1.4,
+      "calibration": {
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
+        "returns5dPct": {
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
+        },
+        "returns21dPct": {
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
+        }
+      },
+      "validation": {
+        "n": 85,
+        "pPositive21": 0.4943,
+        "pTargetBeforeStop": 0.1839,
+        "returns5dPct": {
+          "p10": -4.65,
+          "median": 0.6,
+          "p90": 5.25
+        },
+        "returns21dPct": {
+          "p10": -9.49,
+          "median": -0.42,
+          "p90": 14.02
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
+        },
+        "oneMonthPct": {
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 51.2% < 55%",
+        "validation 21d hit rate 49.4% < 52%",
+        "validation median 21d return -0.42% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "TGT",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top5:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 158.94,
+        "high": 162.02,
+        "referencePrice": 161,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 147.24,
+        "riskPct": 8.54,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 189.18,
+        "rewardPct": 17.51,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
+        "returns5dPct": {
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
+        },
+        "returns21dPct": {
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
+        }
+      },
+      "validation": {
+        "n": 85,
+        "pPositive21": 0.4943,
+        "pTargetBeforeStop": 0.1839,
+        "returns5dPct": {
+          "p10": -4.65,
+          "median": 0.6,
+          "p90": 5.25
+        },
+        "returns21dPct": {
+          "p10": -9.49,
+          "median": -0.42,
+          "p90": 14.02
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
+        },
+        "oneMonthPct": {
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 51.2% < 55%",
         "validation 21d hit rate 49.4% < 52%",
         "validation median 21d return -0.42% is not positive"
       ],
@@ -354,37 +596,37 @@
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 409.52,
-        "high": 414.53,
-        "referencePrice": 412.86,
+        "low": 408.55,
+        "high": 413.42,
+        "referencePrice": 411.8,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 373.33,
-        "riskPct": 9.57,
+        "price": 374.7,
+        "riskPct": 9.01,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 458.79,
-        "rewardPct": 11.12,
+        "price": 456.34,
+        "rewardPct": 10.82,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 1.16,
+      "rewardRisk": 1.2,
       "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
@@ -404,14 +646,14 @@
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -421,10 +663,10 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
+        "calibrated 21d probability 51.2% < 55%",
         "validation 21d hit rate 49.4% < 52%",
         "validation median 21d return -0.42% is not positive",
-        "reward/risk 1.16 < 1.25"
+        "reward/risk 1.2 < 1.25"
       ],
       "evidence": [
         "outputs/cache/momentum/price-history.json",
@@ -433,41 +675,41 @@
       ]
     },
     {
-      "symbol": "TRV",
+      "symbol": "MRK",
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 396.5,
-        "high": 400.94,
-        "referencePrice": 399.46,
+        "low": 146.23,
+        "high": 148.49,
+        "referencePrice": 147.74,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 375.71,
-        "riskPct": 5.94,
+        "price": 137.61,
+        "riskPct": 6.85,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 440.13,
-        "rewardPct": 10.18,
+        "price": 168.49,
+        "rewardPct": 14.05,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 1.71,
+      "rewardRisk": 2.05,
       "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
@@ -487,14 +729,14 @@
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -504,7 +746,7 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
+        "calibrated 21d probability 51.2% < 55%",
         "validation 21d hit rate 49.4% < 52%",
         "validation median 21d return -0.42% is not positive"
       ],
@@ -519,37 +761,37 @@
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 325.58,
-        "high": 331.06,
-        "referencePrice": 329.23,
+        "low": 323.08,
+        "high": 328.54,
+        "referencePrice": 326.72,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 304.72,
-        "riskPct": 7.44,
+        "price": 302.33,
+        "riskPct": 7.47,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 379.45,
-        "rewardPct": 15.25,
+        "price": 376.71,
+        "rewardPct": 15.3,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
       "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
@@ -569,14 +811,14 @@
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -586,7 +828,7 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
+        "calibrated 21d probability 51.2% < 55%",
         "validation 21d hit rate 49.4% < 52%",
         "validation median 21d return -0.42% is not positive"
       ],
@@ -597,41 +839,41 @@
       ]
     },
     {
-      "symbol": "MRK",
+      "symbol": "MET",
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 145.66,
-        "high": 147.94,
-        "referencePrice": 147.18,
+        "low": 101.19,
+        "high": 102.58,
+        "referencePrice": 102.12,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 136.95,
-        "riskPct": 6.95,
+        "price": 95.89,
+        "riskPct": 6.11,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 168.14,
-        "rewardPct": 14.24,
+        "price": 114.9,
+        "rewardPct": 12.51,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
       "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
@@ -651,14 +893,14 @@
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -668,7 +910,7 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
+        "calibrated 21d probability 51.2% < 55%",
         "validation 21d hit rate 49.4% < 52%",
         "validation median 21d return -0.42% is not positive"
       ],
@@ -679,41 +921,41 @@
       ]
     },
     {
-      "symbol": "HST",
+      "symbol": "IEX",
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 25.52,
-        "high": 25.91,
-        "referencePrice": 25.78,
+        "low": 235.24,
+        "high": 238.84,
+        "referencePrice": 237.64,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 23.12,
-        "riskPct": 10.31,
+        "price": 221.55,
+        "riskPct": 6.77,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 29.35,
-        "rewardPct": 13.86,
+        "price": 270.62,
+        "rewardPct": 13.88,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 1.34,
+      "rewardRisk": 2.05,
       "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
@@ -733,14 +975,14 @@
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -750,172 +992,7 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
-        "validation 21d hit rate 49.4% < 52%",
-        "validation median 21d return -0.42% is not positive",
-        "invalidation risk 10.3% > 10%"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "JNJ",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 278.15,
-        "high": 281.54,
-        "referencePrice": 280.41,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 263.89,
-        "riskPct": 5.89,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 311.46,
-        "rewardPct": 11.07,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 1.88,
-      "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
-        "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
-        },
-        "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
-        }
-      },
-      "validation": {
-        "n": 85,
-        "pPositive21": 0.4943,
-        "pTargetBeforeStop": 0.1839,
-        "returns5dPct": {
-          "p10": -4.65,
-          "median": 0.6,
-          "p90": 5.25
-        },
-        "returns21dPct": {
-          "p10": -9.49,
-          "median": -0.42,
-          "p90": 14.02
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
-        },
-        "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
-        "validation 21d hit rate 49.4% < 52%",
-        "validation median 21d return -0.42% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "WSM",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top5:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 258.54,
-        "high": 263.87,
-        "referencePrice": 262.09,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 237.81,
-        "riskPct": 9.26,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 310.93,
-        "rewardPct": 18.63,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.01,
-      "calibration": {
-        "n": 212,
-        "pPositive21": 0.514,
-        "pTargetBeforeStop": 0.2103,
-        "returns5dPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
-        },
-        "returns21dPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
-        }
-      },
-      "validation": {
-        "n": 85,
-        "pPositive21": 0.4943,
-        "pTargetBeforeStop": 0.1839,
-        "returns5dPct": {
-          "p10": -4.65,
-          "median": 0.6,
-          "p90": 5.25
-        },
-        "returns21dPct": {
-          "p10": -9.49,
-          "median": -0.42,
-          "p90": 14.02
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.92,
-          "median": 0.04,
-          "p90": 4.51
-        },
-        "oneMonthPct": {
-          "p10": -8.69,
-          "median": 0.15,
-          "p90": 10.62
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 51.4% < 55%",
+        "calibrated 21d probability 51.2% < 55%",
         "validation 21d hit rate 49.4% < 52%",
         "validation median 21d return -0.42% is not positive"
       ],
@@ -929,65 +1006,65 @@
       "symbol": "BIIB",
       "state": "BLOCKED",
       "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
+      "cohort": "top5:shallow",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 250.47,
-        "high": 254.86,
-        "referencePrice": 253.4,
+        "low": 249.22,
+        "high": 253.6,
+        "referencePrice": 252.14,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 229.89,
-        "riskPct": 9.28,
+        "price": 230.47,
+        "riskPct": 8.59,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 293.63,
-        "rewardPct": 15.88,
+        "price": 292.23,
+        "rewardPct": 15.9,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 1.71,
+      "rewardRisk": 1.85,
       "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
+        "n": 85,
+        "pPositive21": 0.4943,
+        "pTargetBeforeStop": 0.1839,
         "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
+          "p10": -4.65,
+          "median": 0.6,
+          "p90": 5.25
         },
         "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
+          "p10": -9.49,
+          "median": -0.42,
+          "p90": 14.02
         }
       },
       "projectedPath": {
         "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
         }
       },
       "sizing": {
@@ -997,91 +1074,9 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "TMO",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 710.26,
-        "high": 721.43,
-        "referencePrice": 717.71,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 660.42,
-        "riskPct": 7.98,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 820.09,
-        "rewardPct": 14.27,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 1.79,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
+        "calibrated 21d probability 51.2% < 55%",
+        "validation 21d hit rate 49.4% < 52%",
+        "validation median 21d return -0.42% is not positive"
       ],
       "evidence": [
         "outputs/cache/momentum/price-history.json",
@@ -1093,37 +1088,119 @@
       "symbol": "UNP",
       "state": "BLOCKED",
       "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
+      "cohort": "top5:shallow",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 299.61,
-        "high": 303.36,
-        "referencePrice": 302.11,
+        "low": 301.59,
+        "high": 305.37,
+        "referencePrice": 304.11,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 283.85,
-        "riskPct": 6.04,
+        "price": 284.14,
+        "riskPct": 6.57,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 336.55,
-        "rewardPct": 11.4,
+        "price": 338.73,
+        "rewardPct": 11.39,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 1.89,
+      "rewardRisk": 1.73,
       "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
+        "n": 211,
+        "pPositive21": 0.5117,
+        "pTargetBeforeStop": 0.2113,
         "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
         },
         "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
+        }
+      },
+      "validation": {
+        "n": 85,
+        "pPositive21": 0.4943,
+        "pTargetBeforeStop": 0.1839,
+        "returns5dPct": {
+          "p10": -4.65,
+          "median": 0.6,
+          "p90": 5.25
+        },
+        "returns21dPct": {
+          "p10": -9.49,
+          "median": -0.42,
+          "p90": 14.02
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.96,
+          "median": 0.09,
+          "p90": 4.53
+        },
+        "oneMonthPct": {
+          "p10": -8.7,
+          "median": 0.08,
+          "p90": 10.63
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 51.2% < 55%",
+        "validation 21d hit rate 49.4% < 52%",
+        "validation median 21d return -0.42% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "HST",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 25.22,
+        "high": 25.59,
+        "referencePrice": 25.46,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 23.19,
+        "riskPct": 8.92,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 28.78,
+        "rewardPct": 13.01,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 1.46,
+      "calibration": {
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
+        "returns5dPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "returns21dPct": {
+          "p10": -9.32,
+          "median": -0.49,
           "p90": 9.81
         }
       },
@@ -1145,12 +1222,12 @@
       "projectedPath": {
         "oneWeekPct": {
           "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
+          "median": 0.13,
+          "p90": 4.56
         },
         "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
+          "p10": -9.32,
+          "median": -0.49,
           "p90": 9.81
         }
       },
@@ -1161,9 +1238,421 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
+        "calibrated 21d probability 46.7% < 55%",
         "validation 21d hit rate 48.7% < 52%",
         "validation median 21d return -0.14% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "SJM",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 131.52,
+        "high": 133.47,
+        "referencePrice": 132.82,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 123.48,
+        "riskPct": 7.04,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 150.69,
+        "rewardPct": 13.46,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 1.91,
+      "calibration": {
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
+        "returns5dPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "returns21dPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "validation": {
+        "n": 148,
+        "pPositive21": 0.4867,
+        "pTargetBeforeStop": 0.1667,
+        "returns5dPct": {
+          "p10": -4.84,
+          "median": 0.05,
+          "p90": 4.32
+        },
+        "returns21dPct": {
+          "p10": -9.62,
+          "median": -0.14,
+          "p90": 9.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "oneMonthPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 46.7% < 55%",
+        "validation 21d hit rate 48.7% < 52%",
+        "validation median 21d return -0.14% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "GRMN",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 286.94,
+        "high": 292.16,
+        "referencePrice": 290.42,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 267.06,
+        "riskPct": 8.04,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 338.3,
+        "rewardPct": 16.49,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
+        "returns5dPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "returns21dPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "validation": {
+        "n": 148,
+        "pPositive21": 0.4867,
+        "pTargetBeforeStop": 0.1667,
+        "returns5dPct": {
+          "p10": -4.84,
+          "median": 0.05,
+          "p90": 4.32
+        },
+        "returns21dPct": {
+          "p10": -9.62,
+          "median": -0.14,
+          "p90": 9.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "oneMonthPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 46.7% < 55%",
+        "validation 21d hit rate 48.7% < 52%",
+        "validation median 21d return -0.14% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "GILD",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 167.9,
+        "high": 170.57,
+        "referencePrice": 169.68,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 153.13,
+        "riskPct": 9.75,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 194.13,
+        "rewardPct": 14.41,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 1.48,
+      "calibration": {
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
+        "returns5dPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "returns21dPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "validation": {
+        "n": 148,
+        "pPositive21": 0.4867,
+        "pTargetBeforeStop": 0.1667,
+        "returns5dPct": {
+          "p10": -4.84,
+          "median": 0.05,
+          "p90": 4.32
+        },
+        "returns21dPct": {
+          "p10": -9.62,
+          "median": -0.14,
+          "p90": 9.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "oneMonthPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 46.7% < 55%",
+        "validation 21d hit rate 48.7% < 52%",
+        "validation median 21d return -0.14% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "DE",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 682.92,
+        "high": 690.57,
+        "referencePrice": 688.02,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 653.77,
+        "riskPct": 4.98,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 758.2,
+        "rewardPct": 10.2,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
+        "returns5dPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "returns21dPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "validation": {
+        "n": 148,
+        "pPositive21": 0.4867,
+        "pTargetBeforeStop": 0.1667,
+        "returns5dPct": {
+          "p10": -4.84,
+          "median": 0.05,
+          "p90": 4.32
+        },
+        "returns21dPct": {
+          "p10": -9.62,
+          "median": -0.14,
+          "p90": 9.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "oneMonthPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 46.7% < 55%",
+        "validation 21d hit rate 48.7% < 52%",
+        "validation median 21d return -0.14% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "AMGN",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:shallow",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 465.41,
+        "high": 471.5,
+        "referencePrice": 469.47,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 420.67,
+        "riskPct": 10.39,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 525.24,
+        "rewardPct": 11.88,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 1.14,
+      "calibration": {
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
+        "returns5dPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "returns21dPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "validation": {
+        "n": 148,
+        "pPositive21": 0.4867,
+        "pTargetBeforeStop": 0.1667,
+        "returns5dPct": {
+          "p10": -4.84,
+          "median": 0.05,
+          "p90": 4.32
+        },
+        "returns21dPct": {
+          "p10": -9.62,
+          "median": -0.14,
+          "p90": 9.07
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.83,
+          "median": 0.13,
+          "p90": 4.56
+        },
+        "oneMonthPct": {
+          "p10": -9.32,
+          "median": -0.49,
+          "p90": 9.81
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "calibrated 21d probability 46.7% < 55%",
+        "validation 21d hit rate 48.7% < 52%",
+        "validation median 21d return -0.14% is not positive",
+        "reward/risk 1.14 < 1.25",
+        "invalidation risk 10.4% > 10%"
       ],
       "evidence": [
         "outputs/cache/momentum/price-history.json",
@@ -1176,36 +1665,36 @@
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 422.1,
-        "high": 427.27,
-        "referencePrice": 425.55,
+        "low": 420.16,
+        "high": 425.18,
+        "referencePrice": 423.5,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 384.02,
-        "riskPct": 9.76,
+        "price": 384.93,
+        "riskPct": 9.11,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 472.91,
-        "rewardPct": 11.13,
+        "price": 469.53,
+        "rewardPct": 10.87,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
-      "rewardRisk": 1.14,
+      "rewardRisk": 1.19,
       "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
+        "n": 257,
+        "pPositive21": 0.4672,
+        "pTargetBeforeStop": 0.1815,
         "returns5dPct": {
           "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
+          "median": 0.13,
+          "p90": 4.56
         },
         "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
+          "p10": -9.32,
+          "median": -0.49,
           "p90": 9.81
         }
       },
@@ -1227,12 +1716,12 @@
       "projectedPath": {
         "oneWeekPct": {
           "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
+          "median": 0.13,
+          "p90": 4.56
         },
         "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
+          "p10": -9.32,
+          "median": -0.49,
           "p90": 9.81
         }
       },
@@ -1243,10 +1732,10 @@
         "noAddWithoutConfirmation": true
       },
       "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
+        "calibrated 21d probability 46.7% < 55%",
         "validation 21d hit rate 48.7% < 52%",
         "validation median 21d return -0.14% is not positive",
-        "reward/risk 1.14 < 1.25"
+        "reward/risk 1.19 < 1.25"
       ],
       "evidence": [
         "outputs/cache/momentum/price-history.json",
@@ -1255,517 +1744,25 @@
       ]
     },
     {
-      "symbol": "PFG",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 113.57,
-        "high": 115.25,
-        "referencePrice": 114.69,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 107.17,
-        "riskPct": 6.55,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 130.09,
-        "rewardPct": 13.43,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.05,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "ROST",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 238.53,
-        "high": 242.64,
-        "referencePrice": 241.27,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 222.88,
-        "riskPct": 7.62,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 278.96,
-        "rewardPct": 15.62,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.05,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "IQV",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 271.78,
-        "high": 275.9,
-        "referencePrice": 274.53,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 256.09,
-        "riskPct": 6.72,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 312.33,
-        "rewardPct": 13.77,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.05,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "MO",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 76.71,
-        "high": 77.73,
-        "referencePrice": 77.39,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 70.95,
-        "riskPct": 8.32,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 86.78,
-        "rewardPct": 12.14,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 1.46,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "CSX",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 51.33,
-        "high": 52.18,
-        "referencePrice": 51.9,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 48.08,
-        "riskPct": 7.36,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 59.73,
-        "rewardPct": 15.08,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.05,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "EMR",
-      "state": "BLOCKED",
-      "confidence": "LOW",
-      "cohort": "top10:shallow",
-      "asOf": "2026-11-11",
-      "entry": {
-        "low": 165.36,
-        "high": 167.91,
-        "referencePrice": 167.06,
-        "method": "current price ± realized-volatility buffer"
-      },
-      "invalidation": {
-        "price": 155.65,
-        "riskPct": 6.83,
-        "method": "lower of 50-day mean less 1% or five-day volatility stop"
-      },
-      "target": {
-        "price": 190.45,
-        "rewardPct": 14,
-        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
-      },
-      "rewardRisk": 2.05,
-      "calibration": {
-        "n": 256,
-        "pPositive21": 0.4651,
-        "pTargetBeforeStop": 0.1822,
-        "returns5dPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "returns21dPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "validation": {
-        "n": 148,
-        "pPositive21": 0.4867,
-        "pTargetBeforeStop": 0.1667,
-        "returns5dPct": {
-          "p10": -4.84,
-          "median": 0.05,
-          "p90": 4.32
-        },
-        "returns21dPct": {
-          "p10": -9.62,
-          "median": -0.14,
-          "p90": 9.07
-        }
-      },
-      "projectedPath": {
-        "oneWeekPct": {
-          "p10": -3.83,
-          "median": 0.16,
-          "p90": 4.59
-        },
-        "oneMonthPct": {
-          "p10": -9.34,
-          "median": -0.53,
-          "p90": 9.81
-        }
-      },
-      "sizing": {
-        "action": "WATCH",
-        "maxPortfolioRiskPct": 0.25,
-        "maxPositionPct": 1,
-        "noAddWithoutConfirmation": true
-      },
-      "blockers": [
-        "calibrated 21d probability 46.5% < 55%",
-        "validation 21d hit rate 48.7% < 52%",
-        "validation median 21d return -0.14% is not positive"
-      ],
-      "evidence": [
-        "outputs/cache/momentum/price-history.json",
-        "outputs/momentum/momentum-state.json",
-        "outputs/momentum/momentum-gate.json"
-      ]
-    },
-    {
-      "symbol": "EXPD",
+      "symbol": "WSM",
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top10:medium",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 192.78,
-        "high": 195.49,
-        "referencePrice": 194.59,
+        "low": 248.7,
+        "high": 253.88,
+        "referencePrice": 252.16,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 182.47,
-        "riskPct": 6.23,
+        "price": 228.96,
+        "riskPct": 9.2,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 219.42,
-        "rewardPct": 12.76,
+        "price": 299.69,
+        "rewardPct": 18.85,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
@@ -1832,21 +1829,21 @@
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top10:medium",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 69.21,
-        "high": 71.11,
-        "referencePrice": 70.48,
+        "low": 68.72,
+        "high": 70.61,
+        "referencePrice": 69.98,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 61.98,
-        "riskPct": 12.06,
+        "price": 61.53,
+        "riskPct": 12.07,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 87.91,
-        "rewardPct": 24.73,
+        "price": 87.29,
+        "rewardPct": 24.74,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
@@ -1910,25 +1907,268 @@
       ]
     },
     {
+      "symbol": "ROST",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:medium",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 234.6,
+        "high": 238.65,
+        "referencePrice": 237.3,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 219.18,
+        "riskPct": 7.64,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 274.44,
+        "rewardPct": 15.65,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 136,
+        "pPositive21": 0.558,
+        "pTargetBeforeStop": 0.1812,
+        "returns5dPct": {
+          "p10": -3.53,
+          "median": 0.9,
+          "p90": 6.47
+        },
+        "returns21dPct": {
+          "p10": -9.66,
+          "median": 2.04,
+          "p90": 15.43
+        }
+      },
+      "validation": {
+        "n": 109,
+        "pPositive21": 0.4595,
+        "pTargetBeforeStop": 0.1351,
+        "returns5dPct": {
+          "p10": -7.42,
+          "median": -0.32,
+          "p90": 4.03
+        },
+        "returns21dPct": {
+          "p10": -10.75,
+          "median": -1.56,
+          "p90": 9.27
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.53,
+          "median": 0.9,
+          "p90": 6.47
+        },
+        "oneMonthPct": {
+          "p10": -9.66,
+          "median": 2.04,
+          "p90": 15.43
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "validation 21d hit rate 46% < 52%",
+        "validation median 21d return -1.56% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "CVX",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:medium",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 215.7,
+        "high": 218.55,
+        "referencePrice": 217.6,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 204.83,
+        "riskPct": 5.87,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 243.77,
+        "rewardPct": 12.03,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 136,
+        "pPositive21": 0.558,
+        "pTargetBeforeStop": 0.1812,
+        "returns5dPct": {
+          "p10": -3.53,
+          "median": 0.9,
+          "p90": 6.47
+        },
+        "returns21dPct": {
+          "p10": -9.66,
+          "median": 2.04,
+          "p90": 15.43
+        }
+      },
+      "validation": {
+        "n": 109,
+        "pPositive21": 0.4595,
+        "pTargetBeforeStop": 0.1351,
+        "returns5dPct": {
+          "p10": -7.42,
+          "median": -0.32,
+          "p90": 4.03
+        },
+        "returns21dPct": {
+          "p10": -10.75,
+          "median": -1.56,
+          "p90": 9.27
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.53,
+          "median": 0.9,
+          "p90": 6.47
+        },
+        "oneMonthPct": {
+          "p10": -9.66,
+          "median": 2.04,
+          "p90": 15.43
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "validation 21d hit rate 46% < 52%",
+        "validation median 21d return -1.56% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
       "symbol": "EOG",
       "state": "BLOCKED",
       "confidence": "LOW",
       "cohort": "top10:medium",
-      "asOf": "2026-11-11",
+      "asOf": "2026-11-12",
       "entry": {
-        "low": 151.99,
-        "high": 154.66,
-        "referencePrice": 153.77,
+        "low": 154.95,
+        "high": 157.7,
+        "referencePrice": 156.78,
         "method": "current price ± realized-volatility buffer"
       },
       "invalidation": {
-        "price": 141.84,
-        "riskPct": 7.76,
+        "price": 144.49,
+        "riskPct": 7.84,
         "method": "lower of 50-day mean less 1% or five-day volatility stop"
       },
       "target": {
-        "price": 178.22,
-        "rewardPct": 15.9,
+        "price": 181.97,
+        "rewardPct": 16.07,
+        "method": "higher of 20-day high or 1.5x expected 21-day volatility"
+      },
+      "rewardRisk": 2.05,
+      "calibration": {
+        "n": 136,
+        "pPositive21": 0.558,
+        "pTargetBeforeStop": 0.1812,
+        "returns5dPct": {
+          "p10": -3.53,
+          "median": 0.9,
+          "p90": 6.47
+        },
+        "returns21dPct": {
+          "p10": -9.66,
+          "median": 2.04,
+          "p90": 15.43
+        }
+      },
+      "validation": {
+        "n": 109,
+        "pPositive21": 0.4595,
+        "pTargetBeforeStop": 0.1351,
+        "returns5dPct": {
+          "p10": -7.42,
+          "median": -0.32,
+          "p90": 4.03
+        },
+        "returns21dPct": {
+          "p10": -10.75,
+          "median": -1.56,
+          "p90": 9.27
+        }
+      },
+      "projectedPath": {
+        "oneWeekPct": {
+          "p10": -3.53,
+          "median": 0.9,
+          "p90": 6.47
+        },
+        "oneMonthPct": {
+          "p10": -9.66,
+          "median": 2.04,
+          "p90": 15.43
+        }
+      },
+      "sizing": {
+        "action": "WATCH",
+        "maxPortfolioRiskPct": 0.25,
+        "maxPositionPct": 1,
+        "noAddWithoutConfirmation": true
+      },
+      "blockers": [
+        "validation 21d hit rate 46% < 52%",
+        "validation median 21d return -1.56% is not positive"
+      ],
+      "evidence": [
+        "outputs/cache/momentum/price-history.json",
+        "outputs/momentum/momentum-state.json",
+        "outputs/momentum/momentum-gate.json"
+      ]
+    },
+    {
+      "symbol": "PFG",
+      "state": "BLOCKED",
+      "confidence": "LOW",
+      "cohort": "top10:medium",
+      "asOf": "2026-11-12",
+      "entry": {
+        "low": 112.25,
+        "high": 113.92,
+        "referencePrice": 113.36,
+        "method": "current price ± realized-volatility buffer"
+      },
+      "invalidation": {
+        "price": 105.91,
+        "riskPct": 6.57,
+        "method": "lower of 50-day mean less 1% or five-day volatility stop"
+      },
+      "target": {
+        "price": 128.62,
+        "rewardPct": 13.46,
         "method": "higher of 20-day high or 1.5x expected 21-day volatility"
       },
       "rewardRisk": 2.05,
@@ -1992,10 +2232,10 @@
     }
   ],
   "ledgerScorecard": {
-    "total": 105,
-    "pending": 69,
-    "scored": 36,
-    "positive21HitRate": 0.8056,
-    "targetBeforeStopRate": 0.5
+    "total": 107,
+    "pending": 68,
+    "scored": 39,
+    "positive21HitRate": 0.7949,
+    "targetBeforeStopRate": 0.4872
   }
 }

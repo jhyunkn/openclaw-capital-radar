@@ -160,7 +160,28 @@ const totalDayChange = round(positions.reduce((sum, pos) => sum + (pos.dayChange
 // portfolio base nor the equity base (Batch 2 A6). portfolio.totalValue is
 // the broker-synced total; the fallback mirrors state.portfolio.totalValue.
 const portfolio = rh.portfolio || {};
-const portfolioTotalValue = round(portfolio.totalValue ?? (totalCurrentValue + Number(portfolio.cash || 0) + Number(portfolio.cryptoValue || 0)), 2);
+const displayEquityValue = round(portfolio.equityValue ?? totalCurrentValue, 2);
+const displayCryptoValue = round(portfolio.cryptoValue, 2);
+const displayCashValue = round(portfolio.cash, 2);
+const displayComponentsSum = round(
+  displayEquityValue +
+  (Number.isFinite(displayCryptoValue) ? displayCryptoValue : 0) +
+  (Number.isFinite(displayCashValue) ? displayCashValue : 0), 2);
+const brokerTotalValue = Number(portfolio.totalValue);
+const brokerTotalDiscrepancy = Number.isFinite(brokerTotalValue)
+  ? round(brokerTotalValue - displayComponentsSum, 2)
+  : null;
+if (brokerTotalDiscrepancy != null && Math.abs(brokerTotalDiscrepancy) > 1) {
+  console.warn(`WARN broker portfolio total disagrees with its components by $${brokerTotalDiscrepancy.toFixed(2)} (total $${brokerTotalValue.toFixed(2)} vs equity+crypto+cash $${displayComponentsSum.toFixed(2)}); displaying the components sum.`);
+}
+// The broker snapshot's own total must equal its components. When it does
+// not (the 2026-11-13 sync read totalValue $730 above equity+crypto+cash),
+// the displayed total is the sum of the displayed components so the account
+// strip can never print a self-contradictory total. The broker total and
+// the discrepancy are recorded, not discarded.
+const portfolioTotalValue = (brokerTotalDiscrepancy != null && Math.abs(brokerTotalDiscrepancy) > 1)
+  ? displayComponentsSum
+  : round(brokerTotalValue ?? (totalCurrentValue + Number(portfolio.cash || 0) + Number(portfolio.cryptoValue || 0)), 2);
 const totalDayChangePct = portfolioTotalValue ? round((totalDayChange / (portfolioTotalValue - totalDayChange)) * 100, 2) : null;
 
 const actionRank = { exit: 0, trim: 1, investigate: 2, watch: 3, hold: 4 };
@@ -198,11 +219,13 @@ const state = {
   },
   portfolio: {
     totalValue: portfolioTotalValue,
-    equityValue: round(portfolio.equityValue ?? totalCurrentValue, 2),
-    cryptoValue: round(portfolio.cryptoValue, 2),
-    cash: round(portfolio.cash, 2),
+    equityValue: displayEquityValue,
+    cryptoValue: displayCryptoValue,
+    cash: displayCashValue,
     buyingPower: round(portfolio.buyingPower ?? portfolio.cash, 2),
     positionCount: positions.length,
+    brokerTotalValue: Number.isFinite(brokerTotalValue) ? round(brokerTotalValue, 2) : null,
+    brokerTotalDiscrepancy,
   },
   positions,
   summary: {

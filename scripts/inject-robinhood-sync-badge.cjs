@@ -11,6 +11,16 @@ if (!fs.existsSync(rhPath))    { console.log('inject-robinhood-sync-badge: robin
 
 const rh        = JSON.parse(fs.readFileSync(rhPath, 'utf8'));
 const syncedAt  = new Date(rh.syncedAt);
+// Displayed portfolio figures come from the reconciled generated state
+// (outputs/portfolio-live-state.json), not the raw broker snapshot: the
+// generator reconciles the broker total against its components, so the
+// strip can never print a self-contradictory total (the 2026-11-13 sync
+// read totalValue $730 above equity+crypto+cash). The snapshot remains
+// the audit record for sync time and position count.
+const liveStatePath = path.join(root, 'outputs', 'portfolio-live-state.json');
+let generatedPortfolio = null;
+try { generatedPortfolio = JSON.parse(fs.readFileSync(liveStatePath, 'utf8')).portfolio || null; } catch { /* fall through to raw snapshot */ }
+if (!generatedPortfolio) console.warn('inject-robinhood-sync-badge: portfolio-live-state.json missing — falling back to raw broker portfolio figures.');
 const ageHours  = (Date.now() - syncedAt.getTime()) / 3_600_000;
 const syncLabel = syncedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 // Price basis: the "Synced" line must state the sync time in ET and whether
@@ -24,7 +34,7 @@ const isStale   = ageHours > 48;
 const dotColor  = isStale ? '#f59e0b' : '#22c55e';
 const statusLabel = isStale ? `Stale (${Math.round(ageHours)}h ago)` : `Live · ${syncLabel}`;
 
-const p   = rh.portfolio || {};
+const p   = generatedPortfolio || rh.portfolio || {};
 const fmt = (v) => v != null ? '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '—';
 const posCount = (rh.positions || []).length;
 

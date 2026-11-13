@@ -1,12 +1,23 @@
 {
   "syncedAt": "2026-11-13T22:49:32.578Z",
-  "source": "Robinhood MCP live sync (OpenClaw session, read-only; broker positions, cost basis, cash, buying power, and Nov 13 regular-session last trades)",
+  "source": "Robinhood MCP live sync (OpenClaw session, read-only; broker positions, option positions, cost basis, cash, buying power, and Nov 13 regular-session closing prices)",
   "portfolio": {
-    "totalValue": 87480.26287218245,
-    "equityValue": 82455.8223408012,
-    "cryptoValue": 1140.79053138125,
+    "totalValue": 88069.46,
+    "equityValue": 83045.81,
+    "optionsValue": 730.0,
+    "cryptoValue": 1140.0,
     "cash": 3153.65,
-    "buyingPower": 3153.65
+    "buyingPower": 3153.65,
+    "valuationBasis": "All components priced at the 2026-11-13 regular-session close (equities: last regular-session trade; option: closing mark; DOGE: live mark at sync). totalValue = equityValue + optionsValue + cryptoValue + cash.",
+    "brokerReportedLive": {
+      "asOf": "2026-11-13T22:49:32Z",
+      "totalValue": 87480.26,
+      "equityValue": 82455.82,
+      "optionsValue": 730.0,
+      "cryptoValue": 1140.79,
+      "cash": 3153.65,
+      "note": "Robinhood get_portfolio at sync time; equity marked at after-hours prices, so it differs from the close-basis totals above."
+    }
   },
   "positions": [
     {"symbol":"AMZN","quantity":"33.307916","avgCostPrice":"170.380000","costBasis":5675,"livePrice":266.61,"currentValue":8880.22,"priceAsOf":"2026-11-13T21:00:00.000Z","priceStale":false,"priceBasis":"Robinhood 2026-11-13 regular-session last trade (official close not yet published)"},
@@ -22,5 +33,8 @@
     {"symbol":"VST","quantity":"18.041193","avgCostPrice":"150.070000","costBasis":2707.44,"livePrice":132.98,"currentValue":2399.12,"priceAsOf":"2026-11-13T21:00:00.000Z","priceStale":false,"priceBasis":"Robinhood 2026-11-13 regular-session last trade (official close not yet published)"},
     {"symbol":"UBER","quantity":"40.000000","avgCostPrice":"70.660000","costBasis":2826.4,"livePrice":69.665,"currentValue":2786.6,"priceAsOf":"2026-11-13T21:00:00.000Z","priceStale":false,"priceBasis":"Robinhood 2026-11-13 regular-session last trade (official close not yet published)","sharesHeldForSells":"40.000000","note":"all 40 shares held for a pending sell order at sync time"},
     {"symbol":"VRT","quantity":"24.002254","avgCostPrice":"240.180000","costBasis":5764.86,"livePrice":202.0375,"currentValue":4849.36,"priceAsOf":"2026-11-13T21:00:00.000Z","priceStale":false,"priceBasis":"Robinhood 2026-11-13 regular-session last trade (official close not yet published)"}
+  ],
+  "optionPositions": [
+    {"symbol":"NVDX","underlying":"NVDX","optionType":"call","strike":12.0,"expiration":"2026-12-18","side":"long","contracts":10,"multiplier":100,"avgPricePerShare":0.95,"costBasis":950.0,"markPrice":0.73,"currentValue":730.0,"unrealizedGain":-220.0,"unrealizedPct":-23.16,"openedAt":"2026-11-13T13:51:57Z","priceAsOf":"2026-11-13T20:59:59Z","priceBasis":"Robinhood adjusted closing mark (bid 0.65 / ask 0.80)","note":"Kept out of positions[] so share-based holdings math does not misread contracts as shares."}
   ]
 }

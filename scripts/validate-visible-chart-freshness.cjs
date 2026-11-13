@@ -21,6 +21,19 @@ function ageHours(timestamp) {
   return (Date.now() - date.getTime()) / 3_600_000;
 }
 
+// Holdings freshness follows the mandate's own positions policy
+// (config/mandates.json core freshness.positionsMaxMinutes, default 4320min = 72h),
+// the same cap validate-operational-sections.cjs enforces for Robinhood raw
+// freshness. A hardcoded 24h here disagreed with that policy and froze the
+// site every time a broker sync was more than a day old, even though the
+// mandate still treats the snapshot as usable. Data-health still flags
+// holdings stale past 24h, so the age stays visible; this only stops the
+// chart check from blocking the deploy inside the mandate's own window.
+const mandateConfig = readJson('config/mandates.json') || { mandates: [] };
+const holdingsMaxHours = Number(
+  mandateConfig.mandates?.find(row => row.id === 'core')?.freshness?.positionsMaxMinutes || 4320
+) / 60;
+
 function check(label, rel, pathExpr, maxHours) {
   const obj = readJson(rel);
   const timestamp = get(obj, pathExpr);
@@ -50,7 +63,7 @@ const checks = [
   // Generated wrapper timestamps are not evidence freshness. These checks follow
   // the source timestamps that the visible decision surface actually depends on.
   check('Live report source', 'data/report-state.live.json', 'meta.generatedAt', 24),
-  check('Holdings source', 'data/report-state.live.json', 'meta.holdingsSyncedAt', 24),
+  check('Holdings source', 'data/report-state.live.json', 'meta.holdingsSyncedAt', holdingsMaxHours),
   check('Narrative vs reality source', 'outputs/narrative-reality-brief.json', 'generatedAt', 72),
   check('Current market state', 'outputs/current-market-state.json', 'asOf', 24),
   check('Macro configuration', 'outputs/macro-configuration-state.json', 'generatedAt', 24),

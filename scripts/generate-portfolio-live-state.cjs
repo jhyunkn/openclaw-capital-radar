@@ -161,10 +161,12 @@ const totalDayChange = round(positions.reduce((sum, pos) => sum + (pos.dayChange
 // the broker-synced total; the fallback mirrors state.portfolio.totalValue.
 const portfolio = rh.portfolio || {};
 const displayEquityValue = round(portfolio.equityValue ?? totalCurrentValue, 2);
+const displayOptionsValue = round(portfolio.optionsValue, 2);
 const displayCryptoValue = round(portfolio.cryptoValue, 2);
 const displayCashValue = round(portfolio.cash, 2);
 const displayComponentsSum = round(
   displayEquityValue +
+  (Number.isFinite(displayOptionsValue) ? displayOptionsValue : 0) +
   (Number.isFinite(displayCryptoValue) ? displayCryptoValue : 0) +
   (Number.isFinite(displayCashValue) ? displayCashValue : 0), 2);
 const brokerTotalValue = Number(portfolio.totalValue);
@@ -172,7 +174,7 @@ const brokerTotalDiscrepancy = Number.isFinite(brokerTotalValue)
   ? round(brokerTotalValue - displayComponentsSum, 2)
   : null;
 if (brokerTotalDiscrepancy != null && Math.abs(brokerTotalDiscrepancy) > 1) {
-  console.warn(`WARN broker portfolio total disagrees with its components by $${brokerTotalDiscrepancy.toFixed(2)} (total $${brokerTotalValue.toFixed(2)} vs equity+crypto+cash $${displayComponentsSum.toFixed(2)}); displaying the components sum.`);
+  console.warn(`WARN broker portfolio total disagrees with its components by $${brokerTotalDiscrepancy.toFixed(2)} (total $${brokerTotalValue.toFixed(2)} vs equity+options+crypto+cash $${displayComponentsSum.toFixed(2)}); displaying the components sum.`);
 }
 // The broker snapshot's own total must equal its components. When it does
 // not (the 2026-11-13 sync read totalValue $730 above equity+crypto+cash),
@@ -220,6 +222,7 @@ const state = {
   portfolio: {
     totalValue: portfolioTotalValue,
     equityValue: displayEquityValue,
+    optionsValue: Number.isFinite(displayOptionsValue) ? displayOptionsValue : null,
     cryptoValue: displayCryptoValue,
     cash: displayCashValue,
     buyingPower: round(portfolio.buyingPower ?? portfolio.cash, 2),

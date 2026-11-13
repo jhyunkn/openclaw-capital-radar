@@ -58,7 +58,7 @@ const strip = `<div class="rh-sync-strip">
   <div class="rh-sync-stats">
     <span class="rh-stat"><b>${fmt(p.totalValue)}</b><small>Portfolio</small></span>
     <span class="rh-stat"><b>${fmt(p.equityValue)}</b><small>Equity</small></span>
-    <span class="rh-stat"><b>${fmt(p.cryptoValue)}</b><small>Crypto</small></span>
+${Number(p.optionsValue) ? `    <span class="rh-stat"><b>${fmt(p.optionsValue)}</b><small>Options</small></span>\n` : ''}    <span class="rh-stat"><b>${fmt(p.cryptoValue)}</b><small>Crypto</small></span>
     <span class="rh-stat"><b>${fmt(p.cash)}</b><small>Cash</small></span>
     <span class="rh-stat"><b>${posCount}</b><small>Positions</small></span>
   </div>

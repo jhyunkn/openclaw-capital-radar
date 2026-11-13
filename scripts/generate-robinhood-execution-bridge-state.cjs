@@ -98,6 +98,7 @@ const state = {
   portfolio: {
     totalValue: round(portfolio.totalValue, 2),
     equityValue: round(portfolio.equityValue, 2),
+    optionsValue: round(portfolio.optionsValue, 2),
     cryptoValue: round(portfolio.cryptoValue, 2),
     cash: round(portfolio.cash, 2),
     buyingPower: round(portfolio.buyingPower, 2),

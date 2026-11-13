@@ -188,7 +188,7 @@ for (const file of candidates) {
   }
 
   // ── (f) Account strip: printed components must sum to printed total ──
-  const statRe = /rh-stat"><b>\$([\d,]+)<\/b><small>(Portfolio|Equity|Crypto|Cash)<\/small>/g;
+  const statRe = /rh-stat"><b>\$([\d,]+)<\/b><small>(Portfolio|Equity|Options|Crypto|Cash)<\/small>/g;
   const stats = {};
   for (const m of html.matchAll(statRe)) stats[m[2]] = Number(m[1].replace(/,/g, ''));
   if (stats.Portfolio != null) {
@@ -198,9 +198,13 @@ for (const file of candidates) {
       check(`${rel} · account reconciliation`, false,
         `Portfolio $${stats.Portfolio.toLocaleString('en-US')} printed without component(s): ${missing.join(', ')} — components must be printed and sum to the total`);
     } else {
-      const sum = parts.reduce((s, k) => s + stats[k], 0);
-      check(`${rel} · account reconciliation`, Math.abs(stats.Portfolio - sum) <= 1,
-        `Portfolio $${stats.Portfolio.toLocaleString('en-US')} vs Equity $${stats.Equity.toLocaleString('en-US')} + Crypto $${stats.Crypto.toLocaleString('en-US')} + Cash $${stats.Cash.toLocaleString('en-US')} = $${sum.toLocaleString('en-US')} (tolerance ±$1)`);
+      // Options is optional: printed only when the account holds options.
+      const sum = parts.reduce((s, k) => s + stats[k], 0) + (stats.Options || 0);
+      const optionsTerm = stats.Options != null ? ` + Options $${stats.Options.toLocaleString('en-US')}` : '';
+      // Each printed stat is rounded to whole dollars; allow up to $1 of rounding drift per added component.
+      const tolerance = Math.max(1, parts.length - 1 + (stats.Options != null ? 1 : 0));
+      check(`${rel} · account reconciliation`, Math.abs(stats.Portfolio - sum) <= tolerance,
+        `Portfolio $${stats.Portfolio.toLocaleString('en-US')} vs Equity $${stats.Equity.toLocaleString('en-US')}${optionsTerm} + Crypto $${stats.Crypto.toLocaleString('en-US')} + Cash $${stats.Cash.toLocaleString('en-US')} = $${sum.toLocaleString('en-US')} (tolerance ±$${tolerance})`);
     }
   } else {
     console.log(`SKIP ${rel} · account reconciliation — Robinhood sync strip not found`);

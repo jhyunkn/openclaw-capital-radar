@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T19:13:38.388Z",
+  "generatedAt": "2026-11-15T13:49:47.887Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -7,10 +7,10 @@
       "id": "core",
       "label": "Core portfolio",
       "description": "Longer-horizon portfolio oversight, concentration control, thesis verification, and measured exposure changes.",
-      "state": "READY_REVIEW",
+      "state": "PAUSED_STALE",
       "actionAllowed": false,
-      "permission": "HUMAN_REVIEW_REQUIRED",
-      "reason": "Evidence is current enough for human review; Capital Radar does not authorize execution.",
+      "permission": "NO_ACTION",
+      "reason": "1 required dependency blocker(s).",
       "dependencies": [
         {
           "id": "positions",
@@ -18,7 +18,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-11-13T22:49:32.578Z",
-          "ageMinutes": 1224.1,
+          "ageMinutes": 2340.3,
           "maxMinutes": 4320,
           "source": "portfolio-live-state.BROKER_SYNC",
           "reason": null
@@ -38,26 +38,32 @@
           "id": "data_health",
           "label": "Data health",
           "required": true,
-          "status": "OK",
-          "asOf": "2026-11-14T19:13:24.201Z",
-          "ageMinutes": 0.2,
+          "status": "INVALID",
+          "asOf": "2026-11-15T13:49:30.354Z",
+          "ageMinutes": 0.3,
           "maxMinutes": 1440,
           "source": "data-health",
-          "reason": null
+          "reason": "Data health reports STALE."
         },
         {
           "id": "calendar",
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-14",
-          "ageMinutes": 1153.6,
+          "asOf": "2026-11-15",
+          "ageMinutes": 829.8,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
         }
       ],
-      "blockers": [],
+      "blockers": [
+        {
+          "id": "data_health",
+          "status": "INVALID",
+          "reason": "Data health reports STALE."
+        }
+      ],
       "portfolio": {
         "totalValue": 88069.46,
         "buyingPower": 3153.65,
@@ -133,20 +139,20 @@
           "id": "data_health",
           "label": "Market data health",
           "required": true,
-          "status": "OK",
-          "asOf": "2026-11-14T19:13:24.201Z",
-          "ageMinutes": 0.2,
+          "status": "INVALID",
+          "asOf": "2026-11-15T13:49:30.354Z",
+          "ageMinutes": 0.3,
           "maxMinutes": 15,
           "source": "data-health",
-          "reason": null
+          "reason": "Data health reports STALE."
         },
         {
           "id": "calendar",
           "label": "Market calendar",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-14",
-          "ageMinutes": 1153.6,
+          "asOf": "2026-11-15",
+          "ageMinutes": 829.8,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -177,6 +183,11 @@
           "id": "gate_observations",
           "status": "MISSING",
           "reason": "No timestamped gate observation set is available."
+        },
+        {
+          "id": "data_health",
+          "status": "INVALID",
+          "reason": "Data health reports STALE."
         }
       ],
       "riskPolicy": {
@@ -262,9 +273,9 @@
     }
   ],
   "summary": {
-    "readyForReview": 1,
+    "readyForReview": 0,
     "armed": 0,
-    "paused": 0,
+    "paused": 1,
     "executionAuthorized": 0
   }
 }

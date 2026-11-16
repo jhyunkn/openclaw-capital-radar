@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T22:02:03.664Z",
+  "generatedAt": "2026-11-16T23:06:45.537Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -10,40 +10,40 @@
       "state": "PAUSED_STALE",
       "actionAllowed": false,
       "permission": "NO_ACTION",
-      "reason": "2 required dependency blocker(s).",
+      "reason": "1 required dependency blocker(s).",
       "dependencies": [
         {
           "id": "positions",
           "label": "Positions",
           "required": true,
-          "status": "OK",
+          "status": "STALE",
           "asOf": "2026-11-13T22:49:32.578Z",
-          "ageMinutes": 4272.5,
+          "ageMinutes": 4337.2,
           "maxMinutes": 4320,
           "source": "portfolio-live-state.BROKER_SYNC",
-          "reason": null
+          "reason": "Positions is 4337 minutes old; maximum is 4320."
         },
         {
           "id": "quotes",
           "label": "Holding prices",
           "required": true,
-          "status": "STALE",
-          "asOf": "2026-11-13T22:49:32.578Z",
-          "ageMinutes": 4210.5,
+          "status": "OK",
+          "asOf": "2026-11-16T22:10:11.000Z",
+          "ageMinutes": 0,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
-          "reason": "Holding prices is 4210 minutes old; maximum is 1440."
+          "reason": null
         },
         {
           "id": "data_health",
           "label": "Data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-11-16T22:02:02.681Z",
+          "status": "OK",
+          "asOf": "2026-11-16T23:06:43.836Z",
           "ageMinutes": 0,
           "maxMinutes": 1440,
           "source": "data-health",
-          "reason": "Data health reports STALE."
+          "reason": null
         },
         {
           "id": "calendar",
@@ -51,7 +51,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-11-16",
-          "ageMinutes": 1322.1,
+          "ageMinutes": 1386.8,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -59,21 +59,16 @@
       ],
       "blockers": [
         {
-          "id": "quotes",
+          "id": "positions",
           "status": "STALE",
-          "reason": "Holding prices is 4210 minutes old; maximum is 1440."
-        },
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports STALE."
+          "reason": "Positions is 4337 minutes old; maximum is 4320."
         }
       ],
       "portfolio": {
         "totalValue": 88069.46,
         "buyingPower": 3153.65,
         "positionCount": 13,
-        "dayChange": -2565.95
+        "dayChange": -2373.47
       }
     },
     {
@@ -144,12 +139,12 @@
           "id": "data_health",
           "label": "Market data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-11-16T22:02:02.681Z",
+          "status": "OK",
+          "asOf": "2026-11-16T23:06:43.836Z",
           "ageMinutes": 0,
           "maxMinutes": 15,
           "source": "data-health",
-          "reason": "Data health reports STALE."
+          "reason": null
         },
         {
           "id": "calendar",
@@ -157,7 +152,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-11-16",
-          "ageMinutes": 1322.1,
+          "ageMinutes": 1386.8,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -188,11 +183,6 @@
           "id": "gate_observations",
           "status": "MISSING",
           "reason": "No timestamped gate observation set is available."
-        },
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports STALE."
         }
       ],
       "riskPolicy": {

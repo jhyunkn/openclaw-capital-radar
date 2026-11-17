@@ -1,17 +1,17 @@
 {
   "artifact": "dollar-stress-state",
   "version": 1,
-  "generatedAt": "2026-11-17T19:14:00.586Z",
+  "generatedAt": "2026-11-17T20:52:41.973Z",
   "generatedBy": "scripts/generate-dollar-stress-state.cjs",
   "anchorDate": "2026-11-17",
   "coverage": "FULL",
   "partial": false,
   "staleInputs": [],
   "verdict": "NORMAL_RISK_OFF",
-  "verdictLabel": "Equity stress — dollar bid not confirmed",
-  "dollarHaven": "NOT_CONFIRMED",
-  "implication": "Equities are selling off but the dollar is not bid and yields are not rising — this is equity stress first, not a dollar-liquidity event and not a Sell-America pattern.",
-  "whatWouldChange": "A dollar bid (DXY 5d >= +0.3%) confirms NORMAL_RISK_OFF; a falling dollar with yields up >= +10bp flips it to SELL_AMERICA_STRESS.",
+  "verdictLabel": "Normal risk-off — haven bid working",
+  "dollarHaven": "WORKING",
+  "implication": "Equities down with a dollar bid, but Treasury yields have not confirmed (no yield decline). Haven is working on the FX leg only — size accordingly.",
+  "whatWouldChange": "Escalates to DOLLAR_LIQUIDITY_STRESS on a DXY 5d spike >= +2.0%, VIX >= 35, or HY OAS widening >= +50bp in 5d. Flips to SELL_AMERICA_STRESS if the dollar starts falling while yields rise into equity weakness.",
   "thresholds": {
     "spyDown5": -1,
     "spyDown20": -3,
@@ -24,18 +24,18 @@
   },
   "inputs": {
     "dxy": {
-      "level": 103.435,
+      "level": 103.492,
       "asOf": "2026-11-17",
-      "change5dPct": 0.257,
-      "change20dPct": 1.218,
+      "change5dPct": 0.312,
+      "change20dPct": 1.274,
       "window5d": {
         "fromDate": "2026-11-12",
         "fromValue": 103.17,
         "toDate": "2026-11-17",
-        "toValue": 103.435,
-        "pctChange": 0.257,
-        "delta": 0.265,
-        "deltaBp": 26.5,
+        "toValue": 103.492,
+        "pctChange": 0.312,
+        "delta": 0.322,
+        "deltaBp": 32.2,
         "spanDays": 5,
         "windowDays": 5
       },
@@ -43,27 +43,27 @@
         "fromDate": "2026-10-28",
         "fromValue": 102.19,
         "toDate": "2026-11-17",
-        "toValue": 103.435,
-        "pctChange": 1.218,
-        "delta": 1.245,
-        "deltaBp": 124.5,
+        "toValue": 103.492,
+        "pctChange": 1.274,
+        "delta": 1.302,
+        "deltaBp": 130.2,
         "spanDays": 20,
         "windowDays": 20
       }
     },
     "spy": {
-      "level": 730.81,
+      "level": 730.69,
       "asOf": "2026-11-17",
-      "change5dPct": -3.475,
-      "change20dPct": -5.373,
+      "change5dPct": -3.491,
+      "change20dPct": -5.389,
       "window5d": {
         "fromDate": "2026-11-12",
         "fromValue": 757.12,
         "toDate": "2026-11-17",
-        "toValue": 730.81,
-        "pctChange": -3.475,
-        "delta": -26.31,
-        "deltaBp": -2631,
+        "toValue": 730.69,
+        "pctChange": -3.491,
+        "delta": -26.43,
+        "deltaBp": -2643,
         "spanDays": 5,
         "windowDays": 5
       },
@@ -71,26 +71,26 @@
         "fromDate": "2026-10-28",
         "fromValue": 772.31,
         "toDate": "2026-11-17",
-        "toValue": 730.81,
-        "pctChange": -5.373,
-        "delta": -41.5,
-        "deltaBp": -4150,
+        "toValue": 730.69,
+        "pctChange": -5.389,
+        "delta": -41.62,
+        "deltaBp": -4162,
         "spanDays": 20,
         "windowDays": 20
       }
     },
     "vix": {
-      "level": 25.76,
+      "level": 26.42,
       "asOf": "2026-11-17",
-      "change5dDelta": 7.06,
+      "change5dDelta": 7.72,
       "window5d": {
         "fromDate": "2026-11-12",
         "fromValue": 18.7,
         "toDate": "2026-11-17",
-        "toValue": 25.76,
-        "pctChange": 37.754,
-        "delta": 7.06,
-        "deltaBp": 706,
+        "toValue": 26.42,
+        "pctChange": 41.283,
+        "delta": 7.72,
+        "deltaBp": 772,
         "spanDays": 5,
         "windowDays": 5
       }
@@ -156,9 +156,9 @@
       }
     },
     "gold": {
-      "level": 3859,
+      "level": 3855.1,
       "asOf": "2026-11-17",
-      "change5dPct": -0.677
+      "change5dPct": -0.777
     }
   },
   "rules": [

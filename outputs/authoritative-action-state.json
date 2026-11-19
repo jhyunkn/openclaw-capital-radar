@@ -1,15 +1,17 @@
 {
-  "generatedAt": "2026-11-19T20:32:55.845Z",
+  "generatedAt": "2026-11-19T21:49:11.642Z",
   "layer": "authoritative-action-state",
   "policy": "All modules must obey this action state. Buy/trim/exit terms may remain visible as signal language, but execution permission is separate. Price zones are review zones only; verification, stale data, thesis gaps, risk budget, trim, and exit states override add proximity. Exit strategy must minimize loss intelligently rather than act as a dumb forced sell.",
   "summary": {
     "total": 13,
     "immediate": [],
     "lossControl": [
+      "META",
       "TSLT",
       "TQQQ",
       "CONL",
-      "DOGE"
+      "DOGE",
+      "VRT"
     ],
     "blocked": [
       "AMZN",
@@ -54,33 +56,33 @@
       },
       "levels": {
         "addZone": {
-          "low": 235.25,
-          "high": 249.75,
+          "low": 234.24,
+          "high": 247.76,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 280.64,
-          "high": 318.36,
+          "low": 278.61,
+          "high": 316.39,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 222,
-        "hardExit": 212,
+        "stopReview": 220,
+        "hardExit": 210,
         "volatility": {
-          "addPrice": 250.89,
-          "addPct": -2.71,
-          "trimPrice": 299.68,
-          "trimPct": 16.2,
-          "riskReviewPrice": 224.28,
-          "riskReviewPct": -13.03,
+          "addPrice": 250.86,
+          "addPct": -2.73,
+          "trimPrice": 299.84,
+          "trimPct": 16.27,
+          "riskReviewPrice": 224.15,
+          "riskReviewPct": -13.08,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "standard_equity"
         },
         "nearestBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 250.89,
-          "thresholdPct": -2.71,
+          "value": 250.86,
+          "thresholdPct": -2.73,
           "tone": "positive",
-          "distancePct": -2.7143355694288265,
+          "distancePct": -2.7259684361549392,
           "source": "signalThresholds"
         }
       },
@@ -88,49 +90,49 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 318.36,
+          "price": 316.39,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 280.64,
+          "price": 278.61,
           "role": "trim",
-          "pctOfRange": 65
+          "pctOfRange": 64
         },
         {
           "key": "current",
           "label": "Current price",
           "price": 257.89,
           "role": "caution",
-          "pctOfRange": 43
+          "pctOfRange": 45
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 249.75,
+          "price": 247.76,
           "role": "add",
           "pctOfRange": 35
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 235.25,
+          "price": 234.24,
           "role": "add",
-          "pctOfRange": 22
+          "pctOfRange": 23
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 222,
+          "price": 220,
           "role": "risk",
           "pctOfRange": 9
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 212,
+          "price": 210,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -166,42 +168,42 @@
         "label": "Between major action levels"
       },
       "authority": {
-        "decision": "VERIFY FIRST",
-        "tone": "caution",
-        "urgency": "SOON",
-        "allowed": "Hold and verify live tape, thesis evidence, valuation, and source confidence.",
-        "forbidden": "No new capital from buy-zone proximity alone.",
-        "reason": "Portfolio decision state requires verification before exposure changes."
+        "decision": "TRIM REVIEW",
+        "tone": "danger",
+        "urgency": "THIS WEEK",
+        "allowed": "Review staged trim / rebalance / rebound-exit paths only.",
+        "forbidden": "Do not add until trim watch clears.",
+        "reason": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling."
       },
       "levels": {
         "addZone": {
-          "low": 546.13,
-          "high": 577.87,
+          "low": 534.12,
+          "high": 565.88,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 651.45,
-          "high": 736.55,
+          "low": 636.36,
+          "high": 720.64,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 514,
-        "hardExit": 490,
+        "stopReview": 503,
+        "hardExit": 480,
         "volatility": {
-          "addPrice": 603.41,
-          "addPct": -2.5,
-          "trimPrice": 711.65,
-          "trimPct": 14.99,
-          "riskReviewPrice": 544.65,
-          "riskReviewPct": -11.99,
+          "addPrice": 603.33,
+          "addPct": -2.51,
+          "trimPrice": 712.06,
+          "trimPct": 15.06,
+          "riskReviewPrice": 544.3,
+          "riskReviewPct": -12.05,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "standard_equity"
         },
         "nearestBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 603.41,
-          "thresholdPct": -2.5,
+          "value": 603.33,
+          "thresholdPct": -2.51,
           "tone": "positive",
-          "distancePct": -2.498101378318554,
+          "distancePct": -2.5110281642348093,
           "source": "signalThresholds"
         }
       },
@@ -209,14 +211,14 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 736.55,
+          "price": 720.64,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 651.45,
+          "price": 636.36,
           "role": "trim",
           "pctOfRange": 65
         },
@@ -224,34 +226,34 @@
           "key": "current",
           "label": "Current price",
           "price": 618.87,
-          "role": "caution",
-          "pctOfRange": 52
+          "role": "danger",
+          "pctOfRange": 58
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 577.87,
+          "price": 565.88,
           "role": "add",
           "pctOfRange": 36
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 546.13,
+          "price": 534.12,
           "role": "add",
-          "pctOfRange": 23
+          "pctOfRange": 22
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 514,
+          "price": 503,
           "role": "risk",
           "pctOfRange": 10
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 490,
+          "price": 480,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -265,15 +267,15 @@
       },
       "permissionModel": {
         "signalLanguage": "HOLD_ZONE",
-        "executionPermission": "VERIFY FIRST",
+        "executionPermission": "TRIM REVIEW",
         "capitalAllowed": false,
-        "lossMinimizationRequired": false,
-        "blocker": "Portfolio decision state requires verification before exposure changes."
+        "lossMinimizationRequired": true,
+        "blocker": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling."
       },
       "moduleDirective": {
         "buyZoneLabel": "Buy review zone",
-        "chartBadge": "VERIFY FIRST · SOON",
-        "actionBandOverride": "Portfolio decision state requires verification before exposure changes.",
+        "chartBadge": "TRIM REVIEW · THIS WEEK",
+        "actionBandOverride": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling.",
         "proximityEligible": false
       }
     },
@@ -403,9 +405,9 @@
       "price": 51.81,
       "signal": "TRIM WATCH",
       "zone": {
-        "state": "BETWEEN_LEVELS",
-        "tone": "neutral",
-        "label": "Between major action levels"
+        "state": "IN_TRIM_REVIEW_ZONE",
+        "tone": "caution",
+        "label": "Inside trim zone 50.55-61.46"
       },
       "authority": {
         "decision": "TRIM REVIEW",
@@ -417,17 +419,17 @@
       },
       "levels": {
         "addZone": {
-          "low": 44.18,
-          "high": 48.71,
+          "low": 43.14,
+          "high": 47.63,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 51.82,
-          "high": 62.81,
+          "low": 50.55,
+          "high": 61.46,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 42.49,
-        "hardExit": 40.52,
+        "stopReview": 41.52,
+        "hardExit": 39.59,
         "volatility": {
           "addPrice": 46.69,
           "addPct": -9.88,
@@ -451,49 +453,49 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 62.81,
+          "price": 61.46,
           "role": "trim",
           "pctOfRange": 100
-        },
-        {
-          "key": "trimLow",
-          "label": "Trim review",
-          "price": 51.82,
-          "role": "trim",
-          "pctOfRange": 51
         },
         {
           "key": "current",
           "label": "Current price",
           "price": 51.81,
           "role": "danger",
-          "pctOfRange": 51
+          "pctOfRange": 56
+        },
+        {
+          "key": "trimLow",
+          "label": "Trim review",
+          "price": 50.55,
+          "role": "trim",
+          "pctOfRange": 50
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 48.71,
+          "price": 47.63,
           "role": "add",
           "pctOfRange": 37
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 44.18,
+          "price": 43.14,
           "role": "add",
           "pctOfRange": 16
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 42.49,
+          "price": 41.52,
           "role": "risk",
           "pctOfRange": 9
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 40.52,
+          "price": 39.59,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -506,7 +508,7 @@
         "portfolioDecision": true
       },
       "permissionModel": {
-        "signalLanguage": "HOLD_ZONE",
+        "signalLanguage": "TRIM_ZONE",
         "executionPermission": "TRIM REVIEW",
         "capitalAllowed": false,
         "lossMinimizationRequired": true,
@@ -780,17 +782,17 @@
       },
       "levels": {
         "addZone": {
-          "low": 656.92,
-          "high": 692.08,
+          "low": 653.92,
+          "high": 688.08,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 790.82,
-          "high": 874.18,
+          "low": 786.82,
+          "high": 870.18,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 617,
-        "hardExit": 588,
+        "stopReview": 614,
+        "hardExit": 585,
         "volatility": {
           "addPrice": 720.17,
           "addPct": -1.68,
@@ -814,14 +816,14 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 874.18,
+          "price": 870.18,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 790.82,
+          "price": 786.82,
           "role": "trim",
           "pctOfRange": 71
         },
@@ -830,33 +832,33 @@
           "label": "Current price",
           "price": 732.44,
           "role": "caution",
-          "pctOfRange": 50
+          "pctOfRange": 52
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 692.08,
+          "price": 688.08,
           "role": "add",
           "pctOfRange": 36
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 656.92,
+          "price": 653.92,
           "role": "add",
           "pctOfRange": 24
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 617,
+          "price": 614,
           "role": "risk",
           "pctOfRange": 10
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 588,
+          "price": 585,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -901,33 +903,33 @@
       },
       "levels": {
         "addZone": {
-          "low": 575.11,
-          "high": 606.89,
+          "low": 573.09,
+          "high": 603.91,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 691.72,
-          "high": 766.28,
+          "low": 688.67,
+          "high": 763.33,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 541,
-        "hardExit": 516,
+        "stopReview": 538,
+        "hardExit": 513,
         "volatility": {
-          "addPrice": 634.17,
-          "addPct": -1.79,
-          "trimPrice": 707.16,
-          "trimPct": 9.51,
-          "riskReviewPrice": 600.05,
-          "riskReviewPct": -7.07,
+          "addPrice": 634.11,
+          "addPct": -1.8,
+          "trimPrice": 707.43,
+          "trimPct": 9.55,
+          "riskReviewPrice": 599.82,
+          "riskReviewPct": -7.11,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "low_vol_quality"
         },
         "nearestBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 634.17,
-          "thresholdPct": -1.79,
+          "value": 634.11,
+          "thresholdPct": -1.8,
           "tone": "positive",
-          "distancePct": -1.7902219193780773,
+          "distancePct": -1.799513728648197,
           "source": "signalThresholds"
         }
       },
@@ -935,14 +937,14 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 766.28,
+          "price": 763.33,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 691.72,
+          "price": 688.67,
           "role": "trim",
           "pctOfRange": 70
         },
@@ -951,33 +953,33 @@
           "label": "Current price",
           "price": 645.73,
           "role": "caution",
-          "pctOfRange": 52
+          "pctOfRange": 53
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 606.89,
+          "price": 603.91,
           "role": "add",
           "pctOfRange": 36
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 575.11,
+          "price": 573.09,
           "role": "add",
           "pctOfRange": 24
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 541,
+          "price": 538,
           "role": "risk",
           "pctOfRange": 10
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 516,
+          "price": 513,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -1010,7 +1012,7 @@
       "zone": {
         "state": "IN_TRIM_REVIEW_ZONE",
         "tone": "caution",
-        "label": "Inside trim zone 15.49-18.29"
+        "label": "Inside trim zone 15.22-18"
       },
       "authority": {
         "decision": "VERIFY FIRST",
@@ -1022,24 +1024,24 @@
       },
       "levels": {
         "addZone": {
-          "low": 13.04,
-          "high": 14.38,
+          "low": 12.82,
+          "high": 14.15,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 15.49,
-          "high": 18.29,
+          "low": 15.22,
+          "high": 18,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 13.63,
-        "hardExit": 12.88,
+        "stopReview": 13.41,
+        "hardExit": 12.66,
         "volatility": {
           "addPrice": 14.68,
           "addPct": -7.41,
           "trimPrice": 20.21,
-          "trimPct": 27.43,
+          "trimPct": 27.44,
           "riskReviewPrice": 11.48,
-          "riskReviewPct": -27.64,
+          "riskReviewPct": -27.65,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "high_vol_speculative"
         },
@@ -1056,7 +1058,7 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 18.29,
+          "price": 18,
           "role": "trim",
           "pctOfRange": 100
         },
@@ -1065,40 +1067,40 @@
           "label": "Current price",
           "price": 15.86,
           "role": "caution",
-          "pctOfRange": 55
+          "pctOfRange": 60
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 15.49,
+          "price": 15.22,
           "role": "trim",
           "pctOfRange": 48
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 14.38,
+          "price": 14.15,
           "role": "add",
           "pctOfRange": 28
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 13.63,
+          "price": 13.41,
           "role": "risk",
           "pctOfRange": 14
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 13.04,
+          "price": 12.82,
           "role": "add",
           "pctOfRange": 3
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 12.88,
+          "price": 12.66,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -1143,31 +1145,31 @@
       },
       "levels": {
         "addZone": {
-          "low": 63.01,
-          "high": 66.59,
+          "low": 62.27,
+          "high": 65.81,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 75.22,
-          "high": 84.72,
+          "low": 74.32,
+          "high": 83.75,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 59.29,
-        "hardExit": 56.53,
+        "stopReview": 58.59,
+        "hardExit": 55.87,
         "volatility": {
           "addPrice": 70.62,
-          "addPct": -2.28,
-          "trimPrice": 82.22,
-          "trimPct": 13.77,
-          "riskReviewPrice": 64.36,
-          "riskReviewPct": -10.94,
+          "addPct": -2.29,
+          "trimPrice": 82.24,
+          "trimPct": 13.8,
+          "riskReviewPrice": 64.34,
+          "riskReviewPct": -10.97,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "standard_equity"
         },
         "nearestBoundary": {
           "label": "vol-adjusted add zone",
           "value": 70.62,
-          "thresholdPct": -2.28,
+          "thresholdPct": -2.29,
           "tone": "positive",
           "distancePct": -2.2831050228310388,
           "source": "signalThresholds"
@@ -1177,14 +1179,14 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 84.72,
+          "price": 83.75,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 75.22,
+          "price": 74.32,
           "role": "trim",
           "pctOfRange": 66
         },
@@ -1193,33 +1195,33 @@
           "label": "Current price",
           "price": 72.27,
           "role": "caution",
-          "pctOfRange": 56
+          "pctOfRange": 59
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 66.59,
+          "price": 65.81,
           "role": "add",
           "pctOfRange": 36
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 63.01,
+          "price": 62.27,
           "role": "add",
           "pctOfRange": 23
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 59.29,
+          "price": 58.59,
           "role": "risk",
           "pctOfRange": 10
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 56.53,
+          "price": 55.87,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -1264,23 +1266,23 @@
       },
       "levels": {
         "addZone": {
-          "low": 110.7,
-          "high": 118.3,
+          "low": 108.7,
+          "high": 116.3,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 130.94,
-          "high": 150.06,
+          "low": 128.94,
+          "high": 148.06,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 109,
-        "hardExit": 104,
+        "stopReview": 108,
+        "hardExit": 103,
         "volatility": {
           "addPrice": 121.97,
           "addPct": -4.08,
-          "trimPrice": 157.45,
+          "trimPrice": 157.46,
           "trimPct": 23.83,
-          "riskReviewPrice": 102.27,
+          "riskReviewPrice": 102.26,
           "riskReviewPct": -19.57,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "standard_equity"
@@ -1298,14 +1300,14 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 150.06,
+          "price": 148.06,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 130.94,
+          "price": 128.94,
           "role": "trim",
           "pctOfRange": 58
         },
@@ -1314,33 +1316,33 @@
           "label": "Current price",
           "price": 127.15,
           "role": "caution",
-          "pctOfRange": 50
+          "pctOfRange": 54
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 118.3,
+          "price": 116.3,
           "role": "add",
-          "pctOfRange": 31
+          "pctOfRange": 30
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 110.7,
+          "price": 108.7,
           "role": "add",
-          "pctOfRange": 15
+          "pctOfRange": 13
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 109,
+          "price": 108,
           "role": "risk",
           "pctOfRange": 11
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 104,
+          "price": 103,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -1385,33 +1387,33 @@
       },
       "levels": {
         "addZone": {
-          "low": 59.79,
-          "high": 63.27,
+          "low": 59.82,
+          "high": 63.3,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 71.25,
-          "high": 80.62,
+          "low": 71.29,
+          "high": 80.65,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 56.3,
-        "hardExit": 53.68,
+        "stopReview": 56.32,
+        "hardExit": 53.7,
         "volatility": {
-          "addPrice": 67.08,
-          "addPct": -2.51,
-          "trimPrice": 79.17,
-          "trimPct": 15.05,
-          "riskReviewPrice": 60.52,
-          "riskReviewPct": -12.05,
+          "addPrice": 67.09,
+          "addPct": -2.5,
+          "trimPrice": 79.12,
+          "trimPct": 14.98,
+          "riskReviewPrice": 60.56,
+          "riskReviewPct": -11.98,
           "formula": "volatility_adjusted_thresholds_v1 using annualized 20D realized volatility from sparkline log returns; low-vol names get tighter bands, high-vol/levered names get wider bands.",
           "exposureType": "standard_equity"
         },
         "nearestBoundary": {
           "label": "vol-adjusted add zone",
-          "value": 67.08,
-          "thresholdPct": -2.51,
+          "value": 67.09,
+          "thresholdPct": -2.5,
           "tone": "positive",
-          "distancePct": -2.514169452114524,
+          "distancePct": -2.4996366807150108,
           "source": "signalThresholds"
         }
       },
@@ -1419,14 +1421,14 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 80.62,
+          "price": 80.65,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 71.25,
+          "price": 71.29,
           "role": "trim",
           "pctOfRange": 65
         },
@@ -1440,28 +1442,28 @@
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 63.27,
+          "price": 63.3,
           "role": "add",
           "pctOfRange": 36
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 59.79,
+          "price": 59.82,
           "role": "add",
           "pctOfRange": 23
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 56.3,
+          "price": 56.32,
           "role": "risk",
           "pctOfRange": 10
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 53.68,
+          "price": 53.7,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -1497,26 +1499,26 @@
         "label": "Between major action levels"
       },
       "authority": {
-        "decision": "VERIFY FIRST",
-        "tone": "caution",
-        "urgency": "SOON",
-        "allowed": "Research / verification only.",
-        "forbidden": "No capital action until verification clears.",
-        "reason": "Investigate or verification state blocks trading action."
+        "decision": "TRIM REVIEW",
+        "tone": "danger",
+        "urgency": "THIS WEEK",
+        "allowed": "Review staged trim / rebalance / rebound-exit paths only.",
+        "forbidden": "Do not add until trim watch clears.",
+        "reason": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling."
       },
       "levels": {
         "addZone": {
-          "low": 168.77,
-          "high": 180.23,
+          "low": 165.77,
+          "high": 177.23,
           "source": "ticker_specific_volatility_threshold"
         },
         "trimZone": {
-          "low": 197.62,
-          "high": 233.38,
+          "low": 193.62,
+          "high": 229.38,
           "source": "ticker_specific_volatility_threshold"
         },
-        "stopReview": 160,
-        "hardExit": 152,
+        "stopReview": 157,
+        "hardExit": 150,
         "volatility": {
           "addPrice": 181.45,
           "addPct": -4.69,
@@ -1540,49 +1542,49 @@
         {
           "key": "trimHigh",
           "label": "Trim high / target",
-          "price": 233.38,
+          "price": 229.38,
           "role": "trim",
           "pctOfRange": 100
         },
         {
           "key": "trimLow",
           "label": "Trim review",
-          "price": 197.62,
+          "price": 193.62,
           "role": "trim",
-          "pctOfRange": 56
+          "pctOfRange": 55
         },
         {
           "key": "current",
           "label": "Current price",
           "price": 190.37,
-          "role": "caution",
-          "pctOfRange": 47
+          "role": "danger",
+          "pctOfRange": 51
         },
         {
           "key": "addHigh",
           "label": "Buy review high",
-          "price": 180.23,
+          "price": 177.23,
           "role": "add",
-          "pctOfRange": 35
+          "pctOfRange": 34
         },
         {
           "key": "addLow",
           "label": "Buy review low",
-          "price": 168.77,
+          "price": 165.77,
           "role": "add",
-          "pctOfRange": 21
+          "pctOfRange": 20
         },
         {
           "key": "stopReview",
           "label": "Stop / review",
-          "price": 160,
+          "price": 157,
           "role": "risk",
-          "pctOfRange": 10
+          "pctOfRange": 9
         },
         {
           "key": "hardExit",
           "label": "Hard exit",
-          "price": 152,
+          "price": 150,
           "role": "danger",
           "pctOfRange": 0
         }
@@ -1596,15 +1598,15 @@
       },
       "permissionModel": {
         "signalLanguage": "HOLD_ZONE",
-        "executionPermission": "VERIFY FIRST",
+        "executionPermission": "TRIM REVIEW",
         "capitalAllowed": false,
-        "lossMinimizationRequired": false,
-        "blocker": "Investigate or verification state blocks trading action."
+        "lossMinimizationRequired": true,
+        "blocker": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling."
       },
       "moduleDirective": {
         "buyZoneLabel": "Buy review zone",
-        "chartBadge": "VERIFY FIRST · SOON",
-        "actionBandOverride": "Investigate or verification state blocks trading action.",
+        "chartBadge": "TRIM REVIEW · THIS WEEK",
+        "actionBandOverride": "Trim-watch state overrides add-zone proximity; objective is risk reduction with better execution, not forced selling.",
         "proximityEligible": false
       }
     }

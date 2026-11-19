@@ -1,6 +1,6 @@
 # Capital Radar Architecture Audit
 
-Generated: 2026-11-19T06:24:42.095Z
+Generated: 2026-11-19T20:30:50.836Z
 
 ## Layer Coverage
 

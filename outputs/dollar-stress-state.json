@@ -1,17 +1,17 @@
 {
   "artifact": "dollar-stress-state",
   "version": 1,
-  "generatedAt": "2026-11-20T06:11:46.321Z",
+  "generatedAt": "2026-11-20T13:46:06.052Z",
   "generatedBy": "scripts/generate-dollar-stress-state.cjs",
   "anchorDate": "2026-11-20",
   "coverage": "FULL",
   "partial": false,
   "staleInputs": [],
   "verdict": "NORMAL_RISK_OFF",
-  "verdictLabel": "Normal risk-off — haven bid working",
-  "dollarHaven": "WORKING",
-  "implication": "Equities down with a dollar bid, but Treasury yields have not confirmed (no yield decline). Haven is working on the FX leg only — size accordingly.",
-  "whatWouldChange": "Escalates to DOLLAR_LIQUIDITY_STRESS on a DXY 5d spike >= +2.0%, VIX >= 35, or HY OAS widening >= +50bp in 5d. Flips to SELL_AMERICA_STRESS if the dollar starts falling while yields rise into equity weakness.",
+  "verdictLabel": "Equity stress — dollar bid not confirmed",
+  "dollarHaven": "NOT_CONFIRMED",
+  "implication": "Equities are selling off but the dollar is not bid and yields are not rising — this is equity stress first, not a dollar-liquidity event and not a Sell-America pattern.",
+  "whatWouldChange": "A dollar bid (DXY 5d >= +0.3%) confirms NORMAL_RISK_OFF; a falling dollar with yields up >= +10bp flips it to SELL_AMERICA_STRESS.",
   "thresholds": {
     "spyDown5": -1,
     "spyDown20": -3,
@@ -24,18 +24,18 @@
   },
   "inputs": {
     "dxy": {
-      "level": 103.788,
+      "level": 103.614,
       "asOf": "2026-11-20",
-      "change5dPct": 0.366,
-      "change20dPct": 1.873,
+      "change5dPct": 0.197,
+      "change20dPct": 1.702,
       "window5d": {
         "fromDate": "2026-11-13",
         "fromValue": 103.41,
         "toDate": "2026-11-20",
-        "toValue": 103.788,
-        "pctChange": 0.366,
-        "delta": 0.378,
-        "deltaBp": 37.8,
+        "toValue": 103.614,
+        "pctChange": 0.197,
+        "delta": 0.204,
+        "deltaBp": 20.4,
         "spanDays": 7,
         "windowDays": 5
       },
@@ -43,10 +43,10 @@
         "fromDate": "2026-10-30",
         "fromValue": 101.88,
         "toDate": "2026-11-20",
-        "toValue": 103.788,
-        "pctChange": 1.873,
-        "delta": 1.908,
-        "deltaBp": 190.8,
+        "toValue": 103.614,
+        "pctChange": 1.702,
+        "delta": 1.734,
+        "deltaBp": 173.4,
         "spanDays": 21,
         "windowDays": 20
       }
@@ -80,18 +80,18 @@
       }
     },
     "vix": {
-      "level": 28.44,
-      "asOf": "2026-11-19",
-      "change5dDelta": 9.14,
+      "level": 31.08,
+      "asOf": "2026-11-20",
+      "change5dDelta": 11.78,
       "window5d": {
         "fromDate": "2026-11-13",
         "fromValue": 19.3,
-        "toDate": "2026-11-19",
-        "toValue": 28.44,
-        "pctChange": 47.358,
-        "delta": 9.14,
-        "deltaBp": 914,
-        "spanDays": 6,
+        "toDate": "2026-11-20",
+        "toValue": 31.08,
+        "pctChange": 61.036,
+        "delta": 11.78,
+        "deltaBp": 1178,
+        "spanDays": 7,
         "windowDays": 5
       }
     },
@@ -156,9 +156,9 @@
       }
     },
     "gold": {
-      "level": 3554.7,
+      "level": 3567.9,
       "asOf": "2026-11-20",
-      "change5dPct": -8.533
+      "change5dPct": -8.193
     }
   },
   "rules": [

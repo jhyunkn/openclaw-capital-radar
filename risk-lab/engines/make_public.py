@@ -14,7 +14,8 @@ CODE = open(os.path.abspath(__file__)).read(); NOW = dt.datetime.now(dt.timezone
 # Exclude private-portfolio names that a market-wide board would not normally list: anything held that
 # isn't a widely covered stock. Read from the private files at build time so no tickers are written here.
 _held = {p["yahoo"] for p in json.load(open(paths.POSITIONS))["positions"] if p.get("yahoo")}
-_covered = set(json.load(open(paths.ANALYST))["targets"]) | {"SPY", "QQQ"}
+_universe = {x for g in json.load(open(os.path.join(paths.CONFIG, "outlook_universe.json")))["groups"].values() for x in g}
+_covered = set(json.load(open(paths.ANALYST))["targets"]) | _universe | {"SPY", "QQQ"}
 DROP = _held - _covered
 rows = lambda n: json.load(open(os.path.join(SRC_DIR, n + ".json")))["rows"]
 

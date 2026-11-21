@@ -241,8 +241,16 @@ for s in SYMS:
         row["size_vs_spy"] = round(max(0.1, min(1.5, 0.16 / max(1e-6, sig_long * math.sqrt(252)))), 2)
         row["size_basis"] = "volatility"
     # ---- entry plan levels ----
-    row.update({"plan_limit": round(lo3, 2), "plan_stop": round(p0 * math.exp(-1.645 * sd(63)), 2), "plan_confirm": round(promote, 2),
-                "plan_warning": round(invalid, 2)})
+    # Limit buy: the stock's typical worst drop within 3 months after past sell-off starts (else one normal month down),
+    # at least 2% below today. Stop: one normal month below the limit, or the earlier invalidation level if lower.
+    if cr.get("crash_n", 0) >= 3 and cr.get("crash_dd3_median") is not None:
+        limit, limit_basis = p0 * (1 + cr["crash_dd3_median"] / 100), "its typical drop after past sell-offs"
+    else:
+        limit, limit_basis = p0 * math.exp(-sd(21)), "one normal month down"
+    limit = min(limit, p0 * 0.98)
+    stop = min(invalid, limit * math.exp(-sd(21)))
+    row.update({"plan_limit": round(limit, 2), "plan_limit_basis": limit_basis, "plan_stop": round(stop, 2), "plan_confirm": round(promote, 2),
+                "invalid_level": round(stop, 2), "invalid_basis": "one normal month below the limit" if stop < invalid else invalid_basis})
     summ.append(row)
 
 meta = lambda note: [{"label": "price_outlook.py", "value": SRC, "type": "code", "lang": "python"}, {"label": "Computed", "value": NOW},

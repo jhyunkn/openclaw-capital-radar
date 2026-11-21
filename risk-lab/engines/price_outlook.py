@@ -47,7 +47,11 @@ try:
 except Exception:
     LEV = set()
 HELD = [p["yahoo"] for p in POS["positions"] if p["yahoo"] and not p["yahoo"].endswith("-USD")]
-SYMS = list(dict.fromkeys(HELD + ["QQQ"] + list(AN["targets"])))
+UNI = json.load(open(os.path.join(paths.CONFIG, "outlook_universe.json")))["groups"]
+GROUP = {}
+for g, syms in UNI.items():
+    for x in syms: GROUP.setdefault(x, g)
+SYMS = list(dict.fromkeys(HELD + ["QQQ"] + [x for v in UNI.values() for x in v] + list(AN["targets"])))
 
 spx = yahoo("^GSPC"); vixd = yahoo("^VIX", 631152000)
 cal = sorted(spx); px = np.array([spx[d] for d in cal]); T = len(cal)
@@ -102,7 +106,7 @@ for s in SYMS:
     t_ = AN["targets"].get(s)
     rng = lambda t, z: (p0 * math.exp(-z * sd(t)), p0 * math.exp(z * sd(t)))
     lo1, hi1 = rng(21, 1); lo3, hi3 = rng(63, 1); lo12, hi12 = rng(H, 1)
-    row = {"symbol": s, "held": s in HELD, "price": round(p0, 2), "vol_now_pct": round(sig_now * math.sqrt(252) * 100), "vol_1y_pct": round(sig_long * math.sqrt(252) * 100),
+    row = {"symbol": s, "held": s in HELD, "group": GROUP.get(s, "Other"), "price": round(p0, 2), "asof": ds[-1].isoformat(), "vol_now_pct": round(sig_now * math.sqrt(252) * 100), "vol_1y_pct": round(sig_long * math.sqrt(252) * 100),
            "beta": round(beta, 2), "m1_lo": round(lo1, 2), "m1_hi": round(hi1, 2), "m3_lo": round(lo3, 2), "m3_hi": round(hi3, 2),
            "m12_lo": round(lo12, 2), "m12_hi": round(hi12, 2), "history_3m": round(p0 * (1 + beta * spx_med[63]), 2),
            "history_12m": round(p0 * (1 + beta * spx_med[H]), 2), "high_52w": round(float(c[-252:].max()), 2), "low_52w": round(float(c[-252:].min()), 2)}
@@ -110,6 +114,7 @@ for s in SYMS:
         b, hld, sl, hi, lo, mean = t_
         n = b + hld + sl
         row.update({"target_mean": mean, "target_low": lo, "target_high": hi, "analysts": n, "buy_pct": round(b / n * 100),
+                    "target_date": AN.get("target_dates", {}).get(s),
                     "upside_to_mean_pct": round((mean / p0 - 1) * 100, 1),
                     "target_sigmas_12m": round(math.log(mean / p0) / sd(H), 2)})
     # ---- decision layer ----

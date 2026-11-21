@@ -128,6 +128,11 @@
 .pwr .olcol button.held { font-weight: 700; border-color: var(--color-fg); }
 .pwr .olcol button.on { background: var(--cds-chart-grid); }
 .pwr .olcol button:focus-visible { outline: 2px solid var(--color-fg); }
+.pwr .stripbox { max-height: 640px; overflow-y: auto; }
+.pwr .basis { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--cds-gap-md); margin: var(--cds-gap-sm) 0 0; padding: 0; list-style: none; }
+.pwr .basis li { border-top: 2px solid var(--color-border-line); padding-top: 8px; line-height: 1.5; font-size: var(--cds-font-size-body); }
+.pwr .basis li b { display: block; margin-bottom: 2px; }
+.pwr .basis li .lim { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin-top: 4px; }
 .pwr .chart.strip .row { cursor: pointer; }
 
 .pwr .chart.heatm { min-height: 180px; }
@@ -220,7 +225,11 @@
 
   <div class="tabpage" id="outlook" role="tabpanel" hidden>
     <section id="olboardbox" class="card">
-      <h2>Action board: every stock by what the evidence says now</h2>
+      <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; flex-wrap: wrap; justify-content: space-between;">
+        <h2 style="margin:0">Action board: every stock by what the evidence says now</h2>
+        <span><label for="olgroup" class="sub" style="margin:0 6px 0 0">Show:</label><select id="olgroup" class="dash-select olgroup" aria-label="Stock group"><option value="">All stocks</option><option value="Your holdings">Your holdings</option><option value="Capital Radar candidates">Capital Radar candidates</option><option value="Tech &amp; AI">Tech &amp; AI</option><option value="Financials">Financials</option><option value="Health care">Health care</option><option value="Consumer">Consumer</option><option value="Industrials &amp; energy">Industrials &amp; energy</option><option value="Market &amp; sector ETFs">Market &amp; sector ETFs</option></select></span>
+      </div>
+      <p class="sub" style="margin-top: var(--cds-gap-xs)"><span data-draw="olcount" data-source="outlook_summary">—</span></p>
       <details class="info"><summary>How to read</summary><p>Each stock gets an action state from four rules: its trend (price against the 200-day average, and whether the 50-day is rising), how it did after past setups like today compared with its normal year, the S&amp;P's typical path after sell-offs like this one, and whether analysts' average target is reachable. Your holdings (bold) get Hold, Add review or Trim review; other stocks get Probe, Watch or Avoid for now. Click a stock to open it below. Rules, not advice.</p></details>
       <div class="olboard" data-draw="olboard" data-source="outlook_summary"></div>
     </section>
@@ -257,7 +266,7 @@
         <span><i data-swatch="0"></i>Likely 3-month range</span>
         <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst average target</span>
       </div>
-      <div class="chart strip" data-draw="strip" data-source="outlook_summary"></div>
+      <div class="stripbox"><div class="chart strip" data-draw="strip" data-source="outlook_summary"></div></div>
       <details class="info"><summary>How to read</summary><p>Each row is one stock, centered on today's price (0%). The bar is where it lands about 2 times in 3 over the next 3 months. The green diamond is the average 12-month analyst target. A diamond far beyond the bar means analysts expect more than a normal year delivers. Click a row to see that stock above.</p></details>
       <details class="info"><summary>Show the numbers</summary>
       <div class="tablewrap">
@@ -267,6 +276,19 @@
         </table>
       </div>
       </details>
+    </section>
+
+    <section id="olbasis" class="card">
+      <h2>What this is based on</h2>
+      <p class="sub">Every number on this tab comes from five inputs. None of them is a forecast; each has a known weakness, listed under it.</p>
+      <ul class="basis">
+        <li><b>Prices</b>Daily closes from Yahoo Finance since 2018, adjusted for splits and dividends, through Friday's close.<span class="lim">Eight years is one long bull market with two sharp breaks (2020, 2022), so "normal" here is a good era.</span></li>
+        <li><b>Likely and possible ranges</b>Each stock's own volatility: today's level (exponentially weighted, recent days count most) fading toward its 1-year average with a 3-month half-life. Bands are 2-in-3 and 9-in-10 outcomes with no up or down drift.<span class="lim">Real moves have fatter tails than these bands; a crash can land outside the light band.</span></li>
+        <li><b>If the S&amp;P repeats history</b>The median S&amp;P 500 path over the year after the past sell-offs like today (VIX 30 or higher with the S&amp;P 8–20% below its high, since 1990, each episode counted once), scaled by the stock's 1-year beta to SPY.<span class="lim">A median across few episodes; any single year can be far from it, and beta drifts.</span></li>
+        <li><b>Setups like this, for each stock</b>Past days since 2019 when the stock sat within 5 points of today's distance below its 52-week high and on the same side of its 200-day average. It shows how often it was higher a year later, against how often it was higher in any year, and counts episodes, not days. It counts only with 4 or more episodes.<span class="lim">Small samples, and overlapping days inside one episode are not independent. Survivorship: these are stocks that are big today.</span></li>
+        <li><b>Analyst targets</b>Robinhood's consensus: buy/hold/sell counts and the low, average and high 12-month target, with the date it last changed when available.<span class="lim">Targets lag prices; many were set before this sell-off and tend to be optimistic.</span></li>
+        <li><b>Action state and levels</b>Four checks score the stock: trend (price vs 200-day, 50-day slope), setups-like-this edge of 10+ points over its normal year, the S&amp;P history path lifting it 5%+, and a reachable analyst target with 70%+ buy ratings. "Confirms above" is the nearer moving average above the price (or the 1-month high when above both). "Invalidates below" is the 3-month low, or one normal month down if closer.<span class="lim">Rules written in advance, not a backtested strategy. Not advice.</span></li>
+      </ul>
     </section>
 
     <section id="agents" class="card">
@@ -1212,16 +1234,20 @@
     if (!pick || !rows.find((r) => r.symbol === pick)) pick = (rows.find((r) => r.held) || rows.find((r) => r.symbol === 'SPY') || rows[0]).symbol;
     return rows.find((r) => r.symbol === pick); }
   function choose(sym) { pick = sym; ['olsel', 'olaction', 'oltrend', 'olwhy', 'olcards', 'olchart', 'olboard', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+  let grp = '';
+  const inGrp = (r) => !grp || (grp === 'Your holdings' ? r.held : r.group === grp);
+  document.querySelectorAll('.pwr select.olgroup').forEach((g) => g.addEventListener('change', () => { grp = g.value; ['olboard', 'olcount', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }));
+  dash.draw('olcount', (el) => { const rows = S(); if (!rows.length) { el.textContent = '—'; return; } const n = rows.filter(inGrp).length;
+    el.textContent = n + ' of ' + rows.length + ' stocks and ETFs · prices as of ' + d3.utcFormat('%b %-d, %Y')(new Date(rows[0].asof + 'T00:00:00Z')); });
   const ACTS = ['Add review', 'Probe', 'Hold', 'Hold, wait for trend', 'Watch: odds good, trend not yet', 'Watch', 'Trim review', 'Avoid for now'];
   const actColor = (a) => (a === 'Add review' || a === 'Probe' ? 'var(--color-ok)' : a === 'Trim review' || a === 'Avoid for now' ? 'var(--color-bad)' : a === 'Hold' ? 'var(--color-fg)' : 'var(--color-warn)');
   const pctTo = (v, p) => P().pct((v / p - 1) * 100);
 
   dash.draw('olsel', (sel) => {
     const rows = S(); sel.replaceChildren();
-    const held = rows.filter((r) => r.held), other = rows.filter((r) => !r.held);
-    if (held.length) { const g1 = document.createElement('optgroup'); g1.label = 'Your holdings'; held.forEach((r) => g1.appendChild(new Option(r.symbol, r.symbol))); sel.appendChild(g1);
-      const g2 = document.createElement('optgroup'); g2.label = 'Market'; other.forEach((r) => g2.appendChild(new Option(r.symbol, r.symbol))); sel.appendChild(g2); }
-    else rows.forEach((r) => sel.appendChild(new Option(r.symbol, r.symbol)));
+    const add = (label, rs) => { if (!rs.length) return; const g = document.createElement('optgroup'); g.label = label; rs.slice().sort((a, b) => a.symbol.localeCompare(b.symbol)).forEach((r) => g.appendChild(new Option(r.symbol + ' · ' + r.action, r.symbol))); sel.appendChild(g); };
+    add('Your holdings', rows.filter((r) => r.held));
+    [...new Set(rows.map((r) => r.group))].forEach((g) => add(g, rows.filter((r) => !r.held && r.group === g)));
     const c = cur(); if (c) sel.value = c.symbol;
     sel.onchange = () => choose(sel.value);
   });
@@ -1241,12 +1267,12 @@
     else card('Setups like this', 'Too few', r.own_episodes + ' past episodes since ' + r.own_since + '; not enough to judge');
     card('Likely in 3 months', fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi), '2 in 3 outcomes · 12 months: ' + fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));
     card('If the S&P repeats history', fmtp(r.history_12m), 'in 12 months (' + pctTo(r.history_12m, r.price) + ') · 3 months: ' + fmtp(r.history_3m));
-    if (r.target_mean != null) card('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', r.buy_pct + '% buy of ' + r.analysts + ' · range ' + fmtp(r.target_low) + '–' + fmtp(r.target_high));
+    if (r.target_mean != null) card('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', r.buy_pct + '% buy of ' + r.analysts + ' · range ' + fmtp(r.target_low) + '–' + fmtp(r.target_high) + (r.target_date ? ' · last changed ' + d3.utcFormat('%b %-d')(new Date(r.target_date + 'T00:00:00Z')) : ''));
   });
 
   dash.draw('olboard', (el) => {
-    el.replaceChildren(); const rows = S(), c0 = cur();
-    if (!rows.length) { el.textContent = dash.data('outlook_summary').status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    el.replaceChildren(); const rows = S().filter(inGrp), c0 = cur();
+    if (!S().length) { el.textContent = dash.data('outlook_summary').status === 'error' ? 'Outlook failed to load.' : '—'; return; }
     ACTS.forEach((a) => {
       const rs = rows.filter((r) => r.action === a).sort((x, y) => (y.held === true) - (x.held === true) || x.symbol.localeCompare(y.symbol)); if (!rs.length) return;
       const col = mk('div', 'olcol'); col.style.borderTopColor = actColor(a);
@@ -1319,7 +1345,7 @@
   dash.draw('strip', (el) => {
     el.replaceChildren(); const d = dash.data('outlook_summary');
     if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
-    const rows = d.data.map((r) => ({ ...r, lo: (r.m3_lo / r.price - 1) * 100, hi: (r.m3_hi / r.price - 1) * 100, up: r.upside_to_mean_pct }))
+    const rows = d.data.filter(inGrp).map((r) => ({ ...r, lo: (r.m3_lo / r.price - 1) * 100, hi: (r.m3_hi / r.price - 1) * 100, up: r.upside_to_mean_pct }))
       .sort((a, b) => (b.held === true) - (a.held === true) || (b.up ?? -999) - (a.up ?? -999));
     const W = el.clientWidth, rh = 20, m = { t: 22, r: 16, b: 24, l: 56 }, H = m.t + m.b + rows.length * rh;
     const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Each stock: likely 3-month range and average analyst target, as percent from today');
@@ -1346,7 +1372,7 @@
   dash.draw('oltbody', (tb) => {
     const d = dash.data('outlook_summary'); tb.replaceChildren();
     if (d.status !== 'ok') { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = 13; c.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
-    d.data.forEach((r) => {
+    d.data.filter(inGrp).forEach((r) => {
       const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
       const cell = (t, c) => { const x = tr.insertCell(); x.textContent = t; if (c) x.className = c; };
       cell(r.symbol); cell(fmtp(r.price)); cell(fmtp(r.m1_lo) + '–' + fmtp(r.m1_hi)); cell(fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi)); cell(fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));

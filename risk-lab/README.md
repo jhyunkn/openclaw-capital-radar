@@ -29,7 +29,8 @@ Established libraries replace or independently check the hand-written engines (`
 | ccxt | 45k | Independent price check for crypto (Coinbase) |
 | Qlib (Microsoft) | 50k | Installed; next: factor library and testing whether Capital Radar's opportunity scores predict returns |
 
-Under evaluation: TradingAgents (123k, multi-agent LLM research debate) and ai-hedge-fund (65k) need a model API key and spend limit;
+**AI analyst desk:** TradingAgents (123k stars, Apache-2.0) runs on a free local model (Qwen 2.5 14B via Ollama, no API key, no per-call cost) in its own environment (`requirements-agents.txt`, `engines/agents_engine.py`). It debates Capital Radar's top triple-alignment candidates with free data (Yahoo Finance, SEC EDGAR), about 13 minutes per stock on an M4 Max, cached per stock per day. Its ratings are AI opinions shown beside measured checks, not signals.
+Not adopted: ai-hedge-fund (65k) needs a paid Financial Datasets key and has no local-model option;
 OpenBB (76k) will be installed only from its pinned PyPI package, never cloned, because its GitHub org moved to an unverified `openbq-org`;
 freqtrade and nautilus_trader are execution engines and are used for research only, never order placement.
 *GitHub stars as of 21 Nov 2026.

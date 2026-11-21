@@ -114,6 +114,16 @@
 .pwr .chart.heatm { min-height: 180px; }
 .pwr h3.subh { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-lg) 0 var(--cds-gap-xs); }
 .pwr .libs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--cds-gap-md); }
+
+.pwr .agents { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .agent { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: 6px; align-content: start; }
+.pwr .agent .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.pwr .agent .tk { font-family: var(--font-anthropic-serif); font-size: 22px; }
+.pwr .agent .bb { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: var(--cds-font-size-caption); line-height: 1.45; }
+.pwr .agent .bb div { border-top: 2px solid var(--color-border-line); padding-top: 4px; }
+.pwr .agent .bb .bull { border-top-color: var(--color-ok); } .pwr .agent .bb .bear { border-top-color: var(--color-bad); }
+.pwr .agent .ck { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .agent .fin { font-size: var(--cds-font-size-body); line-height: 1.45; }
 </style>
 
 <div class="pwr">
@@ -226,6 +236,12 @@
         </table>
       </div>
       </details>
+    </section>
+
+    <section id="agents" class="card">
+      <h2>AI analyst desk: TradingAgents on a free local model</h2>
+      <details class="info"><summary>How to read</summary><p>For Capital Radar's top opportunity candidates, a team of AI agents from the open-source TradingAgents project (123k GitHub stars) debates each stock: market, news and fundamentals analysts, then bull vs bear researchers, a trader, a risk team and a portfolio manager. It runs on a free 14B model on this Mac, using free Yahoo Finance and SEC data. These are opinions, not measurements: compare them with the measured checks beside them, and treat disagreement as a reason to look closer. Not investment advice.</p></details>
+      <div class="agents" data-draw="agentcards" data-source="agent_views outlook_summary"></div>
     </section>
   </div>
 
@@ -1438,6 +1454,33 @@
   dash.draw('libstatus', (el) => {
     const d = dash.data('library_status'); el.replaceChildren(); if (d.status !== 'ok') return;
     d.data.forEach((r) => { const s = document.createElement('span'); s.className = 'chip ' + (r.status === 'ok' ? 'up' : 'down'); s.textContent = r.step + (r.status === 'ok' ? ' ✓' : ' failed'); if (r.detail) s.title = r.detail; el.appendChild(s); });
+  });
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  const mk = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+  const rcls = (r) => (/buy|overweight/i.test(r) ? 'up' : /sell|underweight/i.test(r) ? 'down' : /hold/i.test(r) ? 'warn' : '');
+  dash.draw('agentcards', (el) => {
+    const d = dash.data('agent_views'), o = dash.data('outlook_summary'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'AI analyst views failed to load.' : '—'; return; }
+    const out = o.status === 'ok' ? o.data : [];
+    d.data.forEach((r) => {
+      const c = mk('div', 'agent');
+      const hd = mk('div', 'hd'); hd.append(mk('span', 'tk', r.ticker), mk('span', 'chip ' + rcls(r.rating), r.rating)); c.appendChild(hd);
+      if (r.status !== 'ok') { c.appendChild(mk('span', 'down', 'Run failed: ' + r.status)); el.appendChild(c); return; }
+      c.appendChild(mk('div', 'fin', r.final || r.decision_raw));
+      const bb = mk('div', 'bb'); const bu = mk('div', 'bull'); bu.append(mk('b', null, 'Bull case '), r.bull || '—'); const be = mk('div', 'bear'); be.append(mk('b', null, 'Bear case '), r.bear || '—'); bb.append(bu, be); c.appendChild(bb);
+      const ck = mk('div', 'ck'); const m = out.find((x) => x.symbol === r.ticker);
+      ck.appendChild(mk('span', null, 'Measured: '));
+      if (m) { ck.appendChild(mk('span', null, '3-mo likely ' + P().px(m.m3_lo) + '–' + P().px(m.m3_hi)));
+        if (m.target_mean != null) ck.appendChild(mk('span', null, '· analysts ' + P().pct(m.upside_to_mean_pct, 0) + ' (' + m.target_sigmas_12m + 'σ)'));
+        ck.appendChild(mk('span', null, '· vol ' + m.vol_now_pct + '%')); }
+      else ck.appendChild(mk('span', null, 'not yet in the risk lab universe'));
+      ck.appendChild(mk('span', null, '· ' + r.model + ', ' + Math.round(r.seconds / 60) + ' min'));
+      c.appendChild(ck); el.appendChild(c);
+    });
   });
 })();
 </script>

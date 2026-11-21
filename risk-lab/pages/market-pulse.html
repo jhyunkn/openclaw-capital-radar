@@ -140,6 +140,19 @@
 .mpb #oltable tbody tr.on td { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
 </style>
 
+<style>
+.mpb .mhead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--cds-gap-sm); flex-wrap: wrap; }
+.mpb .mhead h2 { margin: 0; }
+.mpb .chip.v-tail { color: var(--color-ok); } .mpb .chip.v-head { color: var(--color-bad); } .mpb .chip.v-mix { color: var(--color-warn); }
+.mpb .mthemes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--cds-gap-md); }
+.mpb .mth { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 6px; align-content: start; }
+.mpb .mth p { margin: 0; line-height: 1.5; font-size: var(--cds-font-size-body); }
+.mpb .chart.score { min-height: 150px; } .mpb .chart.regimes { min-height: 380px; }
+.mpb td.spk { padding-top: 2px; padding-bottom: 2px; }
+.mpb tr.grp td { font-weight: var(--cds-font-weight-medium); text-align: left; padding-top: 14px; color: var(--color-fg); border-bottom: 1px solid var(--color-fg); }
+.mpb td.why { white-space: normal; min-width: 200px; text-align: left; color: var(--color-fg-muted); }
+</style>
+
 <div class="mpb">
   <header id="head">
     <div class="eyebrow">Market Pulse · close of <span data-draw="asof" data-source="spx_stats" data-field="asof" data-row="0">—</span></div>
@@ -149,9 +162,10 @@
 
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-tab="today" aria-selected="true"><span class="n">1</span>Today</button>
-    <button type="button" role="tab" data-tab="momentum" aria-selected="false"><span class="n">2</span>Momentum</button>
-    <button type="button" role="tab" data-tab="outlook" aria-selected="false"><span class="n">3</span>Price outlook</button>
-    <button type="button" role="tab" data-tab="history" aria-selected="false"><span class="n">4</span>History</button>
+    <button type="button" role="tab" data-tab="macro" aria-selected="false"><span class="n">2</span>Macro</button>
+    <button type="button" role="tab" data-tab="momentum" aria-selected="false"><span class="n">3</span>Momentum</button>
+    <button type="button" role="tab" data-tab="outlook" aria-selected="false"><span class="n">4</span>Price outlook</button>
+    <button type="button" role="tab" data-tab="history" aria-selected="false"><span class="n">5</span>History</button>
   </nav>
 
   <div class="tabpage" id="today" role="tabpanel">
@@ -181,6 +195,64 @@
         <p class="sub" style="margin-top: var(--cds-gap-md)">News as of the Nov 20, 2026 close.</p>
       </section>
     </div>
+  </div>
+
+  <div class="tabpage" id="macro" role="tabpanel" hidden>
+    <section id="macroread" class="card">
+      <div class="mhead"><h2>The macro backdrop</h2><span class="chip" data-draw="mv-overall" data-source="macro_themes" data-field="verdict" data-where="theme=Overall">—</span></div>
+      <p class="tabintro" style="margin-top: var(--cds-gap-sm)" data-draw="mt-overall" data-source="macro_themes" data-field="text" data-where="theme=Overall">—</p>
+      <div class="legend" style="margin-top: var(--cds-gap-md)"><span><i style="background: var(--color-ok)"></i>Tailwind for stocks</span><span><i style="background: var(--cds-chart-muted)"></i>Neutral</span><span><i style="background: var(--color-bad)"></i>Headwind</span></div>
+      <div class="chart score" data-draw="mscore" data-source="macro_score"></div>
+    </section>
+
+    <section id="macrothemes" class="mthemes">
+      <div class="mth" id="mth-growth"><div class="mhead"><b>Growth</b><span class="chip" data-draw="mv-growth" data-source="macro_themes" data-field="verdict" data-where="theme=Growth">—</span></div><p data-draw="mt-growth" data-source="macro_themes" data-field="text" data-where="theme=Growth">—</p></div>
+      <div class="mth" id="mth-inflation"><div class="mhead"><b>Inflation</b><span class="chip" data-draw="mv-inflation" data-source="macro_themes" data-field="verdict" data-where="theme=Inflation">—</span></div><p data-draw="mt-inflation" data-source="macro_themes" data-field="text" data-where="theme=Inflation">—</p></div>
+      <div class="mth" id="mth-fed"><div class="mhead"><b>Fed &amp; rates</b><span class="chip" data-draw="mv-fed" data-source="macro_themes" data-field="verdict" data-where="theme=Fed%20%26%20rates">—</span></div><p data-draw="mt-fed" data-source="macro_themes" data-field="text" data-where="theme=Fed%20%26%20rates">—</p></div>
+      <div class="mth" id="mth-jobs"><div class="mhead"><b>Jobs</b><span class="chip" data-draw="mv-jobs" data-source="macro_themes" data-field="verdict" data-where="theme=Jobs">—</span></div><p data-draw="mt-jobs" data-source="macro_themes" data-field="text" data-where="theme=Jobs">—</p></div>
+      <div class="mth" id="mth-credit"><div class="mhead"><b>Credit &amp; liquidity</b><span class="chip" data-draw="mv-credit" data-source="macro_themes" data-field="verdict" data-where="theme=Credit%20%26%20liquidity">—</span></div><p data-draw="mt-credit" data-source="macro_themes" data-field="text" data-where="theme=Credit%20%26%20liquidity">—</p></div>
+      <div class="mth" id="mth-dollar"><div class="mhead"><b>Dollar &amp; oil</b><span class="chip" data-draw="mv-dollar" data-source="macro_themes" data-field="verdict" data-where="theme=Dollar%20%26%20oil">—</span></div><p data-draw="mt-dollar" data-source="macro_themes" data-field="text" data-where="theme=Dollar%20%26%20oil">—</p></div>
+    </section>
+
+    <div class="grid2">
+      <section id="ratesbox" class="card">
+        <h2>Rates: what the Fed sets and what markets charge</h2>
+        <details class="info"><summary>How to read</summary><p>Monthly averages over ten years. The Fed sets the overnight rate; the 2-year shows where markets expect it to go; the 10-year drives mortgages and how much investors pay for future earnings. The real yield is the 10-year after expected inflation: the higher it is, the tighter money really is.</p></details>
+        <div class="legend" data-draw="rlegend" data-source="macro_series"></div>
+        <div class="chart" data-draw="rateschart" data-source="macro_series"></div>
+      </section>
+      <section id="inflbox" class="card">
+        <h2>Inflation against the Fed's 2% target</h2>
+        <details class="info"><summary>How to read</summary><p>Year-on-year price growth. Core leaves out food and energy, which swing with weather and oil. Core PCE is the gauge the Fed targets at 2% (dashed line). Inflation well above target keeps the Fed hiking even when stocks fall.</p></details>
+        <div class="legend" data-draw="ilegend" data-source="macro_series"></div>
+        <div class="chart" data-draw="inflchart" data-source="macro_series"></div>
+      </section>
+    </div>
+
+    <section id="regimebox" class="card">
+      <h2>How stocks did after macro conditions like today</h2>
+      <details class="info"><summary>How to read</summary><p>Each bar is the S&amp;P 500's median return over the 12 months after past months with that condition, since 1950 or when the data starts. The red tick is the 1-in-10 bad outcome. Conditions true today are in bold. The dashed line is the normal month. Each month's condition uses data that was already published by then. Bars that sit close together mean the condition told you little about the next year.</p></details>
+      <div class="chart regimes" data-draw="regchart" data-source="macro_regimes"></div>
+      <details class="info"><summary>Show the numbers</summary>
+        <div class="tablewrap">
+          <table data-source="macro_regimes" data-row-key="condition">
+            <thead><tr><th data-field="condition">Condition</th><th data-field="months">Months</th><th data-field="episodes">Episodes</th><th data-field="fwd3m_median">Next 3 months</th><th data-field="fwd12m_median">Next 12 months</th><th data-field="fwd12m_pos_pct">Up after 1 year</th><th data-field="fwd12m_p10">1-in-10 year</th></tr></thead>
+            <tbody data-draw="regtbody"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section id="indtable" class="card">
+      <h2>Every indicator, against its own history</h2>
+      <details class="info"><summary>How to read</summary><p>The latest reading of each gauge, its ten-year path, and where it ranks in its full history (the bar runs from its lowest to its highest reading). "For stocks" says whether the reading has usually helped or hurt equities, with the reason. Hover a name for what it measures. Source: FRED, St. Louis Fed.</p></details>
+      <div class="tablewrap">
+        <table data-source="macro_indicators" data-row-key="id">
+          <thead><tr><th data-field="label">Indicator</th><th data-field="display">Latest</th><th class="l">10 years</th><th data-field="percentile" class="l">Rank in history</th><th data-field="chg_12m">12-mo change</th><th data-field="signal" class="l">For stocks</th><th data-field="why" class="l">Why</th><th data-field="asof">As of</th></tr></thead>
+          <tbody data-draw="mind"></tbody>
+        </table>
+      </div>
+    </section>
   </div>
 
   <div class="tabpage" id="momentum" role="tabpanel" hidden>
@@ -569,6 +641,162 @@
       .style('fill', (r) => (r.median_excess_3m_pct >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'));
     gg.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.etf) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text((r) => r.sector);
     gg.append('text').attr('x', W - m.r + 8).attr('y', (r) => ys(r.etf) + ys.bandwidth() / 2).attr('dy', '0.35em').text((r) => `beat S&P ${r.beat_spx_pct}%`);
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const P = () => window.pwr;
+  const el_ = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
+  const ok = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+  const failed = (id) => dash.data(id).status === 'error';
+  const dt = (s) => new Date(s + 'T00:00:00Z');
+  const GROUPS = ['Growth', 'Jobs', 'Credit & liquidity', 'Fed & rates', 'Inflation', 'Dollar & oil'];
+  const sigColor = (s) => (s === 'tailwind' ? 'var(--color-ok)' : s === 'headwind' ? 'var(--color-bad)' : 'var(--cds-chart-muted)');
+  const vCls = (v) => 'chip ' + (/tail|support/i.test(v) ? 'v-tail' : /head|restrict/i.test(v) ? 'v-head' : 'v-mix');
+
+  dash.calc('macro_score', { title: 'Indicators helping or hurting stocks, by area', description: 'Count of tailwind, neutral and headwind readings in each macro area.',
+    inputs: ['macro_indicators'], fn: (indicators) => ['Growth', 'Jobs', 'Credit & liquidity', 'Fed & rates', 'Inflation', 'Dollar & oil'].map((group) => {
+      const rs = indicators.filter((r) => r.group === group);
+      return { group, tailwind: rs.filter((r) => r.signal === 'tailwind').length, neutral: rs.filter((r) => r.signal === 'neutral').length, headwind: rs.filter((r) => r.signal === 'headwind').length };
+    }) });
+
+  const THEMES = { overall: 'Overall', growth: 'Growth', inflation: 'Inflation', fed: 'Fed & rates', jobs: 'Jobs', credit: 'Credit & liquidity', dollar: 'Dollar & oil' };
+  Object.entries(THEMES).forEach(([k, name]) => {
+    const row = () => (ok('macro_themes') || []).find((r) => r.theme === name);
+    dash.draw('mv-' + k, (el) => { const r = row(); el.textContent = r ? r.verdict : '—'; el.className = r ? vCls(r.verdict) : 'chip'; });
+    dash.draw('mt-' + k, (el) => { const r = row(); el.textContent = r ? r.text : failed('macro_themes') ? 'Macro read failed to load.' : '—'; });
+  });
+
+  dash.draw('mscore', (el) => {
+    el.replaceChildren(); const rows = ok('macro_score');
+    if (!rows) { el.textContent = failed('macro_indicators') ? 'Indicators failed to load.' : '—'; return; }
+    const W = el.clientWidth, rh = 22, m = { t: 4, r: 8, b: 4, l: 130 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Count of macro indicators that are tailwinds, neutral or headwinds for stocks, by area');
+    const mx = d3.max(rows, (r) => r.tailwind + r.neutral + r.headwind) || 1;
+    const xs = d3.scaleLinear([0, mx], [m.l, W - m.r]);
+    const ys = d3.scaleBand(rows.map((r) => r.group), [m.t, H - m.b]).padding(0.25);
+    const tip = P().tip(el);
+    rows.forEach((r) => {
+      svg.append('text').attr('x', m.l - 8).attr('y', ys(r.group) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(r.group);
+      let x0 = 0;
+      [['tailwind', 'var(--color-ok)'], ['neutral', 'var(--cds-chart-muted)'], ['headwind', 'var(--color-bad)']].forEach(([k, c]) => {
+        if (!r[k]) return;
+        svg.append('rect').attr('x', xs(x0) + 1).attr('width', Math.max(1, xs(x0 + r[k]) - xs(x0) - 2)).attr('y', ys(r.group)).attr('height', ys.bandwidth()).attr('rx', 3).style('fill', c);
+        svg.append('text').attr('x', (xs(x0) + xs(x0 + r[k])) / 2).attr('y', ys(r.group) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'middle').style('fill', 'var(--color-bg)').style('font-weight', 600).text(r[k]);
+        x0 += r[k];
+      });
+      svg.append('rect').attr('x', 0).attr('width', W).attr('y', ys(r.group)).attr('height', ys.bandwidth()).style('fill', 'transparent')
+        .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.group, ''], ['Tailwinds:', String(r.tailwind)], ['Neutral:', String(r.neutral)], ['Headwinds:', String(r.headwind)]], px, py); })
+        .on('pointerleave', () => tip.hide());
+    });
+  });
+
+  function lines(el, ids, names, opts) {
+    el.replaceChildren(); const all = ok('macro_series');
+    if (!all) { el.textContent = failed('macro_series') ? 'History failed to load.' : '—'; return; }
+    const ser = ids.map((id, i) => ({ id, name: names[i], color: dash.colors[i], pts: all.filter((r) => r.id === id).map((r) => ({ d: dt(r.date), v: r.value })) })).filter((s) => s.pts.length);
+    const W = el.clientWidth, H = 260, m = { t: 12, r: Math.min(110, W * 0.28), b: 24, l: 40 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', opts.aria);
+    const xs = d3.scaleUtc(d3.extent(ser.flatMap((s) => s.pts), (p) => p.d), [m.l, W - m.r]);
+    const ext = d3.extent(ser.flatMap((s) => s.pts.map((p) => p.v)).concat(opts.ref != null ? [opts.ref] : []));
+    const ys = d3.scaleLinear([Math.min(0, ext[0]), ext[1]], [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat((v) => v + '%'));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 110))).tickFormat(d3.utcFormat('%Y')));
+    if (opts.ref != null) {
+      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', ys(opts.ref)).attr('y2', ys(opts.ref)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 3');
+      svg.append('text').attr('x', m.l + 4).attr('y', ys(opts.ref) - 4).text(opts.refLabel);
+    }
+    ser.forEach((s) => svg.append('path').datum(s.pts).attr('d', d3.line().x((p) => xs(p.d)).y((p) => ys(p.v))).style('fill', 'none').style('stroke', s.color).style('stroke-width', 1.8));
+    let last = -1e9;
+    ser.map((s) => ({ s, y: ys(s.pts[s.pts.length - 1].v) })).sort((a, b) => a.y - b.y).forEach((o) => {
+      let y = Math.max(o.y, last + 14); last = y; const lv = o.s.pts[o.s.pts.length - 1].v;
+      svg.append('text').attr('x', W - m.r + 6).attr('y', y).attr('dy', '0.35em').style('fill', o.s.color).style('font-weight', 600).text(d3.format('.2f')(lv) + '% ' + o.s.name);
+    });
+    const tip = P().tip(el), guide = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)').style('opacity', 0);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev); const at = xs.invert(px); const x0 = ser[0].pts[Math.min(ser[0].pts.length - 1, d3.bisector((p) => p.d).left(ser[0].pts, at))].d;
+        guide.attr('x1', xs(x0)).attr('x2', xs(x0)).style('opacity', 1);
+        tip.show([[d3.utcFormat('%b %Y')(x0), '']].concat(ser.map((s) => { const p = s.pts.find((q) => +q.d === +x0); return [s.name + ':', p ? d3.format('.2f')(p.v) + '%' : '—']; })), xs(x0), m.t);
+      })
+      .on('pointerleave', () => { tip.hide(); guide.style('opacity', 0); });
+  }
+  function legend(el, names) { el.replaceChildren(); names.forEach((n, i) => { const s = el_('span'); const k = el_('i'); k.style.background = dash.colors[i]; s.append(k, n); el.appendChild(s); }); }
+  const RN = ['Fed funds', '2-year', '10-year', 'Real 10-year'], IN = ['Core PCE', 'Core CPI', 'Headline CPI'];
+  dash.draw('rlegend', (el) => legend(el, RN));
+  dash.draw('ilegend', (el) => legend(el, IN));
+  dash.draw('rateschart', (el) => lines(el, ['fedfunds', 'y2', 'y10', 'real10'], RN, { aria: 'Fed funds, 2-year, 10-year and real 10-year yields over ten years' }));
+  dash.draw('inflchart', (el) => lines(el, ['core_pce', 'core_cpi', 'cpi'], IN, { aria: 'Core PCE, core CPI and headline CPI inflation over ten years against the 2% target', ref: 2, refLabel: 'Fed target 2%' }));
+
+  dash.draw('regchart', (el) => {
+    el.replaceChildren(); const rows0 = ok('macro_regimes');
+    if (!rows0) { el.textContent = failed('macro_regimes') ? 'Conditions failed to load.' : '—'; return; }
+    const base = rows0.find((r) => r.condition.startsWith('All months')), rows = rows0.filter((r) => r !== base);
+    const W = el.clientWidth, narrow = W < 560, rh = narrow ? 40 : 28, m = { t: 18, r: 70, b: 24, l: narrow ? 8 : Math.min(320, W * 0.42) }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'S&P 500 median 12-month return after past months with each macro condition');
+    const xs = d3.scaleLinear([Math.min(0, d3.min(rows, (r) => r.fwd12m_p10)), d3.max(rows, (r) => r.fwd12m_median)], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.condition), [m.t, H - m.b]).padding(narrow ? 0.55 : 0.3);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 100))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v > 0 ? '+' : '') + v + '%'));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)');
+    if (base) {
+      svg.append('line').attr('x1', xs(base.fwd12m_median)).attr('x2', xs(base.fwd12m_median)).attr('y1', m.t - 6).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '4 3');
+      svg.append('text').attr('x', xs(base.fwd12m_median)).attr('y', 10).attr('text-anchor', 'middle').text('Normal ' + P().pct(base.fwd12m_median));
+    }
+    const tip = P().tip(el);
+    rows.forEach((r) => {
+      const y = ys(r.condition), bh = ys.bandwidth(), cy = y + bh / 2;
+      const lab = svg.append('text').style('font-weight', r.today_fits ? 600 : null).style('fill', r.today_fits ? 'var(--color-fg)' : null).text(r.condition + (r.today_fits ? '  ← today' : ''));
+      if (narrow) lab.attr('x', m.l).attr('y', y - 4); else lab.attr('x', m.l - 8).attr('y', cy).attr('dy', '0.35em').attr('text-anchor', 'end');
+      svg.append('rect').attr('x', Math.min(xs(0), xs(r.fwd12m_median))).attr('width', Math.abs(xs(r.fwd12m_median) - xs(0))).attr('y', y).attr('height', bh).attr('rx', 3)
+        .style('fill', r.today_fits ? dash.colors[0] : 'var(--cds-chart-muted)').style('opacity', r.today_fits ? 0.9 : 0.6);
+      svg.append('line').attr('x1', xs(r.fwd12m_p10)).attr('x2', xs(r.fwd12m_p10)).attr('y1', y - 2).attr('y2', y + bh + 2).style('stroke', 'var(--color-bad)').style('stroke-width', 2.5);
+      svg.append('text').attr('x', xs(r.fwd12m_median) + 6).attr('y', cy).attr('dy', '0.35em').style('font-size', '11px').text(P().pct(r.fwd12m_median) + ' · up ' + r.fwd12m_pos_pct + '%');
+      svg.append('rect').attr('x', 0).attr('width', W).attr('y', y - 4).attr('height', bh + 8).style('fill', 'transparent')
+        .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.condition, ''], ['Next 12 months, median:', P().pct(r.fwd12m_median)], ['Up after a year:', r.fwd12m_pos_pct + '%'], ['1-in-10 year:', P().pct(r.fwd12m_p10)], ['Next 3 months:', P().pct(r.fwd3m_median)], ['Sample:', r.months + ' months, ' + r.episodes + ' episodes since ' + r.since]], px, py); })
+        .on('pointerleave', () => tip.hide());
+    });
+  });
+
+  dash.draw('regtbody', (tb) => {
+    tb.replaceChildren(); const rows = ok('macro_regimes');
+    if (!rows) { const c = tb.insertRow().insertCell(); c.colSpan = 7; c.textContent = failed('macro_regimes') ? 'Conditions failed to load.' : '—'; return; }
+    rows.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.condition); if (r.today_fits && !r.condition.startsWith('All months')) tr.className = 'fits';
+      const c = (t, k) => { const x = tr.insertCell(); x.textContent = t; if (k) x.className = k; };
+      c(r.condition); c(String(r.months)); c(String(r.episodes)); c(P().pct(r.fwd3m_median), P().cls(r.fwd3m_median)); c(P().pct(r.fwd12m_median), P().cls(r.fwd12m_median));
+      c(r.fwd12m_pos_pct + '%'); c(P().pct(r.fwd12m_p10), 'down');
+    });
+  });
+
+  dash.draw('mind', (tb) => {
+    tb.replaceChildren(); const rows = ok('macro_indicators'), ser = ok('macro_series') || [];
+    if (!rows) { const c = tb.insertRow().insertCell(); c.colSpan = 8; c.textContent = failed('macro_indicators') ? 'Indicators failed to load.' : '—'; return; }
+    const signed = (r) => { const v = r.chg_12m, d = r.unit === '%' || r.unit === 'pts' ? 2 : 1; const s = (v > 0 ? '+' : v < 0 ? '−' : '') + d3.format(`,.${d}f`)(Math.abs(v)); return r.unit === '%' ? s + ' pts' : r.unit === '$' ? s.replace(/^([+−]?)/, '$1$') : r.unit === 'k' ? s + 'k' : s; };
+    GROUPS.forEach((g) => {
+      const rs = rows.filter((r) => r.group === g); if (!rs.length) return;
+      const h = tb.insertRow(); h.className = 'grp'; const hc = h.insertCell(); hc.colSpan = 8; hc.textContent = g;
+      rs.forEach((r) => {
+        const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.id);
+        const c = (t, k) => { const x = tr.insertCell(); x.textContent = t; if (k) x.className = k; return x; };
+        c(r.label).title = r.meaning + ' Since ' + r.since + '. FRED: ' + r.fred + '.';
+        c(r.display);
+        const sc = c('', 'l spk'); const pts = ser.filter((p) => p.id === r.id);
+        if (pts.length > 1) {
+          const w = 110, hh = 26; const xs = d3.scaleLinear([0, pts.length - 1], [1, w - 3]); const ys = d3.scaleLinear(d3.extent(pts, (p) => p.value), [hh - 3, 3]);
+          const s = d3.select(sc).append('svg').attr('width', w).attr('height', hh).attr('role', 'img').attr('aria-label', r.label + ', last ten years');
+          s.append('path').attr('d', d3.line().x((p, i) => xs(i)).y((p) => ys(p.value))(pts)).style('fill', 'none').style('stroke', 'var(--color-fg-muted)').style('stroke-width', 1.3);
+          s.append('circle').attr('cx', xs(pts.length - 1)).attr('cy', ys(pts[pts.length - 1].value)).attr('r', 2.6).style('fill', sigColor(r.signal));
+        }
+        const pc = c('', 'l'); const bar = el_('span', 'pbar'); bar.style.background = 'var(--cds-chart-grid)'; const mk = el_('i'); mk.style.left = `calc(${r.percentile}% - 1.5px)`; bar.appendChild(mk);
+        const pt = el_('span'); pt.textContent = d3.format('.0f')(r.percentile) + 'th pct · since ' + r.since; pt.style.fontSize = 'var(--cds-font-size-caption)'; pt.style.color = 'var(--color-fg-muted)'; pc.append(bar, pt);
+        c(signed(r));
+        const sg = c('', 'l'); const chip = el_('span', 'chip'); chip.style.color = sigColor(r.signal); chip.textContent = r.signal[0].toUpperCase() + r.signal.slice(1); sg.appendChild(chip);
+        c(r.why, 'why');
+        c(d3.utcFormat('%b %-d')(dt(r.asof)));
+      });
+    });
   });
 })();
 </script>

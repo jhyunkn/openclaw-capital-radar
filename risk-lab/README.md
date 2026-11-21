@@ -9,6 +9,7 @@ Capital Radar's risk and validation desk. Capital Radar decides *what* to do; th
 | `market_history.py` | Where 10 market gauges rank against their full history, and what the S&P 500 did after similar readings |
 | `market_brief.py` | S&P 500 floor/ceiling levels, sector leadership after past sell-offs, momentum screen of 65 names |
 | `price_outlook.py` | 1/3/12-month likely price ranges per stock, "if the S&P follows history" path, analyst targets |
+| `macro_engine.py` | 24 FRED macro gauges (Fed, rates, inflation, jobs, growth, credit, liquidity, dollar, oil) ranked in history; S&P 500 returns after past months with the same macro conditions |
 | `analyze_portfolio.py` | Holdings, exposures, crisis replays, exit rules, leveraged-ETF decay, alerts |
 | `risk_engine.py` | 24-factor risk model, six VaR methods, 500-day VaR backtest (Kupiec, Christoffersen, Basel light), exit-rule backtest since 2019, option Greeks, organic limits, P&L attribution |
 | `today.py` | Tax lots, year-end tax window, trading record, decision queue |

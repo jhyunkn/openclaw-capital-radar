@@ -16,7 +16,7 @@ STEPS = [("build_positions.py", []), ("market_brief.py", [paths.OUT_PRIVATE]), (
          ("market_history.py", [paths.OUT_PRIVATE])]
 if have_private:
     STEPS.append(("today.py", [paths.OUT_PRIVATE]))
-STEPS += [("price_outlook.py", [paths.OUT_PRIVATE]), ("make_public.py", [])]
+STEPS += [("price_outlook.py", [paths.OUT_PRIVATE]), ("make_public.py", []), ("macro_engine.py", [paths.OUT_PUBLIC])]
 if os.path.exists(VENV_PY):
     STEPS.append(("advanced_engine.py", [paths.OUT_PRIVATE]))
 for script, args in STEPS:

@@ -14,6 +14,26 @@ Capital Radar's risk and validation desk. Capital Radar decides *what* to do; th
 | `today.py` | Tax lots, year-end tax window, trading record, decision queue |
 | `make_public.py` | Strips everything personal and writes the public datasets |
 
+## Open-source libraries
+
+Established libraries replace or independently check the hand-written engines (`engines/advanced_engine.py`, local Python 3.12 environment, `requirements-full.txt`):
+
+| Library | Stars* | Role |
+|---|---|---|
+| arch | 1.7k | GJR-GARCH-t one-day loss forecast, backtested out of sample like the other methods |
+| quantstats | 7.9k | Performance statistics and monthly returns for the replayed book vs SPY |
+| Riskfolio-Lib | 4.6k | Risk-parity and minimum-CVaR reference mixes of today's holdings |
+| PyPortfolioOpt | 6.2k | Efficient frontier with Ledoit-Wolf shrinkage |
+| vectorbt | 9.9k | Independent re-run of the exit-rule backtest |
+| yfinance | 26k | Independent price check for stocks and ETFs |
+| ccxt | 45k | Independent price check for crypto (Coinbase) |
+| Qlib (Microsoft) | 50k | Installed; next: factor library and testing whether Capital Radar's opportunity scores predict returns |
+
+Under evaluation: TradingAgents (123k, multi-agent LLM research debate) and ai-hedge-fund (65k) need a model API key and spend limit;
+OpenBB (76k) will be installed only from its pinned PyPI package, never cloned, because its GitHub org moved to an unverified `openbq-org`;
+freqtrade and nautilus_trader are execution engines and are used for research only, never order placement.
+*GitHub stars as of 21 Nov 2026.
+
 ## Public vs private
 
 This repository is public, so the lab is split:

@@ -35,9 +35,26 @@ for x in ov.get("stops", []):
     if x["symbol"] in book:
         book[x["symbol"]].update({k: x[k] for k in ("stop", "limit") if k in x})
 
+# Reprice to the latest daily close in the lab's price caches when it is newer than the sync
+# (Capital Radar's sync can run intraday; every risk number should use the same closing prices).
+import datetime as _dt
+sync_day = cr["syncedAt"][:10]
+repriced = []
+for p in book.values():
+    best = None
+    for f in (f"brief_{p['yahoo']}", p["yahoo"]):
+        fp = os.path.join(paths.CACHE, f.replace("^", "_").replace("=", "_") + ".json")
+        if os.path.exists(fp):
+            d = json.load(open(fp)); k = max(d); v = d[k]
+            close = v["c"] if isinstance(v, dict) else v
+            if best is None or k > best[0]:
+                best = (k, close)
+    if best and best[0] >= sync_day and best[1]:
+        p["price_sync"] = p["price"]; p["price"] = round(float(best[1]), 6); p["priceBasis"] = f"daily close {best[0]}"
+        repriced.append(p["symbol"])
 positions = list(book.values()) + ov.get("options", [])
 cash = float(cr["portfolio"]["cash"]) + float(ov.get("extra_cash", 0))
 out = {"syncedAt": cr["syncedAt"], "source": cr["source"] + ("; plus private overrides" if ov else ""),
        "cash": round(cash, 2), "positions": positions}
 json.dump(out, open(paths.POSITIONS, "w"), indent=1)
-print(f"risk-lab: {len(positions)} positions, cash ${cash:,.0f}, synced {cr['syncedAt']}")
+print(f"risk-lab: {len(positions)} positions, cash ${cash:,.0f}, synced {cr['syncedAt']}, repriced to close: {', '.join(repriced) or 'none'}")

@@ -9,15 +9,19 @@ LAB = os.path.dirname(os.path.abspath(__file__)); ENG = os.path.join(LAB, "engin
 sys.path.insert(0, ENG)
 import paths
 
+VENV_PY = os.path.join(LAB, ".venv", "bin", "python")
+PY = VENV_PY if os.path.exists(VENV_PY) else sys.executable  # full library stack when the lab environment exists
 have_private = all(os.path.exists(os.path.join(paths.PRIVATE, f)) for f in ("tax_lots_raw.json", "trades_raw.json"))
-STEPS = [("build_positions.py", []), ("analyze_portfolio.py", [paths.OUT_PRIVATE]), ("risk_engine.py", [paths.OUT_PRIVATE]),
+STEPS = [("build_positions.py", []), ("market_brief.py", [paths.OUT_PRIVATE]), ("build_positions.py", []), ("analyze_portfolio.py", [paths.OUT_PRIVATE]), ("risk_engine.py", [paths.OUT_PRIVATE]),
          ("market_history.py", [paths.OUT_PRIVATE])]
 if have_private:
     STEPS.append(("today.py", [paths.OUT_PRIVATE]))
-STEPS += [("market_brief.py", [paths.OUT_PRIVATE]), ("price_outlook.py", [paths.OUT_PRIVATE]), ("make_public.py", [])]
+STEPS += [("price_outlook.py", [paths.OUT_PRIVATE]), ("make_public.py", [])]
+if os.path.exists(VENV_PY):
+    STEPS.append(("advanced_engine.py", [paths.OUT_PRIVATE]))
 for script, args in STEPS:
     t = time.time()
-    r = subprocess.run([sys.executable, os.path.join(ENG, script), *args], capture_output=True, text=True)
+    r = subprocess.run([PY, os.path.join(ENG, script), *args], capture_output=True, text=True)
     if r.returncode != 0:
         print(f"FAIL {script}\n{r.stdout[-1500:]}\n{r.stderr[-3000:]}")
         sys.exit(r.returncode)

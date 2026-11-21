@@ -264,6 +264,13 @@ for i in range(len(assets)):
 pnl = AR @ wv  # $ P&L of today's book on each historical day
 pnl[0] = 0
 assert np.isfinite(pnl).all(), "non-finite P&L history"
+# Hand the daily series to the library-based engines (advanced_engine.py): private, never committed.
+with open(os.path.join(paths.OUT_PRIVATE, "book_series.csv"), "w") as f:
+    f.write("date,book_pnl,spy_ret," + ",".join(a["symbol"].replace(",", " ") for a in assets) + "\n")
+    for t in range(1, T):
+        f.write(cal[t].isoformat() + f",{pnl[t]:.4f},{np.nan_to_num(Rt['SPY'][t]):.6f}," + ",".join(f"{AR[t, i]:.6f}" for i in range(len(assets))) + "\n")
+with open(os.path.join(paths.OUT_PRIVATE, "book_meta.json"), "w") as f:
+    json.dump({"total": total, "values": {a["symbol"]: a["value"] for a in assets}}, f)
 L = -pnl
 
 def hs_var(x, a):

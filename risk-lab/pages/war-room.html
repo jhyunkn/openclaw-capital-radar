@@ -110,6 +110,10 @@
 @media (max-width: 760px) { .pwr .olgrid { grid-template-columns: 1fr; } }
 .pwr .chart.spark { min-height: 200px; } .pwr .chart.ranges { min-height: 230px; } .pwr .chart.strip { min-height: 300px; }
 .pwr .chart.strip .row { cursor: pointer; }
+
+.pwr .chart.heatm { min-height: 180px; }
+.pwr h3.subh { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-lg) 0 var(--cds-gap-xs); }
+.pwr .libs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--cds-gap-md); }
 </style>
 
 <div class="pwr">
@@ -304,6 +308,15 @@
       <div class="tile"><span class="eyebrow">If NVDX jumps 20% today</span><span class="big" data-draw="o-up" data-source="option_risk" data-field="value_if_up_20pct" data-row="0">—</span><span class="meta">Model value of all 10 contracts</span></div>
     </div>
   </section>
+    <section id="mixes" class="card">
+      <h2>Reference mixes for the same holdings (Riskfolio-Lib, PyPortfolioOpt)</h2>
+      <details class="info"><summary>How to read</summary><p>Two textbook ways to spread risk across the holdings you already own, computed by the open-source Riskfolio-Lib library from the last two years of daily returns. Risk parity gives every holding an equal share of risk. Min CVaR minimizes the average loss on the worst 5% of days. They show how far today's mix sits from a balanced one; they are reference points, not recommendations. The frontier (PyPortfolioOpt) shows the best historical return for each level of risk; expected returns are the weakest input, so read it for risk efficiency.</p></details>
+      <div class="tablewrap"><table data-source="mix_stats" data-row-key="mix"><thead><tr><th data-field="mix">Mix</th><th data-field="vol_pct">Volatility / yr</th><th data-field="cvar95_daily_pct">Avg loss, worst 5% of days</th><th data-field="max_risk_share_pct">Biggest risk share</th><th data-field="max_risk_holding" class="l">Held by</th></tr></thead><tbody data-draw="mixstats"></tbody></table></div>
+      <div class="grid2" style="margin-top: var(--cds-gap-md)">
+        <div><div class="legend"><span><i style="background: var(--cds-chart-muted)"></i>Current</span><span><i data-swatch="0"></i>Risk parity</span><span><i data-swatch="1"></i>Min CVaR</span></div><div class="chart" data-draw="mixchart" data-source="mix_weights"></div></div>
+        <div><div class="legend"><span><i data-swatch="0"></i>Efficient frontier</span><span><i style="background: var(--color-bad)"></i>Your mix</span><span><i style="background: var(--color-ok)"></i>Frontier at the same risk</span></div><div class="chart" data-draw="frontier" data-source="frontier"></div></div>
+      </div>
+    </section>
     <section id="holdings" class="card">
     <h2>Holdings detail</h2>
     <details class="info"><summary>How to read</summary><p>Nasdaq and Bitcoin sensitivities come from a two-factor regression on the past year's daily moves. R² is how much of a holding's daily movement those two explain. A low R² means company news matters more than the market.</p></details>
@@ -334,6 +347,15 @@
           <thead><tr><th data-field="period">Period</th><th data-field="total">Total</th><th data-field="market">Market</th><th data-field="style">Style</th><th data-field="sector">Sector</th><th data-field="macro">Macro</th><th data-field="crypto">Crypto</th><th data-field="specific">Company news</th><th data-field="top_factors" class="l">Biggest drivers</th></tr></thead>
           <tbody data-draw="attrtable"></tbody>
         </table>
+      </div>
+    </section>
+
+    <section id="perfstats" class="card">
+      <h2>Professional performance statistics (quantstats)</h2>
+      <details class="info"><summary>How to read</summary><p>Today's holdings replayed at today's dollar sizes since 2019, against SPY, computed with the open-source quantstats library. This flatters the book: it replays stocks partly chosen because they already did well (hindsight bias), so treat return and alpha as upper bounds. The risk rows (drawdown, worst day, CVaR) are the reliable part.</p></details>
+      <div class="grid2">
+        <div class="tablewrap"><table data-source="perf_stats" data-row-key="metric"><thead><tr><th data-field="metric">Metric</th><th data-field="book">Your mix</th><th data-field="spy">SPY</th></tr></thead><tbody data-draw="perftable"></tbody></table></div>
+        <div><div class="legend"><span><i style="background: var(--color-ok)"></i>Up month</span><span><i style="background: var(--color-bad)"></i>Down month</span></div><div class="chart heatm" data-draw="heatmap" data-source="monthly_returns"></div></div>
       </div>
     </section>
     <div class="grid2">
@@ -457,6 +479,22 @@
       </table>
     </div>
   </section>
+
+    <section id="libchecks" class="card">
+      <h2>Independent checks by established open-source libraries</h2>
+      <details class="info"><summary>How to read</summary><p>Hand-written models are only as good as their author. These rows re-run key parts of the lab with widely used open-source libraries: arch for a GARCH volatility forecast, vectorbt for the exit-rule backtest, yfinance and ccxt for prices. Agreement raises confidence; disagreement is flagged, not hidden.</p></details>
+      <div class="tiles" data-source="garch_var">
+        <div class="tile"><span class="eyebrow">GARCH 99% bad day (arch)</span><span class="big" data-draw="g-var" data-source="garch_var" data-field="var99" data-row="0">—</span><span class="meta"><span data-draw="g-pct" data-source="garch_var" data-field="var99_pct" data-row="0">—</span>% of account · vol <span data-draw="g-vol" data-source="garch_var" data-field="vol_annual_pct" data-row="0">—</span>%/yr now</span></div>
+        <div class="tile"><span class="eyebrow">GARCH 500-day test</span><span class="big" data-draw="g-verdict" data-source="garch_var" data-field="verdict" data-row="0">—</span><span class="meta">95%: <span data-draw="g-b95" data-source="garch_var" data-field="breaches95" data-row="0">—</span> breaches vs 25 · 99%: <span data-draw="g-b99" data-source="garch_var" data-field="breaches99" data-row="0">—</span> vs 5</span></div>
+        <div class="tile"><span class="eyebrow">Losses raise volatility more (γ)</span><span class="big" data-draw="g-gam" data-source="garch_var" data-field="leverage_gamma" data-row="0">—</span><span class="meta">Tail heaviness ν <span data-draw="g-nu" data-source="garch_var" data-field="tail_nu" data-row="0">—</span> (lower = fatter)</span></div>
+      </div>
+      <h3 class="subh">Exit-rule backtest: hand-written engine vs vectorbt</h3>
+      <div class="legend"><span><i style="background: var(--cds-chart-muted)"></i>Hand-written</span><span><i data-swatch="0"></i>vectorbt</span><span><i style="background: var(--color-bad)"></i>Gap over 5 pts: not robust</span></div>
+      <div class="chart" data-draw="vbtchart" data-source="rules_crosscheck"></div>
+      <h3 class="subh">Prices vs an independent source</h3>
+      <div class="tablewrap"><table data-source="data_check" data-row-key="symbol"><thead><tr><th data-field="symbol">Holding</th><th data-field="price_used">Price used</th><th data-field="check_price">Independent</th><th data-field="source" class="l">Source</th><th data-field="gap_pct">Gap</th><th data-field="status" class="l">Status</th></tr></thead><tbody data-draw="datacheck"></tbody></table></div>
+      <div class="libs" data-draw="libstatus" data-source="library_status"></div>
+    </section>
     <section id="var" class="card">
     <h2>How much a bad day could cost, six ways</h2>
     <details class="info"><summary>How to read</summary><p>Each method answers "what loss is exceeded on only 5% or 1% of days" for today's holdings. Expected shortfall is the average loss on the worst 2.5% of days, the measure banks now report under Basel's FRTB rules. The spread between methods is itself information: fat tails push the historical and filtered numbers above the bell-curve ones.</p></details>
@@ -1277,5 +1315,129 @@
     pair(h, [['Cut losses', r.shallower_dd, 'var(--color-ok)'], ['Beat return', r.beat_cagr, 'var(--color-bad)']]); });
   dash.draw('m-pass', (h) => { const d = dash.data('bt_pass'); h.replaceChildren(); if (d.status !== 'ok') return; const box = el_('div', 'dots');
     for (let i = 0; i < 3; i++) { const dot = el_('i', i < d.data ? 'on' : ''); box.appendChild(dot); } h.appendChild(box); });
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data.length ? d.data[0] : null; };
+  function text(name, get, clsFn) { dash.draw(name, (el) => { const v = get(); el.textContent = v == null || v === false ? '—' : v.text; el.className = v && clsFn ? clsFn(v) : ''; }); }
+  function cell(tr, t, c) { const x = tr.insertCell(); x.textContent = t; if (c) x.className = c; return x; }
+  function bad(tb, d, n, what) { if (d.status === 'ok') return false; const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = n; c.textContent = d.status === 'error' ? what + ' failed to load.' : '—'; return true; }
+  const G = () => one('garch_var');
+  text('g-var', () => G() && { text: P().usd(G().var99) }, () => 'down');
+  text('g-pct', () => G() && { text: String(G().var99_pct) });
+  text('g-vol', () => G() && { text: String(G().vol_annual_pct) });
+  text('g-verdict', () => G() && { text: G().verdict, v: G().verdict }, (v) => (v.v === 'Passes' ? 'up' : 'down'));
+  text('g-b95', () => G() && { text: String(G().breaches95) });
+  text('g-b99', () => G() && { text: String(G().breaches99) });
+  text('g-gam', () => G() && { text: d3.format('.2f')(G().leverage_gamma) });
+  text('g-nu', () => G() && { text: String(G().tail_nu) });
+
+  dash.draw('perftable', (tb) => {
+    const d = dash.data('perf_stats'); tb.replaceChildren(); if (bad(tb, d, 3, 'Performance')) return;
+    const higherBetter = new Set(['CAGR', 'Sharpe', 'Sortino', 'Calmar', 'Win rate (days)', 'Best day', 'Tail ratio', 'Alpha (annual)', 'Max drawdown', 'Daily VaR 95%', 'Daily CVaR 95%', 'Worst day']);
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.metric);
+      const f = (v) => (v == null ? '—' : d3.format(r.unit === '%' ? '.2f' : '.2f')(v) + (r.unit || ''));
+      cell(tr, r.metric);
+      const better = higherBetter.has(r.metric) ? r.book > r.spy : r.book < r.spy;
+      cell(tr, f(r.book), r.metric === 'Beta to SPY' || r.metric === 'Skew' || r.metric === 'Kurtosis' ? '' : better ? 'up' : 'down'); cell(tr, f(r.spy));
+    });
+  });
+
+  dash.draw('heatmap', (el) => {
+    const d = dash.data('monthly_returns'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Monthly returns failed to load.' : '—'; return; }
+    const years = [...new Set(d.data.map((r) => r.year))];
+    const W = el.clientWidth, m = { t: 18, l: 40, r: 4, b: 4 }, cw = (W - m.l - m.r) / 12, ch = 20, H = m.t + years.length * ch + m.b;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Monthly returns of the replayed book by year and month');
+    const col = d3.scaleDiverging([-15, 0, 15], (t) => d3.interpolateRgb(getComputedStyle(el).getPropertyValue('--color-bad') || '#c33', getComputedStyle(el).getPropertyValue('--color-ok') || '#3a3')(t)).clamp(true);
+    'JFMAMJJASOND'.split('').forEach((c, i) => svg.append('text').attr('x', m.l + i * cw + cw / 2).attr('y', 12).attr('text-anchor', 'middle').text(c));
+    years.forEach((y, j) => svg.append('text').attr('x', m.l - 6).attr('y', m.t + j * ch + ch / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(y));
+    const tip = P().tip(el);
+    d.data.forEach((r) => {
+      const j = years.indexOf(r.year);
+      svg.append('rect').attr('x', m.l + (r.month - 1) * cw + 1).attr('y', m.t + j * ch + 1).attr('width', cw - 2).attr('height', ch - 2).attr('rx', 2)
+        .style('fill', r.book_pct >= 0 ? 'var(--color-ok)' : 'var(--color-bad)').style('opacity', Math.min(1, 0.15 + Math.abs(r.book_pct) / 12))
+        .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.key, ''], ['Your mix:', P().pct(r.book_pct)], ['SPY:', P().pct(r.spy_pct)]], px, py); })
+        .on('pointerleave', () => tip.hide());
+    });
+  });
+
+  dash.draw('mixstats', (tb) => {
+    const d = dash.data('mix_stats'); tb.replaceChildren(); if (bad(tb, d, 5, 'Mixes')) return;
+    d.data.forEach((r) => { const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.mix);
+      cell(tr, r.mix); cell(tr, r.vol_pct + '%'); cell(tr, '−' + r.cvar95_daily_pct + '%'); cell(tr, r.max_risk_share_pct + '%', r.max_risk_share_pct > 25 ? 'down' : ''); cell(tr, r.max_risk_holding, 'l'); });
+  });
+
+  dash.draw('mixchart', (el) => {
+    const d = dash.data('mix_weights'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Mix weights failed to load.' : '—'; return; }
+    const mixes = ['Current', 'Risk parity', 'Min CVaR'], colors = ['var(--cds-chart-muted)', dash.colors[0], dash.colors[1]];
+    const syms = [...new Set(d.data.map((r) => r.symbol))];
+    const W = el.clientWidth, rh = 30, m = { t: 4, r: 40, b: 22, l: 54 }, H = m.t + m.b + syms.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Weight of each holding in the current, risk parity and minimum CVaR mixes');
+    const xs = d3.scaleLinear([0, d3.max(d.data, (r) => r.weight_pct)], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(syms, [m.t, H - m.b]).padding(0.15), sub = d3.scaleBand(mixes, [0, ys.bandwidth()]).padding(0.05);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(5).tickSize(-(H - m.t - m.b)).tickFormat((v) => v + '%'));
+    const tip = P().tip(el);
+    syms.forEach((s) => {
+      svg.append('text').attr('x', m.l - 6).attr('y', ys(s) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(s);
+      mixes.forEach((mx, i) => { const r = d.data.find((x) => x.symbol === s && x.mix === mx); if (!r) return;
+        svg.append('rect').attr('x', m.l).attr('y', ys(s) + sub(mx)).attr('height', sub.bandwidth()).attr('width', Math.max(0.5, xs(r.weight_pct) - m.l)).style('fill', colors[i])
+          .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show([[s + ' · ' + mx, ''], ['Weight:', r.weight_pct + '%'], ['Risk share:', r.risk_share_pct + '%']], px, py); }).on('pointerleave', () => tip.hide()); });
+    });
+  });
+
+  dash.draw('frontier', (el) => {
+    const d = dash.data('frontier'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Frontier failed to load.' : '—'; return; }
+    const fr = d.data.filter((r) => r.kind === 'frontier'), cur = d.data.find((r) => r.kind === 'current'), same = d.data.find((r) => r.kind === 'same-risk frontier');
+    const W = el.clientWidth, H = 300, m = { t: 10, r: 12, b: 34, l: 48 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Efficient frontier with your current mix');
+    const all = d.data; const xs = d3.scaleLinear(d3.extent(all, (r) => r.vol_pct), [m.l, W - m.r]).nice(), ys = d3.scaleLinear(d3.extent(all, (r) => r.ret_pct), [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat((v) => v + '%'));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(5).tickFormat((v) => v + '%'));
+    svg.append('text').attr('x', W - m.r).attr('y', H - 4).attr('text-anchor', 'end').text('Volatility / yr →');
+    svg.append('path').datum(fr).attr('d', d3.line().x((r) => xs(r.vol_pct)).y((r) => ys(r.ret_pct))).style('fill', 'none').style('stroke', dash.colors[0]).style('stroke-width', 2);
+    if (cur && same) svg.append('line').attr('x1', xs(cur.vol_pct)).attr('x2', xs(same.vol_pct)).attr('y1', ys(cur.ret_pct)).attr('y2', ys(same.ret_pct)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '3 3');
+    [[cur, 'var(--color-bad)', 'Your mix'], [same, 'var(--color-ok)', 'Same risk, on frontier']].forEach(([r, c, lab]) => { if (!r) return;
+      svg.append('circle').attr('cx', xs(r.vol_pct)).attr('cy', ys(r.ret_pct)).attr('r', 6).style('fill', c);
+      svg.append('text').attr('x', xs(r.vol_pct) - 8).attr('y', ys(r.ret_pct)).attr('dy', '0.35em').attr('text-anchor', 'end').text(lab + ' ' + r.ret_pct + '%'); });
+  });
+
+  dash.draw('vbtchart', (el) => {
+    const d = dash.data('rules_crosscheck'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Cross-check failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, rh = 26, m = { t: 4, r: 70, b: 22, l: 72 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Annual return of the wide trailing-stop rule from the hand-written engine and from vectorbt, per ticker');
+    const xs = d3.scaleLinear(d3.extent([0, ...rows.flatMap((r) => [r.vbt_cagr_pct, r.mine_cagr_pct])]), [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.ticker), [m.t, H - m.b]).padding(0.2);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(6).tickSize(-(H - m.t - m.b)).tickFormat((v) => v + '%/yr'));
+    const tip = P().tip(el);
+    rows.forEach((r) => {
+      const y = ys(r.ticker), bh = ys.bandwidth() / 2, badGap = Math.abs(r.cagr_gap_pts) > 5;
+      svg.append('text').attr('x', m.l - 6).attr('y', y + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-weight', badGap ? 600 : null).text(r.ticker);
+      [[r.mine_cagr_pct, 'var(--cds-chart-muted)', 0], [r.vbt_cagr_pct, badGap ? 'var(--color-bad)' : dash.colors[0], bh]].forEach(([v, c, o]) =>
+        svg.append('rect').attr('x', Math.min(xs(0), xs(v))).attr('width', Math.abs(xs(v) - xs(0))).attr('y', y + o).attr('height', bh - 1).style('fill', c));
+      svg.append('text').attr('x', W - m.r + 6).attr('y', y + ys.bandwidth() / 2).attr('dy', '0.35em').attr('class', badGap ? 'down' : '').text((r.cagr_gap_pts > 0 ? '+' : '') + r.cagr_gap_pts + ' pts');
+      svg.append('rect').attr('x', 0).attr('y', y).attr('width', W).attr('height', ys.bandwidth()).style('fill', 'transparent')
+        .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.ticker, ''], ['Hand-written:', r.mine_cagr_pct + '%/yr, ' + r.mine_trades + ' trades, worst ' + r.mine_max_dd_pct + '%'], ['vectorbt:', r.vbt_cagr_pct + '%/yr, ' + r.vbt_trades + ' trades, worst ' + r.vbt_max_dd_pct + '%']], px, py); })
+        .on('pointerleave', () => tip.hide());
+    });
+  });
+
+  dash.draw('datacheck', (tb) => {
+    const d = dash.data('data_check'); tb.replaceChildren(); if (bad(tb, d, 6, 'Data check')) return;
+    d.data.forEach((r) => { const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      cell(tr, r.symbol); cell(tr, P().px(r.price_used)); cell(tr, P().px(r.check_price)); cell(tr, r.source, 'l'); cell(tr, P().pct(r.gap_pct, 2), Math.abs(r.gap_pct) >= 3 ? 'down' : '');
+      const c = tr.insertCell(); c.className = 'l'; const s = document.createElement('span'); s.className = 'chip ' + (r.status === 'OK' ? 'up' : r.status === 'Check' ? 'warn' : 'down'); s.textContent = r.status; c.appendChild(s); });
+  });
+
+  dash.draw('libstatus', (el) => {
+    const d = dash.data('library_status'); el.replaceChildren(); if (d.status !== 'ok') return;
+    d.data.forEach((r) => { const s = document.createElement('span'); s.className = 'chip ' + (r.status === 'ok' ? 'up' : 'down'); s.textContent = r.step + (r.status === 'ok' ? ' ✓' : ' failed'); if (r.detail) s.title = r.detail; el.appendChild(s); });
+  });
 })();
 </script>

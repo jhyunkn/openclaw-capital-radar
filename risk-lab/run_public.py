@@ -15,7 +15,7 @@ except ImportError:
     sys.exit(0)
 import paths
 
-STEPS = [("build_positions.py", []), ("market_brief.py", [paths.OUT_PRIVATE]), ("market_history.py", [paths.OUT_PRIVATE]),
+STEPS = [("build_positions.py", []), ("market_brief.py", [paths.OUT_PRIVATE]), ("build_positions.py", []), ("market_history.py", [paths.OUT_PRIVATE]),
          ("price_outlook.py", [paths.OUT_PRIVATE]), ("make_public.py", [])]
 for script, args in STEPS:
     t = time.time()

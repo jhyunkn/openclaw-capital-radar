@@ -1,0 +1,1281 @@
+<meta name="dash-one-writer">
+<style>
+.pwr { display: grid; gap: var(--cds-gap-xl); font-variant-numeric: tabular-nums; }
+.pwr h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.pwr h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.pwr .sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); max-width: 80ch; }
+.pwr .lede { max-width: 76ch; margin: var(--cds-gap-sm) 0 0; line-height: 1.55; }
+.pwr .eyebrow { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.pwr .disclaim { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-left: 2px solid var(--color-warn); padding-left: var(--cds-pad-sm); margin-top: var(--cds-gap-sm); max-width: 80ch; }
+.pwr .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 2px; }
+.pwr .tile .big { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.15; }
+.pwr .tile .meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .up { color: var(--color-ok); } .pwr .down { color: var(--color-bad); } .pwr .warn { color: var(--color-warn); }
+.pwr .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
+.pwr .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.pwr .chart { position: relative; min-height: 260px; }
+.pwr .chart svg text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); }
+.pwr .chart .domain, .pwr .chart .tick line { stroke: var(--cds-chart-axis); }
+.pwr .chart .gridline line { stroke: var(--cds-chart-grid); }
+.pwr .chart .gridline .domain { display: none; }
+.pwr .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: 6px; padding: 6px 8px; font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 5; }
+.pwr .tip b { font-weight: var(--cds-font-weight-medium); }
+.pwr .legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-xs); }
+.pwr .legend i { display: inline-block; width: 12px; height: 10px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.pwr .tablewrap { overflow-x: auto; }
+.pwr table { border-collapse: collapse; width: 100%; }
+.pwr th { text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: 6px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.pwr th:first-child, .pwr td:first-child { text-align: left; }
+.pwr td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.pwr td.l, .pwr th.l { text-align: left; }
+.pwr td.wrap { white-space: normal; min-width: 260px; text-align: left; }
+.pwr .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid currentColor; white-space: nowrap; }
+.pwr .alerts { display: grid; gap: var(--cds-gap-sm); }
+.pwr .alert { display: grid; grid-template-columns: auto 1fr; gap: 4px var(--cds-gap-md); align-items: baseline; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.pwr .alert .what { font-weight: var(--cds-font-weight-medium); }
+.pwr .alert .detail { grid-column: 2; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+.pwr details li { margin: 6px 0; max-width: 82ch; line-height: 1.5; }
+.pwr details summary { cursor: pointer; font-weight: var(--cds-font-weight-medium); }
+
+.pwr .bottom { display: grid; gap: var(--cds-gap-sm); margin: var(--cds-gap-md) 0 0; padding: 0; list-style: none; max-width: 92ch; }
+.pwr .bottom li { display: grid; grid-template-columns: 7.5rem 1fr; gap: var(--cds-gap-md); line-height: 1.5; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.pwr .bottom .k { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); padding-top: 2px; }
+@media (max-width: 560px) { .pwr .bottom li { grid-template-columns: 1fr; gap: 2px; } }
+.pwr .howto { font-size: var(--cds-font-size-body); max-width: 92ch; }
+.pwr .howto ul { margin: var(--cds-gap-sm) 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.pwr .tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-bg); z-index: 3; padding-top: var(--cds-pad-sm); }
+.pwr .tabs button { font: inherit; font-weight: var(--cds-font-weight-medium); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: 8px 12px; cursor: pointer; }
+.pwr .tabs button[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+.pwr .tabs button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.pwr .tabs .n { display: inline-block; min-width: 1.4em; color: var(--color-fg-muted); }
+.pwr .tabpage { display: grid; gap: var(--cds-gap-xl); }
+.pwr .tabintro { font-size: var(--cds-font-size-body); max-width: 86ch; margin: 0; line-height: 1.55; }
+.pwr .pbar { display: inline-block; position: relative; width: 110px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 8px;
+  background: linear-gradient(90deg, var(--color-ok), var(--cds-chart-grid) 45%, var(--cds-chart-grid) 60%, var(--color-warn) 80%, var(--color-bad)); opacity: .9; }
+.pwr .pbar i { position: absolute; top: -4px; width: 3px; height: 16px; border-radius: 2px; background: var(--color-fg); }
+.pwr td .m { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); white-space: normal; max-width: 42ch; }
+.pwr tr.fits td { background: color-mix(in srgb, var(--color-warn) 10%, transparent); }
+
+.pwr .queue { display: grid; gap: 0; }
+.pwr .qitem { display: grid; grid-template-columns: 6.5rem 1fr auto; gap: 4px var(--cds-gap-md); padding: var(--cds-pad-md) 0; border-bottom: 1px solid var(--color-border-line); align-items: baseline; }
+.pwr .qitem .t { font-weight: var(--cds-font-weight-medium); }
+.pwr .qitem .w { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .qitem .why, .pwr .qitem .ch { grid-column: 2 / 4; font-size: var(--cds-font-size-body); line-height: 1.5; max-width: 90ch; }
+.pwr .qitem .ch { color: var(--color-fg-muted); }
+.pwr .qitem button { font: inherit; font-size: var(--cds-font-size-caption); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; cursor: pointer; color: var(--color-fg); }
+.pwr .qitem button:focus-visible { outline: 2px solid var(--color-fg); }
+@media (max-width: 560px) { .pwr .qitem { grid-template-columns: 1fr; } .pwr .qitem .why, .pwr .qitem .ch { grid-column: 1; } }
+.pwr .limits { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--cds-gap-lg); }
+.pwr .lim { display: grid; gap: 6px; }
+.pwr .lim .n { font-weight: var(--cds-font-weight-medium); }
+.pwr .lim .v { font-family: var(--font-anthropic-serif); font-size: 26px; }
+.pwr .lim .track { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); overflow: hidden; }
+.pwr .lim .fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+.pwr .lim .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-fg); }
+.pwr .lim .b { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; }
+.pwr .chart.tallfan { min-height: 360px; }
+.pwr #oltable tbody tr { cursor: pointer; }
+.pwr #oltable tbody tr.on td { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
+.pwr #oltable td.held::after { content: " ●"; color: var(--color-fg-muted); font-size: 9px; }
+
+.pwr .vtiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .vt { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 6px; align-content: start; }
+.pwr .vt .vl { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.pwr .vt .vb { font-family: var(--font-anthropic-serif); font-size: 30px; line-height: 1.1; }
+.pwr .vt .vm { display: block; min-height: 22px; }
+.pwr .vt .vc { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .mb { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); margin-top: 6px; }
+.pwr .mb .f { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px; }
+.pwr .mb .k { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 2px; background: var(--color-fg); }
+.pwr .mb .t { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--color-bad); }
+.pwr .pair { display: grid; gap: 4px; }
+.pwr .pair .r { display: grid; grid-template-columns: 4.2rem 1fr; gap: 6px; align-items: center; font-size: 11px; color: var(--color-fg-muted); }
+.pwr .pair .r .mb { margin: 0; height: 8px; }
+.pwr .dots { display: flex; gap: 6px; margin-top: 6px; }
+.pwr .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--cds-chart-grid); }
+.pwr .dots i.on { background: var(--color-ok); }
+.pwr details.info { margin: 0 0 var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr details.info summary { cursor: pointer; width: max-content; }
+.pwr details.info p { margin: 6px 0 0; max-width: 80ch; line-height: 1.5; }
+.pwr details.qd { grid-column: 2 / 4; font-size: var(--cds-font-size-caption); }
+.pwr details.qd summary { cursor: pointer; color: var(--color-fg-muted); }
+@media (max-width: 560px) { .pwr details.qd { grid-column: 1; } }
+.pwr .stats { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); margin: var(--cds-gap-sm) 0; }
+.pwr .stat { display: grid; padding: 6px 12px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.pwr .stat small { font-size: 11px; color: var(--color-fg-muted); }
+.pwr .stat b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 18px; }
+
+.pwr .olgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--cds-gap-lg); align-items: start; }
+@media (max-width: 760px) { .pwr .olgrid { grid-template-columns: 1fr; } }
+.pwr .chart.spark { min-height: 200px; } .pwr .chart.ranges { min-height: 230px; } .pwr .chart.strip { min-height: 300px; }
+.pwr .chart.strip .row { cursor: pointer; }
+</style>
+
+<div class="pwr">
+  <header id="head">
+    <div class="eyebrow">Portfolio war room · prices at close of <span data-draw="asof" data-source="summary" data-field="asof" data-row="0">—</span></div>
+    <h1>Portfolio war room</h1>
+    <p class="disclaim">Analysis, not advice. Nothing here places orders.</p>
+    <details class="howto" id="howto">
+      <summary>How to read this page</summary>
+      <ul>
+        <li><b>Start on Today.</b> It gives the bottom line, the decisions waiting on you ranked by urgency, and how stretched your account is against its own normal. The other tabs hold the evidence: market history, account risk, your performance, exits and taxes, and model checks.</li>
+        <li><b>Limits</b> come from your portfolio's own history, not a generic rule. 100% means as stretched as the account gets on its worst 1 in 10 days.</li>
+        <li><b>Percentile</b> means rank in history: a 97th-percentile VIX is higher than on 97% of past days. The colored bar runs from calm (green) to extreme stress (red).</li>
+        <li><b>"What came next"</b> columns show what the S&amp;P 500 did after past days that looked like today. Median is the middle outcome; episodes counts separate events, which is the real sample size.</li>
+        <li><b>Green and red</b> always mean good and bad for you, not up and down. Point at any chart for exact values.</li>
+      </ul>
+    </details>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="today" aria-selected="true"><span class="n">1</span>Today</button>
+    <button type="button" role="tab" data-tab="market" aria-selected="false"><span class="n">2</span>Market vs history</button>
+    <button type="button" role="tab" data-tab="outlook" aria-selected="false"><span class="n">3</span>Price outlook</button>
+    <button type="button" role="tab" data-tab="account" aria-selected="false"><span class="n">4</span>Your account</button>
+    <button type="button" role="tab" data-tab="performance" aria-selected="false"><span class="n">5</span>Performance</button>
+    <button type="button" role="tab" data-tab="exitsplan" aria-selected="false"><span class="n">6</span>Exits &amp; taxes</button>
+    <button type="button" role="tab" data-tab="trust" aria-selected="false"><span class="n">7</span>Can you trust it?</button>
+  </nav>
+
+  <div class="tabpage" id="today" role="tabpanel">
+    <section id="bottom" class="vtiles">
+      <div class="vt"><span class="vl">Fear (VIX)</span><span class="vb" data-draw="bl-vix" data-source="market_gauges" data-field="current" data-where="gauge=vix">—</span><span class="vm" data-draw="m-vix" data-source="market_gauges"></span><span class="vc">Higher than <b data-draw="bl-vixp" data-source="market_gauges" data-field="percentile" data-where="gauge=vix">—</b>% of days</span></div>
+      <div class="vt"><span class="vl">S&amp;P, past month</span><span class="vb" data-draw="bl-1m" data-source="market_gauges" data-field="current" data-where="gauge=spx_1m">—</span><span class="vm" data-draw="m-1m" data-source="market_gauges"></span><span class="vc">Worse than <b data-draw="bl-1mp" data-source="bl_1m_worse">—</b>% of months</span></div>
+      <div class="vt"><span class="vl">After setups like today</span><span class="vb" data-draw="bl-f3" data-source="market_analogs" data-field="fwd3m_median" data-where="setup=Today's%20setup%3A%20VIX%2030%2B%20and%20S%26P%208%E2%80%9320%25%20off%20its%20high">—</span><span class="vm" data-draw="m-hist" data-source="market_analogs"></span><span class="vc">S&amp;P, next 3 months · up after 1 yr <b data-draw="bl-pos" data-source="market_analogs" data-field="fwd12m_pos_pct" data-where="setup=Today's%20setup%3A%20VIX%2030%2B%20and%20S%26P%208%E2%80%9320%25%20off%20its%20high">—</b>%</span></div>
+      <div class="vt"><span class="vl">Credit stress</span><span class="vb" data-draw="bl-baa" data-source="market_gauges" data-field="current" data-where="gauge=baa">—</span><span class="vm" data-draw="m-credit" data-source="market_gauges"></span><span class="vc"><b data-draw="bl-baaz" data-source="market_gauges" data-field="zone" data-where="gauge=baa">—</b> · crisis line 2.5</span></div>
+      <div class="vt"><span class="vl">Your next 3 months</span><span class="vb" data-draw="bl-you" data-source="market_analogs" data-field="your_3m_median" data-where="setup=Today's%20setup%3A%20VIX%2030%2B%20and%20S%26P%208%E2%80%9320%25%20off%20its%20high">—</span><span class="vm" data-draw="m-you" data-source="market_analogs"></span><span class="vc">Typical vs bad case <b data-draw="bl-youbad" data-source="market_analogs" data-field="your_3m_bad" data-where="setup=Today's%20setup%3A%20VIX%2030%2B%20and%20S%26P%208%E2%80%9320%25%20off%20its%20high">—</b></span></div>
+      <div class="vt"><span class="vl">Risk hotspot</span><span class="vb">BMNR + TQQQ</span><span class="vm" data-draw="m-hot" data-source="hot_pair"></span><span class="vc"><b data-draw="hot-w" data-source="hot_pair" data-field="weight" data-row="0">—</b>% of money · <b data-draw="hot-r" data-source="hot_pair" data-field="risk" data-row="0">—</b>% of risk</span></div>
+      <div class="vt"><span class="vl">Exit rules since 2019</span><span class="vb"><span data-draw="bl-dd" data-source="rule_summary" data-field="shallower_dd" data-where="rule_id=scale">—</span>/<span data-draw="bl-n" data-source="rule_summary" data-field="tickers" data-where="rule_id=scale">—</span></span><span class="vm" data-draw="m-rules" data-source="rule_summary"></span><span class="vc">Cut losses · beat returns <b data-draw="bl-cagr" data-source="rule_summary" data-field="beat_cagr" data-where="rule_id=scale">—</b></span></div>
+      <div class="vt"><span class="vl">Models passing tests</span><span class="vb"><span data-draw="bl-pass" data-source="bt_pass">—</span>/3</span><span class="vm" data-draw="m-pass" data-source="bt_pass"></span><span class="vc">500-day loss-forecast test</span></div>
+    </section>
+    <section id="queue" class="card">
+      <h2>Decisions waiting on you</h2>
+      <details class="info"><summary>How to read</summary><p>Ranked by urgency: <b>Now</b> needs a decision before the next session, <b>This week</b> has a deadline, <b>Watch</b> stays in view. Each lists the evidence and your choices, without a recommendation.</p></details>
+      <div class="queue" data-draw="queue" data-source="decisions"></div>
+    </section>
+    <section id="limits" class="card">
+      <h2>How stretched is your account against its own normal?</h2>
+      <details class="info"><summary>How to read</summary><p>Each limit comes from this portfolio's own history. 100% is as stretched as it gets on its worst 1 in 10 days; above that is a breach.</p></details>
+      <div class="limits" data-draw="limits" data-source="limits"></div>
+    </section>
+  </div>
+
+  <div class="tabpage" id="market" role="tabpanel" hidden>
+    <section id="gaugetable" class="card">
+      <h2>Today's market against history</h2>
+      <details class="info"><summary>How to read</summary><p>"Next 3 months" and "Up after 1 year" use past days whose reading was within 5 percentile points of today's. Normal, across all days since 1950, is a median of <span data-draw="base3" data-source="market_analogs" data-field="fwd3m_median" data-where="setup=All%20days%20since%201950%20(normal)">—</span> over 3 months and up after a year <span data-draw="basepos" data-source="market_analogs" data-field="fwd12m_pos_pct" data-where="setup=All%20days%20since%201950%20(normal)">—</span>% of the time.</p></details>
+      <div class="tablewrap">
+        <table data-source="market_gauges" data-row-key="gauge">
+          <thead><tr><th data-field="label">Gauge</th><th data-field="current">Today</th><th data-field="percentile" class="l">Rank in history</th><th data-field="median_hist">Typical</th><th data-field="fwd3m_median">S&amp;P next 3 months</th><th data-field="fwd12m_median">Next 12 months</th><th data-field="fwd12m_pos_pct">Up after 1 year</th><th data-field="episodes">Episodes</th></tr></thead>
+          <tbody data-draw="gauges"></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="analogs" class="card">
+      <h2>Setups like today, and what came next</h2>
+      <details class="info"><summary>How to read</summary><p>Highlighted rows match today. "Your 3 months" multiplies your stock-market exposure by the S&amp;P's move; it leaves out gold, crypto and sector effects, which tab 2 covers. The bad case is the 10th-percentile outcome, 1 in 10 was worse.</p></details>
+      <div class="tablewrap">
+        <table data-source="market_analogs" data-row-key="setup">
+          <thead><tr><th data-field="setup">Setup</th><th data-field="episodes">Episodes</th><th data-field="fwd1m_median">Next month</th><th data-field="fwd3m_median">Next 3 months</th><th data-field="fwd12m_median">Next 12 months</th><th data-field="fwd12m_pos_pct">Up after 1 year</th><th data-field="fwd12m_worst">Worst year</th><th data-field="your_3m_median">Your 3 months, typical</th><th data-field="your_3m_bad">Your 3 months, bad case</th><th data-field="recent_starts" class="l">Recent episodes</th></tr></thead>
+          <tbody data-draw="analogs"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="tabpage" id="outlook" role="tabpanel" hidden>
+    <section id="fan" class="card">
+      <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; flex-wrap: wrap; justify-content: space-between;">
+        <h2 style="margin:0">Where could it be?</h2>
+        <span><label for="olsel" class="sub" style="margin:0 6px 0 0">Stock:</label><select id="olsel" class="dash-select" data-draw="olsel" aria-label="Stock" data-source="outlook_summary"></select></span>
+      </div>
+      <div class="stats" data-draw="olline" data-source="outlook_summary"></div>
+      <div class="olgrid">
+        <div class="chart spark" data-draw="spark" data-source="outlook_history"></div>
+        <div>
+          <div class="legend">
+            <span><i data-swatch="0"></i>Likely (2 in 3)</span>
+            <span><i data-swatch="0" style="opacity:.3"></i>Possible (9 in 10)</span>
+            <span><i style="background: var(--color-fg); border-radius:50%; width:10px"></i>Today</span>
+            <span><i style="background: var(--color-warn); width:4px"></i>If S&amp;P repeats history</span>
+          </div>
+          <div class="chart ranges" data-draw="ranges" data-source="outlook_summary outlook_cone"></div>
+        </div>
+      </div>
+      <details class="info"><summary>How to read</summary><p>Each row is a time horizon on the same price scale. The thick bar is where the price lands about 2 times in 3; the thin line about 9 times in 10. Bars widen further out because uncertainty grows. The orange tick is where it would be if the S&amp;P repeats its typical path after past sell-offs like this one, scaled by how much the stock moves with the market. The analyst row shows Wall Street's 12-month targets (low, average, high), many set before this sell-off. None of this is a prediction.</p></details>
+    </section>
+    <section id="oltable" class="card">
+      <h2>All stocks: 3-month range vs analyst targets</h2>
+      <div class="legend">
+        <span><i data-swatch="0"></i>Likely 3-month range</span>
+        <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst average target</span>
+      </div>
+      <div class="chart strip" data-draw="strip" data-source="outlook_summary"></div>
+      <details class="info"><summary>How to read</summary><p>Each row is one stock, centered on today's price (0%). The bar is where it lands about 2 times in 3 over the next 3 months. The green diamond is the average 12-month analyst target. A diamond far beyond the bar means analysts expect more than a normal year delivers. Click a row to see that stock above.</p></details>
+      <details class="info"><summary>Show the numbers</summary>
+      <div class="tablewrap">
+        <table data-source="outlook_summary" data-row-key="symbol">
+          <thead><tr><th data-field="symbol">Stock</th><th data-field="price">Price</th><th data-field="m1_lo">1 month</th><th data-field="m3_lo">3 months</th><th data-field="m12_lo">12 months</th><th data-field="history_3m">History path, 3 mo</th><th data-field="target_mean">Analyst average</th><th data-field="upside_to_mean_pct">Upside</th><th data-field="buy_pct">Buy ratings</th></tr></thead>
+          <tbody data-draw="oltbody"></tbody>
+        </table>
+      </div>
+      </details>
+    </section>
+  </div>
+
+  <div class="tabpage" id="account" role="tabpanel" hidden>
+    <section id="gauges" class="tiles">
+    <div class="tile"><span class="eyebrow">Account value</span><span class="big" data-draw="t-total" data-source="summary" data-field="total_value" data-row="0">—</span><span class="meta">Cash <span data-draw="t-cash" data-source="summary" data-field="cash_pct" data-row="0">—</span>% of account</span></div>
+    <div class="tile"><span class="eyebrow">Unrealized P&amp;L</span><span class="big" data-draw="t-pnl" data-source="summary" data-field="unrealized_pnl" data-row="0">—</span><span class="meta"><span data-draw="t-pnlp" data-source="summary" data-field="unrealized_pnl_pct" data-row="0">—</span>% on cost</span></div>
+    <div class="tile"><span class="eyebrow">Loss on a 1-in-20 bad day</span><span class="big" data-draw="t-var" data-source="summary" data-field="var95_1d" data-row="0">—</span><span class="meta">Worst daily loss, past year: <span data-draw="t-worst" data-source="summary" data-field="worst_day_1y" data-row="0">—</span></span></div>
+    <div class="tile"><span class="eyebrow">Volatility, annualized</span><span class="big" data-draw="t-vol" data-source="summary" data-field="vol_1y_pct" data-row="0">—</span><span class="meta">S&amp;P 500 is usually 15–20%</span></div>
+    <div class="tile"><span class="eyebrow">Deepest fall, past year</span><span class="big" data-draw="t-mdd" data-source="summary" data-field="max_drawdown_1y_pct" data-row="0">—</span><span class="meta">Today's mix, replayed</span></div>
+    <div class="tile"><span class="eyebrow">Exposure with leverage</span><span class="big" data-draw="t-lev" data-source="summary" data-field="effective_leverage" data-row="0">—</span><span class="meta"><span data-draw="t-look" data-source="summary" data-field="lookthrough_exposure" data-row="0">—</span> of market exposure</span></div>
+  </section>
+    <section id="alerts" class="card">
+    <h2>Rule alerts</h2>
+    <details class="info"><summary>How to read</summary><p>Each line is a fixed rule that your current positions trip. They flag things to look at; they don't tell you what to do.</p></details>
+    <div class="alerts" data-draw="alerts" data-source="alerts"></div>
+  </section>
+    <div class="grid2">
+    <section id="risk" class="card">
+      <h2>Money versus risk, by holding</h2>
+      <details class="info"><summary>How to read</summary><p>Share of the account's dollars against share of its day-to-day swings (variance contribution from the past year's daily moves). A risk bar far longer than its money bar marks a position that drives your results out of proportion to its size.</p></details>
+      <div class="legend"><span><i style="background: var(--cds-chart-muted)"></i>Share of money</span><span><i data-swatch="0"></i>Share of risk</span></div>
+      <div class="chart" data-draw="risk" data-source="holdings"></div>
+    </section>
+    <section id="exposure" class="card">
+      <h2>What you really own, with leverage counted</h2>
+      <details class="info"><summary>How to read</summary><p>Each theme at market value and at look-through value, where a 3× ETF counts three times. TQQQ's $5.5k behaves like $16.5k of Nasdaq.</p></details>
+      <div class="legend"><span><i style="background: var(--cds-chart-muted)"></i>Market value</span><span><i data-swatch="0"></i>Look-through</span></div>
+      <div class="chart" data-draw="exposure" data-source="exposure"></div>
+    </section>
+  </div>
+    <div class="grid2">
+    <section id="factors" class="card">
+      <h2>Where the risk comes from: 24-factor model</h2>
+      <details class="info"><summary>How to read</summary><p>Share of your account's variance from each factor (market, style, sector, macro, crypto) and from company-specific news. Factors other than the market are measured beyond what the market explains, so "Gold" means gold's own moves. Negative bars are hedges.</p></details>
+      <div class="chart" data-draw="facchart" data-source="factor_risk"></div>
+    </section>
+    <section id="stress2" class="card">
+      <h2>Crisis stress, factor by factor</h2>
+      <details class="info"><summary>How to read</summary><p>The actual daily factor moves from each crisis applied to today's factor exposures, day by day. "Worst fall" is the deepest peak-to-trough decline along the way, which matters more than where the window ended. Stressed 99% is the one-day loss using that crisis's correlations.</p></details>
+      <div class="tablewrap">
+        <table data-source="stress_factor" data-row-key="scenario">
+          <thead><tr><th data-field="scenario">Crisis</th><th data-field="market_move_pct">S&amp;P over window</th><th data-field="book_pnl">Your book, end</th><th data-field="worst_drawdown">Worst fall</th><th data-field="worst_day">Worst day</th><th data-field="stressed_var99">Stressed 99%</th></tr></thead>
+          <tbody data-draw="stress2"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+    <div class="grid2">
+    <section id="scenarios" class="card">
+      <h2>Stress test: replaying real crises on today's holdings</h2>
+      <details class="info"><summary>How to read</summary><p>Each holding's measured sensitivity to the Nasdaq and to Bitcoin, applied to the moves of past crises and to hypothetical shocks. The "last month" row compares the model with what your holdings actually did, so you can see how far to trust it.</p></details>
+      <div class="legend"><span><i style="background: var(--color-bad)"></i>Loss</span><span><i style="background: var(--color-ok)"></i>Gain</span><span><i style="background: var(--color-fg)"></i>Actual result (model check)</span></div>
+      <div class="chart" data-draw="scen" data-source="scenarios"></div>
+    </section>
+    <section id="replay" class="card">
+      <h2>Today's mix over the past year</h2>
+      <details class="info"><summary>How to read</summary><p>Your current share counts held fixed and replayed over 12 months, against SPY. Both start at 100. This is how the mix behaves, not your actual account history.</p></details>
+      <div class="legend"><span><i style="background: var(--color-fg)"></i>Your mix</span><span><i data-swatch="0"></i>SPY</span></div>
+      <div class="chart" data-draw="replay" data-source="replay"></div>
+    </section>
+  </div>
+    <section id="assetrisk" class="card">
+    <h2>Each holding through the factor model</h2>
+    <details class="info"><summary>How to read</summary><p>Risk share includes how each holding interacts with the rest of the book. Top drivers are ranked by their effect on risk. "Own news" is the share of a holding's swings that the 24 factors don't explain.</p></details>
+    <div class="tablewrap">
+      <table data-source="asset_risk" data-row-key="symbol">
+        <thead><tr><th data-field="symbol">Holding</th><th data-field="value">Value</th><th data-field="risk_contrib_pct">Risk share</th><th data-field="beta_market">Market β</th><th data-field="r2">R²</th><th data-field="specific_share_pct">Own news</th><th data-field="top_loadings" class="l">Top drivers (loading)</th></tr></thead>
+        <tbody data-draw="assetrisk"></tbody>
+      </table>
+    </div>
+  </section>
+    <section id="option" class="card">
+    <h2>NVDX call, priced properly</h2>
+    <details class="info"><summary>How to read</summary><p>Black-Scholes using Robinhood's implied volatility, set against the market's own quote. The liquidation value uses the bid, what someone would pay you now.</p></details>
+    <div class="tiles" data-source="option_risk">
+      <div class="tile"><span class="eyebrow">Mark vs sellable now</span><span class="big" data-draw="o-mark" data-source="option_risk" data-field="position_mark_value" data-row="0">—</span><span class="meta">Bid value <span data-draw="o-liq" data-source="option_risk" data-field="position_liquidation_value" data-row="0">—</span> · paid <span data-draw="o-cost" data-source="option_risk" data-field="cost_paid" data-row="0">—</span></span></div>
+      <div class="tile"><span class="eyebrow">Chance it finishes in the money</span><span class="big" data-draw="o-itm" data-source="option_risk" data-field="prob_finish_itm_pct" data-row="0">—</span><span class="meta"><span data-draw="o-days" data-source="option_risk" data-field="days_left" data-row="0">—</span> days left · implied vol <span data-draw="o-iv" data-source="option_risk" data-field="implied_vol_pct" data-row="0">—</span>%</span></div>
+      <div class="tile"><span class="eyebrow">Delta (share-equivalent)</span><span class="big" data-draw="o-delta" data-source="option_risk" data-field="delta" data-row="0">—</span><span class="meta">Acts like <span data-draw="o-dd" data-source="option_risk" data-field="delta_dollars" data-row="0">—</span> of NVDX</span></div>
+      <div class="tile"><span class="eyebrow">If NVDX jumps 20% today</span><span class="big" data-draw="o-up" data-source="option_risk" data-field="value_if_up_20pct" data-row="0">—</span><span class="meta">Model value of all 10 contracts</span></div>
+    </div>
+  </section>
+    <section id="holdings" class="card">
+    <h2>Holdings detail</h2>
+    <details class="info"><summary>How to read</summary><p>Nasdaq and Bitcoin sensitivities come from a two-factor regression on the past year's daily moves. R² is how much of a holding's daily movement those two explain. A low R² means company news matters more than the market.</p></details>
+    <div class="tablewrap">
+      <table data-source="holdings" data-row-key="symbol">
+        <thead><tr><th data-field="symbol">Holding</th><th data-field="value">Value</th><th data-field="weight_pct">Weight</th><th data-field="pnl">P&amp;L</th><th data-field="pnl_pct">P&amp;L %</th><th data-field="beta_nasdaq">Nasdaq β</th><th data-field="beta_bitcoin">Bitcoin β</th><th data-field="r2">R²</th><th data-field="vol_1y_pct">Volatility</th><th data-field="off_52w_high_pct">Off 52-wk high</th><th data-field="risk_share_pct">Risk share</th></tr></thead>
+        <tbody data-draw="holdings"></tbody>
+      </table>
+    </div>
+  </section>
+  </div>
+
+  <div class="tabpage" id="performance" role="tabpanel" hidden>
+    <section id="perftiles" class="tiles">
+      <div class="tile"><span class="eyebrow">Realized this year</span><span class="big" data-draw="p-real" data-source="performance" data-field="realized_ytd" data-row="0">—</span><span class="meta"><span data-draw="p-tr" data-source="performance" data-field="trades" data-row="0">—</span> closed trades</span></div>
+      <div class="tile"><span class="eyebrow">Unrealized on open positions</span><span class="big" data-draw="p-unr" data-source="performance" data-field="unrealized" data-row="0">—</span><span class="meta">Against your cost</span></div>
+      <div class="tile"><span class="eyebrow">Winning trades</span><span class="big" data-draw="p-hit" data-source="performance" data-field="hit_rate_pct" data-row="0">—</span><span class="meta"><span data-draw="p-win" data-source="performance" data-field="winners" data-row="0">—</span> winners</span></div>
+      <div class="tile"><span class="eyebrow">Average win / loss</span><span class="big" data-draw="p-avg" data-source="performance" data-field="avg_win" data-row="0">—</span><span class="meta">Average loss <span data-draw="p-avgl" data-source="performance" data-field="avg_loss" data-row="0">—</span></span></div>
+      <div class="tile"><span class="eyebrow">From leveraged funds</span><span class="big" data-draw="p-lev" data-source="performance" data-field="leveraged_realized" data-row="0">—</span><span class="meta">Of realized this year</span></div>
+    </section>
+    <section id="attr" class="card">
+      <h2>Why the account moved: P&amp;L attribution</h2>
+      <details class="info"><summary>How to read</summary><p>Today's holdings at today's sizes, split into broad market, investment style, sectors, macro (rates, gold, dollar, oil), crypto, and company-specific news. Trades you made during the period aren't reflected.</p></details>
+      <div class="legend" data-draw="attrlegend" data-source="attribution"></div>
+      <div class="chart" data-draw="attrchart" data-source="attribution"></div>
+      <div class="tablewrap">
+        <table data-source="attribution" data-row-key="period">
+          <thead><tr><th data-field="period">Period</th><th data-field="total">Total</th><th data-field="market">Market</th><th data-field="style">Style</th><th data-field="sector">Sector</th><th data-field="macro">Macro</th><th data-field="crypto">Crypto</th><th data-field="specific">Company news</th><th data-field="top_factors" class="l">Biggest drivers</th></tr></thead>
+          <tbody data-draw="attrtable"></tbody>
+        </table>
+      </div>
+    </section>
+    <div class="grid2">
+      <section id="realsym" class="card">
+        <h2>Closed trades this year, by holding</h2>
+        <p class="sub">Realized gain or loss per symbol. Leveraged funds are marked.</p>
+        <div class="chart" data-draw="realchart" data-source="realized_by_symbol"></div>
+      </section>
+      <section id="tradelog" class="card">
+        <h2>Trade log</h2>
+        <p class="sub">Every closing trade this year, newest first.</p>
+        <div class="tablewrap" style="max-height: 360px; overflow-y: auto;">
+          <table data-source="trades" data-row-key="key">
+            <thead><tr><th data-field="date">Date</th><th data-field="symbol" class="l">Symbol</th><th data-field="realized">Realized</th></tr></thead>
+            <tbody data-draw="tradetable"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="tabpage" id="exitsplan" role="tabpanel" hidden>
+    <section id="tax" class="card">
+      <h2>Taxes: what taking profit or cutting losses would cost</h2>
+      <details class="info"><summary>How to read</summary><p>From your Robinhood tax lots. Long-term gains (held over a year) are taxed at lower rates than short-term. Realized losses offset gains, and up to $3,000 of net loss a year offsets ordinary income. Estimates only, assuming no other accounts or carried-over losses; check with a tax professional.</p></details>
+      <div class="tiles">
+        <div class="tile"><span class="eyebrow">Realized this year</span><span class="big" data-draw="x-real" data-source="tax_summary" data-field="realized_ytd" data-row="0">—</span><span class="meta"><span data-draw="x-days" data-source="tax_summary" data-field="days_to_year_end" data-row="0">—</span> days to Dec 31</span></div>
+        <div class="tile"><span class="eyebrow">Gains you could take "free"</span><span class="big" data-draw="x-free" data-source="tax_summary" data-field="free_gain_room" data-row="0">—</span><span class="meta">Up to <span data-draw="x-neut" data-source="tax_summary" data-field="neutral_gain_room" data-row="0">—</span> with no net capital gain</span></div>
+        <div class="tile"><span class="eyebrow">Long-term paper gains</span><span class="big" data-draw="x-ltg" data-source="tax_summary" data-field="lt_unrealized_gain" data-row="0">—</span><span class="meta">Short-term gains <span data-draw="x-stg" data-source="tax_summary" data-field="st_unrealized_gain" data-row="0">—</span></span></div>
+        <div class="tile"><span class="eyebrow">Losses you could harvest</span><span class="big" data-draw="x-harv" data-source="tax_summary" data-field="harvestable_losses" data-row="0">—</span><span class="meta">Short-term <span data-draw="x-stl" data-source="tax_summary" data-field="st_unrealized_loss" data-row="0">—</span> · crypto <span data-draw="x-cr" data-source="tax_summary" data-field="crypto_unrealized" data-row="0">—</span></span></div>
+      </div>
+      <div class="tablewrap" style="margin-top: var(--cds-gap-md)">
+        <table data-source="tax_by_holding" data-row-key="symbol">
+          <thead><tr><th data-field="symbol">Holding</th><th data-field="value">Value</th><th data-field="lt_gain">Long-term gain</th><th data-field="lt_loss">Long-term loss</th><th data-field="st_gain">Short-term gain</th><th data-field="st_loss">Short-term loss</th><th data-field="crypto">Crypto</th><th data-field="wash_sale_until" class="l">Wash-sale risk until</th><th data-field="turns_lt_soon" class="l">Turning long-term soon</th></tr></thead>
+          <tbody data-draw="taxsym"></tbody>
+        </table>
+      </div>
+      <details style="margin-top: var(--cds-gap-md)"><summary>Every tax lot</summary>
+        <div class="tablewrap">
+          <table data-source="tax_lots" data-row-key="key">
+            <thead><tr><th data-field="symbol">Holding</th><th data-field="account" class="l">Account</th><th data-field="open_date">Bought</th><th data-field="term" class="l">Term</th><th data-field="qty">Shares</th><th data-field="cost_per_share">Cost/share</th><th data-field="gain">Gain</th><th data-field="long_term_on">Long-term on</th></tr></thead>
+            <tbody data-draw="taxlots"></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section id="exits" class="card">
+    <h2>Exit and profit-taking rules</h2>
+    <details class="info"><summary>How to read</summary><p>Two common trailing-stop rules and two volatility-based targets per position. The tight stop is the 22-day high minus 2× average true range (ATR, the average daily trading range); the wide stop uses 3×. The targets are one and two monthly standard deviations above today's price. On a random walk the odds of touching them within a month are about 32% and 5%. "Gain kept at wide stop" is the share of your current paper profit you would keep if you sold at the wide stop or today's price, whichever is lower.</p></details>
+    <div class="tablewrap">
+      <table data-source="exits" data-row-key="symbol">
+        <thead><tr><th data-field="symbol">Holding</th><th data-field="price">Price</th><th data-field="trend" class="l">Trend</th><th data-field="mom_3m_pct">3-mo move</th><th data-field="stop_tight">Tight stop</th><th data-field="stop_wide">Wide stop</th><th data-field="stop_status" class="l">Rule state</th><th data-field="target_1sd">+1σ target</th><th data-field="target_2sd">+2σ target</th><th data-field="gain_locked_pct">Gain kept at wide stop</th><th data-field="open_stop">Your open stop</th></tr></thead>
+        <tbody data-draw="exits"></tbody>
+      </table>
+    </div>
+  </section>
+    <section id="rulebt" class="card">
+    <h2>Do the exit rules actually work? Tested since 2019</h2>
+    <details class="info"><summary>How to read</summary><p>The three profit-taking rules from the table above, run on 15 of your holdings and their underlyings from January 2019, against simply holding. Signals at the close, trades at the next day's open, 0.10% cost each way, idle cash earns the T-bill rate. The parameters were fixed before testing, not tuned to fit.</p></details>
+    <div class="tablewrap">
+      <table data-source="rule_summary" data-row-key="rule_id">
+        <thead><tr><th data-field="rule">Rule</th><th data-field="tickers">Tickers</th><th data-field="shallower_dd">Smaller worst fall</th><th data-field="beat_sharpe">Better risk-adjusted</th><th data-field="beat_cagr">Higher return</th><th data-field="median_dd_diff_pct">Median worst-fall change</th><th data-field="median_cagr_diff_pct">Median return change / yr</th><th data-field="median_time_in_pct">Time invested</th></tr></thead>
+        <tbody data-draw="rulesum"></tbody>
+      </table>
+    </div>
+    <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; margin: var(--cds-gap-md) 0 var(--cds-gap-xs); flex-wrap: wrap;">
+      <label for="rbsel" class="sub" style="margin:0">Ticker detail:</label>
+      <select id="rbsel" class="dash-select" data-draw="rbsel" aria-label="Ticker" data-source="rule_backtest"></select>
+    </div>
+    <div class="tablewrap">
+      <table data-source="rule_backtest" data-row-key="key">
+        <thead><tr><th data-field="rule">Rule</th><th data-field="cagr_pct">Return / yr</th><th data-field="vol_pct">Volatility</th><th data-field="sharpe">Sharpe</th><th data-field="max_dd_pct">Worst fall</th><th data-field="time_in_pct">Time invested</th><th data-field="trades">Trades</th><th data-field="win_rate_pct">Winning trades</th></tr></thead>
+        <tbody data-draw="rbtable"></tbody>
+      </table>
+    </div>
+  </section>
+    <div class="grid2">
+    <section id="decay" class="card">
+      <h2>Leveraged ETF decay</h2>
+      <details class="info"><summary>How to read</summary><p>What each leveraged fund returned against what its leverage times the underlying return would suggest. A negative gap is the cost of daily rebalancing in choppy markets; a positive gap happens in steady one-way falls.</p></details>
+      <div class="tablewrap">
+        <table data-source="decay" data-row-key="key">
+          <thead><tr><th data-field="etf">Fund</th><th data-field="window" class="l">Window</th><th data-field="etf_return_pct">Fund return</th><th data-field="naive_lev_return_pct">Leverage × underlying</th><th data-field="decay_gap_pct">Gap</th></tr></thead>
+          <tbody data-draw="decay"></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="playbook" class="card">
+      <h2>How aggressive traders use these numbers</h2>
+      <p class="sub">General practice, described so you can judge it. It's not a plan for your account.</p>
+      <ul class="sub" style="font-size: var(--cds-font-size-body); color: var(--color-fg); padding-left: 18px; display: grid; gap: 6px;">
+        <li><b>Size by risk, not by dollars.</b> Many active traders cap each position's share of risk rather than its share of money, so one volatile name can't dominate the account. Compare the two bar charts above.</li>
+        <li><b>Scale out into strength.</b> A common pattern sells a fixed slice at the +1σ target and trails the rest. The backtest above shows the trade-off: much smaller worst falls, but lower returns on most tickers, because stops also sell you out of rebounds.</li>
+        <li><b>Let trend decide re-entry.</b> Many systematic funds only add when price is above both the 50- and 200-day averages, and treat "Downtrend" names as off-limits for new money.</li>
+        <li><b>Treat leverage as rented.</b> Leveraged ETFs lose to decay in sideways markets, so traders usually hold them for days or weeks with a hard exit, not as long-term positions.</li>
+        <li><b>Keep dry powder.</b> Aggressive books often hold 10–20% cash so a sharp sell-off is an opportunity rather than a forced sale.</li>
+      </ul>
+    </section>
+  </div>
+  </div>
+
+  <div class="tabpage" id="trust" role="tabpanel" hidden>
+    <section id="validation" class="card">
+    <h2>Model validation: does the loss forecast hold up?</h2>
+    <details class="info"><summary>How to read</summary><p>Each day of the last two years, three methods forecast tomorrow's loss threshold for your current holdings using only earlier data. A breach is a day the actual loss went past the forecast. A good 99% forecast is breached about 1 day in 100. Kupiec's test checks the count; Christoffersen's checks whether breaches bunch together. A p-value under 0.05 fails. The Basel traffic light is the bank regulators' scorecard: 0–4 breaches of the 99% line in 250 days is green.</p></details>
+    <div class="tablewrap">
+      <table data-source="var_backtest_summary" data-row-key="method">
+        <thead><tr><th data-field="method">Method</th><th data-field="breaches95">95% breaches</th><th data-field="expected95">Expected</th><th data-field="kupiec95_p">Count test p</th><th data-field="indep95_p">Clustering p</th><th data-field="breaches99">99% breaches</th><th data-field="expected99">Expected</th><th data-field="kupiec99_p">Count test p</th><th data-field="basel_light" class="l">Basel light</th><th data-field="verdict" class="l">Verdict</th></tr></thead>
+        <tbody data-draw="btsum"></tbody>
+      </table>
+    </div>
+    <div class="legend" style="margin-top: var(--cds-gap-md)"><span><i style="background: var(--cds-chart-muted)"></i>Daily P&amp;L</span><span><i style="background: var(--color-warn)"></i>95% forecast</span><span><i style="background: var(--color-bad)"></i>99% forecast and breaches</span></div>
+    <div class="chart" data-draw="btchart" data-source="var_backtest"></div>
+    <h2 style="margin-top: var(--cds-gap-lg)">Live forecast log</h2>
+    <details class="info"><summary>How to read</summary><p>From now on, the daily job records tomorrow's forecast every weekday after the close, and the next run fills in what actually happened. This is the out-of-sample record that builds trust over time.</p></details>
+    <div class="tablewrap">
+      <table data-source="var_ledger" data-row-key="for_date">
+        <thead><tr><th data-field="for_date">For</th><th data-field="book_value">Book value</th><th data-field="var95">95% loss limit</th><th data-field="var99">99% loss limit</th><th data-field="actual_pnl">Actual P&amp;L</th><th data-field="breach99" class="l">Result</th></tr></thead>
+        <tbody data-draw="ledger"></tbody>
+      </table>
+    </div>
+  </section>
+    <section id="var" class="card">
+    <h2>How much a bad day could cost, six ways</h2>
+    <details class="info"><summary>How to read</summary><p>Each method answers "what loss is exceeded on only 5% or 1% of days" for today's holdings. Expected shortfall is the average loss on the worst 2.5% of days, the measure banks now report under Basel's FRTB rules. The spread between methods is itself information: fat tails push the historical and filtered numbers above the bell-curve ones.</p></details>
+    <div class="tablewrap">
+      <table data-source="var_methods" data-row-key="method">
+        <thead><tr><th data-field="method">Method</th><th data-field="var95">95% one-day loss</th><th data-field="var99">99% one-day loss</th><th data-field="var99_pct">99% as % of account</th><th data-field="es975">Expected shortfall</th><th data-field="backtest" class="l">500-day test</th><th data-field="note" class="l">How it works</th></tr></thead>
+        <tbody data-draw="varm"></tbody>
+      </table>
+    </div>
+  </section>
+    <details id="method">
+    <summary>Method and limits</summary>
+    <ul>
+      <li>Positions and cost basis come from your two Robinhood accounts, synced Nov 21, 2026. Prices are Friday Nov 20 regular-session closes. Robinhood's own total includes after-hours trades, so it reads slightly higher.</li>
+      <li>The two-factor stress chart applies Nasdaq and Bitcoin sensitivities in log terms, so leveraged funds compound. On last month's real moves it understated the loss, which is why the 24-factor model, the six loss methods and the 500-day backtest were added. Trust the methods that pass the backtest.</li>
+      <li>Factor model: 24 ETF-proxy factors, EWMA-weighted ridge regressions over two years (half-life one year), EWMA factor covariance (half-life about three months). BMNR uses data only from July 2025, when it became an Ether treasury company; earlier days are filled from its factor fit.</li>
+      <li>The exit-rule backtest includes trading costs and next-day execution but not taxes. Selling winners in a taxable account can cost more than the backtest shows.</li>
+      <li>The NVDX call enters the factor model at its delta-equivalent exposure; in the two-factor stress chart it's assumed worthless in down scenarios.</li>
+      <li>Tax lots and holding periods aren't included, and they matter for any real profit-taking decision.</li>
+    </ul>
+  </details>
+  </div>
+</div>
+
+<script>
+(function () {
+  window.pwr = {
+    usd(v, d = 0) { return v == null ? '—' : (v < 0 ? '−$' : '$') + d3.format(`,.${d}f`)(Math.abs(v)); },
+    sgnUsd(v) { return v == null ? '—' : (v > 0 ? '+$' : v < 0 ? '−$' : '$') + d3.format(',.0f')(Math.abs(v)); },
+    pct(v, d = 1) { return v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + d3.format(`.${d}f`)(Math.abs(v)) + '%'; },
+    px(v) { return v == null ? '—' : v < 1 ? d3.format('.4f')(v) : d3.format(',.2f')(v); },
+    cls(v) { return v == null || v === 0 ? '' : v > 0 ? 'up' : 'down'; },
+    tip(box) {
+      let t = box.querySelector(':scope > .tip');
+      if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
+      return {
+        show(lines, x, y) {
+          t.replaceChildren();
+          lines.forEach(([k, v]) => { const r = document.createElement('div'); const b = document.createElement('b'); b.textContent = k; r.append(b, v ? ' ' + v : ''); t.appendChild(r); });
+          t.hidden = false;
+          t.style.left = Math.max(0, Math.min(box.clientWidth - t.offsetWidth, x + 12)) + 'px';
+          t.style.top = Math.max(0, y - 10) + 'px';
+        },
+        hide() { t.hidden = true; },
+      };
+    },
+  };
+  dash.onData(() => {
+    document.querySelectorAll('.pwr [data-swatch]').forEach((el) => { el.style.background = dash.colors[+el.dataset.swatch]; });
+  });
+  dash.calc('hot_pair', {
+    title: 'BMNR + TQQQ share of money and risk',
+    description: 'Sum of weight_pct and risk_share_pct for BMNR and TQQQ.',
+    inputs: ['holdings'],
+    fn: (holdings) => {
+      const h = holdings.filter((r) => r.symbol === 'BMNR' || r.symbol === 'TQQQ');
+      if (!h.length) return [];
+      return [{ weight: Math.round(h.reduce((s, r) => s + +r.weight_pct, 0) * 10) / 10, risk: Math.round(h.reduce((s, r) => s + +r.risk_share_pct, 0) * 10) / 10 }];
+    },
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const P = () => window.pwr;
+  const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data.length ? d.data[0] : null; };
+  function text(name, get, clsFn) {
+    dash.draw(name, (el) => { const v = get(); el.textContent = v == null || v === false ? '—' : v.text; el.className = v && clsFn ? clsFn(v) : ''; });
+  }
+  const S = () => one('summary');
+  text('asof', () => S() && { text: d3.utcFormat('%b %-d, %Y')(new Date(S().asof)) });
+  text('total', () => S() && { text: P().usd(S().total_value) });
+  text('betaq', () => S() && { text: d3.format('.2f')(S().beta_nasdaq) });
+  text('hot-w', () => one('hot_pair') && { text: String(one('hot_pair').weight) });
+  text('hot-r', () => one('hot_pair') && { text: String(one('hot_pair').risk) }, () => 'down');
+  text('bear', () => { const d = dash.data('scenarios'); const r = d.status === 'ok' && d.data.find((x) => x.scenario === '2022 bear market'); return r && { text: P().sgnUsd(r.est_pnl) + ' (' + P().pct(r.est_pct) + ')' }; }, () => 'down');
+  text('t-total', () => S() && { text: P().usd(S().total_value) });
+  text('t-cash', () => S() && { text: String(S().cash_pct) });
+  text('t-pnl', () => S() && { text: P().sgnUsd(S().unrealized_pnl), v: S().unrealized_pnl }, (v) => P().cls(v.v));
+  text('t-pnlp', () => S() && { text: P().pct(S().unrealized_pnl_pct) });
+  text('t-var', () => S() && { text: P().usd(S().var95_1d) }, () => 'down');
+  text('t-worst', () => S() && { text: P().usd(S().worst_day_1y) });
+  text('t-vol', () => S() && { text: d3.format('.1f')(S().vol_1y_pct) + '%' });
+  text('t-mdd', () => S() && { text: P().pct(S().max_drawdown_1y_pct) }, () => 'down');
+  text('t-lev', () => S() && { text: d3.format('.2f')(S().effective_leverage) + '×' });
+  text('t-look', () => S() && { text: P().usd(S().lookthrough_exposure) });
+
+  dash.draw('alerts', (el) => {
+    const d = dash.data('alerts');
+    el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Alerts failed to load.' : '—'; return; }
+    d.data.forEach((a) => {
+      const row = document.createElement('div'); row.className = 'alert';
+      const chip = document.createElement('span'); chip.className = 'chip ' + (a.severity === 'High' ? 'down' : a.severity === 'Medium' ? 'warn' : '');
+      chip.textContent = a.severity;
+      const what = document.createElement('span'); what.className = 'what'; what.textContent = a.symbol + ' · ' + a.rule;
+      const det = document.createElement('span'); det.className = 'detail'; det.textContent = a.detail;
+      row.append(chip, what, det); el.appendChild(row);
+    });
+  });
+
+  // Measure the widest label as drawn so it never gets cut; truncate past 45% of width.
+  function leftMargin(svg, labels, W) {
+    const tmp = svg.append('g');
+    labels.forEach((l) => tmp.append('text').text(l));
+    const w = d3.max(tmp.selectAll('text').nodes(), (n) => n.getComputedTextLength()) || 100;
+    tmp.remove();
+    return Math.min(w + 14, Math.floor(W * 0.45));
+  }
+  function fitLabel(textSel, maxW) {
+    textSel.each(function () {
+      const t = d3.select(this); let s = t.text();
+      while (s.length > 4 && this.getComputedTextLength() > maxW) { s = s.slice(0, -2); t.text(s + '…'); }
+    });
+  }
+
+  // paired horizontal bars
+  function pairBars(el, rows, { label, a, b, aColor, bColor, fmt, tipLines }) {
+    el.replaceChildren();
+    const W = el.clientWidth, rh = 26, m = { t: 4, r: 52, b: 22, l: 0 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img');
+    m.l = leftMargin(svg, rows.map((r) => r[label]), W);
+    const mx = d3.max(rows, (r) => Math.max(r[a], r[b]));
+    const xs = d3.scaleLinear([0, mx], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r[label]), [m.t, H - m.b]).padding(0.2);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 110))).tickSize(-(H - m.t - m.b)).tickFormat(fmt));
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r');
+    const bh = ys.bandwidth() / 2;
+    g.append('rect').attr('x', m.l).attr('y', (r) => ys(r[label])).attr('height', bh).attr('width', (r) => xs(r[a]) - m.l).style('fill', aColor);
+    g.append('rect').attr('x', m.l).attr('y', (r) => ys(r[label]) + bh).attr('height', bh).attr('width', (r) => xs(r[b]) - m.l).style('fill', bColor);
+    fitLabel(g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r[label]) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text((r) => r[label]), m.l - 12);
+    g.append('text').attr('x', (r) => xs(Math.max(r[a], r[b])) + 4).attr('y', (r) => ys(r[label]) + ys.bandwidth() / 2).attr('dy', '0.35em').text((r) => fmt(r[b]));
+    const tip = P().tip(el);
+    g.on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show(tipLines(r), px, py); }).on('pointerleave', () => tip.hide());
+    return svg;
+  }
+
+  dash.draw('risk', (el) => {
+    const d = dash.data('holdings');
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Holdings failed to load.' : '—'; return; }
+    const rows = d.data.filter((r) => r.weight_pct >= 0.5).sort((x, y) => y.risk_share_pct - x.risk_share_pct);
+    pairBars(el, rows, { label: 'symbol', a: 'weight_pct', b: 'risk_share_pct', aColor: 'var(--cds-chart-muted)', bColor: dash.colors[0],
+      fmt: (v) => d3.format('.0f')(v) + '%',
+      tipLines: (r) => [[r.symbol + ' · ' + r.name, ''], ['Share of money:', r.weight_pct + '%'], ['Share of risk:', r.risk_share_pct + '%'], ['Volatility:', r.vol_1y_pct + '%/yr']] })
+      .attr('aria-label', 'Each holding: share of account dollars against share of portfolio risk');
+  });
+
+  dash.draw('exposure', (el) => {
+    const d = dash.data('exposure');
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Exposure failed to load.' : '—'; return; }
+    const rows = d.data.filter((r) => r.value >= 100);
+    pairBars(el, rows, { label: 'bucket', a: 'value', b: 'lookthrough', aColor: 'var(--cds-chart-muted)', bColor: dash.colors[0],
+      fmt: (v) => '$' + d3.format('.2~s')(v),
+      tipLines: (r) => [[r.bucket, ''], ['Holdings:', r.symbols], ['Market value:', P().usd(r.value)], ['Look-through:', P().usd(r.lookthrough) + ' (' + r.lookthrough_pct + '%)']] })
+      .attr('aria-label', 'Exposure by theme at market value and with leverage counted');
+  });
+
+  dash.draw('scen', (el) => {
+    const d = dash.data('scenarios');
+    el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Scenarios failed to load.' : '—'; return; }
+    const rows = d.data;
+    const W = el.clientWidth, rh = 30, m = { t: 4, r: 48, b: 22, l: 0 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Estimated portfolio gain or loss in historical and hypothetical market scenarios');
+    m.l = leftMargin(svg, rows.map((r) => r.scenario), W);
+    const ext = d3.extent([0, ...rows.map((r) => r.est_pnl), ...rows.map((r) => r.actual_pnl || 0)]);
+    const xs = d3.scaleLinear(ext, [m.l + 44, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.scenario), [m.t, H - m.b]).padding(0.25);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 120))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v < 0 ? '−$' : '$') + d3.format('.2~s')(Math.abs(v))));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)');
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r');
+    g.append('rect').attr('x', (r) => Math.min(xs(0), xs(r.est_pnl))).attr('width', (r) => Math.abs(xs(r.est_pnl) - xs(0)))
+      .attr('y', (r) => ys(r.scenario)).attr('height', ys.bandwidth()).style('fill', (r) => (r.est_pnl < 0 ? 'var(--color-bad)' : 'var(--color-ok)')).style('opacity', 0.85);
+    g.filter((r) => r.actual_pnl != null).append('rect').attr('x', (r) => xs(r.actual_pnl) - 1.5).attr('width', 3).attr('y', (r) => ys(r.scenario) - 3).attr('height', ys.bandwidth() + 6).style('fill', 'var(--color-fg)');
+    fitLabel(g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.scenario) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end')
+      .text((r) => r.scenario), m.l - 12);
+    g.append('text').attr('x', (r) => (r.est_pnl < 0 ? xs(r.est_pnl) - 4 : xs(r.est_pnl) + 4)).attr('text-anchor', (r) => (r.est_pnl < 0 ? 'end' : 'start'))
+      .attr('y', (r) => ys(r.scenario) + ys.bandwidth() / 2).attr('dy', '0.35em').text((r) => P().pct(r.est_pct, 0));
+    const tip = P().tip(el);
+    g.on('pointermove', (ev, r) => {
+      const [px, py] = d3.pointer(ev, el);
+      const lines = [[r.scenario, ''], ['Window:', r.window], ['Nasdaq:', P().pct(r.nasdaq_move_pct)], ['Bitcoin:', P().pct(r.bitcoin_move_pct)], ['Model estimate:', P().sgnUsd(r.est_pnl) + ' (' + P().pct(r.est_pct) + ')']];
+      if (r.actual_pnl != null) lines.push(['Actual:', P().sgnUsd(r.actual_pnl)]);
+      tip.show(lines, px, py);
+    }).on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('replay', (el) => {
+    const d = dash.data('replay');
+    el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Replay failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, H = 260, m = { t: 8, r: 12, b: 24, l: 40 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Current holdings replayed over the past year against SPY, indexed to 100');
+    const xs = d3.scaleUtc(d3.extent(rows, (r) => new Date(r.date)), [m.l, W - m.r]);
+    const ys = d3.scaleLinear(d3.extent(rows.flatMap((r) => [r.portfolio, r.spy])), [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(5).tickSize(-(W - m.l - m.r)));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 90))).tickFormat(d3.utcFormat('%b %y')));
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', ys(100)).attr('y2', ys(100)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '3 3');
+    [['spy', dash.colors[0], 1.5], ['portfolio', 'var(--color-fg)', 2]].forEach(([k, c, w]) => {
+      svg.append('path').datum(rows).attr('d', d3.line().x((r) => xs(new Date(r.date))).y((r) => ys(r[k]))).style('fill', 'none').style('stroke', c).style('stroke-width', w);
+    });
+    const tip = P().tip(el);
+    const guide = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('opacity', 0);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev); const t = xs.invert(px);
+        const r = rows[Math.min(rows.length - 1, d3.bisector((x) => new Date(x.date)).left(rows, t))];
+        guide.attr('x1', xs(new Date(r.date))).attr('x2', xs(new Date(r.date))).style('opacity', 1);
+        tip.show([[d3.utcFormat('%b %-d, %Y')(new Date(r.date)), ''], ['Your mix:', d3.format('.1f')(r.portfolio)], ['SPY:', d3.format('.1f')(r.spy)]], xs(new Date(r.date)), m.t);
+      })
+      .on('pointerleave', () => { tip.hide(); guide.style('opacity', 0); });
+  });
+
+  function cell(tr, txt, cls) { const c = tr.insertCell(); c.textContent = txt; if (cls) c.className = cls; return c; }
+  function chip(tr, txt, cls) { const c = tr.insertCell(); c.className = 'l'; const s = document.createElement('span'); s.className = 'chip ' + (cls || ''); s.textContent = txt; c.appendChild(s); }
+  function failRow(tb, d, n, what) { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = n; c.textContent = d.status === 'error' ? what + ' failed to load.' : '—'; }
+
+  dash.draw('exits', (tb) => {
+    const d = dash.data('exits'); tb.replaceChildren();
+    if (d.status !== 'ok') return failRow(tb, d, 11, 'Exit rules');
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      cell(tr, r.symbol);
+      cell(tr, P().px(r.price));
+      chip(tr, r.trend, r.trend === 'Uptrend' ? 'up' : r.trend === 'Downtrend' ? 'down' : 'warn');
+      cell(tr, P().pct(r.mom_3m_pct), P().cls(r.mom_3m_pct));
+      cell(tr, P().px(r.stop_tight)); cell(tr, P().px(r.stop_wide));
+      chip(tr, r.stop_status, r.stop_status === 'Above stops' ? 'up' : r.stop_status === 'Below wide stop' ? 'down' : 'warn');
+      cell(tr, P().px(r.target_1sd)); cell(tr, P().px(r.target_2sd));
+      cell(tr, r.gain_locked_pct == null ? 'no gain' : r.gain_locked_pct + '%');
+      cell(tr, r.open_stop == null ? '—' : P().px(r.open_stop) + (r.stop_order_dist_pct != null ? ' (' + P().pct(r.stop_order_dist_pct, 2) + ')' : ''), r.stop_order_dist_pct != null && Math.abs(r.stop_order_dist_pct) < 2 ? 'down' : '');
+    });
+  });
+
+  dash.draw('decay', (tb) => {
+    const d = dash.data('decay'); tb.replaceChildren();
+    if (d.status !== 'ok') return failRow(tb, d, 5, 'Decay data');
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.key);
+      cell(tr, r.etf + ' (' + r.leverage + '× ' + r.underlying + ')'); cell(tr, r.window, 'l');
+      cell(tr, P().pct(r.etf_return_pct), P().cls(r.etf_return_pct)); cell(tr, P().pct(r.naive_lev_return_pct));
+      cell(tr, P().pct(r.decay_gap_pct), P().cls(r.decay_gap_pct));
+    });
+  });
+
+  dash.draw('holdings', (tb) => {
+    const d = dash.data('holdings'); tb.replaceChildren();
+    if (d.status !== 'ok') return failRow(tb, d, 11, 'Holdings');
+    const f2 = (v) => (v == null ? '—' : d3.format('.2f')(v));
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      cell(tr, r.symbol);
+      cell(tr, P().usd(r.value)); cell(tr, r.weight_pct + '%');
+      cell(tr, P().sgnUsd(r.pnl), P().cls(r.pnl)); cell(tr, P().pct(r.pnl_pct), P().cls(r.pnl_pct));
+      cell(tr, f2(r.beta_nasdaq)); cell(tr, f2(r.beta_bitcoin)); cell(tr, f2(r.r2));
+      cell(tr, r.vol_1y_pct == null ? '—' : r.vol_1y_pct + '%'); cell(tr, P().pct(r.off_52w_high_pct));
+      cell(tr, r.risk_share_pct + '%', r.risk_share_pct > 2 * r.weight_pct ? 'down' : '');
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const P = () => window.pwr;
+  const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data.length ? d.data[0] : null; };
+  function text(name, get, clsFn) { dash.draw(name, (el) => { const v = get(); el.textContent = v == null || v === false ? '—' : v.text; el.className = v && clsFn ? clsFn(v) : ''; }); }
+  const R = () => one('risk_summary'), O = () => one('option_risk');
+  text('nfac', () => R() && { text: String(R().factors) });
+  text('facshare', () => R() && { text: String(R().factor_share_pct) });
+  text('specshare', () => R() && { text: String(R().specific_share_pct) });
+  text('o-mark', () => O() && { text: P().usd(O().position_mark_value) });
+  text('o-liq', () => O() && { text: P().usd(O().position_liquidation_value) });
+  text('o-cost', () => O() && { text: P().usd(O().cost_paid) });
+  text('o-itm', () => O() && { text: d3.format('.2f')(O().prob_finish_itm_pct) + '%' }, () => 'down');
+  text('o-days', () => O() && { text: String(O().days_left) });
+  text('o-iv', () => O() && { text: String(O().implied_vol_pct) });
+  text('o-delta', () => O() && { text: d3.format('.4f')(O().delta) });
+  text('o-dd', () => O() && { text: P().usd(O().delta_dollars) });
+  text('o-up', () => O() && { text: P().usd(O().value_if_up_20pct) });
+
+  function cell(tr, txt, cls) { const c = tr.insertCell(); c.textContent = txt; if (cls) c.className = cls; return c; }
+  function chip(tr, txt, cls) { const c = tr.insertCell(); c.className = 'l'; const s = document.createElement('span'); s.className = 'chip ' + (cls || ''); s.textContent = txt; c.appendChild(s); }
+  function bad(tb, d, n, what) { if (d.status === 'ok') return false; const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = n; c.textContent = d.status === 'error' ? what + ' failed to load.' : '—'; return true; }
+  const pv = (v) => (v == null ? '—' : d3.format('.3f')(v));
+
+  dash.draw('btsum', (tb) => {
+    const d = dash.data('var_backtest_summary'); tb.replaceChildren(); if (bad(tb, d, 10, 'Backtest')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.method);
+      cell(tr, r.method); cell(tr, String(r.breaches95)); cell(tr, String(r.expected95));
+      cell(tr, pv(r.kupiec95_p), r.kupiec95_p < 0.05 ? 'down' : ''); cell(tr, pv(r.indep95_p), r.indep95_p < 0.05 ? 'down' : '');
+      cell(tr, String(r.breaches99)); cell(tr, String(r.expected99)); cell(tr, pv(r.kupiec99_p), r.kupiec99_p < 0.05 ? 'down' : '');
+      chip(tr, r.basel_light, r.basel_light === 'Green' ? 'up' : r.basel_light === 'Yellow' ? 'warn' : 'down');
+      chip(tr, r.verdict, r.verdict === 'Passes' ? 'up' : 'down');
+    });
+  });
+
+  dash.draw('btchart', (el) => {
+    const d = dash.data('var_backtest'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Backtest series failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, H = 260, m = { t: 8, r: 12, b: 24, l: 52 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', 'Daily hypothetical profit and loss against the 95% and 99% loss forecasts, with breaches marked');
+    const xs = d3.scaleUtc(d3.extent(rows, (r) => new Date(r.date)), [m.l, W - m.r]);
+    const lo = d3.min(rows, (r) => Math.min(r.pnl, -r.var99)), hi = d3.max(rows, (r) => r.pnl);
+    const ys = d3.scaleLinear([lo, hi], [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat((v) => (v < 0 ? '−$' : '$') + d3.format('.2~s')(Math.abs(v))));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 90))).tickFormat(d3.utcFormat('%b %y')));
+    const bw = Math.max(1, (W - m.l - m.r) / rows.length - 0.5);
+    svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => xs(new Date(r.date)) - bw / 2).attr('width', bw)
+      .attr('y', (r) => ys(Math.max(0, r.pnl))).attr('height', (r) => Math.abs(ys(r.pnl) - ys(0)))
+      .style('fill', (r) => (r.breach99 ? 'var(--color-bad)' : r.breach95 ? 'var(--color-warn)' : 'var(--cds-chart-muted)'));
+    [['var95', 'var(--color-warn)'], ['var99', 'var(--color-bad)']].forEach(([k, c]) => {
+      svg.append('path').datum(rows).attr('d', d3.line().x((r) => xs(new Date(r.date))).y((r) => ys(-r[k]))).style('fill', 'none').style('stroke', c).style('stroke-width', 1.3);
+    });
+    const tip = P().tip(el);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev); const t = xs.invert(px);
+        const r = rows[Math.min(rows.length - 1, d3.bisector((x) => new Date(x.date)).left(rows, t))];
+        tip.show([[d3.utcFormat('%b %-d, %Y')(new Date(r.date)), ''], ['P&L:', P().sgnUsd(r.pnl)], ['95% forecast:', P().usd(-r.var95)], ['99% forecast:', P().usd(-r.var99)], ...(r.breach99 ? [['Breached 99%', '']] : r.breach95 ? [['Breached 95%', '']] : [])], xs(new Date(r.date)), m.t);
+      }).on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('ledger', (tb) => {
+    const d = dash.data('var_ledger'); tb.replaceChildren(); if (bad(tb, d, 6, 'Forecast log')) return;
+    d.data.slice().reverse().forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.for_date);
+      cell(tr, r.for_date); cell(tr, P().usd(+r.book_value)); cell(tr, P().usd(+r.var95), 'down'); cell(tr, P().usd(+r.var99), 'down');
+      cell(tr, r.actual_pnl === '' ? 'pending' : P().sgnUsd(+r.actual_pnl), r.actual_pnl === '' ? '' : P().cls(+r.actual_pnl));
+      if (r.actual_pnl === '') chip(tr, 'Waiting for close', '');
+      else chip(tr, r.breach99 === 'True' ? 'Breached 99%' : r.breach95 === 'True' ? 'Breached 95%' : 'Within forecast', r.breach99 === 'True' ? 'down' : r.breach95 === 'True' ? 'warn' : 'up');
+    });
+  });
+
+  dash.draw('varm', (tb) => {
+    const d = dash.data('var_methods'); tb.replaceChildren(); if (bad(tb, d, 7, 'Loss estimates')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.method);
+      cell(tr, r.method); cell(tr, r.var95 == null ? '—' : P().usd(r.var95)); cell(tr, P().usd(r.var99), 'down');
+      cell(tr, r.var99_pct == null ? '—' : r.var99_pct + '%'); cell(tr, r.es975 == null ? '—' : P().usd(r.es975));
+      chip(tr, r.backtest, r.backtest === 'Passes' ? 'up' : r.backtest === 'Fails' ? 'down' : '');
+      cell(tr, r.note, 'wrap');
+    });
+  });
+
+  dash.draw('facchart', (el) => {
+    const d = dash.data('factor_risk'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Factor risk failed to load.' : '—'; return; }
+    const rows = d.data.filter((r) => Math.abs(r.risk_contrib_pct) >= 0.5);
+    const W = el.clientWidth, rh = 22, m = { t: 4, r: 46, b: 22, l: 0 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Share of portfolio variance by risk factor');
+    const tmp = svg.append('g'); rows.forEach((r) => tmp.append('text').text(r.label));
+    m.l = Math.min((d3.max(tmp.selectAll('text').nodes(), (n) => n.getComputedTextLength()) || 90) + 14, W * 0.42); tmp.remove();
+    const xs = d3.scaleLinear(d3.extent([0, ...rows.map((r) => r.risk_contrib_pct)]), [m.l + 30, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.factor), [m.t, H - m.b]).padding(0.22);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 100))).tickSize(-(H - m.t - m.b)).tickFormat((v) => v + '%'));
+    const col = { Market: dash.colors[0], Style: dash.colors[1], Sector: dash.colors[2], Macro: dash.colors[3], Crypto: dash.colors[4], Specific: 'var(--cds-chart-muted)' };
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r');
+    g.append('rect').attr('x', (r) => Math.min(xs(0), xs(r.risk_contrib_pct))).attr('width', (r) => Math.abs(xs(r.risk_contrib_pct) - xs(0)))
+      .attr('y', (r) => ys(r.factor)).attr('height', ys.bandwidth()).style('fill', (r) => col[r.group]);
+    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.factor) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text((r) => r.label);
+    g.append('text').attr('x', (r) => (r.risk_contrib_pct >= 0 ? xs(r.risk_contrib_pct) + 4 : xs(0) + 4)).attr('y', (r) => ys(r.factor) + ys.bandwidth() / 2).attr('dy', '0.35em').text((r) => r.risk_contrib_pct + '%');
+    const tip = P().tip(el);
+    g.on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.label + ' · ' + r.group, ''], ['Risk share:', r.risk_contrib_pct + '%'], ...(r.exposure != null ? [['Exposure:', P().sgnUsd(r.exposure) + ' (' + r.exposure_pct + '% of account)'], ['Proxy:', r.proxy]] : [])], px, py); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('stress2', (tb) => {
+    const d = dash.data('stress_factor'); tb.replaceChildren(); if (bad(tb, d, 6, 'Stress tests')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.scenario);
+      cell(tr, r.scenario); cell(tr, P().pct(r.market_move_pct), P().cls(r.market_move_pct));
+      cell(tr, P().sgnUsd(r.book_pnl) + ' (' + P().pct(r.book_pct) + ')', P().cls(r.book_pnl));
+      cell(tr, P().sgnUsd(r.worst_drawdown), 'down'); cell(tr, P().usd(-r.worst_day), 'down'); cell(tr, P().usd(r.stressed_var99));
+    });
+  });
+
+  dash.draw('assetrisk', (tb) => {
+    const d = dash.data('asset_risk'); tb.replaceChildren(); if (bad(tb, d, 7, 'Holding risk')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      cell(tr, r.symbol); cell(tr, P().usd(r.value)); cell(tr, r.risk_contrib_pct + '%');
+      cell(tr, d3.format('.2f')(r.beta_market)); cell(tr, d3.format('.2f')(r.r2)); cell(tr, r.specific_share_pct + '%'); cell(tr, r.top_loadings, 'wrap');
+    });
+  });
+
+  dash.draw('rulesum', (tb) => {
+    const d = dash.data('rule_summary'); tb.replaceChildren(); if (bad(tb, d, 8, 'Rule summary')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.rule_id);
+      cell(tr, r.rule); cell(tr, String(r.tickers));
+      cell(tr, r.shallower_dd + ' of ' + r.tickers, r.shallower_dd > r.tickers / 2 ? 'up' : 'down');
+      cell(tr, r.beat_sharpe + ' of ' + r.tickers, r.beat_sharpe > r.tickers / 2 ? 'up' : 'down');
+      cell(tr, r.beat_cagr + ' of ' + r.tickers, r.beat_cagr > r.tickers / 2 ? 'up' : 'down');
+      cell(tr, P().pct(r.median_dd_diff_pct) + ' pts', P().cls(r.median_dd_diff_pct));
+      cell(tr, P().pct(r.median_cagr_diff_pct) + ' pts', P().cls(r.median_cagr_diff_pct));
+      cell(tr, r.median_time_in_pct + '%');
+    });
+  });
+
+  let pick = 'TQQQ';
+  dash.draw('rbsel', (sel) => {
+    const d = dash.data('rule_backtest');
+    const tickers = d.status === 'ok' ? [...new Set(d.data.map((r) => r.ticker))] : [];
+    sel.replaceChildren(...tickers.map((t) => new Option(t, t)));
+    if (tickers.length && !tickers.includes(pick)) pick = tickers[0];
+    sel.value = pick;
+    sel.onchange = () => { pick = sel.value; dash.draw('rbtable'); };
+  });
+  dash.draw('rbtable', (tb) => {
+    const d = dash.data('rule_backtest'); tb.replaceChildren(); if (bad(tb, d, 8, 'Rule backtest')) return;
+    d.data.filter((r) => r.ticker === pick).forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.key);
+      cell(tr, r.rule); cell(tr, P().pct(r.cagr_pct), P().cls(r.cagr_pct)); cell(tr, r.vol_pct + '%'); cell(tr, d3.format('.2f')(r.sharpe));
+      cell(tr, P().pct(r.max_dd_pct), 'down'); cell(tr, r.time_in_pct + '%'); cell(tr, String(r.trades)); cell(tr, r.win_rate_pct == null ? '—' : r.win_rate_pct + '%');
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const root = document.querySelector('.pwr');
+  if (!root) return;
+  const buttons = () => root.querySelectorAll('.tabs [data-tab]');
+  function show(id) {
+    let found = false;
+    buttons().forEach((b) => { if (b.dataset.tab === id) found = true; });
+    if (!found) id = 'today';
+    buttons().forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+    root.querySelectorAll('.tabpage').forEach((p) => { p.hidden = p.id !== id; });
+  }
+  buttons().forEach((b) => b.addEventListener('click', () => { show(b.dataset.tab); dash.setLink(b.dataset.tab); }));
+  window.pwrShowTab = (id) => { show(id); dash.setLink(id); root.scrollIntoView({ block: 'start' }); };
+  show((location.hash || '').slice(1) || 'today');
+  window.addEventListener('beforeprint', () => root.querySelectorAll('.tabpage').forEach((p) => { p.hidden = false; }));
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  dash.calc('bl_1m_worse', { title: 'Share of months worse than the last one', description: '100 minus the percentile of the S&P 500 past-month return.',
+    inputs: ['market_gauges'], fn: (market_gauges) => { const r = market_gauges.find((x) => x.gauge === 'spx_1m'); return r ? 100 - Number(r.percentile) : null; } });
+  dash.calc('bt_pass', { title: 'Loss-forecast methods that pass', description: 'Count of methods whose 500-day backtest verdict is Passes.',
+    inputs: ['var_backtest_summary'], fn: (var_backtest_summary) => var_backtest_summary.filter((r) => r.verdict === 'Passes').length });
+  const row = (id, k, v) => { const d = dash.data(id); return d.status === 'ok' ? d.data.find((r) => r[k] === v) : null; };
+  const val = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+  const TODAY = "Today's setup: VIX 30+ and S&P 8–20% off its high";
+  function text(name, get, clsFn) { dash.draw(name, (el) => { const v = get(); el.textContent = v == null || v === false ? '—' : v.text; el.className = v && clsFn ? clsFn(v) : ''; }); }
+  const g = (id) => row('market_gauges', 'gauge', id), a = (s) => row('market_analogs', 'setup', s), rs = () => row('rule_summary', 'rule_id', 'scale');
+  text('bl-vix', () => g('vix') && { text: d3.format('.1f')(g('vix').current) }, () => 'down');
+  text('bl-vixp', () => g('vix') && { text: String(g('vix').percentile) });
+  text('bl-1m', () => g('spx_1m') && { text: P().pct(g('spx_1m').current) }, () => 'down');
+  text('bl-1mp', () => val('bl_1m_worse') != null && { text: String(val('bl_1m_worse')) });
+  text('bl-ep', () => a(TODAY) && { text: String(a(TODAY).episodes) });
+  text('bl-f3', () => a(TODAY) && { text: P().pct(a(TODAY).fwd3m_median), v: a(TODAY).fwd3m_median }, (v) => P().cls(v.v));
+  text('bl-pos', () => a(TODAY) && { text: d3.format('.0f')(a(TODAY).fwd12m_pos_pct) });
+  text('bl-worst', () => a(TODAY) && { text: P().pct(a(TODAY).fwd12m_worst) }, () => 'down');
+  text('bl-baa', () => g('baa') && { text: d3.format('.2f')(g('baa').current) });
+  text('bl-baap', () => g('baa') && { text: String(100 - g('baa').percentile) });
+  text('bl-baaz', () => g('baa') && { text: g('baa').zone.toLowerCase() });
+  text('bl-you', () => a(TODAY) && a(TODAY).your_3m_median != null && { text: P().sgnUsd(a(TODAY).your_3m_median), v: a(TODAY).your_3m_median }, (v) => P().cls(v.v));
+  text('bl-youbad', () => a(TODAY) && a(TODAY).your_3m_bad != null && { text: P().sgnUsd(a(TODAY).your_3m_bad), v: a(TODAY).your_3m_bad }, (v) => P().cls(v.v));
+  text('bl-dd', () => rs() && { text: String(rs().shallower_dd) });
+  text('bl-n', () => rs() && { text: String(rs().tickers) });
+  text('bl-cagr', () => rs() && { text: String(rs().beat_cagr) }, () => 'down');
+  text('bl-pass', () => val('bt_pass') != null && { text: String(val('bt_pass')) });
+  text('base3', () => a('All days since 1950 (normal)') && { text: P().pct(a('All days since 1950 (normal)').fwd3m_median) });
+  text('basepos', () => a('All days since 1950 (normal)') && { text: d3.format('.0f')(a('All days since 1950 (normal)').fwd12m_pos_pct) });
+
+  function cell(tr, txt, cls) { const c = tr.insertCell(); c.textContent = txt; if (cls) c.className = cls; return c; }
+  function bad(tb, d, n, what) { if (d.status === 'ok') return false; const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = n; c.textContent = d.status === 'error' ? what + ' failed to load.' : '—'; return true; }
+  const fmtVal = (v, unit) => v == null ? '—' : unit === '%' ? P().pct(v) : unit === 'ratio' ? d3.format('.2f')(v) : d3.format('.2f')(v);
+  const zoneCls = (z) => z === 'Extreme stress' || z === 'High stress' ? 'down' : z === 'Elevated' ? 'warn' : 'up';
+
+  dash.draw('gauges', (tb) => {
+    const d = dash.data('market_gauges'); tb.replaceChildren(); if (bad(tb, d, 8, 'Market gauges')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.gauge);
+      const c0 = tr.insertCell(); c0.textContent = r.label; c0.title = r.meaning + ' Since ' + r.since + '.';
+      cell(tr, fmtVal(r.current, r.unit));
+      const c = tr.insertCell(); c.className = 'l';
+      const bar = document.createElement('span'); bar.className = 'pbar'; const mk = document.createElement('i'); mk.style.left = `calc(${r.stress_pct}% - 1.5px)`; bar.appendChild(mk);
+      const chip = document.createElement('span'); chip.className = 'chip ' + zoneCls(r.zone); chip.textContent = r.zone;
+      const pc = document.createElement('span'); pc.className = 'm'; pc.textContent = d3.format('.0f')(r.percentile) + 'th percentile';
+      c.append(bar, chip, pc);
+      cell(tr, fmtVal(r.median_hist, r.unit));
+      cell(tr, P().pct(r.fwd3m_median), P().cls(r.fwd3m_median)); cell(tr, P().pct(r.fwd12m_median), P().cls(r.fwd12m_median));
+      cell(tr, r.fwd12m_pos_pct == null ? '—' : d3.format('.0f')(r.fwd12m_pos_pct) + '%'); cell(tr, String(r.episodes));
+    });
+  });
+  dash.draw('analogs', (tb) => {
+    const d = dash.data('market_analogs'); tb.replaceChildren(); if (bad(tb, d, 10, 'Setups')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.setup); if (r.today_fits && !r.setup.startsWith('All days')) tr.className = 'fits';
+      cell(tr, r.setup + (r.today_fits && !r.setup.startsWith('All days') ? '  ← today' : ''));
+      cell(tr, String(r.episodes));
+      cell(tr, P().pct(r.fwd1m_median), P().cls(r.fwd1m_median)); cell(tr, P().pct(r.fwd3m_median), P().cls(r.fwd3m_median));
+      cell(tr, P().pct(r.fwd12m_median), P().cls(r.fwd12m_median)); cell(tr, d3.format('.0f')(r.fwd12m_pos_pct) + '%');
+      cell(tr, P().pct(r.fwd12m_worst), 'down');
+      cell(tr, r.your_3m_median == null ? '—' : P().sgnUsd(r.your_3m_median), P().cls(r.your_3m_median));
+      cell(tr, r.your_3m_bad == null ? '—' : P().sgnUsd(r.your_3m_bad), P().cls(r.your_3m_bad));
+      cell(tr, r.recent_starts, 'l');
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data.length ? d.data[0] : null; };
+  function text(name, get, clsFn) { dash.draw(name, (el) => { const v = get(); el.textContent = v == null || v === false ? '—' : v.text; el.className = v && clsFn ? clsFn(v) : ''; }); }
+  const cls = (v) => P().cls(v);
+  function cell(tr, txt, c) { const x = tr.insertCell(); x.textContent = txt; if (c) x.className = c; return x; }
+  function bad(tb, d, n, what) { if (d.status === 'ok') return false; const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = n; c.textContent = d.status === 'error' ? what + ' failed to load.' : '—'; return true; }
+  const usd = (v) => (v == null || v === 0 ? (v === 0 ? '$0' : '—') : P().sgnUsd(v));
+
+  const LABEL = { 1: 'Now', 2: 'This week', 3: 'Watch' }, CHIP = { 1: 'down', 2: 'warn', 3: '' };
+  dash.draw('queue', (el) => {
+    const d = dash.data('decisions'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Decision queue failed to load.' : '—'; return; }
+    d.data.forEach((q) => {
+      const it = document.createElement('div'); it.className = 'qitem';
+      const c = document.createElement('span'); c.className = 'chip ' + CHIP[q.priority]; c.textContent = LABEL[q.priority];
+      const head = document.createElement('div'); const t = document.createElement('div'); t.className = 't'; t.textContent = q.title;
+      const w = document.createElement('div'); w.className = 'w'; w.textContent = q.when; head.append(t, w);
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'See evidence';
+      b.addEventListener('click', () => window.pwrShowTab && window.pwrShowTab(q.tab));
+      const det = document.createElement('details'); det.className = 'qd';
+      const sm = document.createElement('summary'); sm.textContent = 'Why & choices';
+      const why = document.createElement('div'); why.className = 'why'; why.textContent = q.why;
+      const ch = document.createElement('div'); ch.className = 'ch'; ch.textContent = 'Choices: ' + q.choices;
+      det.append(sm, why, ch);
+      it.append(c, head, b, det); el.appendChild(it);
+    });
+  });
+
+  dash.draw('limits', (el) => {
+    const d = dash.data('limits'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Limits failed to load.' : '—'; return; }
+    d.data.forEach((l) => {
+      const box = document.createElement('div'); box.className = 'lim';
+      const n = document.createElement('div'); n.className = 'n'; n.textContent = l.limit;
+      const v = document.createElement('div'); v.className = 'v ' + (l.status === 'Breach' ? 'down' : l.status === 'Watch' ? 'warn' : 'up'); v.textContent = d3.format('.0f')(l.utilization_pct) + '% of normal';
+      const tr = document.createElement('div'); tr.className = 'track';
+      const f = document.createElement('div'); f.className = 'fill'; f.style.width = Math.min(100, l.utilization_pct / 2.5) + '%';
+      f.style.background = l.status === 'Breach' ? 'var(--color-bad)' : l.status === 'Watch' ? 'var(--color-warn)' : 'var(--color-ok)';
+      const mk = document.createElement('div'); mk.className = 'mark'; mk.style.left = '40%'; tr.append(f, mk);
+      const cur = l.unit === '$' ? P().usd(l.current) + ' vs ' + P().usd(l.limit_value) : d3.format('.1f')(l.current) + ' vs ' + d3.format('.1f')(l.limit_value) + ' ' + l.unit;
+      const st = document.createElement('div'); st.className = 'b'; st.textContent = cur; st.title = l.basis;
+      box.append(n, v, tr, st); el.appendChild(box);
+    });
+  });
+
+  const PF = () => one('performance'), TX = () => one('tax_summary');
+  text('p-real', () => PF() && { text: usd(PF().realized_ytd), v: PF().realized_ytd }, (v) => cls(v.v));
+  text('p-tr', () => PF() && { text: String(PF().trades) });
+  text('p-unr', () => PF() && { text: usd(PF().unrealized), v: PF().unrealized }, (v) => cls(v.v));
+  text('p-hit', () => PF() && { text: PF().hit_rate_pct + '%' });
+  text('p-win', () => PF() && { text: String(PF().winners) });
+  text('p-avg', () => PF() && { text: usd(PF().avg_win) }, () => 'up');
+  text('p-avgl', () => PF() && { text: usd(PF().avg_loss) });
+  text('p-lev', () => PF() && { text: usd(PF().leveraged_realized), v: PF().leveraged_realized }, (v) => cls(v.v));
+  text('x-real', () => TX() && { text: usd(TX().realized_ytd), v: TX().realized_ytd }, (v) => cls(v.v));
+  text('x-days', () => TX() && { text: String(TX().days_to_year_end) });
+  text('x-free', () => TX() && { text: P().usd(TX().free_gain_room) });
+  text('x-neut', () => TX() && { text: P().usd(TX().neutral_gain_room) });
+  text('x-ltg', () => TX() && { text: usd(TX().lt_unrealized_gain) }, () => 'up');
+  text('x-stg', () => TX() && { text: usd(TX().st_unrealized_gain) });
+  text('x-harv', () => TX() && { text: usd(TX().harvestable_losses) }, () => 'down');
+  text('x-stl', () => TX() && { text: usd(TX().st_unrealized_loss) });
+  text('x-cr', () => TX() && { text: usd(TX().crypto_unrealized) });
+
+  const GROUPS = [['market', 'Market'], ['style', 'Style'], ['sector', 'Sector'], ['macro', 'Macro'], ['crypto', 'Crypto'], ['specific', 'Company news']];
+  const gcol = (k, i) => (k === 'specific' ? 'var(--cds-chart-muted)' : dash.colors[i]);
+  dash.draw('attrlegend', (el) => {
+    el.replaceChildren();
+    GROUPS.forEach(([k, n], i) => { const s = document.createElement('span'); const sw = document.createElement('i'); sw.style.background = gcol(k, i); s.append(sw, n); el.appendChild(s); });
+  });
+  dash.draw('attrchart', (el) => {
+    const d = dash.data('attribution'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Attribution failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, rh = 34, m = { t: 4, r: 70, b: 22, l: 96 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Profit and loss by source for each period, stacked');
+    let lo = 0, hi = 0;
+    rows.forEach((r) => { let p = 0, n = 0; GROUPS.forEach(([k]) => { if (r[k] > 0) p += r[k]; else n += r[k]; }); hi = Math.max(hi, p); lo = Math.min(lo, n); });
+    const xs = d3.scaleLinear([lo, hi], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.period), [m.t, H - m.b]).padding(0.25);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 110))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v < 0 ? '−$' : '$') + d3.format('.2~s')(Math.abs(v))));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)');
+    const tip = P().tip(el);
+    rows.forEach((r) => {
+      let p = 0, n = 0;
+      GROUPS.forEach(([k, name], i) => {
+        const v = r[k] || 0; if (!v) return;
+        const x0 = v > 0 ? p : n + v; if (v > 0) p += v; else n += v;
+        svg.append('rect').attr('x', xs(x0)).attr('width', Math.abs(xs(v) - xs(0))).attr('y', ys(r.period)).attr('height', ys.bandwidth()).style('fill', gcol(k, i))
+          .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.period + ' · ' + name, ''], ['P&L:', P().sgnUsd(v)], ['Period total:', P().sgnUsd(r.total)]], px, py); })
+          .on('pointerleave', () => tip.hide());
+      });
+      svg.append('text').attr('x', m.l - 8).attr('y', ys(r.period) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(r.period);
+      svg.append('text').attr('x', xs(p) + 6).attr('y', ys(r.period) + ys.bandwidth() / 2).attr('dy', '0.35em').text(P().sgnUsd(r.total));
+    });
+  });
+  dash.draw('attrtable', (tb) => {
+    const d = dash.data('attribution'); tb.replaceChildren(); if (bad(tb, d, 9, 'Attribution')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.period);
+      cell(tr, r.period); cell(tr, P().sgnUsd(r.total), cls(r.total));
+      GROUPS.forEach(([k]) => cell(tr, P().sgnUsd(r[k]), cls(r[k])));
+      cell(tr, r.top_factors, 'wrap');
+    });
+  });
+
+  dash.draw('realchart', (el) => {
+    const d = dash.data('realized_by_symbol'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Realized P&L failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, rh = 22, m = { t: 4, r: 64, b: 22, l: 64 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Realized gain or loss by symbol this year');
+    const xs = d3.scaleLinear(d3.extent([0, ...rows.map((r) => r.realized)]), [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.symbol), [m.t, H - m.b]).padding(0.22);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(2, Math.floor(W / 110))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v < 0 ? '−$' : '$') + d3.format('.2~s')(Math.abs(v))));
+    const g = svg.selectAll('g.r').data(rows).join('g').attr('class', 'r');
+    g.append('rect').attr('x', (r) => Math.min(xs(0), xs(r.realized))).attr('width', (r) => Math.max(1, Math.abs(xs(r.realized) - xs(0)))).attr('y', (r) => ys(r.symbol)).attr('height', ys.bandwidth())
+      .style('fill', (r) => (r.realized >= 0 ? 'var(--color-ok)' : 'var(--color-bad)')).style('opacity', (r) => (r.leveraged ? 1 : 0.6));
+    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text((r) => r.symbol + (r.leveraged ? ' ·L' : ''));
+    g.append('text').attr('x', (r) => (r.realized >= 0 ? xs(r.realized) + 4 : xs(0) + 4)).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').text((r) => P().sgnUsd(r.realized));
+    const tip = P().tip(el);
+    g.on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + (r.leveraged ? ' (leveraged)' : ''), ''], ['Realized:', P().sgnUsd(r.realized)], ['Closing trades:', String(r.trades)]], px, py); }).on('pointerleave', () => tip.hide());
+  });
+  dash.draw('tradetable', (tb) => {
+    const d = dash.data('trades'); tb.replaceChildren(); if (bad(tb, d, 3, 'Trades')) return;
+    d.data.forEach((r) => { const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.key); cell(tr, r.date); cell(tr, r.symbol, 'l'); cell(tr, P().sgnUsd(r.realized), cls(r.realized)); });
+  });
+
+  dash.draw('taxsym', (tb) => {
+    const d = dash.data('tax_by_holding'); tb.replaceChildren(); if (bad(tb, d, 9, 'Tax summary')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      cell(tr, r.symbol); cell(tr, P().usd(r.value));
+      ['lt_gain', 'lt_loss', 'st_gain', 'st_loss', 'crypto'].forEach((k) => cell(tr, r[k] ? P().sgnUsd(r[k]) : '—', cls(r[k])));
+      cell(tr, r.wash_sale_until || '—', r.wash_sale_until ? 'l warn' : 'l'); cell(tr, r.turns_lt_soon || '—', 'wrap');
+    });
+  });
+  dash.draw('taxlots', (tb) => {
+    const d = dash.data('tax_lots'); tb.replaceChildren(); if (bad(tb, d, 8, 'Tax lots')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.key);
+      cell(tr, r.symbol); cell(tr, r.account, 'l'); cell(tr, r.open_date); cell(tr, r.term, 'l');
+      cell(tr, d3.format(',.4~f')(r.qty)); cell(tr, P().px(r.cost_per_share)); cell(tr, P().sgnUsd(r.gain), cls(r.gain)); cell(tr, r.long_term_on || '—');
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  let pick = null;
+  const S = () => { const d = dash.data('outlook_summary'); return d.status === 'ok' ? d.data : []; };
+  const fmtp = (v) => (v == null ? '—' : v < 10 ? '$' + d3.format(',.2f')(v) : '$' + d3.format(',.0f')(v));
+  const tk = (v) => (v < 10 ? d3.format('.2f')(v) : d3.format(',.0f')(v));
+  function cur() { const rows = S(); if (!rows.length) return null;
+    if (!pick || !rows.find((r) => r.symbol === pick)) pick = (rows.find((r) => r.held) || rows.find((r) => r.symbol === 'SPY') || rows[0]).symbol;
+    return rows.find((r) => r.symbol === pick); }
+  function choose(sym) { pick = sym; ['olsel', 'olline', 'spark', 'ranges', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+
+  dash.draw('olsel', (sel) => {
+    const rows = S(); sel.replaceChildren();
+    const held = rows.filter((r) => r.held), other = rows.filter((r) => !r.held);
+    if (held.length) { const g1 = document.createElement('optgroup'); g1.label = 'Your holdings'; held.forEach((r) => g1.appendChild(new Option(r.symbol, r.symbol))); sel.appendChild(g1);
+      const g2 = document.createElement('optgroup'); g2.label = 'Market'; other.forEach((r) => g2.appendChild(new Option(r.symbol, r.symbol))); sel.appendChild(g2); }
+    else rows.forEach((r) => sel.appendChild(new Option(r.symbol, r.symbol)));
+    const c = cur(); if (c) sel.value = c.symbol;
+    sel.onchange = () => choose(sel.value);
+  });
+
+  dash.draw('olline', (el) => {
+    const r = cur(); el.replaceChildren(); if (!r) { el.textContent = '—'; return; }
+    const chip = (k, v, c) => { const x = document.createElement('span'); x.className = 'stat'; const a = document.createElement('small'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; if (c) b.className = c; x.append(a, b); el.appendChild(x); };
+    chip('Today', fmtp(r.price));
+    chip('Likely in 3 months', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi));
+    if (r.target_mean != null) chip('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', P().cls(r.upside_to_mean_pct));
+  });
+
+  dash.draw('spark', (el) => {
+    el.replaceChildren(); const r = cur(), hd = dash.data('outlook_history');
+    if (!r || hd.status !== 'ok') { el.textContent = hd.status === 'error' ? 'Price history failed to load.' : '—'; return; }
+    const h = hd.data.filter((x) => x.symbol === r.symbol); if (!h.length) return;
+    const W = el.clientWidth, H = 200, m = { t: 22, r: 10, b: 22, l: 46 };
+    const dt = (s) => new Date(s + 'T00:00:00Z');
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${r.symbol} price over the last 6 months`);
+    const xs = d3.scaleUtc(d3.extent(h, (x) => dt(x.date)), [m.l, W - m.r]);
+    const ys = d3.scaleLinear(d3.extent(h, (x) => x.close), [H - m.b, m.t]).nice();
+    svg.append('text').attr('x', m.l).attr('y', 12).style('font-weight', 600).text('Last 6 months');
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat((v) => '$' + tk(v)));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(3).tickFormat(d3.utcFormat('%b')));
+    const first = h[0].close, last = h[h.length - 1].close;
+    svg.append('path').datum(h).attr('d', d3.area().x((x) => xs(dt(x.date))).y0(H - m.b).y1((x) => ys(x.close))).style('fill', last >= first ? 'var(--color-ok)' : 'var(--color-bad)').style('opacity', 0.1);
+    svg.append('path').datum(h).attr('d', d3.line().x((x) => xs(dt(x.date))).y((x) => ys(x.close))).style('fill', 'none').style('stroke', 'var(--color-fg)').style('stroke-width', 1.8);
+    svg.append('circle').attr('cx', xs(dt(h[h.length - 1].date))).attr('cy', ys(last)).attr('r', 4).style('fill', 'var(--color-fg)');
+    const tip = P().tip(el);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => { const [px] = d3.pointer(ev); const x = h[Math.min(h.length - 1, d3.bisector((q) => dt(q.date)).left(h, xs.invert(px)))]; tip.show([[d3.utcFormat('%b %-d')(dt(x.date)), ''], ['Close:', '$' + tk(x.close)]], xs(dt(x.date)), m.t); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('ranges', (el) => {
+    el.replaceChildren(); const r = cur(), cd = dash.data('outlook_cone');
+    if (!r || cd.status !== 'ok') { el.textContent = cd.status === 'error' ? 'Ranges failed to load.' : '—'; return; }
+    const cone = cd.data.filter((x) => x.symbol === r.symbol), at = (n) => cone.find((x) => x.step === n) || {};
+    const rows = [
+      { lab: '1 month', lo: r.m1_lo, hi: r.m1_hi, w0: at(21).p05, w1: at(21).p95 },
+      { lab: '3 months', lo: r.m3_lo, hi: r.m3_hi, w0: at(63).p05, w1: at(63).p95, hist: r.history_3m },
+      { lab: '12 months', lo: r.m12_lo, hi: r.m12_hi, w0: at(252).p05, w1: at(252).p95, hist: r.history_12m },
+    ];
+    if (r.target_mean != null) rows.push({ lab: 'Analysts, 12 mo', lo: r.target_low, hi: r.target_high, mid: r.target_mean, analyst: true });
+    const W = el.clientWidth, rh = 46, m = { t: 10, r: 18, b: 24, l: 96 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${r.symbol} likely price ranges at 1, 3 and 12 months, and analyst targets`);
+    const vals = rows.flatMap((x) => [x.lo, x.hi, x.w0, x.w1, x.mid, x.hist]).filter((v) => v != null).concat([r.price]);
+    const xs = d3.scaleLinear(d3.extent(vals), [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((x) => x.lab), [m.t, H - m.b]).padding(0.35);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 100))).tickSize(-(H - m.t - m.b)).tickFormat((v) => '$' + tk(v)));
+    svg.append('line').attr('x1', xs(r.price)).attr('x2', xs(r.price)).attr('y1', m.t - 4).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '3 3');
+    svg.append('text').attr('x', xs(r.price)).attr('y', m.t - 2).attr('text-anchor', 'middle').style('font-weight', 600).text('Today ' + fmtp(r.price));
+    const tip = P().tip(el);
+    rows.forEach((x) => {
+      const y = ys(x.lab), bh = ys.bandwidth(), cy = y + bh / 2;
+      svg.append('text').attr('x', m.l - 10).attr('y', cy).attr('dy', '0.35em').attr('text-anchor', 'end').text(x.lab);
+      const g = svg.append('g');
+      if (x.w0 != null) g.append('line').attr('x1', xs(x.w0)).attr('x2', xs(x.w1)).attr('y1', cy).attr('y2', cy).style('stroke', dash.colors[0]).style('stroke-width', 2).style('opacity', 0.45);
+      g.append('rect').attr('x', xs(x.lo)).attr('width', Math.max(2, xs(x.hi) - xs(x.lo))).attr('y', y).attr('height', bh).attr('rx', 4)
+        .style('fill', x.analyst ? 'var(--color-ok)' : dash.colors[0]).style('opacity', x.analyst ? 0.35 : 0.85);
+      if (x.mid != null) g.append('rect').attr('x', xs(x.mid) - 5).attr('y', cy - 5).attr('width', 10).attr('height', 10).attr('transform', `rotate(45 ${xs(x.mid)} ${cy})`).style('fill', 'var(--color-ok)');
+      if (x.hist != null) g.append('line').attr('x1', xs(x.hist)).attr('x2', xs(x.hist)).attr('y1', y - 4).attr('y2', y + bh + 4).style('stroke', 'var(--color-warn)').style('stroke-width', 3);
+      svg.append('text').attr('x', xs(x.lo) - 4).attr('y', y + bh + 12).attr('text-anchor', 'end').style('font-size', '10px').text('$' + tk(x.lo));
+      svg.append('text').attr('x', xs(x.hi) + 4).attr('y', y + bh + 12).style('font-size', '10px').text('$' + tk(x.hi));
+      const lines = x.analyst ? [[x.lab, ''], ['Low:', fmtp(x.lo)], ['Average:', fmtp(x.mid)], ['High:', fmtp(x.hi)], ['Buy ratings:', r.buy_pct + '% of ' + r.analysts]]
+        : [[x.lab, ''], ['Likely (2 in 3):', fmtp(x.lo) + ' – ' + fmtp(x.hi)], ['Possible (9 in 10):', fmtp(x.w0) + ' – ' + fmtp(x.w1)], ...(x.hist != null ? [['If S&P repeats history:', fmtp(x.hist)]] : [])];
+      g.on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show(lines, px, py); }).on('pointerleave', () => tip.hide());
+    });
+  });
+
+  dash.draw('strip', (el) => {
+    el.replaceChildren(); const d = dash.data('outlook_summary');
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    const rows = d.data.map((r) => ({ ...r, lo: (r.m3_lo / r.price - 1) * 100, hi: (r.m3_hi / r.price - 1) * 100, up: r.upside_to_mean_pct }))
+      .sort((a, b) => (b.held === true) - (a.held === true) || (b.up ?? -999) - (a.up ?? -999));
+    const W = el.clientWidth, rh = 20, m = { t: 22, r: 16, b: 24, l: 56 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Each stock: likely 3-month range and average analyst target, as percent from today');
+    const CAP = 110;
+    const xs = d3.scaleLinear([d3.min(rows, (r) => r.lo), Math.min(CAP, Math.max(d3.max(rows, (r) => r.hi), d3.max(rows, (r) => r.up ?? 0)))], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.symbol), [m.t, H - m.b]).padding(0.3);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 90))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v > 0 ? '+' : '') + v + '%'));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t - 6).attr('y2', H - m.b).style('stroke', 'var(--color-fg)');
+    svg.append('text').attr('x', xs(0)).attr('y', 12).attr('text-anchor', 'middle').style('font-weight', 600).text('Today');
+    const c0 = cur(), tip = P().tip(el);
+    const g = svg.selectAll('g.row').data(rows).join('g').attr('class', 'row');
+    g.append('rect').attr('x', m.l - 50).attr('width', W - m.l + 50 - m.r).attr('y', (r) => ys(r.symbol) - 3).attr('height', ys.bandwidth() + 6).style('fill', (r) => (c0 && r.symbol === c0.symbol ? 'var(--cds-chart-grid)' : 'transparent'));
+    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-weight', (r) => (r.held ? 600 : null)).text((r) => r.symbol);
+    g.append('rect').attr('x', (r) => xs(r.lo)).attr('width', (r) => Math.max(2, xs(Math.min(r.hi, CAP)) - xs(r.lo))).attr('y', (r) => ys(r.symbol)).attr('height', ys.bandwidth()).attr('rx', 3).style('fill', dash.colors[0]).style('opacity', 0.8);
+    const dg = g.filter((r) => r.up != null);
+    dg.append('rect').attr('x', (r) => xs(Math.min(r.up, CAP)) - 4.5).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2 - 4.5).attr('width', 9).attr('height', 9)
+      .attr('transform', (r) => `rotate(45 ${xs(Math.min(r.up, CAP))} ${ys(r.symbol) + ys.bandwidth() / 2})`).style('fill', 'var(--color-ok)');
+    dg.filter((r) => r.up > CAP).append('text').attr('x', (r) => xs(CAP) - 10).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-size', '10px').text((r) => '+' + Math.round(r.up) + '% →');
+    g.on('click', (ev, r) => { choose(r.symbol); document.getElementById('fan')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); })
+      .on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + ' at ' + fmtp(r.price), ''], ['Likely in 3 months:', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi)], ['Analyst average:', r.up == null ? 'none' : fmtp(r.target_mean) + ' (' + P().pct(r.up) + ')']], px, py); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('oltbody', (tb) => {
+    const d = dash.data('outlook_summary'); tb.replaceChildren();
+    if (d.status !== 'ok') { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = 9; c.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      const cell = (t, c) => { const x = tr.insertCell(); x.textContent = t; if (c) x.className = c; };
+      cell(r.symbol); cell(fmtp(r.price)); cell(fmtp(r.m1_lo) + '–' + fmtp(r.m1_hi)); cell(fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi)); cell(fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));
+      cell(fmtp(r.history_3m)); cell(r.target_mean == null ? '—' : fmtp(r.target_mean));
+      cell(r.upside_to_mean_pct == null ? '—' : P().pct(r.upside_to_mean_pct), r.upside_to_mean_pct == null ? '' : P().cls(r.upside_to_mean_pct));
+      cell(r.buy_pct == null ? '—' : r.buy_pct + '% of ' + r.analysts);
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  const rowOf = (id, k, v) => { const d = dash.data(id); return d.status === 'ok' ? d.data.find((r) => r[k] === v) : null; };
+  const TODAY = "Today's setup: VIX 30+ and S&P 8–20% off its high", NORMAL = 'All days since 1950 (normal)';
+  const el_ = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+  function meter(host, pct, color, tick) {
+    host.replaceChildren(); const mb = el_('div', 'mb'); const f = el_('div', 'f');
+    f.style.width = Math.max(0, Math.min(100, pct)) + '%'; f.style.background = color; mb.appendChild(f);
+    if (tick != null) { const t = el_('div', 't'); t.style.left = tick + '%'; mb.appendChild(t); }
+    host.appendChild(mb);
+  }
+  function pair(host, rows) {
+    host.replaceChildren(); const box = el_('div', 'pair');
+    const mx = Math.max(...rows.map((r) => Math.abs(r[1]))) || 1;
+    rows.forEach(([lab, v, color]) => { const r = el_('div', 'r'); const l = el_('span'); l.textContent = lab; const mb = el_('div', 'mb'); const f = el_('div', 'f'); f.style.width = Math.abs(v) / mx * 100 + '%'; f.style.background = color; mb.appendChild(f); r.append(l, mb); box.appendChild(r); });
+    host.appendChild(box);
+  }
+  const stressColor = (p) => (p >= 80 ? 'var(--color-bad)' : p >= 60 ? 'var(--color-warn)' : 'var(--color-ok)');
+  dash.draw('m-vix', (h) => { const g = rowOf('market_gauges', 'gauge', 'vix'); if (!g) { h.textContent = ''; return; } meter(h, g.stress_pct, stressColor(g.stress_pct)); });
+  dash.draw('m-1m', (h) => { const g = rowOf('market_gauges', 'gauge', 'spx_1m'); if (!g) { h.textContent = ''; return; } meter(h, g.stress_pct, stressColor(g.stress_pct)); });
+  dash.draw('m-credit', (h) => { const g = rowOf('market_gauges', 'gauge', 'baa'); if (!g) { h.textContent = ''; return; } meter(h, g.current / 4 * 100, g.current >= 2.5 ? 'var(--color-bad)' : 'var(--color-ok)', 2.5 / 4 * 100); });
+  dash.draw('m-hist', (h) => { const a = rowOf('market_analogs', 'setup', TODAY), n = rowOf('market_analogs', 'setup', NORMAL); if (!a || !n) { h.textContent = ''; return; }
+    pair(h, [['Today-like', a.fwd3m_median, 'var(--color-ok)'], ['Normal', n.fwd3m_median, 'var(--cds-chart-muted)']]); });
+  dash.draw('m-you', (h) => { const a = rowOf('market_analogs', 'setup', TODAY); if (!a || a.your_3m_median == null) { h.textContent = ''; return; }
+    pair(h, [['Typical', a.your_3m_median, 'var(--color-ok)'], ['Bad 1 in 10', a.your_3m_bad, 'var(--color-bad)']]); });
+  dash.draw('m-hot', (h) => { const d = dash.data('hot_pair'); if (d.status !== 'ok' || !d.data.length) { h.textContent = ''; return; }
+    pair(h, [['Money', d.data[0].weight, 'var(--cds-chart-muted)'], ['Risk', d.data[0].risk, 'var(--color-bad)']]); });
+  dash.draw('m-rules', (h) => { const r = rowOf('rule_summary', 'rule_id', 'scale'); if (!r) { h.textContent = ''; return; }
+    pair(h, [['Cut losses', r.shallower_dd, 'var(--color-ok)'], ['Beat return', r.beat_cagr, 'var(--color-bad)']]); });
+  dash.draw('m-pass', (h) => { const d = dash.data('bt_pass'); h.replaceChildren(); if (d.status !== 'ok') return; const box = el_('div', 'dots');
+    for (let i = 0; i < 3; i++) { const dot = el_('i', i < d.data ? 'on' : ''); box.appendChild(dot); } h.appendChild(box); });
+})();
+</script>

@@ -1,0 +1,574 @@
+<meta name="dash-one-writer">
+<style>
+.mpb { display: grid; gap: var(--cds-gap-xl); font-variant-numeric: tabular-nums; }
+.mpb h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.mpb h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.mpb .sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); max-width: 80ch; }
+.mpb .lede { max-width: 76ch; margin: var(--cds-gap-sm) 0 0; line-height: 1.55; }
+.mpb .eyebrow { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.mpb .disclaim { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-left: 2px solid var(--color-warn); padding-left: var(--cds-pad-sm); margin-top: var(--cds-gap-sm); max-width: 80ch; }
+.mpb .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--cds-gap-md); }
+.mpb .tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 2px; }
+.mpb .tile .big { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.15; }
+.mpb .tile .meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mpb .up { color: var(--color-ok); } .mpb .down { color: var(--color-bad); } .mpb .warn { color: var(--color-warn); }
+.mpb .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
+.mpb .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.mpb .chart { position: relative; min-height: 260px; }
+.mpb .chart svg text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); }
+.mpb .chart .domain, .mpb .chart .tick line { stroke: var(--cds-chart-axis); }
+.mpb .chart .gridline line { stroke: var(--cds-chart-grid); }
+.mpb .chart .gridline .domain { display: none; }
+.mpb .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: 6px; padding: 6px 8px; font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 5; }
+.mpb .tip b { font-weight: var(--cds-font-weight-medium); }
+.mpb .legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-xs); }
+.mpb .legend i { display: inline-block; width: 12px; height: 10px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.mpb .tablewrap { overflow-x: auto; }
+.mpb table { border-collapse: collapse; width: 100%; }
+.mpb th { text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: 6px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.mpb th:first-child, .mpb td:first-child { text-align: left; }
+.mpb td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.mpb td.l, .mpb th.l { text-align: left; }
+.mpb td.wrap { white-space: normal; min-width: 260px; text-align: left; }
+.mpb .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid currentColor; white-space: nowrap; }
+.mpb .alerts { display: grid; gap: var(--cds-gap-sm); }
+.mpb .alert { display: grid; grid-template-columns: auto 1fr; gap: 4px var(--cds-gap-md); align-items: baseline; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.mpb .alert .what { font-weight: var(--cds-font-weight-medium); }
+.mpb .alert .detail { grid-column: 2; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+.mpb details li { margin: 6px 0; max-width: 82ch; line-height: 1.5; }
+.mpb details summary { cursor: pointer; font-weight: var(--cds-font-weight-medium); }
+
+.mpb .bottom { display: grid; gap: var(--cds-gap-sm); margin: var(--cds-gap-md) 0 0; padding: 0; list-style: none; max-width: 92ch; }
+.mpb .bottom li { display: grid; grid-template-columns: 7.5rem 1fr; gap: var(--cds-gap-md); line-height: 1.5; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.mpb .bottom .k { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); padding-top: 2px; }
+@media (max-width: 560px) { .mpb .bottom li { grid-template-columns: 1fr; gap: 2px; } }
+.mpb .howto { font-size: var(--cds-font-size-body); max-width: 92ch; }
+.mpb .howto ul { margin: var(--cds-gap-sm) 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.mpb .tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-bg); z-index: 3; padding-top: var(--cds-pad-sm); }
+.mpb .tabs button { font: inherit; font-weight: var(--cds-font-weight-medium); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: 8px 12px; cursor: pointer; }
+.mpb .tabs button[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+.mpb .tabs button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.mpb .tabs .n { display: inline-block; min-width: 1.4em; color: var(--color-fg-muted); }
+.mpb .tabpage { display: grid; gap: var(--cds-gap-xl); }
+.mpb .tabintro { font-size: var(--cds-font-size-body); max-width: 86ch; margin: 0; line-height: 1.55; }
+.mpb .pbar { display: inline-block; position: relative; width: 110px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 8px;
+  background: linear-gradient(90deg, var(--color-ok), var(--cds-chart-grid) 45%, var(--cds-chart-grid) 60%, var(--color-warn) 80%, var(--color-bad)); opacity: .9; }
+.mpb .pbar i { position: absolute; top: -4px; width: 3px; height: 16px; border-radius: 2px; background: var(--color-fg); }
+.mpb td .m { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); white-space: normal; max-width: 42ch; }
+.mpb tr.fits td { background: color-mix(in srgb, var(--color-warn) 10%, transparent); }
+
+.mpb .queue { display: grid; gap: 0; }
+.mpb .qitem { display: grid; grid-template-columns: 6.5rem 1fr auto; gap: 4px var(--cds-gap-md); padding: var(--cds-pad-md) 0; border-bottom: 1px solid var(--color-border-line); align-items: baseline; }
+.mpb .qitem .t { font-weight: var(--cds-font-weight-medium); }
+.mpb .qitem .w { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mpb .qitem .why, .mpb .qitem .ch { grid-column: 2 / 4; font-size: var(--cds-font-size-body); line-height: 1.5; max-width: 90ch; }
+.mpb .qitem .ch { color: var(--color-fg-muted); }
+.mpb .qitem button { font: inherit; font-size: var(--cds-font-size-caption); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; cursor: pointer; color: var(--color-fg); }
+.mpb .qitem button:focus-visible { outline: 2px solid var(--color-fg); }
+@media (max-width: 560px) { .mpb .qitem { grid-template-columns: 1fr; } .mpb .qitem .why, .mpb .qitem .ch { grid-column: 1; } }
+.mpb .limits { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--cds-gap-lg); }
+.mpb .lim { display: grid; gap: 6px; }
+.mpb .lim .n { font-weight: var(--cds-font-weight-medium); }
+.mpb .lim .v { font-family: var(--font-anthropic-serif); font-size: 26px; }
+.mpb .lim .track { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); overflow: hidden; }
+.mpb .lim .fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+.mpb .lim .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-fg); }
+.mpb .lim .b { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; }
+.mpb .chart.tallfan { min-height: 360px; }
+.mpb #oltable tbody tr { cursor: pointer; }
+.mpb #oltable tbody tr.on td { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
+
+.mpb .vtiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--cds-gap-md); }
+.mpb .vt { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 6px; align-content: start; }
+.mpb .vt .vl { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.mpb .vt .vb { font-family: var(--font-anthropic-serif); font-size: 30px; line-height: 1.1; }
+.mpb .vt .vm { display: block; min-height: 22px; }
+.mpb .vt .vc { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mpb .mb { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); margin-top: 6px; }
+.mpb .mb .f { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px; }
+.mpb .mb .k { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 2px; background: var(--color-fg); }
+.mpb .mb .t { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--color-bad); }
+.mpb .pair { display: grid; gap: 4px; }
+.mpb .pair .r { display: grid; grid-template-columns: 4.2rem 1fr; gap: 6px; align-items: center; font-size: 11px; color: var(--color-fg-muted); }
+.mpb .pair .r .mb { margin: 0; height: 8px; }
+.mpb .dots { display: flex; gap: 6px; margin-top: 6px; }
+.mpb .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--cds-chart-grid); }
+.mpb .dots i.on { background: var(--color-ok); }
+.mpb details.info { margin: 0 0 var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mpb details.info summary { cursor: pointer; width: max-content; }
+.mpb details.info p { margin: 6px 0 0; max-width: 80ch; line-height: 1.5; }
+.mpb details.qd { grid-column: 2 / 4; font-size: var(--cds-font-size-caption); }
+.mpb details.qd summary { cursor: pointer; color: var(--color-fg-muted); }
+@media (max-width: 560px) { .mpb details.qd { grid-column: 1; } }
+.mpb .stats { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); margin: var(--cds-gap-sm) 0; }
+.mpb .stat { display: grid; padding: 6px 12px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.mpb .stat small { font-size: 11px; color: var(--color-fg-muted); }
+.mpb .stat b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 18px; }
+
+.mpb .olgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--cds-gap-lg); align-items: start; }
+@media (max-width: 760px) { .mpb .olgrid { grid-template-columns: 1fr; } }
+.mpb .chart.spark { min-height: 200px; } .mpb .chart.ranges { min-height: 230px; } .mpb .chart.strip { min-height: 300px; }
+.mpb .chart.strip .row { cursor: pointer; }
+</style>
+<style>
+.mpb .vtiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--cds-gap-md); }
+.mpb .vt { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 6px; align-content: start; }
+.mpb .vt .vl { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.mpb .vt .vb { font-family: var(--font-anthropic-serif); font-size: 30px; line-height: 1.1; }
+.mpb .vt .vm { display: block; min-height: 22px; }
+.mpb .vt .vc { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mpb .mb { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); margin-top: 6px; }
+.mpb .mb .f { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px; }
+.mpb .mb .t { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--color-bad); }
+.mpb .pair { display: grid; gap: 4px; }
+.mpb .pair .r { display: grid; grid-template-columns: 4.6rem 1fr; gap: 6px; align-items: center; font-size: 11px; color: var(--color-fg-muted); }
+.mpb .pair .r .mb { margin: 0; height: 8px; }
+.mpb .drivers { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--cds-gap-md); margin: 0; padding: 0; list-style: none; }
+.mpb .drivers li { border-top: 3px solid var(--color-bad); padding-top: var(--cds-pad-sm); font-size: var(--cds-font-size-body); line-height: 1.4; }
+.mpb .drivers li b { display: block; margin-bottom: 2px; }
+.mpb .drivers li a { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.mpb .drivers li.watch { border-top-color: var(--color-warn); }
+.mpb details.info { margin: 0 0 var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mpb details.info summary { cursor: pointer; width: max-content; }
+.mpb details.info p { margin: 6px 0 0; max-width: 80ch; line-height: 1.5; }
+.mpb .stats { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); margin: var(--cds-gap-sm) 0; }
+.mpb .stat { display: grid; padding: 6px 12px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.mpb .stat small { font-size: 11px; color: var(--color-fg-muted); }
+.mpb .stat b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 18px; }
+.mpb .chart.tallfan { min-height: 360px; } .mpb .chart.scatter { min-height: 440px; } .mpb .chart.ladder { min-height: 420px; }
+.mpb #oltable tbody tr { cursor: pointer; }
+.mpb #oltable tbody tr.on td { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
+</style>
+
+<div class="mpb">
+  <header id="head">
+    <div class="eyebrow">Market Pulse · close of <span data-draw="asof" data-source="spx_stats" data-field="asof" data-row="0">—</span></div>
+    <h1>Where the market stands, and what history says comes next</h1>
+    <p class="disclaim">For information only, not investment advice. Probabilities from history, not predictions.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="today" aria-selected="true"><span class="n">1</span>Today</button>
+    <button type="button" role="tab" data-tab="momentum" aria-selected="false"><span class="n">2</span>Momentum</button>
+    <button type="button" role="tab" data-tab="outlook" aria-selected="false"><span class="n">3</span>Price outlook</button>
+    <button type="button" role="tab" data-tab="history" aria-selected="false"><span class="n">4</span>History</button>
+  </nav>
+
+  <div class="tabpage" id="today" role="tabpanel">
+    <section id="tiles" class="vtiles">
+      <div class="vt"><span class="vl">Fear (VIX)</span><span class="vb" data-draw="t-vix" data-source="gauges" data-field="current" data-where="gauge=vix">—</span><span class="vm" data-draw="m-vix" data-source="gauges"></span><span class="vc">Higher than <b data-draw="t-vixp" data-source="gauges" data-field="percentile" data-where="gauge=vix">—</b>% of days since 1990</span></div>
+      <div class="vt"><span class="vl">S&amp;P 500, past month</span><span class="vb" data-draw="t-1m" data-source="gauges" data-field="current" data-where="gauge=spx_1m">—</span><span class="vm" data-draw="m-1m" data-source="gauges"></span><span class="vc">Worse than <b data-draw="t-1mp" data-source="worse_months">—</b>% of months since 1950</span></div>
+      <div class="vt"><span class="vl">S&amp;P below its high</span><span class="vb" data-draw="t-dd" data-source="spx_stats" data-field="drawdown_pct" data-row="0">—</span><span class="vm" data-draw="m-dd" data-source="spx_stats"></span><span class="vc">New high within a year: <b data-draw="t-nh" data-source="spx_stats" data-field="new_high_1y_pct" data-row="0">—</b>% of past cases</span></div>
+      <div class="vt"><span class="vl">After setups like today</span><span class="vb" data-draw="t-f3" data-source="analogs" data-field="fwd3m_median" data-where="setup=Today's%20setup%3A%20VIX%2030%2B%20and%20S%26P%208%E2%80%9320%25%20off%20its%20high">—</span><span class="vm" data-draw="m-hist" data-source="analogs"></span><span class="vc">S&amp;P, next 3 months · <b data-draw="t-ep" data-source="analogs" data-field="episodes" data-where="setup=Today's%20setup%3A%20VIX%2030%2B%20and%20S%26P%208%E2%80%9320%25%20off%20its%20high">—</b> episodes</span></div>
+      <div class="vt"><span class="vl">Credit stress</span><span class="vb" data-draw="t-baa" data-source="gauges" data-field="current" data-where="gauge=baa">—</span><span class="vm" data-draw="m-credit" data-source="gauges"></span><span class="vc"><b data-draw="t-baaz" data-source="gauges" data-field="zone" data-where="gauge=baa">—</b> · crisis line 2.5</span></div>
+    </section>
+
+    <div class="grid2">
+      <section id="ladderbox" class="card">
+        <h2>S&amp;P 500: where the floor and ceiling sit</h2>
+        <details class="info"><summary>How to read</summary><p>Every line is a price level for the S&amp;P 500. Gray lines are chart levels (averages, highs, lows). Orange lines come from the past episodes like today: the typical extra dip, the 1-in-10 dip, and the 3-month outcomes. The blue band is the one-month range the options market implies, about 2 chances in 3.</p></details>
+        <div class="chart ladder" data-draw="ladder" data-source="spx_levels"></div>
+      </section>
+      <section id="drivers" class="card">
+        <h2>What's moving it</h2>
+        <ul class="drivers">
+          <li><b>AI spending doubts</b>Investors question whether data-center spending pays off. <a href="https://www.cnbc.com/2026/11/20/sp-500-correction-market-sell-off.html">CNBC</a></li>
+          <li><b>Nvidia under pressure</b>CEO scandal and a reported SEC accounting probe; down about 47% from its October high. <a href="https://www.axios.com/2026/11/20/anthropic-ipo-nvidia-ai-tech-selloff">Axios</a></li>
+          <li><b>The Fed is hiking</b>A December 8–9 rate hike is about 97% priced; a half-point move is being debated. <a href="https://www.cnbc.com/2026/11/10/fed-governor-waller-sees-december-hike-likely.html">CNBC</a></li>
+          <li><b>Crypto liquidations</b>Bitcoin under $60,000 after $2B of forced selling and ETF outflows. <a href="https://www.coindesk.com/tech/2026/11/20/live-news-bitcoin-hovers-just-above-usd61-000-as-anthropic-slides-13-after-nasdaq-debut">CoinDesk</a></li>
+          <li class="watch"><b>Next catalysts</b>Fed decision Dec 9 · November inflation Dec 10 · Broadcom Dec 9, Oracle Dec 14, Micron Dec 17 earnings. <a href="https://www.forbes.com/sites/simonmoore/2026/11/09/what-to-expect-from-the-feds-december-meeting/">Forbes</a></li>
+        </ul>
+        <p class="sub" style="margin-top: var(--cds-gap-md)">News as of the Nov 20, 2026 close.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="tabpage" id="momentum" role="tabpanel" hidden>
+    <section id="scatterbox" class="card">
+      <h2>Momentum map: who's leading, who's breaking</h2>
+      <details class="info"><summary>How to read</summary><p>Across: the past year's trend (12-month return, skipping the latest month). Up: how much each beat or trailed the S&amp;P 500 this month. Top-right are long-term winners still holding up; bottom-right are long-term winners now breaking; top-left are laggards turning up; bottom-left are weak on both. Point at a dot for details.</p></details>
+      <div class="legend" data-draw="mlegend" data-source="momentum"></div>
+      <div class="chart scatter" data-draw="scatter" data-source="momentum"></div>
+    </section>
+    <section id="sectorsbox" class="card">
+      <h2>Which sectors led after past sell-offs like this one</h2>
+      <details class="info"><summary>How to read</summary><p>Each bar is how much a sector beat or trailed the S&amp;P 500 over the 3 months after past setups like today (since 1999). The number at the end is how often it beat the S&amp;P.</p></details>
+      <div class="chart" data-draw="sectchart" data-source="sectors_after"></div>
+    </section>
+  </div>
+
+  <div class="tabpage" id="outlook" role="tabpanel" hidden>
+    <section id="fan" class="card">
+      <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; flex-wrap: wrap; justify-content: space-between;">
+        <h2 style="margin:0">Where could it be?</h2>
+        <span><label for="olsel" class="sub" style="margin:0 6px 0 0">Stock:</label><select id="olsel" class="dash-select" data-draw="olsel" aria-label="Stock" data-source="outlook_summary"></select></span>
+      </div>
+      <div class="stats" data-draw="olline" data-source="outlook_summary"></div>
+      <div class="olgrid">
+        <div class="chart spark" data-draw="spark" data-source="outlook_history"></div>
+        <div>
+          <div class="legend">
+            <span><i data-swatch="0"></i>Likely (2 in 3)</span>
+            <span><i data-swatch="0" style="opacity:.3"></i>Possible (9 in 10)</span>
+            <span><i style="background: var(--color-fg); border-radius:50%; width:10px"></i>Today</span>
+            <span><i style="background: var(--color-warn); width:4px"></i>If S&amp;P repeats history</span>
+          </div>
+          <div class="chart ranges" data-draw="ranges" data-source="outlook_summary outlook_cone"></div>
+        </div>
+      </div>
+      <details class="info"><summary>How to read</summary><p>Each row is a time horizon on the same price scale. The thick bar is where the price lands about 2 times in 3; the thin line about 9 times in 10. Bars widen further out because uncertainty grows. The orange tick is where it would be if the S&amp;P repeats its typical path after past sell-offs like this one, scaled by how much the stock moves with the market. The analyst row shows Wall Street's 12-month targets (low, average, high), many set before this sell-off. None of this is a prediction.</p></details>
+    </section>
+    <section id="oltable" class="card">
+      <h2>All stocks: 3-month range vs analyst targets</h2>
+      <div class="legend">
+        <span><i data-swatch="0"></i>Likely 3-month range</span>
+        <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst average target</span>
+      </div>
+      <div class="chart strip" data-draw="strip" data-source="outlook_summary"></div>
+      <details class="info"><summary>How to read</summary><p>Each row is one stock, centered on today's price (0%). The bar is where it lands about 2 times in 3 over the next 3 months. The green diamond is the average 12-month analyst target. A diamond far beyond the bar means analysts expect more than a normal year delivers. Click a row to see that stock above.</p></details>
+      <details class="info"><summary>Show the numbers</summary>
+      <div class="tablewrap">
+        <table data-source="outlook_summary" data-row-key="symbol">
+          <thead><tr><th data-field="symbol">Stock</th><th data-field="price">Price</th><th data-field="m1_lo">1 month</th><th data-field="m3_lo">3 months</th><th data-field="m12_lo">12 months</th><th data-field="history_3m">History path, 3 mo</th><th data-field="target_mean">Analyst average</th><th data-field="upside_to_mean_pct">Upside</th><th data-field="buy_pct">Buy ratings</th></tr></thead>
+          <tbody data-draw="oltbody"></tbody>
+        </table>
+      </div>
+      </details>
+    </section>
+  </div>
+
+  <div class="tabpage" id="history" role="tabpanel" hidden>
+    <section id="gaugetable" class="card">
+      <h2>Today's market against history</h2>
+      <details class="info"><summary>How to read</summary><p>Each gauge ranked against its full history (the bar runs from calm to extreme stress), then matched to past days with similar readings to show what the S&amp;P 500 did next. Normal since 1950: a median of <span data-draw="base3" data-source="analogs" data-field="fwd3m_median" data-where="setup=All%20days%20since%201950%20(normal)">—</span> over 3 months, up after a year <span data-draw="basepos" data-source="analogs" data-field="fwd12m_pos_pct" data-where="setup=All%20days%20since%201950%20(normal)">—</span>% of the time. Hover a gauge name for what it measures.</p></details>
+      <div class="tablewrap">
+        <table data-source="gauges" data-row-key="gauge">
+          <thead><tr><th data-field="label">Gauge</th><th data-field="current">Today</th><th data-field="percentile" class="l">Rank in history</th><th data-field="median_hist">Typical</th><th data-field="fwd3m_median">S&amp;P next 3 months</th><th data-field="fwd12m_median">Next 12 months</th><th data-field="fwd12m_pos_pct">Up after 1 year</th><th data-field="episodes">Episodes</th></tr></thead>
+          <tbody data-draw="gauges"></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="analogs" class="card">
+      <h2>Setups like today, and what came next</h2>
+      <details class="info"><summary>How to read</summary><p>Highlighted rows match today. Episodes count separate events, the real sample size. Overlapping days inside one sell-off make the day-weighted medians look rosier than counting each episode once.</p></details>
+      <div class="tablewrap">
+        <table data-source="analogs" data-row-key="setup">
+          <thead><tr><th data-field="setup">Setup</th><th data-field="episodes">Episodes</th><th data-field="fwd1m_median">Next month</th><th data-field="fwd3m_median">Next 3 months</th><th data-field="fwd12m_median">Next 12 months</th><th data-field="fwd12m_pos_pct">Up after 1 year</th><th data-field="fwd12m_worst">Worst year</th><th data-field="recent_starts" class="l">Recent episodes</th></tr></thead>
+          <tbody data-draw="analogs"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  window.pwr = {
+    usd(v, d = 0) { return v == null ? '—' : (v < 0 ? '−$' : '$') + d3.format(`,.${d}f`)(Math.abs(v)); },
+    sgnUsd(v) { return v == null ? '—' : (v > 0 ? '+$' : v < 0 ? '−$' : '$') + d3.format(',.0f')(Math.abs(v)); },
+    pct(v, d = 1) { return v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + d3.format(`.${d}f`)(Math.abs(v)) + '%'; },
+    px(v) { return v == null ? '—' : v < 1 ? d3.format('.4f')(v) : d3.format(',.2f')(v); },
+    cls(v) { return v == null || v === 0 ? '' : v > 0 ? 'up' : 'down'; },
+    tip(box) {
+      let t = box.querySelector(':scope > .tip');
+      if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
+      return {
+        show(lines, x, y) {
+          t.replaceChildren();
+          lines.forEach(([k, v]) => { const r = document.createElement('div'); const b = document.createElement('b'); b.textContent = k; r.append(b, v ? ' ' + v : ''); t.appendChild(r); });
+          t.hidden = false;
+          t.style.left = Math.max(0, Math.min(box.clientWidth - t.offsetWidth, x + 12)) + 'px';
+          t.style.top = Math.max(0, y - 10) + 'px';
+        },
+        hide() { t.hidden = true; },
+      };
+    },
+  };
+  dash.onData(() => { document.querySelectorAll('.mpb [data-swatch]').forEach((el) => { el.style.background = dash.colors[+el.dataset.swatch]; }); });
+})();
+</script>
+
+<script>
+(function () {
+  const P = () => window.pwr;
+  function cell(tr, txt, cls) { const c = tr.insertCell(); c.textContent = txt; if (cls) c.className = cls; return c; }
+  function bad(tb, d, n, what) { if (d.status === 'ok') return false; const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = n; c.textContent = d.status === 'error' ? what + ' failed to load.' : '—'; return true; }
+  const fmtVal = (v, unit) => v == null ? '—' : unit === '%' ? P().pct(v) : unit === 'ratio' ? d3.format('.2f')(v) : d3.format('.2f')(v);
+  const zoneCls = (z) => z === 'Extreme stress' || z === 'High stress' ? 'down' : z === 'Elevated' ? 'warn' : 'up';
+
+  dash.draw('gauges', (tb) => {
+    const d = dash.data('gauges'); tb.replaceChildren(); if (bad(tb, d, 8, 'Market gauges')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.gauge);
+      const c0 = tr.insertCell(); c0.textContent = r.label; c0.title = r.meaning + ' Since ' + r.since + '.';
+      cell(tr, fmtVal(r.current, r.unit));
+      const c = tr.insertCell(); c.className = 'l';
+      const bar = document.createElement('span'); bar.className = 'pbar'; const mk = document.createElement('i'); mk.style.left = `calc(${r.stress_pct}% - 1.5px)`; bar.appendChild(mk);
+      const chip = document.createElement('span'); chip.className = 'chip ' + zoneCls(r.zone); chip.textContent = r.zone;
+      const pc = document.createElement('span'); pc.className = 'm'; pc.textContent = d3.format('.0f')(r.percentile) + 'th percentile';
+      c.append(bar, chip, pc);
+      cell(tr, fmtVal(r.median_hist, r.unit));
+      cell(tr, P().pct(r.fwd3m_median), P().cls(r.fwd3m_median)); cell(tr, P().pct(r.fwd12m_median), P().cls(r.fwd12m_median));
+      cell(tr, r.fwd12m_pos_pct == null ? '—' : d3.format('.0f')(r.fwd12m_pos_pct) + '%'); cell(tr, String(r.episodes));
+    });
+  });
+  dash.draw('analogs', (tb) => {
+    const d = dash.data('analogs'); tb.replaceChildren(); if (bad(tb, d, 8, 'Setups')) return;
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.setup); if (r.today_fits && !r.setup.startsWith('All days')) tr.className = 'fits';
+      cell(tr, r.setup + (r.today_fits && !r.setup.startsWith('All days') ? '  ← today' : ''));
+      cell(tr, String(r.episodes));
+      cell(tr, P().pct(r.fwd1m_median), P().cls(r.fwd1m_median)); cell(tr, P().pct(r.fwd3m_median), P().cls(r.fwd3m_median));
+      cell(tr, P().pct(r.fwd12m_median), P().cls(r.fwd12m_median)); cell(tr, d3.format('.0f')(r.fwd12m_pos_pct) + '%');
+      cell(tr, P().pct(r.fwd12m_worst), 'down');
+      cell(tr, r.recent_starts, 'l');
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const P = () => window.pwr;
+  let pick = null;
+  const S = () => { const d = dash.data('outlook_summary'); return d.status === 'ok' ? d.data : []; };
+  const fmtp = (v) => (v == null ? '—' : v < 10 ? '$' + d3.format(',.2f')(v) : '$' + d3.format(',.0f')(v));
+  const tk = (v) => (v < 10 ? d3.format('.2f')(v) : d3.format(',.0f')(v));
+  function cur() { const rows = S(); if (!rows.length) return null;
+    if (!pick || !rows.find((r) => r.symbol === pick)) pick = (rows.find((r) => r.held) || rows.find((r) => r.symbol === 'SPY') || rows[0]).symbol;
+    return rows.find((r) => r.symbol === pick); }
+  function choose(sym) { pick = sym; ['olsel', 'olline', 'spark', 'ranges', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+
+  dash.draw('olsel', (sel) => {
+    const rows = S(); sel.replaceChildren();
+    const held = rows.filter((r) => r.held), other = rows.filter((r) => !r.held);
+    if (held.length) { const g1 = document.createElement('optgroup'); g1.label = 'Your holdings'; held.forEach((r) => g1.appendChild(new Option(r.symbol, r.symbol))); sel.appendChild(g1);
+      const g2 = document.createElement('optgroup'); g2.label = 'Market'; other.forEach((r) => g2.appendChild(new Option(r.symbol, r.symbol))); sel.appendChild(g2); }
+    else rows.forEach((r) => sel.appendChild(new Option(r.symbol, r.symbol)));
+    const c = cur(); if (c) sel.value = c.symbol;
+    sel.onchange = () => choose(sel.value);
+  });
+
+  dash.draw('olline', (el) => {
+    const r = cur(); el.replaceChildren(); if (!r) { el.textContent = '—'; return; }
+    const chip = (k, v, c) => { const x = document.createElement('span'); x.className = 'stat'; const a = document.createElement('small'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; if (c) b.className = c; x.append(a, b); el.appendChild(x); };
+    chip('Today', fmtp(r.price));
+    chip('Likely in 3 months', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi));
+    if (r.target_mean != null) chip('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', P().cls(r.upside_to_mean_pct));
+  });
+
+  dash.draw('spark', (el) => {
+    el.replaceChildren(); const r = cur(), hd = dash.data('outlook_history');
+    if (!r || hd.status !== 'ok') { el.textContent = hd.status === 'error' ? 'Price history failed to load.' : '—'; return; }
+    const h = hd.data.filter((x) => x.symbol === r.symbol); if (!h.length) return;
+    const W = el.clientWidth, H = 200, m = { t: 22, r: 10, b: 22, l: 46 };
+    const dt = (s) => new Date(s + 'T00:00:00Z');
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${r.symbol} price over the last 6 months`);
+    const xs = d3.scaleUtc(d3.extent(h, (x) => dt(x.date)), [m.l, W - m.r]);
+    const ys = d3.scaleLinear(d3.extent(h, (x) => x.close), [H - m.b, m.t]).nice();
+    svg.append('text').attr('x', m.l).attr('y', 12).style('font-weight', 600).text('Last 6 months');
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat((v) => '$' + tk(v)));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(3).tickFormat(d3.utcFormat('%b')));
+    const first = h[0].close, last = h[h.length - 1].close;
+    svg.append('path').datum(h).attr('d', d3.area().x((x) => xs(dt(x.date))).y0(H - m.b).y1((x) => ys(x.close))).style('fill', last >= first ? 'var(--color-ok)' : 'var(--color-bad)').style('opacity', 0.1);
+    svg.append('path').datum(h).attr('d', d3.line().x((x) => xs(dt(x.date))).y((x) => ys(x.close))).style('fill', 'none').style('stroke', 'var(--color-fg)').style('stroke-width', 1.8);
+    svg.append('circle').attr('cx', xs(dt(h[h.length - 1].date))).attr('cy', ys(last)).attr('r', 4).style('fill', 'var(--color-fg)');
+    const tip = P().tip(el);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => { const [px] = d3.pointer(ev); const x = h[Math.min(h.length - 1, d3.bisector((q) => dt(q.date)).left(h, xs.invert(px)))]; tip.show([[d3.utcFormat('%b %-d')(dt(x.date)), ''], ['Close:', '$' + tk(x.close)]], xs(dt(x.date)), m.t); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('ranges', (el) => {
+    el.replaceChildren(); const r = cur(), cd = dash.data('outlook_cone');
+    if (!r || cd.status !== 'ok') { el.textContent = cd.status === 'error' ? 'Ranges failed to load.' : '—'; return; }
+    const cone = cd.data.filter((x) => x.symbol === r.symbol), at = (n) => cone.find((x) => x.step === n) || {};
+    const rows = [
+      { lab: '1 month', lo: r.m1_lo, hi: r.m1_hi, w0: at(21).p05, w1: at(21).p95 },
+      { lab: '3 months', lo: r.m3_lo, hi: r.m3_hi, w0: at(63).p05, w1: at(63).p95, hist: r.history_3m },
+      { lab: '12 months', lo: r.m12_lo, hi: r.m12_hi, w0: at(252).p05, w1: at(252).p95, hist: r.history_12m },
+    ];
+    if (r.target_mean != null) rows.push({ lab: 'Analysts, 12 mo', lo: r.target_low, hi: r.target_high, mid: r.target_mean, analyst: true });
+    const W = el.clientWidth, rh = 46, m = { t: 10, r: 18, b: 24, l: 96 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${r.symbol} likely price ranges at 1, 3 and 12 months, and analyst targets`);
+    const vals = rows.flatMap((x) => [x.lo, x.hi, x.w0, x.w1, x.mid, x.hist]).filter((v) => v != null).concat([r.price]);
+    const xs = d3.scaleLinear(d3.extent(vals), [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((x) => x.lab), [m.t, H - m.b]).padding(0.35);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 100))).tickSize(-(H - m.t - m.b)).tickFormat((v) => '$' + tk(v)));
+    svg.append('line').attr('x1', xs(r.price)).attr('x2', xs(r.price)).attr('y1', m.t - 4).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '3 3');
+    svg.append('text').attr('x', xs(r.price)).attr('y', m.t - 2).attr('text-anchor', 'middle').style('font-weight', 600).text('Today ' + fmtp(r.price));
+    const tip = P().tip(el);
+    rows.forEach((x) => {
+      const y = ys(x.lab), bh = ys.bandwidth(), cy = y + bh / 2;
+      svg.append('text').attr('x', m.l - 10).attr('y', cy).attr('dy', '0.35em').attr('text-anchor', 'end').text(x.lab);
+      const g = svg.append('g');
+      if (x.w0 != null) g.append('line').attr('x1', xs(x.w0)).attr('x2', xs(x.w1)).attr('y1', cy).attr('y2', cy).style('stroke', dash.colors[0]).style('stroke-width', 2).style('opacity', 0.45);
+      g.append('rect').attr('x', xs(x.lo)).attr('width', Math.max(2, xs(x.hi) - xs(x.lo))).attr('y', y).attr('height', bh).attr('rx', 4)
+        .style('fill', x.analyst ? 'var(--color-ok)' : dash.colors[0]).style('opacity', x.analyst ? 0.35 : 0.85);
+      if (x.mid != null) g.append('rect').attr('x', xs(x.mid) - 5).attr('y', cy - 5).attr('width', 10).attr('height', 10).attr('transform', `rotate(45 ${xs(x.mid)} ${cy})`).style('fill', 'var(--color-ok)');
+      if (x.hist != null) g.append('line').attr('x1', xs(x.hist)).attr('x2', xs(x.hist)).attr('y1', y - 4).attr('y2', y + bh + 4).style('stroke', 'var(--color-warn)').style('stroke-width', 3);
+      svg.append('text').attr('x', xs(x.lo) - 4).attr('y', y + bh + 12).attr('text-anchor', 'end').style('font-size', '10px').text('$' + tk(x.lo));
+      svg.append('text').attr('x', xs(x.hi) + 4).attr('y', y + bh + 12).style('font-size', '10px').text('$' + tk(x.hi));
+      const lines = x.analyst ? [[x.lab, ''], ['Low:', fmtp(x.lo)], ['Average:', fmtp(x.mid)], ['High:', fmtp(x.hi)], ['Buy ratings:', r.buy_pct + '% of ' + r.analysts]]
+        : [[x.lab, ''], ['Likely (2 in 3):', fmtp(x.lo) + ' – ' + fmtp(x.hi)], ['Possible (9 in 10):', fmtp(x.w0) + ' – ' + fmtp(x.w1)], ...(x.hist != null ? [['If S&P repeats history:', fmtp(x.hist)]] : [])];
+      g.on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show(lines, px, py); }).on('pointerleave', () => tip.hide());
+    });
+  });
+
+  dash.draw('strip', (el) => {
+    el.replaceChildren(); const d = dash.data('outlook_summary');
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    const rows = d.data.map((r) => ({ ...r, lo: (r.m3_lo / r.price - 1) * 100, hi: (r.m3_hi / r.price - 1) * 100, up: r.upside_to_mean_pct }))
+      .sort((a, b) => (b.held === true) - (a.held === true) || (b.up ?? -999) - (a.up ?? -999));
+    const W = el.clientWidth, rh = 20, m = { t: 22, r: 16, b: 24, l: 56 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Each stock: likely 3-month range and average analyst target, as percent from today');
+    const CAP = 110;
+    const xs = d3.scaleLinear([d3.min(rows, (r) => r.lo), Math.min(CAP, Math.max(d3.max(rows, (r) => r.hi), d3.max(rows, (r) => r.up ?? 0)))], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.symbol), [m.t, H - m.b]).padding(0.3);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 90))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v > 0 ? '+' : '') + v + '%'));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t - 6).attr('y2', H - m.b).style('stroke', 'var(--color-fg)');
+    svg.append('text').attr('x', xs(0)).attr('y', 12).attr('text-anchor', 'middle').style('font-weight', 600).text('Today');
+    const c0 = cur(), tip = P().tip(el);
+    const g = svg.selectAll('g.row').data(rows).join('g').attr('class', 'row');
+    g.append('rect').attr('x', m.l - 50).attr('width', W - m.l + 50 - m.r).attr('y', (r) => ys(r.symbol) - 3).attr('height', ys.bandwidth() + 6).style('fill', (r) => (c0 && r.symbol === c0.symbol ? 'var(--cds-chart-grid)' : 'transparent'));
+    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-weight', (r) => (r.held ? 600 : null)).text((r) => r.symbol);
+    g.append('rect').attr('x', (r) => xs(r.lo)).attr('width', (r) => Math.max(2, xs(Math.min(r.hi, CAP)) - xs(r.lo))).attr('y', (r) => ys(r.symbol)).attr('height', ys.bandwidth()).attr('rx', 3).style('fill', dash.colors[0]).style('opacity', 0.8);
+    const dg = g.filter((r) => r.up != null);
+    dg.append('rect').attr('x', (r) => xs(Math.min(r.up, CAP)) - 4.5).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2 - 4.5).attr('width', 9).attr('height', 9)
+      .attr('transform', (r) => `rotate(45 ${xs(Math.min(r.up, CAP))} ${ys(r.symbol) + ys.bandwidth() / 2})`).style('fill', 'var(--color-ok)');
+    dg.filter((r) => r.up > CAP).append('text').attr('x', (r) => xs(CAP) - 10).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-size', '10px').text((r) => '+' + Math.round(r.up) + '% →');
+    g.on('click', (ev, r) => { choose(r.symbol); document.getElementById('fan')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); })
+      .on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + ' at ' + fmtp(r.price), ''], ['Likely in 3 months:', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi)], ['Analyst average:', r.up == null ? 'none' : fmtp(r.target_mean) + ' (' + P().pct(r.up) + ')']], px, py); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('oltbody', (tb) => {
+    const d = dash.data('outlook_summary'); tb.replaceChildren();
+    if (d.status !== 'ok') { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = 9; c.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    d.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      const cell = (t, c) => { const x = tr.insertCell(); x.textContent = t; if (c) x.className = c; };
+      cell(r.symbol); cell(fmtp(r.price)); cell(fmtp(r.m1_lo) + '–' + fmtp(r.m1_hi)); cell(fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi)); cell(fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));
+      cell(fmtp(r.history_3m)); cell(r.target_mean == null ? '—' : fmtp(r.target_mean));
+      cell(r.upside_to_mean_pct == null ? '—' : P().pct(r.upside_to_mean_pct), r.upside_to_mean_pct == null ? '' : P().cls(r.upside_to_mean_pct));
+      cell(r.buy_pct == null ? '—' : r.buy_pct + '% of ' + r.analysts);
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  const P = () => window.pwr;
+  const root = document.querySelector('.mpb');
+  if (root) {
+    const btns = () => root.querySelectorAll('.tabs [data-tab]');
+    const show = (id) => { if (![...btns()].some((b) => b.dataset.tab === id)) id = 'today';
+      btns().forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+      root.querySelectorAll('.tabpage').forEach((p) => { p.hidden = p.id !== id; }); };
+    btns().forEach((b) => b.addEventListener('click', () => { show(b.dataset.tab); dash.setLink(b.dataset.tab); }));
+    show((location.hash || '').slice(1) || 'today');
+    window.addEventListener('beforeprint', () => root.querySelectorAll('.tabpage').forEach((p) => { p.hidden = false; }));
+  }
+  dash.calc('worse_months', { title: 'Share of months worse than the last one', description: '100 minus the percentile of the S&P 500 past-month return.',
+    inputs: ['gauges'], fn: (gauges) => { const r = gauges.find((x) => x.gauge === 'spx_1m'); return r ? 100 - Number(r.percentile) : null; } });
+  const rowOf = (id, k, v) => { const d = dash.data(id); return d.status === 'ok' ? d.data.find((r) => r[k] === v) : null; };
+  const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data.length ? d.data[0] : null; };
+  const TODAY = "Today's setup: VIX 30+ and S&P 8–20% off its high", NORMAL = 'All days since 1950 (normal)';
+  function text(name, get, clsFn) { dash.draw(name, (el) => { const v = get(); el.textContent = v == null || v === false ? '—' : v.text; el.className = v && clsFn ? clsFn(v) : ''; }); }
+  const g = (id) => rowOf('gauges', 'gauge', id), a = (s) => rowOf('analogs', 'setup', s), st = () => one('spx_stats');
+  text('asof', () => st() && { text: d3.utcFormat('%b %-d, %Y')(new Date(st().asof)) });
+  text('t-vix', () => g('vix') && { text: d3.format('.1f')(g('vix').current) }, () => 'down');
+  text('t-vixp', () => g('vix') && { text: String(g('vix').percentile) });
+  text('t-1m', () => g('spx_1m') && { text: P().pct(g('spx_1m').current) }, () => 'down');
+  text('t-1mp', () => { const d = dash.data('worse_months'); return d.status === 'ok' && d.data != null && { text: String(d.data) }; });
+  text('t-dd', () => st() && { text: P().pct(st().drawdown_pct) }, () => 'down');
+  text('t-nh', () => st() && { text: String(st().new_high_1y_pct) });
+  text('t-f3', () => a(TODAY) && { text: P().pct(a(TODAY).fwd3m_median), v: a(TODAY).fwd3m_median }, (v) => P().cls(v.v));
+  text('t-ep', () => a(TODAY) && { text: String(a(TODAY).episodes) });
+  text('t-baa', () => g('baa') && { text: d3.format('.2f')(g('baa').current) });
+  text('t-baaz', () => g('baa') && { text: g('baa').zone });
+  text('base3', () => a(NORMAL) && { text: P().pct(a(NORMAL).fwd3m_median) });
+  text('basepos', () => a(NORMAL) && { text: d3.format('.0f')(a(NORMAL).fwd12m_pos_pct) });
+
+  const el_ = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
+  function meter(h, pct, color, tick) { h.replaceChildren(); const mb = el_('div', 'mb'); const f = el_('div', 'f'); f.style.width = Math.max(0, Math.min(100, pct)) + '%'; f.style.background = color; mb.appendChild(f);
+    if (tick != null) { const t = el_('div', 't'); t.style.left = tick + '%'; mb.appendChild(t); } h.appendChild(mb); }
+  function pair(h, rows) { h.replaceChildren(); const box = el_('div', 'pair'); const mx = Math.max(...rows.map((r) => Math.abs(r[1]))) || 1;
+    rows.forEach(([lab, v, c]) => { const r = el_('div', 'r'); const l = el_('span'); l.textContent = lab; const mb = el_('div', 'mb'); const f = el_('div', 'f'); f.style.width = Math.abs(v) / mx * 100 + '%'; f.style.background = c; mb.appendChild(f); r.append(l, mb); box.appendChild(r); }); h.appendChild(box); }
+  const sc = (p) => (p >= 80 ? 'var(--color-bad)' : p >= 60 ? 'var(--color-warn)' : 'var(--color-ok)');
+  dash.draw('m-vix', (h) => { const x = g('vix'); if (!x) { h.textContent = ''; return; } meter(h, x.stress_pct, sc(x.stress_pct)); });
+  dash.draw('m-1m', (h) => { const x = g('spx_1m'); if (!x) { h.textContent = ''; return; } meter(h, x.stress_pct, sc(x.stress_pct)); });
+  dash.draw('m-dd', (h) => { const x = st(); if (!x) { h.textContent = ''; return; } meter(h, Math.abs(x.drawdown_pct) / 30 * 100, 'var(--color-warn)', 20 / 30 * 100); });
+  dash.draw('m-credit', (h) => { const x = g('baa'); if (!x) { h.textContent = ''; return; } meter(h, x.current / 4 * 100, x.current >= 2.5 ? 'var(--color-bad)' : 'var(--color-ok)', 2.5 / 4 * 100); });
+  dash.draw('m-hist', (h) => { const x = a(TODAY), n = a(NORMAL); if (!x || !n) { h.textContent = ''; return; } pair(h, [['Today-like', x.fwd3m_median, 'var(--color-ok)'], ['Normal', n.fwd3m_median, 'var(--cds-chart-muted)']]); });
+
+  // S&P ladder
+  dash.draw('ladder', (el) => {
+    const d = dash.data('spx_levels'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Levels failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, H = 420, m = { t: 10, r: 8, b: 10, l: 64 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'S&P 500 price levels: chart levels, history-based outcomes and the options-implied range');
+    const ys = d3.scaleLinear(d3.extent(rows, (r) => r.price), [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(8).tickSize(-(W - m.l - m.r)).tickFormat(d3.format(',.0f')));
+    const lo = rows.find((r) => r.label.endsWith('range, low')), hi = rows.find((r) => r.label.endsWith('range, high'));
+    if (lo && hi) svg.append('rect').attr('x', m.l).attr('width', W - m.l - m.r).attr('y', ys(hi.price)).attr('height', ys(lo.price) - ys(hi.price)).style('fill', dash.colors[0]).style('opacity', 0.12);
+    const col = { level: 'var(--cds-chart-muted)', history: 'var(--color-warn)', now: 'var(--color-fg)', options: dash.colors[0] };
+    const items = rows.filter((r) => r.kind !== 'options').sort((x, y) => y.price - x.price);
+    // place labels without overlap
+    let lastY = -1e9; const lab = items.map((r) => { let y = ys(r.price); if (y - lastY < 15) y = lastY + 15; lastY = y; return { ...r, ly: y }; });
+    const half = m.l + (W - m.l - m.r) * 0.5;
+    lab.forEach((r) => {
+      svg.append('line').attr('x1', m.l).attr('x2', half).attr('y1', ys(r.price)).attr('y2', ys(r.price)).style('stroke', col[r.kind]).style('stroke-width', r.kind === 'now' ? 3 : 1.6).style('stroke-dasharray', r.kind === 'history' ? '5 3' : null);
+      svg.append('line').attr('x1', half).attr('x2', half + 10).attr('y1', ys(r.price)).attr('y2', r.ly).style('stroke', col[r.kind]);
+      svg.append('text').attr('x', half + 14).attr('y', r.ly).attr('dy', '0.35em').style('font-weight', r.kind === 'now' ? 600 : null).text(`${d3.format(',.0f')(r.price)}  ${r.label}${r.kind === 'now' ? '' : ' (' + P().pct(r.pct) + ')'}`);
+    });
+    if (lo && hi) svg.append('text').attr('x', m.l + 6).attr('y', ys(hi.price) + 14).style('fill', dash.colors[0]).text('1-month options range');
+  });
+
+  // Momentum scatter
+  const SC = { 'Leader': 'var(--color-ok)', 'Holding up': dash.colors ? null : null, 'Weak': 'var(--cds-chart-muted)', 'Breaking down': 'var(--color-bad)' };
+  const stateColor = (s) => (s === 'Leader' ? 'var(--color-ok)' : s === 'Holding up' ? dash.colors[0] : s === 'Breaking down' ? 'var(--color-bad)' : 'var(--cds-chart-muted)');
+  dash.draw('mlegend', (el) => { el.replaceChildren(); ['Leader', 'Holding up', 'Weak', 'Breaking down'].forEach((s) => { const x = el_('span'); const i = el_('i'); i.style.background = stateColor(s); i.style.borderRadius = '50%'; i.style.width = '10px'; x.append(i, s); el.appendChild(x); }); });
+  dash.draw('scatter', (el) => {
+    const d = dash.data('momentum'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Momentum failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, H = 440, m = { t: 14, r: 16, b: 34, l: 48 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Scatter of 12-month momentum against 1-month performance relative to the S&P 500');
+    const xv = (r) => Math.max(-80, Math.min(150, r.mom12_1));
+    const xs = d3.scaleLinear(d3.extent(rows, xv), [m.l, W - m.r]).nice();
+    const ys = d3.scaleLinear(d3.extent(rows, (r) => r.rel1m), [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(6).tickSize(-(W - m.l - m.r)).tickFormat((v) => (v > 0 ? '+' : '') + v + '%'));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 90))).tickFormat((v) => (v > 0 ? '+' : '') + v + '%'));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)');
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', ys(0)).attr('y2', ys(0)).style('stroke', 'var(--cds-chart-axis)');
+    svg.append('text').attr('x', W - m.r).attr('y', H - 4).attr('text-anchor', 'end').text('Past-year trend →');
+    svg.append('text').attr('x', m.l + 4).attr('y', m.t + 10).text('↑ Beating the S&P this month');
+    const q = [[W - m.r - 4, m.t + 10, 'end', 'Leading'], [W - m.r - 4, H - m.b - 6, 'end', 'Winners breaking'], [m.l + 4, H - m.b - 6, 'start', 'Weak'], [m.l + 4, m.t + 26, 'start', 'Turning up']];
+    q.forEach(([x, y, an, t]) => svg.append('text').attr('x', x).attr('y', y).attr('text-anchor', an).style('opacity', 0.55).style('font-weight', 600).text(t));
+    const tip = P().tip(el);
+    const gg = svg.selectAll('g.p').data(rows).join('g').attr('class', 'p');
+    gg.append('circle').attr('cx', (r) => xs(xv(r))).attr('cy', (r) => ys(r.rel1m)).attr('r', (r) => (r.kind === 'ETF' ? 6 : 4.5)).style('fill', (r) => stateColor(r.state)).style('opacity', 0.85)
+      .style('stroke', (r) => (r.kind === 'ETF' ? 'var(--color-fg)' : 'none'));
+    gg.append('text').attr('x', (r) => xs(xv(r)) + 7).attr('y', (r) => ys(r.rel1m)).attr('dy', '0.35em').style('font-size', '10px').text((r) => r.symbol);
+    gg.on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + ' · ' + r.state, ''], ['1 month:', P().pct(r.ret1m)], ['vs S&P, 1 month:', P().pct(r.rel1m)], ['3 months:', P().pct(r.ret3m)], ['Past-year trend:', P().pct(r.mom12_1)], ['vs 200-day avg:', P().pct(r.vs_ma200)], ['Off 52-week high:', P().pct(r.off_high)]], px, py); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('sectchart', (el) => {
+    const d = dash.data('sectors_after'); el.replaceChildren();
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Sector history failed to load.' : '—'; return; }
+    const rows = d.data, W = el.clientWidth, rh = 28, m = { t: 4, r: 110, b: 22, l: 140 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Sector return versus the S&P 500 over 3 months after past sell-offs like today');
+    const xs = d3.scaleLinear(d3.extent([0, ...rows.map((r) => r.median_excess_3m_pct)]), [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.etf), [m.t, H - m.b]).padding(0.25);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(5).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v > 0 ? '+' : '') + v + ' pts'));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)');
+    const gg = svg.selectAll('g.r').data(rows).join('g');
+    gg.append('rect').attr('x', (r) => Math.min(xs(0), xs(r.median_excess_3m_pct))).attr('width', (r) => Math.abs(xs(r.median_excess_3m_pct) - xs(0))).attr('y', (r) => ys(r.etf)).attr('height', ys.bandwidth())
+      .style('fill', (r) => (r.median_excess_3m_pct >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'));
+    gg.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.etf) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text((r) => r.sector);
+    gg.append('text').attr('x', W - m.r + 8).attr('y', (r) => ys(r.etf) + ys.bandwidth() / 2).attr('dy', '0.35em').text((r) => `beat S&P ${r.beat_spx_pct}%`);
+  });
+})();
+</script>

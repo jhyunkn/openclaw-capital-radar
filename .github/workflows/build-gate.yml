@@ -20,6 +20,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Setup Python for the risk lab
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install risk lab dependency
+        run: pip install numpy
       - name: Run production build
         run: npm run build:prod
       - name: Upload build outputs

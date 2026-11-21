@@ -85,6 +85,14 @@ After running the build pipeline, Claude Code must synthesize `outputs/narrative
 - Do not invent data points. Every claim must be anchored to a number in narrative-reality-input.json.
 - Do not use filler language ("it remains to be seen", "investors should monitor"). Be direct.
 
+## Risk lab (risk and validation desk)
+
+`risk-lab/` measures how much a decision can hurt and whether the evidence holds up: factor risk, VaR with backtests, crisis replays, history base rates, price ranges and exit-rule backtests. See `risk-lab/README.md`.
+
+- The `risk-lab` build stage runs `python3 risk-lab/run_public.py` and writes market-wide data only to `outputs/risk-lab/`.
+- Never commit `risk-lab/private/` or `risk-lab/out-private/`; they hold account data and are git-ignored. Anything new that carries account data goes there, and `make_public.py`'s leak check must keep passing.
+- Prefer measured base rates from `outputs/risk-lab/` (episode counts, forward returns) over hand-written analogs when making historical claims.
+
 ## Investment analysis standard
 
 Do not provide generic market commentary. All ticker, sector, or portfolio analysis should be structured as decision support:

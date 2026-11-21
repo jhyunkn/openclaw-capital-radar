@@ -42,6 +42,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Setup Python for the risk lab
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install risk lab dependency
+        run: pip install numpy
+
       - name: Regenerate live data
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}

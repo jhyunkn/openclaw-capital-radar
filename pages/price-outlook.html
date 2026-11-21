@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Price Outlook · Capital Radar</title>
+<meta name="description" content="Price outlook and action state for 150 stocks and ETFs: likely ranges, the S&amp;P history path, each stock's record after similar setups, analyst targets, and the levels that confirm or invalidate the call.">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<style>
+/* Design tokens: light, then dark. Edit colors here. */
+:root {
+  --color-fg: #1f1d1a; --color-fg-muted: #6b6459; --color-bg: #faf8f4; --color-panel: #ffffff; --color-border-line: #e4ddd1;
+  --color-ok: #2f7d52; --color-warn: #b07a1e; --color-bad: #b4473b;
+  --cds-chart-grid: #eee8dd; --cds-chart-axis: #cfc6b6; --cds-chart-muted: #a39a8c; --cds-text-secondary: #6b6459;
+  --cds-surface-popover: #ffffff; --cds-border: #ddd5c7; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.12);
+  --chart-1: #3d6fa8; --chart-2: #c0622b; --chart-3: #6c8f3a; --chart-4: #8a5aa6;
+  --font-anthropic-serif: Georgia, "Times New Roman", serif;
+  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 17px; --cds-font-size-title: 28px; --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 18px; --cds-gap-xl: 26px;
+  --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px; --cds-radius: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --color-fg: #ece7de; --color-fg-muted: #a8a093; --color-bg: #161513; --color-panel: #1f1d1a; --color-border-line: #34302a;
+  --color-ok: #5fb383; --color-warn: #d9a54a; --color-bad: #e07a6c;
+  --cds-chart-grid: #2c2924; --cds-chart-axis: #4a453d; --cds-chart-muted: #7d7568; --cds-text-secondary: #a8a093;
+  --cds-surface-popover: #26231f; --cds-border: #3d3831; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.5);
+  --chart-1: #7aa7dc; --chart-2: #e58e5a; --chart-3: #9cc26a; --chart-4: #b98ad4; } }
+:root[data-theme="dark"] {
+  --color-fg: #ece7de; --color-fg-muted: #a8a093; --color-bg: #161513; --color-panel: #1f1d1a; --color-border-line: #34302a;
+  --color-ok: #5fb383; --color-warn: #d9a54a; --color-bad: #e07a6c;
+  --cds-chart-grid: #2c2924; --cds-chart-axis: #4a453d; --cds-chart-muted: #7d7568; --cds-text-secondary: #a8a093;
+  --cds-surface-popover: #26231f; --cds-border: #3d3831; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.5);
+  --chart-1: #7aa7dc; --chart-2: #e58e5a; --chart-3: #9cc26a; --chart-4: #b98ad4; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 20px 16px 48px; }
+.page-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.page-head p { margin: 6px 0 0; color: var(--color-fg-muted); max-width: 80ch; }
+.page-head a { color: inherit; }
+.pwr .tabpage { display: grid; gap: var(--cds-gap-xl); }
+.dash-select { font: inherit; padding: 5px 28px 5px 10px; border: 1px solid var(--color-border-line); border-radius: 8px; background-color: var(--color-panel); color: var(--color-fg); }
+</style>
+<style>
+.pwr { display: grid; gap: var(--cds-gap-xl); font-variant-numeric: tabular-nums; }
+.pwr h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.pwr h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.pwr .sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); max-width: 80ch; }
+.pwr .lede { max-width: 76ch; margin: var(--cds-gap-sm) 0 0; line-height: 1.55; }
+.pwr .eyebrow { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.pwr .disclaim { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-left: 2px solid var(--color-warn); padding-left: var(--cds-pad-sm); margin-top: var(--cds-gap-sm); max-width: 80ch; }
+.pwr .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 2px; }
+.pwr .tile .big { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.15; }
+.pwr .tile .meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .up { color: var(--color-ok); } .pwr .down { color: var(--color-bad); } .pwr .warn { color: var(--color-warn); }
+.pwr .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
+.pwr .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.pwr .chart { position: relative; min-height: 260px; }
+.pwr .chart svg text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); }
+.pwr .chart .domain, .pwr .chart .tick line { stroke: var(--cds-chart-axis); }
+.pwr .chart .gridline line { stroke: var(--cds-chart-grid); }
+.pwr .chart .gridline .domain { display: none; }
+.pwr .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: 6px; padding: 6px 8px; font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 5; }
+.pwr .tip b { font-weight: var(--cds-font-weight-medium); }
+.pwr .legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-xs); }
+.pwr .legend i { display: inline-block; width: 12px; height: 10px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.pwr .tablewrap { overflow-x: auto; }
+.pwr table { border-collapse: collapse; width: 100%; }
+.pwr th { text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: 6px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.pwr th:first-child, .pwr td:first-child { text-align: left; }
+.pwr td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.pwr td.l, .pwr th.l { text-align: left; }
+.pwr td.wrap { white-space: normal; min-width: 260px; text-align: left; }
+.pwr .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid currentColor; white-space: nowrap; }
+.pwr .alerts { display: grid; gap: var(--cds-gap-sm); }
+.pwr .alert { display: grid; grid-template-columns: auto 1fr; gap: 4px var(--cds-gap-md); align-items: baseline; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.pwr .alert .what { font-weight: var(--cds-font-weight-medium); }
+.pwr .alert .detail { grid-column: 2; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+.pwr details li { margin: 6px 0; max-width: 82ch; line-height: 1.5; }
+.pwr details summary { cursor: pointer; font-weight: var(--cds-font-weight-medium); }
+
+.pwr .bottom { display: grid; gap: var(--cds-gap-sm); margin: var(--cds-gap-md) 0 0; padding: 0; list-style: none; max-width: 92ch; }
+.pwr .bottom li { display: grid; grid-template-columns: 7.5rem 1fr; gap: var(--cds-gap-md); line-height: 1.5; padding: var(--cds-pad-sm) 0; border-bottom: 1px solid var(--color-border-line); }
+.pwr .bottom .k { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); padding-top: 2px; }
+@media (max-width: 560px) { .pwr .bottom li { grid-template-columns: 1fr; gap: 2px; } }
+.pwr .howto { font-size: var(--cds-font-size-body); max-width: 92ch; }
+.pwr .howto ul { margin: var(--cds-gap-sm) 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.pwr .tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-bg); z-index: 3; padding-top: var(--cds-pad-sm); }
+.pwr .tabs button { font: inherit; font-weight: var(--cds-font-weight-medium); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: 8px 12px; cursor: pointer; }
+.pwr .tabs button[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+.pwr .tabs button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.pwr .tabs .n { display: inline-block; min-width: 1.4em; color: var(--color-fg-muted); }
+.pwr .tabpage { display: grid; gap: var(--cds-gap-xl); }
+.pwr .tabintro { font-size: var(--cds-font-size-body); max-width: 86ch; margin: 0; line-height: 1.55; }
+.pwr .pbar { display: inline-block; position: relative; width: 110px; height: 8px; border-radius: 4px; vertical-align: middle; margin-right: 8px;
+  background: linear-gradient(90deg, var(--color-ok), var(--cds-chart-grid) 45%, var(--cds-chart-grid) 60%, var(--color-warn) 80%, var(--color-bad)); opacity: .9; }
+.pwr .pbar i { position: absolute; top: -4px; width: 3px; height: 16px; border-radius: 2px; background: var(--color-fg); }
+.pwr td .m { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); white-space: normal; max-width: 42ch; }
+.pwr tr.fits td { background: color-mix(in srgb, var(--color-warn) 10%, transparent); }
+
+.pwr .queue { display: grid; gap: 0; }
+.pwr .qitem { display: grid; grid-template-columns: 6.5rem 1fr auto; gap: 4px var(--cds-gap-md); padding: var(--cds-pad-md) 0; border-bottom: 1px solid var(--color-border-line); align-items: baseline; }
+.pwr .qitem .t { font-weight: var(--cds-font-weight-medium); }
+.pwr .qitem .w { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .qitem .why, .pwr .qitem .ch { grid-column: 2 / 4; font-size: var(--cds-font-size-body); line-height: 1.5; max-width: 90ch; }
+.pwr .qitem .ch { color: var(--color-fg-muted); }
+.pwr .qitem button { font: inherit; font-size: var(--cds-font-size-caption); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; cursor: pointer; color: var(--color-fg); }
+.pwr .qitem button:focus-visible { outline: 2px solid var(--color-fg); }
+@media (max-width: 560px) { .pwr .qitem { grid-template-columns: 1fr; } .pwr .qitem .why, .pwr .qitem .ch { grid-column: 1; } }
+.pwr .limits { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--cds-gap-lg); }
+.pwr .lim { display: grid; gap: 6px; }
+.pwr .lim .n { font-weight: var(--cds-font-weight-medium); }
+.pwr .lim .v { font-family: var(--font-anthropic-serif); font-size: 26px; }
+.pwr .lim .track { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); overflow: hidden; }
+.pwr .lim .fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+.pwr .lim .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-fg); }
+.pwr .lim .b { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; }
+.pwr .chart.tallfan { min-height: 360px; }
+.pwr #oltable tbody tr { cursor: pointer; }
+.pwr #oltable tbody tr.on td { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
+.pwr #oltable td.held::after { content: " ●"; color: var(--color-fg-muted); font-size: 9px; }
+
+.pwr .vtiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .vt { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 6px; align-content: start; }
+.pwr .vt .vl { font-size: var(--cds-font-size-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.pwr .vt .vb { font-family: var(--font-anthropic-serif); font-size: 30px; line-height: 1.1; }
+.pwr .vt .vm { display: block; min-height: 22px; }
+.pwr .vt .vc { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .mb { position: relative; height: 10px; border-radius: 5px; background: var(--cds-chart-grid); margin-top: 6px; }
+.pwr .mb .f { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px; }
+.pwr .mb .k { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 2px; background: var(--color-fg); }
+.pwr .mb .t { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--color-bad); }
+.pwr .pair { display: grid; gap: 4px; }
+.pwr .pair .r { display: grid; grid-template-columns: 4.2rem 1fr; gap: 6px; align-items: center; font-size: 11px; color: var(--color-fg-muted); }
+.pwr .pair .r .mb { margin: 0; height: 8px; }
+.pwr .dots { display: flex; gap: 6px; margin-top: 6px; }
+.pwr .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--cds-chart-grid); }
+.pwr .dots i.on { background: var(--color-ok); }
+.pwr details.info { margin: 0 0 var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr details.info summary { cursor: pointer; width: max-content; }
+.pwr details.info p { margin: 6px 0 0; max-width: 80ch; line-height: 1.5; }
+.pwr details.qd { grid-column: 2 / 4; font-size: var(--cds-font-size-caption); }
+.pwr details.qd summary { cursor: pointer; color: var(--color-fg-muted); }
+@media (max-width: 560px) { .pwr details.qd { grid-column: 1; } }
+.pwr .stats { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); margin: var(--cds-gap-sm) 0; }
+.pwr .stat { display: grid; padding: 6px 12px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.pwr .stat small { font-size: 11px; color: var(--color-fg-muted); }
+.pwr .stat b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 18px; }
+
+.pwr .olgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--cds-gap-lg); align-items: start; }
+@media (max-width: 760px) { .pwr .olgrid { grid-template-columns: 1fr; } }
+.pwr .chart.spark { min-height: 200px; } .pwr .chart.ranges { min-height: 230px; } .pwr .chart.strip { min-height: 300px; }
+.pwr .chart.olchart { min-height: 380px; }
+.pwr .olhead { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: baseline; margin-top: var(--cds-gap-md); }
+.pwr .olact { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.1; }
+.pwr .oltrend { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 1px 10px; }
+.pwr .olwhy { margin: 6px 0 var(--cds-gap-md); max-width: 90ch; line-height: 1.5; }
+.pwr .olcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--cds-gap-sm); margin-bottom: var(--cds-gap-md); }
+.pwr .olc { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 12px; display: grid; gap: 2px; align-content: start; }
+.pwr .olc small { font-size: 11px; color: var(--color-fg-muted); letter-spacing: .04em; text-transform: uppercase; }
+.pwr .olc b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 20px; }
+.pwr .olc span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.4; }
+.pwr .olc.good { border-left: 3px solid var(--color-ok); } .pwr .olc.bad { border-left: 3px solid var(--color-bad); }
+.pwr .olboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .olcol { display: grid; gap: 6px; align-content: start; border-top: 3px solid var(--cds-chart-muted); padding-top: 8px; }
+.pwr .olcol h3 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+.pwr .olcol .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.pwr .olcol button { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: none; color: var(--color-fg); border-radius: 999px; padding: 2px 9px; cursor: pointer; }
+.pwr .olcol button.held { font-weight: 700; border-color: var(--color-fg); }
+.pwr .olcol button.on { background: var(--cds-chart-grid); }
+.pwr .olcol button:focus-visible { outline: 2px solid var(--color-fg); }
+.pwr .stripbox { max-height: 640px; overflow-y: auto; }
+.pwr .basis { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--cds-gap-md); margin: var(--cds-gap-sm) 0 0; padding: 0; list-style: none; }
+.pwr .basis li { border-top: 2px solid var(--color-border-line); padding-top: 8px; line-height: 1.5; font-size: var(--cds-font-size-body); }
+.pwr .basis li b { display: block; margin-bottom: 2px; }
+.pwr .basis li .lim { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin-top: 4px; }
+.pwr .chart.strip .row { cursor: pointer; }
+
+.pwr .chart.heatm { min-height: 180px; }
+.pwr h3.subh { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-lg) 0 var(--cds-gap-xs); }
+.pwr .libs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--cds-gap-md); }
+
+.pwr .agents { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .agent { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: 6px; align-content: start; }
+.pwr .agent .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.pwr .agent .tk { font-family: var(--font-anthropic-serif); font-size: 22px; }
+.pwr .agent .bb { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: var(--cds-font-size-caption); line-height: 1.45; }
+.pwr .agent .bb div { border-top: 2px solid var(--color-border-line); padding-top: 4px; }
+.pwr .agent .bb .bull { border-top-color: var(--color-ok); } .pwr .agent .bb .bear { border-top-color: var(--color-bad); }
+.pwr .agent .ck { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pwr .agent .fin { font-size: var(--cds-font-size-body); line-height: 1.45; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page-head">
+    <h1>Price outlook</h1>
+    <p>Capital Radar · risk lab. Where each stock has been, where it could go over the next year, and what would confirm or invalidate the call. Prices as of the last close the pipeline saw; rebuilt every 4 hours. Analysis, not investment advice. <a href="../">Back to Capital Radar</a></p>
+  </header>
+  <div class="pwr" style="margin-top: 20px">
+  <div class="tabpage" id="outlook">
+    <section id="olboardbox" class="card">
+      <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; flex-wrap: wrap; justify-content: space-between;">
+        <h2 style="margin:0">Action board: every stock by what the evidence says now</h2>
+        <span><label for="olgroup" class="sub" style="margin:0 6px 0 0">Show:</label><select id="olgroup" class="dash-select olgroup" aria-label="Stock group"><option value="">All stocks</option><option value="Capital Radar candidates">Capital Radar candidates</option><option value="Tech &amp; AI">Tech &amp; AI</option><option value="Financials">Financials</option><option value="Health care">Health care</option><option value="Consumer">Consumer</option><option value="Industrials &amp; energy">Industrials &amp; energy</option><option value="Market &amp; sector ETFs">Market &amp; sector ETFs</option></select></span>
+      </div>
+      <p class="sub" style="margin-top: var(--cds-gap-xs)"><span data-draw="olcount" data-source="outlook_summary">—</span></p>
+      <details class="info"><summary>How to read</summary><p>Each stock gets an action state from four rules: its trend (price against the 200-day average, and whether the 50-day is rising), how it did after past setups like today compared with its normal year, the S&amp;P's typical path after sell-offs like this one, and whether analysts' average target is reachable. Each stock gets Probe, Watch, Watch: odds good, trend not yet, or Avoid for now. Click a stock to open it below. Rules, not advice.</p></details>
+      <div class="olboard" data-draw="olboard" data-source="outlook_summary"></div>
+    </section>
+
+    <section id="fan" class="card">
+      <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; flex-wrap: wrap; justify-content: space-between;">
+        <h2 style="margin:0">Where it has been, where it could go, and what would change the call</h2>
+        <span><label for="olsel" class="sub" style="margin:0 6px 0 0">Stock:</label><select id="olsel" class="dash-select" data-draw="olsel" aria-label="Stock" data-source="outlook_summary"></select></span>
+      </div>
+      <div class="olhead">
+        <span class="olact" data-draw="olaction" data-source="outlook_summary" data-field="action">—</span>
+        <span class="oltrend" data-draw="oltrend" data-source="outlook_summary" data-field="trend">—</span>
+      </div>
+      <p class="olwhy" data-draw="olwhy" data-source="outlook_summary" data-field="action_why">—</p>
+      <div class="olcards" data-draw="olcards" data-source="outlook_summary"></div>
+      <div class="legend">
+        <span><i style="background: var(--color-fg); height: 3px"></i>Price</span>
+        <span><i style="background: var(--cds-chart-muted); height: 2px"></i>50-day average</span>
+        <span><i style="border-top: 2px dotted var(--cds-chart-muted); background: none; height: 0"></i>200-day average</span>
+        <span><i data-swatch="0"></i>Likely (2 in 3)</span>
+        <span><i data-swatch="0" style="opacity:.3"></i>Possible (9 in 10)</span>
+        <span><i style="background: var(--color-warn); height: 3px"></i>If the S&amp;P repeats history</span>
+        <span><i style="border-top: 2px dashed var(--color-ok); background: none; height: 0"></i>Confirms above</span>
+        <span><i style="border-top: 2px dashed var(--color-bad); background: none; height: 0"></i>Invalidates below</span>
+        <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst target (range)</span>
+      </div>
+      <div class="chart olchart" data-draw="olchart" data-source="outlook_history outlook_cone outlook_summary"></div>
+      <details class="info"><summary>How to read</summary><p>Left of "Today" is the last six months of closing prices with the 50- and 200-day averages. Right of it is the next twelve months: the dark band is where the price lands about 2 times in 3, the light band about 9 times in 10, from the stock's own volatility with no up or down drift assumed. The orange line is where it would go if the S&amp;P repeats its median path after the 23 past sell-offs like this one, scaled by how much the stock moves with the market. The green dashed line is the level that would confirm a turn (reclaiming the nearer moving average above the price); the red dashed line is where the setup is wrong (its 3-month low, or one normal month down if that is closer). At the right edge: analysts' 12-month targets, low to high, with the average as a diamond; many were set before this sell-off.</p></details>
+    </section>
+
+    <section id="oltable" class="card">
+      <h2>All stocks: 3-month range vs analyst targets</h2>
+      <div class="legend">
+        <span><i data-swatch="0"></i>Likely 3-month range</span>
+        <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst average target</span>
+      </div>
+      <div class="stripbox"><div class="chart strip" data-draw="strip" data-source="outlook_summary"></div></div>
+      <details class="info"><summary>How to read</summary><p>Each row is one stock, centered on today's price (0%). The bar is where it lands about 2 times in 3 over the next 3 months. The green diamond is the average 12-month analyst target. A diamond far beyond the bar means analysts expect more than a normal year delivers. Click a row to see that stock above.</p></details>
+      <details class="info"><summary>Show the numbers</summary>
+      <div class="tablewrap">
+        <table data-source="outlook_summary" data-row-key="symbol">
+          <thead><tr><th data-field="symbol">Stock</th><th data-field="price">Price</th><th data-field="m1_lo">1 month</th><th data-field="m3_lo">3 months</th><th data-field="m12_lo">12 months</th><th data-field="history_3m">History path, 3 mo</th><th data-field="target_mean">Analyst average</th><th data-field="upside_to_mean_pct">Upside</th><th data-field="buy_pct">Buy ratings</th><th data-field="action" class="l">Action state</th><th data-field="own_f12_up_pct">Higher a year later (setups like this)</th><th data-field="promote_level">Confirms above</th><th data-field="invalid_level">Invalidates below</th></tr></thead>
+          <tbody data-draw="oltbody"></tbody>
+        </table>
+      </div>
+      </details>
+    </section>
+
+    <section id="olbasis" class="card">
+      <h2>What this is based on</h2>
+      <p class="sub">Every number on this tab comes from five inputs. None of them is a forecast; each has a known weakness, listed under it.</p>
+      <ul class="basis">
+        <li><b>Prices</b>Daily closes from Yahoo Finance since 2018, adjusted for splits and dividends, through Friday's close.<span class="lim">Eight years is one long bull market with two sharp breaks (2020, 2022), so "normal" here is a good era.</span></li>
+        <li><b>Likely and possible ranges</b>Each stock's own volatility: today's level (exponentially weighted, recent days count most) fading toward its 1-year average with a 3-month half-life. Bands are 2-in-3 and 9-in-10 outcomes with no up or down drift.<span class="lim">Real moves have fatter tails than these bands; a crash can land outside the light band.</span></li>
+        <li><b>If the S&amp;P repeats history</b>The median S&amp;P 500 path over the year after the past sell-offs like today (VIX 30 or higher with the S&amp;P 8–20% below its high, since 1990, each episode counted once), scaled by the stock's 1-year beta to SPY.<span class="lim">A median across few episodes; any single year can be far from it, and beta drifts.</span></li>
+        <li><b>Setups like this, for each stock</b>Past days since 2019 when the stock sat within 5 points of today's distance below its 52-week high and on the same side of its 200-day average. It shows how often it was higher a year later, against how often it was higher in any year, and counts episodes, not days. It counts only with 4 or more episodes.<span class="lim">Small samples, and overlapping days inside one episode are not independent. Survivorship: these are stocks that are big today.</span></li>
+        <li><b>Analyst targets</b>Robinhood's consensus: buy/hold/sell counts and the low, average and high 12-month target, with the date it last changed when available.<span class="lim">Targets lag prices; many were set before this sell-off and tend to be optimistic.</span></li>
+        <li><b>Action state and levels</b>Four checks score the stock: trend (price vs 200-day, 50-day slope), setups-like-this edge of 10+ points over its normal year, the S&amp;P history path lifting it 5%+, and a reachable analyst target with 70%+ buy ratings. "Confirms above" is the nearer moving average above the price (or the 1-month high when above both). "Invalidates below" is the 3-month low, or one normal month down if closer.<span class="lim">Rules written in advance, not a backtested strategy. Not advice.</span></li>
+      </ul>
+    </section>
+
+
+  </div>
+  </div>
+</div>
+
+<script>
+/* Minimal stand-in for the dashboard runtime the outlook code was written against:
+   dash.data(id) reads ../outputs/risk-lab/<id>.json, dash.draw(name, fn) fills every [data-draw=name]. */
+(function () {
+  const SRC = { outlook_summary: '../outputs/risk-lab/outlook_summary.json', outlook_cone: '../outputs/risk-lab/outlook_cone.json', outlook_history: '../outputs/risk-lab/outlook_history.json' };
+  const store = {}, draws = {}, listeners = [];
+  Object.keys(SRC).forEach((k) => { store[k] = { status: 'loading', data: [] }; });
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const runDraw = (name) => document.querySelectorAll('[data-draw="' + name + '"]').forEach((el) => { try { draws[name](el); } catch (e) { console.error('draw ' + name, e); } });
+  const all = () => { listeners.forEach((f) => { try { f(); } catch (e) { console.error(e); } }); Object.keys(draws).forEach(runDraw); };
+  window.dash = {
+    colors: ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)'],
+    data: (id) => store[id] || { status: 'missing', data: [] },
+    draw: (name, fn) => { draws[name] = fn; if (document.readyState !== 'loading') runDraw(name); else document.addEventListener('DOMContentLoaded', () => runDraw(name)); if (!fn) runDraw(name); },
+    onData: (fn) => { listeners.push(fn); fn(); },
+    calc: () => {}, setLink: () => {}, params: () => ({}), setParams: () => {},
+  };
+  const origDraw = window.dash.draw;
+  window.dash.draw = (name, fn) => { if (fn === undefined) { if (draws[name]) runDraw(name); return; } origDraw(name, fn); };
+  Object.entries(SRC).forEach(([k, url]) => fetch(url).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then((j) => { store[k] = { status: 'ok', data: Array.isArray(j) ? j : j.rows, meta: j.meta }; all(); })
+    .catch(() => { store[k] = { status: 'error', data: [] }; all(); }));
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => Object.keys(draws).forEach(runDraw), 150); });
+})();
+</script>
+<script>
+(function () {
+  window.pwr = {
+    usd(v, d = 0) { return v == null ? '—' : (v < 0 ? '−$' : '$') + d3.format(`,.${d}f`)(Math.abs(v)); },
+    sgnUsd(v) { return v == null ? '—' : (v > 0 ? '+$' : v < 0 ? '−$' : '$') + d3.format(',.0f')(Math.abs(v)); },
+    pct(v, d = 1) { return v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + d3.format(`.${d}f`)(Math.abs(v)) + '%'; },
+    px(v) { return v == null ? '—' : v < 1 ? d3.format('.4f')(v) : d3.format(',.2f')(v); },
+    cls(v) { return v == null || v === 0 ? '' : v > 0 ? 'up' : 'down'; },
+    tip(box) {
+      let t = box.querySelector(':scope > .tip');
+      if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
+      return {
+        show(lines, x, y) {
+          t.replaceChildren();
+          lines.forEach(([k, v]) => { const r = document.createElement('div'); const b = document.createElement('b'); b.textContent = k; r.append(b, v ? ' ' + v : ''); t.appendChild(r); });
+          t.hidden = false;
+          t.style.left = Math.max(0, Math.min(box.clientWidth - t.offsetWidth, x + 12)) + 'px';
+          t.style.top = Math.max(0, y - 10) + 'px';
+        },
+        hide() { t.hidden = true; },
+      };
+    },
+  };
+  dash.onData(() => {
+    document.querySelectorAll('.pwr [data-swatch]').forEach((el) => { el.style.background = dash.colors[+el.dataset.swatch]; });
+  });
+  dash.calc('hot_pair', {
+    title: 'BMNR + TQQQ share of money and risk',
+    description: 'Sum of weight_pct and risk_share_pct for BMNR and TQQQ.',
+    inputs: ['holdings'],
+    fn: (holdings) => {
+      const h = holdings.filter((r) => r.symbol === 'BMNR' || r.symbol === 'TQQQ');
+      if (!h.length) return [];
+      return [{ weight: Math.round(h.reduce((s, r) => s + +r.weight_pct, 0) * 10) / 10, risk: Math.round(h.reduce((s, r) => s + +r.risk_share_pct, 0) * 10) / 10 }];
+    },
+  });
+})();
+</script>
+<script>
+(function () {
+  const P = () => window.pwr;
+  let pick = null;
+  const S = () => { const d = dash.data('outlook_summary'); return d.status === 'ok' ? d.data : []; };
+  const fmtp = (v) => (v == null ? '—' : v < 10 ? '$' + d3.format(',.2f')(v) : '$' + d3.format(',.0f')(v));
+  const tk = (v) => (v < 10 ? d3.format('.2f')(v) : d3.format(',.0f')(v));
+  function cur() { const rows = S(); if (!rows.length) return null;
+    if (!pick || !rows.find((r) => r.symbol === pick)) pick = (rows.find((r) => r.held) || rows.find((r) => r.symbol === 'SPY') || rows[0]).symbol;
+    return rows.find((r) => r.symbol === pick); }
+  function choose(sym) { pick = sym; ['olsel', 'olaction', 'oltrend', 'olwhy', 'olcards', 'olchart', 'olboard', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+  let grp = '';
+  const inGrp = (r) => !grp || (grp === 'Your holdings' ? r.held : r.group === grp);
+  document.querySelectorAll('.pwr select.olgroup').forEach((g) => g.addEventListener('change', () => { grp = g.value; ['olboard', 'olcount', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }));
+  dash.draw('olcount', (el) => { const rows = S(); if (!rows.length) { el.textContent = '—'; return; } const n = rows.filter(inGrp).length;
+    el.textContent = n + ' of ' + rows.length + ' stocks and ETFs · prices as of ' + d3.utcFormat('%b %-d, %Y')(new Date(rows[0].asof + 'T00:00:00Z')); });
+  const ACTS = ['Add review', 'Probe', 'Hold', 'Hold, wait for trend', 'Watch: odds good, trend not yet', 'Watch', 'Trim review', 'Avoid for now'];
+  const actColor = (a) => (a === 'Add review' || a === 'Probe' ? 'var(--color-ok)' : a === 'Trim review' || a === 'Avoid for now' ? 'var(--color-bad)' : a === 'Hold' ? 'var(--color-fg)' : 'var(--color-warn)');
+  const pctTo = (v, p) => P().pct((v / p - 1) * 100);
+
+  dash.draw('olsel', (sel) => {
+    const rows = S(); sel.replaceChildren();
+    const add = (label, rs) => { if (!rs.length) return; const g = document.createElement('optgroup'); g.label = label; rs.slice().sort((a, b) => a.symbol.localeCompare(b.symbol)).forEach((r) => g.appendChild(new Option(r.symbol + ' · ' + r.action, r.symbol))); sel.appendChild(g); };
+    add('Your holdings', rows.filter((r) => r.held));
+    [...new Set(rows.map((r) => r.group))].forEach((g) => add(g, rows.filter((r) => !r.held && r.group === g)));
+    const c = cur(); if (c) sel.value = c.symbol;
+    sel.onchange = () => choose(sel.value);
+  });
+
+  const mk = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
+  dash.draw('olaction', (el) => { const r = cur(); el.textContent = r ? r.symbol + ' · ' + (r.action || '—') : '—'; el.style.color = r ? actColor(r.action) : ''; });
+  dash.draw('oltrend', (el) => { const r = cur(); el.textContent = r ? r.trend + ' · ' + P().pct(r.vs_ma200_pct) + ' vs 200-day · ' + P().pct(r.dd_52w_pct) + ' from 52-week high' : '—'; });
+  dash.draw('olwhy', (el) => { const r = cur(); el.textContent = r ? r.action_why : '—'; });
+
+  dash.draw('olcards', (el) => {
+    const r = cur(); el.replaceChildren(); if (!r) { el.textContent = '—'; return; }
+    const card = (k, v, sub, cls) => { const c = mk('div', 'olc' + (cls ? ' ' + cls : '')); const a = mk('small'); a.textContent = k; const b = mk('b'); b.textContent = v; const s = mk('span'); s.textContent = sub; c.append(a, b, s); el.appendChild(c); };
+    card('Today', fmtp(r.price), 'Friday close · ' + r.vol_now_pct + '% volatility now vs ' + r.vol_1y_pct + '% normal');
+    card('Confirms above', fmtp(r.promote_level), r.promote_basis + ' · ' + pctTo(r.promote_level, r.price) + ' away', 'good');
+    card('Invalidates below', fmtp(r.invalid_level), r.invalid_basis + ' · ' + pctTo(r.invalid_level, r.price) + ' away', 'bad');
+    if (r.own_f12_up_pct != null) card('Setups like this', r.own_f12_up_pct + '% higher', 'a year later, vs ' + r.base_f12_up_pct + '% in a normal year · ' + r.own_episodes + ' episodes since ' + r.own_since + ' · median ' + P().pct(r.own_f12_median));
+    else card('Setups like this', 'Too few', r.own_episodes + ' past episodes since ' + r.own_since + '; not enough to judge');
+    card('Likely in 3 months', fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi), '2 in 3 outcomes · 12 months: ' + fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));
+    card('If the S&P repeats history', fmtp(r.history_12m), 'in 12 months (' + pctTo(r.history_12m, r.price) + ') · 3 months: ' + fmtp(r.history_3m));
+    if (r.target_mean != null) card('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', r.buy_pct + '% buy of ' + r.analysts + ' · range ' + fmtp(r.target_low) + '–' + fmtp(r.target_high) + (r.target_date ? ' · last changed ' + d3.utcFormat('%b %-d')(new Date(r.target_date + 'T00:00:00Z')) : ''));
+  });
+
+  dash.draw('olboard', (el) => {
+    el.replaceChildren(); const rows = S().filter(inGrp), c0 = cur();
+    if (!S().length) { el.textContent = dash.data('outlook_summary').status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    ACTS.forEach((a) => {
+      const rs = rows.filter((r) => r.action === a).sort((x, y) => (y.held === true) - (x.held === true) || x.symbol.localeCompare(y.symbol)); if (!rs.length) return;
+      const col = mk('div', 'olcol'); col.style.borderTopColor = actColor(a);
+      const h = mk('h3'); h.textContent = a + ' · ' + rs.length; const ch = mk('div', 'chips');
+      rs.forEach((r) => { const b = mk('button', (r.held ? 'held' : '') + (c0 && c0.symbol === r.symbol ? ' on' : '')); b.type = 'button'; b.textContent = r.symbol; b.title = r.action_why;
+        b.onclick = () => { choose(r.symbol); document.getElementById('fan')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }; ch.appendChild(b); });
+      col.append(h, ch); el.appendChild(col);
+    });
+  });
+
+  dash.draw('olchart', (el) => {
+    el.replaceChildren(); const r = cur(), hd = dash.data('outlook_history'), cd = dash.data('outlook_cone');
+    if (!r || hd.status !== 'ok' || cd.status !== 'ok') { el.textContent = hd.status === 'error' || cd.status === 'error' ? 'Price data failed to load.' : '—'; return; }
+    const dt = (s) => new Date(s + 'T00:00:00Z');
+    const h = hd.data.filter((x) => x.symbol === r.symbol), cone = cd.data.filter((x) => x.symbol === r.symbol).sort((a, b) => a.step - b.step);
+    if (!h.length || !cone.length) return;
+    const W = el.clientWidth, H = 380, m = { t: 22, r: Math.max(96, Math.min(150, W * 0.24)), b: 26, l: 50 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', `${r.symbol}: last six months of prices and the likely range over the next twelve months, with confirmation and invalidation levels`);
+    const t0 = dt(h[h.length - 1].date), tEnd = dt(cone[cone.length - 1].date);
+    const xs = d3.scaleUtc([dt(h[0].date), tEnd], [m.l, W - m.r]);
+    const vals = h.flatMap((x) => [x.close, x.ma50, x.ma200]).concat(cone.flatMap((x) => [x.p05, x.p95, x.history_path]), [r.promote_level, r.invalid_level, r.target_low, r.target_high]).filter((v) => v != null);
+    const ys = d3.scaleLinear(d3.extent(vals), [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(6).tickSize(-(W - m.l - m.r)).tickFormat((v) => '$' + tk(v)));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 110))).tickFormat(d3.utcFormat('%b %y')));
+    svg.append('rect').attr('x', xs(t0)).attr('width', xs(tEnd) - xs(t0)).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', 'var(--cds-chart-grid)').style('opacity', 0.25);
+    const area = (lo, hi) => d3.area().x((x) => xs(dt(x.date))).y0((x) => ys(x[lo])).y1((x) => ys(x[hi]));
+    svg.append('path').datum(cone).attr('d', area('p05', 'p95')).style('fill', dash.colors[0]).style('opacity', 0.14);
+    svg.append('path').datum(cone).attr('d', area('p16', 'p84')).style('fill', dash.colors[0]).style('opacity', 0.32);
+    const lineH = (k) => d3.line().defined((x) => x[k] != null).x((x) => xs(dt(x.date))).y((x) => ys(x[k]));
+    svg.append('path').datum(h).attr('d', lineH('ma200')).style('fill', 'none').style('stroke', 'var(--cds-chart-muted)').style('stroke-width', 1.5).style('stroke-dasharray', '2 3');
+    svg.append('path').datum(h).attr('d', lineH('ma50')).style('fill', 'none').style('stroke', 'var(--cds-chart-muted)').style('stroke-width', 1.5);
+    svg.append('path').datum(h).attr('d', lineH('close')).style('fill', 'none').style('stroke', 'var(--color-fg)').style('stroke-width', 2);
+    svg.append('path').datum(cone).attr('d', d3.line().x((x) => xs(dt(x.date))).y((x) => ys(x.history_path))).style('fill', 'none').style('stroke', 'var(--color-warn)').style('stroke-width', 2.2);
+    const hline = (v, color) => svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', ys(v)).attr('y2', ys(v)).style('stroke', color).style('stroke-width', 1.4).style('stroke-dasharray', '6 4');
+    hline(r.promote_level, 'var(--color-ok)'); hline(r.invalid_level, 'var(--color-bad)');
+    svg.append('line').attr('x1', xs(t0)).attr('x2', xs(t0)).attr('y1', m.t - 8).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '3 3');
+    svg.append('text').attr('x', xs(t0)).attr('y', m.t - 10).attr('text-anchor', 'middle').style('font-weight', 600).text('Today ' + fmtp(r.price));
+    svg.append('circle').attr('cx', xs(t0)).attr('cy', ys(r.price)).attr('r', 4.5).style('fill', 'var(--color-fg)');
+    const xr = W - m.r;
+    if (r.target_mean != null) {
+      svg.append('line').attr('x1', xr - 6).attr('x2', xr - 6).attr('y1', ys(r.target_low)).attr('y2', ys(r.target_high)).style('stroke', 'var(--color-ok)').style('stroke-width', 4).style('opacity', 0.45);
+      svg.append('rect').attr('x', xr - 11).attr('y', ys(r.target_mean) - 5).attr('width', 10).attr('height', 10).attr('transform', `rotate(45 ${xr - 6} ${ys(r.target_mean)})`).style('fill', 'var(--color-ok)');
+    }
+    const last = cone[cone.length - 1];
+    const labs = [[r.promote_level, 'Confirms ' + fmtp(r.promote_level), 'var(--color-ok)'], [r.invalid_level, 'Invalid ' + fmtp(r.invalid_level), 'var(--color-bad)'],
+      [last.history_path, 'History ' + fmtp(last.history_path), 'var(--color-warn)'], [last.p84, 'Likely hi ' + fmtp(last.p84), dash.colors[0]], [last.p16, 'Likely lo ' + fmtp(last.p16), dash.colors[0]]];
+    if (r.target_mean != null) labs.push([r.target_mean, 'Analysts ' + fmtp(r.target_mean), 'var(--color-ok)']);
+    let prev = -1e9;
+    labs.map((l) => ({ v: l[0], t: l[1], c: l[2], y: ys(l[0]) })).sort((a, b) => a.y - b.y).forEach((l) => {
+      const y = Math.max(l.y, prev + 13); prev = y;
+      svg.append('line').attr('x1', xr).attr('x2', xr + 5).attr('y1', l.y).attr('y2', y).style('stroke', l.c);
+      svg.append('text').attr('x', xr + 8).attr('y', y).attr('dy', '0.35em').style('fill', l.c).style('font-size', '11px').style('font-weight', 600).text(l.t);
+    });
+    const tip = P().tip(el), guide = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)').style('opacity', 0);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', xr - m.l).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev); const at = xs.invert(px);
+        if (at <= t0) { const x = h[Math.min(h.length - 1, d3.bisector((q) => dt(q.date)).left(h, at))];
+          guide.attr('x1', xs(dt(x.date))).attr('x2', xs(dt(x.date))).style('opacity', 1);
+          tip.show([[d3.utcFormat('%b %-d, %Y')(dt(x.date)), ''], ['Close:', fmtp(x.close)], ['50-day:', fmtp(x.ma50)], ['200-day:', x.ma200 == null ? '—' : fmtp(x.ma200)]], xs(dt(x.date)), m.t);
+        } else { const x = cone[Math.min(cone.length - 1, d3.bisector((q) => dt(q.date)).left(cone, at))];
+          guide.attr('x1', xs(dt(x.date))).attr('x2', xs(dt(x.date))).style('opacity', 1);
+          tip.show([[d3.utcFormat('%b %-d, %Y')(dt(x.date)) + ' · ' + x.step + ' trading days', ''], ['Likely (2 in 3):', fmtp(x.p16) + ' – ' + fmtp(x.p84)], ['Possible (9 in 10):', fmtp(x.p05) + ' – ' + fmtp(x.p95)], ['If S&P repeats history:', fmtp(x.history_path)]], xs(dt(x.date)), m.t);
+        }
+      })
+      .on('pointerleave', () => { tip.hide(); guide.style('opacity', 0); });
+  });
+
+  dash.draw('strip', (el) => {
+    el.replaceChildren(); const d = dash.data('outlook_summary');
+    if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    const rows = d.data.filter(inGrp).map((r) => ({ ...r, lo: (r.m3_lo / r.price - 1) * 100, hi: (r.m3_hi / r.price - 1) * 100, up: r.upside_to_mean_pct }))
+      .sort((a, b) => (b.held === true) - (a.held === true) || (b.up ?? -999) - (a.up ?? -999));
+    const W = el.clientWidth, rh = 20, m = { t: 22, r: 16, b: 24, l: 56 }, H = m.t + m.b + rows.length * rh;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Each stock: likely 3-month range and average analyst target, as percent from today');
+    const CAP = 110;
+    const xs = d3.scaleLinear([d3.min(rows, (r) => r.lo), Math.min(CAP, Math.max(d3.max(rows, (r) => r.hi), d3.max(rows, (r) => r.up ?? 0)))], [m.l, W - m.r]).nice();
+    const ys = d3.scaleBand(rows.map((r) => r.symbol), [m.t, H - m.b]).padding(0.3);
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 90))).tickSize(-(H - m.t - m.b)).tickFormat((v) => (v > 0 ? '+' : '') + v + '%'));
+    svg.append('line').attr('x1', xs(0)).attr('x2', xs(0)).attr('y1', m.t - 6).attr('y2', H - m.b).style('stroke', 'var(--color-fg)');
+    svg.append('text').attr('x', xs(0)).attr('y', 12).attr('text-anchor', 'middle').style('font-weight', 600).text('Today');
+    const c0 = cur(), tip = P().tip(el);
+    const g = svg.selectAll('g.row').data(rows).join('g').attr('class', 'row');
+    g.append('rect').attr('x', m.l - 50).attr('width', W - m.l + 50 - m.r).attr('y', (r) => ys(r.symbol) - 3).attr('height', ys.bandwidth() + 6).style('fill', (r) => (c0 && r.symbol === c0.symbol ? 'var(--cds-chart-grid)' : 'transparent'));
+    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-weight', (r) => (r.held ? 600 : null)).style('fill', (r) => actColor(r.action)).text((r) => r.symbol);
+    g.append('rect').attr('x', (r) => xs(r.lo)).attr('width', (r) => Math.max(2, xs(Math.min(r.hi, CAP)) - xs(r.lo))).attr('y', (r) => ys(r.symbol)).attr('height', ys.bandwidth()).attr('rx', 3).style('fill', dash.colors[0]).style('opacity', 0.8);
+    const dg = g.filter((r) => r.up != null);
+    dg.append('rect').attr('x', (r) => xs(Math.min(r.up, CAP)) - 4.5).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2 - 4.5).attr('width', 9).attr('height', 9)
+      .attr('transform', (r) => `rotate(45 ${xs(Math.min(r.up, CAP))} ${ys(r.symbol) + ys.bandwidth() / 2})`).style('fill', 'var(--color-ok)');
+    dg.filter((r) => r.up > CAP).append('text').attr('x', (r) => xs(CAP) - 10).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-size', '10px').text((r) => '+' + Math.round(r.up) + '% →');
+    g.on('click', (ev, r) => { choose(r.symbol); document.getElementById('fan')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); })
+      .on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + ' at ' + fmtp(r.price), ''], ['Action state:', r.action || '—'], ['Likely in 3 months:', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi)], ['Analyst average:', r.up == null ? 'none' : fmtp(r.target_mean) + ' (' + P().pct(r.up) + ')']], px, py); })
+      .on('pointerleave', () => tip.hide());
+  });
+
+  dash.draw('oltbody', (tb) => {
+    const d = dash.data('outlook_summary'); tb.replaceChildren();
+    if (d.status !== 'ok') { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = 13; c.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    d.data.filter(inGrp).forEach((r) => {
+      const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
+      const cell = (t, c) => { const x = tr.insertCell(); x.textContent = t; if (c) x.className = c; };
+      cell(r.symbol); cell(fmtp(r.price)); cell(fmtp(r.m1_lo) + '–' + fmtp(r.m1_hi)); cell(fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi)); cell(fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));
+      cell(fmtp(r.history_3m)); cell(r.target_mean == null ? '—' : fmtp(r.target_mean));
+      cell(r.upside_to_mean_pct == null ? '—' : P().pct(r.upside_to_mean_pct), r.upside_to_mean_pct == null ? '' : P().cls(r.upside_to_mean_pct));
+      cell(r.buy_pct == null ? '—' : r.buy_pct + '% of ' + r.analysts);
+      cell(r.action || '—', 'l'); cell(r.own_f12_up_pct == null ? 'too few' : r.own_f12_up_pct + '% vs ' + r.base_f12_up_pct + '% normal');
+      cell(fmtp(r.promote_level)); cell(fmtp(r.invalid_level));
+    });
+  });
+})();
+</script>
+</body>
+</html>

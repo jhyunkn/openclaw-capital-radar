@@ -62,3 +62,11 @@ The stage exits 0 with `RISK_LAB_SKIP` if numpy is missing, so it never blocks t
 ## Method notes and limits
 
 Free Yahoo Finance and FRED data, ETF-proxy factors rather than a commercial factor model, and a forward VaR ledger that only started in November 2026. Price ranges assume symmetric volatility, so crash risk is understated. Analysis, not investment advice.
+
+## Public price outlook page
+
+`pages/price-outlook.html` is a standalone page (no build step) served by the site at `/pages/price-outlook.html`.
+It reads `outputs/risk-lab/outlook_summary.json`, `outlook_cone.json` and `outlook_history.json`, which the
+`risk-lab` pipeline stage rebuilds (market-only: action states are Probe / Watch / Avoid, holdings never appear).
+To add a ticker, add it to `risk-lab/config/outlook_universe.json` (and its analyst target to `config/analyst_targets.json`
+if you want the analyst row). Colors are CSS variables at the top of the page; d3 7.9.0 loads from jsDelivr.

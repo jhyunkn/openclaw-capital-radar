@@ -109,6 +109,25 @@
 .pwr .olgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: var(--cds-gap-lg); align-items: start; }
 @media (max-width: 760px) { .pwr .olgrid { grid-template-columns: 1fr; } }
 .pwr .chart.spark { min-height: 200px; } .pwr .chart.ranges { min-height: 230px; } .pwr .chart.strip { min-height: 300px; }
+.pwr .chart.olchart { min-height: 380px; }
+.pwr .olhead { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: baseline; margin-top: var(--cds-gap-md); }
+.pwr .olact { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.1; }
+.pwr .oltrend { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 1px 10px; }
+.pwr .olwhy { margin: 6px 0 var(--cds-gap-md); max-width: 90ch; line-height: 1.5; }
+.pwr .olcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--cds-gap-sm); margin-bottom: var(--cds-gap-md); }
+.pwr .olc { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 12px; display: grid; gap: 2px; align-content: start; }
+.pwr .olc small { font-size: 11px; color: var(--color-fg-muted); letter-spacing: .04em; text-transform: uppercase; }
+.pwr .olc b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 20px; }
+.pwr .olc span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.4; }
+.pwr .olc.good { border-left: 3px solid var(--color-ok); } .pwr .olc.bad { border-left: 3px solid var(--color-bad); }
+.pwr .olboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--cds-gap-md); }
+.pwr .olcol { display: grid; gap: 6px; align-content: start; border-top: 3px solid var(--cds-chart-muted); padding-top: 8px; }
+.pwr .olcol h3 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+.pwr .olcol .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.pwr .olcol button { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: none; color: var(--color-fg); border-radius: 999px; padding: 2px 9px; cursor: pointer; }
+.pwr .olcol button.held { font-weight: 700; border-color: var(--color-fg); }
+.pwr .olcol button.on { background: var(--cds-chart-grid); }
+.pwr .olcol button:focus-visible { outline: 2px solid var(--color-fg); }
 .pwr .chart.strip .row { cursor: pointer; }
 
 .pwr .chart.heatm { min-height: 180px; }
@@ -200,26 +219,38 @@
   </div>
 
   <div class="tabpage" id="outlook" role="tabpanel" hidden>
+    <section id="olboardbox" class="card">
+      <h2>Action board: every stock by what the evidence says now</h2>
+      <details class="info"><summary>How to read</summary><p>Each stock gets an action state from four rules: its trend (price against the 200-day average, and whether the 50-day is rising), how it did after past setups like today compared with its normal year, the S&amp;P's typical path after sell-offs like this one, and whether analysts' average target is reachable. Your holdings (bold) get Hold, Add review or Trim review; other stocks get Probe, Watch or Avoid for now. Click a stock to open it below. Rules, not advice.</p></details>
+      <div class="olboard" data-draw="olboard" data-source="outlook_summary"></div>
+    </section>
+
     <section id="fan" class="card">
       <div style="display:flex; gap: var(--cds-gap-sm); align-items:center; flex-wrap: wrap; justify-content: space-between;">
-        <h2 style="margin:0">Where could it be?</h2>
+        <h2 style="margin:0">Where it has been, where it could go, and what would change the call</h2>
         <span><label for="olsel" class="sub" style="margin:0 6px 0 0">Stock:</label><select id="olsel" class="dash-select" data-draw="olsel" aria-label="Stock" data-source="outlook_summary"></select></span>
       </div>
-      <div class="stats" data-draw="olline" data-source="outlook_summary"></div>
-      <div class="olgrid">
-        <div class="chart spark" data-draw="spark" data-source="outlook_history"></div>
-        <div>
-          <div class="legend">
-            <span><i data-swatch="0"></i>Likely (2 in 3)</span>
-            <span><i data-swatch="0" style="opacity:.3"></i>Possible (9 in 10)</span>
-            <span><i style="background: var(--color-fg); border-radius:50%; width:10px"></i>Today</span>
-            <span><i style="background: var(--color-warn); width:4px"></i>If S&amp;P repeats history</span>
-          </div>
-          <div class="chart ranges" data-draw="ranges" data-source="outlook_summary outlook_cone"></div>
-        </div>
+      <div class="olhead">
+        <span class="olact" data-draw="olaction" data-source="outlook_summary" data-field="action">—</span>
+        <span class="oltrend" data-draw="oltrend" data-source="outlook_summary" data-field="trend">—</span>
       </div>
-      <details class="info"><summary>How to read</summary><p>Each row is a time horizon on the same price scale. The thick bar is where the price lands about 2 times in 3; the thin line about 9 times in 10. Bars widen further out because uncertainty grows. The orange tick is where it would be if the S&amp;P repeats its typical path after past sell-offs like this one, scaled by how much the stock moves with the market. The analyst row shows Wall Street's 12-month targets (low, average, high), many set before this sell-off. None of this is a prediction.</p></details>
+      <p class="olwhy" data-draw="olwhy" data-source="outlook_summary" data-field="action_why">—</p>
+      <div class="olcards" data-draw="olcards" data-source="outlook_summary"></div>
+      <div class="legend">
+        <span><i style="background: var(--color-fg); height: 3px"></i>Price</span>
+        <span><i style="background: var(--cds-chart-muted); height: 2px"></i>50-day average</span>
+        <span><i style="border-top: 2px dotted var(--cds-chart-muted); background: none; height: 0"></i>200-day average</span>
+        <span><i data-swatch="0"></i>Likely (2 in 3)</span>
+        <span><i data-swatch="0" style="opacity:.3"></i>Possible (9 in 10)</span>
+        <span><i style="background: var(--color-warn); height: 3px"></i>If the S&amp;P repeats history</span>
+        <span><i style="border-top: 2px dashed var(--color-ok); background: none; height: 0"></i>Confirms above</span>
+        <span><i style="border-top: 2px dashed var(--color-bad); background: none; height: 0"></i>Invalidates below</span>
+        <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst target (range)</span>
+      </div>
+      <div class="chart olchart" data-draw="olchart" data-source="outlook_history outlook_cone outlook_summary"></div>
+      <details class="info"><summary>How to read</summary><p>Left of "Today" is the last six months of closing prices with the 50- and 200-day averages. Right of it is the next twelve months: the dark band is where the price lands about 2 times in 3, the light band about 9 times in 10, from the stock's own volatility with no up or down drift assumed. The orange line is where it would go if the S&amp;P repeats its median path after the 23 past sell-offs like this one, scaled by how much the stock moves with the market. The green dashed line is the level that would confirm a turn (reclaiming the nearer moving average above the price); the red dashed line is where the setup is wrong (its 3-month low, or one normal month down if that is closer). At the right edge: analysts' 12-month targets, low to high, with the average as a diamond; many were set before this sell-off.</p></details>
     </section>
+
     <section id="oltable" class="card">
       <h2>All stocks: 3-month range vs analyst targets</h2>
       <div class="legend">
@@ -231,7 +262,7 @@
       <details class="info"><summary>Show the numbers</summary>
       <div class="tablewrap">
         <table data-source="outlook_summary" data-row-key="symbol">
-          <thead><tr><th data-field="symbol">Stock</th><th data-field="price">Price</th><th data-field="m1_lo">1 month</th><th data-field="m3_lo">3 months</th><th data-field="m12_lo">12 months</th><th data-field="history_3m">History path, 3 mo</th><th data-field="target_mean">Analyst average</th><th data-field="upside_to_mean_pct">Upside</th><th data-field="buy_pct">Buy ratings</th></tr></thead>
+          <thead><tr><th data-field="symbol">Stock</th><th data-field="price">Price</th><th data-field="m1_lo">1 month</th><th data-field="m3_lo">3 months</th><th data-field="m12_lo">12 months</th><th data-field="history_3m">History path, 3 mo</th><th data-field="target_mean">Analyst average</th><th data-field="upside_to_mean_pct">Upside</th><th data-field="buy_pct">Buy ratings</th><th data-field="action" class="l">Action state</th><th data-field="own_f12_up_pct">Higher a year later (setups like this)</th><th data-field="promote_level">Confirms above</th><th data-field="invalid_level">Invalidates below</th></tr></thead>
           <tbody data-draw="oltbody"></tbody>
         </table>
       </div>
@@ -1180,7 +1211,10 @@
   function cur() { const rows = S(); if (!rows.length) return null;
     if (!pick || !rows.find((r) => r.symbol === pick)) pick = (rows.find((r) => r.held) || rows.find((r) => r.symbol === 'SPY') || rows[0]).symbol;
     return rows.find((r) => r.symbol === pick); }
-  function choose(sym) { pick = sym; ['olsel', 'olline', 'spark', 'ranges', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+  function choose(sym) { pick = sym; ['olsel', 'olaction', 'oltrend', 'olwhy', 'olcards', 'olchart', 'olboard', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+  const ACTS = ['Add review', 'Probe', 'Hold', 'Hold, wait for trend', 'Watch: odds good, trend not yet', 'Watch', 'Trim review', 'Avoid for now'];
+  const actColor = (a) => (a === 'Add review' || a === 'Probe' ? 'var(--color-ok)' : a === 'Trim review' || a === 'Avoid for now' ? 'var(--color-bad)' : a === 'Hold' ? 'var(--color-fg)' : 'var(--color-warn)');
+  const pctTo = (v, p) => P().pct((v / p - 1) * 100);
 
   dash.draw('olsel', (sel) => {
     const rows = S(); sel.replaceChildren();
@@ -1192,70 +1226,94 @@
     sel.onchange = () => choose(sel.value);
   });
 
-  dash.draw('olline', (el) => {
+  const mk = (t, c) => { const e = document.createElement(t); if (c) e.className = c; return e; };
+  dash.draw('olaction', (el) => { const r = cur(); el.textContent = r ? r.symbol + ' · ' + (r.action || '—') : '—'; el.style.color = r ? actColor(r.action) : ''; });
+  dash.draw('oltrend', (el) => { const r = cur(); el.textContent = r ? r.trend + ' · ' + P().pct(r.vs_ma200_pct) + ' vs 200-day · ' + P().pct(r.dd_52w_pct) + ' from 52-week high' : '—'; });
+  dash.draw('olwhy', (el) => { const r = cur(); el.textContent = r ? r.action_why : '—'; });
+
+  dash.draw('olcards', (el) => {
     const r = cur(); el.replaceChildren(); if (!r) { el.textContent = '—'; return; }
-    const chip = (k, v, c) => { const x = document.createElement('span'); x.className = 'stat'; const a = document.createElement('small'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; if (c) b.className = c; x.append(a, b); el.appendChild(x); };
-    chip('Today', fmtp(r.price));
-    chip('Likely in 3 months', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi));
-    if (r.target_mean != null) chip('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', P().cls(r.upside_to_mean_pct));
+    const card = (k, v, sub, cls) => { const c = mk('div', 'olc' + (cls ? ' ' + cls : '')); const a = mk('small'); a.textContent = k; const b = mk('b'); b.textContent = v; const s = mk('span'); s.textContent = sub; c.append(a, b, s); el.appendChild(c); };
+    card('Today', fmtp(r.price), 'Friday close · ' + r.vol_now_pct + '% volatility now vs ' + r.vol_1y_pct + '% normal');
+    card('Confirms above', fmtp(r.promote_level), r.promote_basis + ' · ' + pctTo(r.promote_level, r.price) + ' away', 'good');
+    card('Invalidates below', fmtp(r.invalid_level), r.invalid_basis + ' · ' + pctTo(r.invalid_level, r.price) + ' away', 'bad');
+    if (r.own_f12_up_pct != null) card('Setups like this', r.own_f12_up_pct + '% higher', 'a year later, vs ' + r.base_f12_up_pct + '% in a normal year · ' + r.own_episodes + ' episodes since ' + r.own_since + ' · median ' + P().pct(r.own_f12_median));
+    else card('Setups like this', 'Too few', r.own_episodes + ' past episodes since ' + r.own_since + '; not enough to judge');
+    card('Likely in 3 months', fmtp(r.m3_lo) + '–' + fmtp(r.m3_hi), '2 in 3 outcomes · 12 months: ' + fmtp(r.m12_lo) + '–' + fmtp(r.m12_hi));
+    card('If the S&P repeats history', fmtp(r.history_12m), 'in 12 months (' + pctTo(r.history_12m, r.price) + ') · 3 months: ' + fmtp(r.history_3m));
+    if (r.target_mean != null) card('Analyst average', fmtp(r.target_mean) + ' (' + P().pct(r.upside_to_mean_pct) + ')', r.buy_pct + '% buy of ' + r.analysts + ' · range ' + fmtp(r.target_low) + '–' + fmtp(r.target_high));
   });
 
-  dash.draw('spark', (el) => {
-    el.replaceChildren(); const r = cur(), hd = dash.data('outlook_history');
-    if (!r || hd.status !== 'ok') { el.textContent = hd.status === 'error' ? 'Price history failed to load.' : '—'; return; }
-    const h = hd.data.filter((x) => x.symbol === r.symbol); if (!h.length) return;
-    const W = el.clientWidth, H = 200, m = { t: 22, r: 10, b: 22, l: 46 };
-    const dt = (s) => new Date(s + 'T00:00:00Z');
-    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${r.symbol} price over the last 6 months`);
-    const xs = d3.scaleUtc(d3.extent(h, (x) => dt(x.date)), [m.l, W - m.r]);
-    const ys = d3.scaleLinear(d3.extent(h, (x) => x.close), [H - m.b, m.t]).nice();
-    svg.append('text').attr('x', m.l).attr('y', 12).style('font-weight', 600).text('Last 6 months');
-    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat((v) => '$' + tk(v)));
-    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(3).tickFormat(d3.utcFormat('%b')));
-    const first = h[0].close, last = h[h.length - 1].close;
-    svg.append('path').datum(h).attr('d', d3.area().x((x) => xs(dt(x.date))).y0(H - m.b).y1((x) => ys(x.close))).style('fill', last >= first ? 'var(--color-ok)' : 'var(--color-bad)').style('opacity', 0.1);
-    svg.append('path').datum(h).attr('d', d3.line().x((x) => xs(dt(x.date))).y((x) => ys(x.close))).style('fill', 'none').style('stroke', 'var(--color-fg)').style('stroke-width', 1.8);
-    svg.append('circle').attr('cx', xs(dt(h[h.length - 1].date))).attr('cy', ys(last)).attr('r', 4).style('fill', 'var(--color-fg)');
-    const tip = P().tip(el);
-    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
-      .on('pointermove', (ev) => { const [px] = d3.pointer(ev); const x = h[Math.min(h.length - 1, d3.bisector((q) => dt(q.date)).left(h, xs.invert(px)))]; tip.show([[d3.utcFormat('%b %-d')(dt(x.date)), ''], ['Close:', '$' + tk(x.close)]], xs(dt(x.date)), m.t); })
-      .on('pointerleave', () => tip.hide());
-  });
-
-  dash.draw('ranges', (el) => {
-    el.replaceChildren(); const r = cur(), cd = dash.data('outlook_cone');
-    if (!r || cd.status !== 'ok') { el.textContent = cd.status === 'error' ? 'Ranges failed to load.' : '—'; return; }
-    const cone = cd.data.filter((x) => x.symbol === r.symbol), at = (n) => cone.find((x) => x.step === n) || {};
-    const rows = [
-      { lab: '1 month', lo: r.m1_lo, hi: r.m1_hi, w0: at(21).p05, w1: at(21).p95 },
-      { lab: '3 months', lo: r.m3_lo, hi: r.m3_hi, w0: at(63).p05, w1: at(63).p95, hist: r.history_3m },
-      { lab: '12 months', lo: r.m12_lo, hi: r.m12_hi, w0: at(252).p05, w1: at(252).p95, hist: r.history_12m },
-    ];
-    if (r.target_mean != null) rows.push({ lab: 'Analysts, 12 mo', lo: r.target_low, hi: r.target_high, mid: r.target_mean, analyst: true });
-    const W = el.clientWidth, rh = 46, m = { t: 10, r: 18, b: 24, l: 96 }, H = m.t + m.b + rows.length * rh;
-    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${r.symbol} likely price ranges at 1, 3 and 12 months, and analyst targets`);
-    const vals = rows.flatMap((x) => [x.lo, x.hi, x.w0, x.w1, x.mid, x.hist]).filter((v) => v != null).concat([r.price]);
-    const xs = d3.scaleLinear(d3.extent(vals), [m.l, W - m.r]).nice();
-    const ys = d3.scaleBand(rows.map((x) => x.lab), [m.t, H - m.b]).padding(0.35);
-    svg.append('g').attr('class', 'gridline').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 100))).tickSize(-(H - m.t - m.b)).tickFormat((v) => '$' + tk(v)));
-    svg.append('line').attr('x1', xs(r.price)).attr('x2', xs(r.price)).attr('y1', m.t - 4).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '3 3');
-    svg.append('text').attr('x', xs(r.price)).attr('y', m.t - 2).attr('text-anchor', 'middle').style('font-weight', 600).text('Today ' + fmtp(r.price));
-    const tip = P().tip(el);
-    rows.forEach((x) => {
-      const y = ys(x.lab), bh = ys.bandwidth(), cy = y + bh / 2;
-      svg.append('text').attr('x', m.l - 10).attr('y', cy).attr('dy', '0.35em').attr('text-anchor', 'end').text(x.lab);
-      const g = svg.append('g');
-      if (x.w0 != null) g.append('line').attr('x1', xs(x.w0)).attr('x2', xs(x.w1)).attr('y1', cy).attr('y2', cy).style('stroke', dash.colors[0]).style('stroke-width', 2).style('opacity', 0.45);
-      g.append('rect').attr('x', xs(x.lo)).attr('width', Math.max(2, xs(x.hi) - xs(x.lo))).attr('y', y).attr('height', bh).attr('rx', 4)
-        .style('fill', x.analyst ? 'var(--color-ok)' : dash.colors[0]).style('opacity', x.analyst ? 0.35 : 0.85);
-      if (x.mid != null) g.append('rect').attr('x', xs(x.mid) - 5).attr('y', cy - 5).attr('width', 10).attr('height', 10).attr('transform', `rotate(45 ${xs(x.mid)} ${cy})`).style('fill', 'var(--color-ok)');
-      if (x.hist != null) g.append('line').attr('x1', xs(x.hist)).attr('x2', xs(x.hist)).attr('y1', y - 4).attr('y2', y + bh + 4).style('stroke', 'var(--color-warn)').style('stroke-width', 3);
-      svg.append('text').attr('x', xs(x.lo) - 4).attr('y', y + bh + 12).attr('text-anchor', 'end').style('font-size', '10px').text('$' + tk(x.lo));
-      svg.append('text').attr('x', xs(x.hi) + 4).attr('y', y + bh + 12).style('font-size', '10px').text('$' + tk(x.hi));
-      const lines = x.analyst ? [[x.lab, ''], ['Low:', fmtp(x.lo)], ['Average:', fmtp(x.mid)], ['High:', fmtp(x.hi)], ['Buy ratings:', r.buy_pct + '% of ' + r.analysts]]
-        : [[x.lab, ''], ['Likely (2 in 3):', fmtp(x.lo) + ' – ' + fmtp(x.hi)], ['Possible (9 in 10):', fmtp(x.w0) + ' – ' + fmtp(x.w1)], ...(x.hist != null ? [['If S&P repeats history:', fmtp(x.hist)]] : [])];
-      g.on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.show(lines, px, py); }).on('pointerleave', () => tip.hide());
+  dash.draw('olboard', (el) => {
+    el.replaceChildren(); const rows = S(), c0 = cur();
+    if (!rows.length) { el.textContent = dash.data('outlook_summary').status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    ACTS.forEach((a) => {
+      const rs = rows.filter((r) => r.action === a).sort((x, y) => (y.held === true) - (x.held === true) || x.symbol.localeCompare(y.symbol)); if (!rs.length) return;
+      const col = mk('div', 'olcol'); col.style.borderTopColor = actColor(a);
+      const h = mk('h3'); h.textContent = a + ' · ' + rs.length; const ch = mk('div', 'chips');
+      rs.forEach((r) => { const b = mk('button', (r.held ? 'held' : '') + (c0 && c0.symbol === r.symbol ? ' on' : '')); b.type = 'button'; b.textContent = r.symbol; b.title = r.action_why;
+        b.onclick = () => { choose(r.symbol); document.getElementById('fan')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); }; ch.appendChild(b); });
+      col.append(h, ch); el.appendChild(col);
     });
+  });
+
+  dash.draw('olchart', (el) => {
+    el.replaceChildren(); const r = cur(), hd = dash.data('outlook_history'), cd = dash.data('outlook_cone');
+    if (!r || hd.status !== 'ok' || cd.status !== 'ok') { el.textContent = hd.status === 'error' || cd.status === 'error' ? 'Price data failed to load.' : '—'; return; }
+    const dt = (s) => new Date(s + 'T00:00:00Z');
+    const h = hd.data.filter((x) => x.symbol === r.symbol), cone = cd.data.filter((x) => x.symbol === r.symbol).sort((a, b) => a.step - b.step);
+    if (!h.length || !cone.length) return;
+    const W = el.clientWidth, H = 380, m = { t: 22, r: Math.max(96, Math.min(150, W * 0.24)), b: 26, l: 50 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', `${r.symbol}: last six months of prices and the likely range over the next twelve months, with confirmation and invalidation levels`);
+    const t0 = dt(h[h.length - 1].date), tEnd = dt(cone[cone.length - 1].date);
+    const xs = d3.scaleUtc([dt(h[0].date), tEnd], [m.l, W - m.r]);
+    const vals = h.flatMap((x) => [x.close, x.ma50, x.ma200]).concat(cone.flatMap((x) => [x.p05, x.p95, x.history_path]), [r.promote_level, r.invalid_level, r.target_low, r.target_high]).filter((v) => v != null);
+    const ys = d3.scaleLinear(d3.extent(vals), [H - m.b, m.t]).nice();
+    svg.append('g').attr('class', 'gridline').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(ys).ticks(6).tickSize(-(W - m.l - m.r)).tickFormat((v) => '$' + tk(v)));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(xs).ticks(Math.max(3, Math.floor(W / 110))).tickFormat(d3.utcFormat('%b %y')));
+    svg.append('rect').attr('x', xs(t0)).attr('width', xs(tEnd) - xs(t0)).attr('y', m.t).attr('height', H - m.t - m.b).style('fill', 'var(--cds-chart-grid)').style('opacity', 0.25);
+    const area = (lo, hi) => d3.area().x((x) => xs(dt(x.date))).y0((x) => ys(x[lo])).y1((x) => ys(x[hi]));
+    svg.append('path').datum(cone).attr('d', area('p05', 'p95')).style('fill', dash.colors[0]).style('opacity', 0.14);
+    svg.append('path').datum(cone).attr('d', area('p16', 'p84')).style('fill', dash.colors[0]).style('opacity', 0.32);
+    const lineH = (k) => d3.line().defined((x) => x[k] != null).x((x) => xs(dt(x.date))).y((x) => ys(x[k]));
+    svg.append('path').datum(h).attr('d', lineH('ma200')).style('fill', 'none').style('stroke', 'var(--cds-chart-muted)').style('stroke-width', 1.5).style('stroke-dasharray', '2 3');
+    svg.append('path').datum(h).attr('d', lineH('ma50')).style('fill', 'none').style('stroke', 'var(--cds-chart-muted)').style('stroke-width', 1.5);
+    svg.append('path').datum(h).attr('d', lineH('close')).style('fill', 'none').style('stroke', 'var(--color-fg)').style('stroke-width', 2);
+    svg.append('path').datum(cone).attr('d', d3.line().x((x) => xs(dt(x.date))).y((x) => ys(x.history_path))).style('fill', 'none').style('stroke', 'var(--color-warn)').style('stroke-width', 2.2);
+    const hline = (v, color) => svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', ys(v)).attr('y2', ys(v)).style('stroke', color).style('stroke-width', 1.4).style('stroke-dasharray', '6 4');
+    hline(r.promote_level, 'var(--color-ok)'); hline(r.invalid_level, 'var(--color-bad)');
+    svg.append('line').attr('x1', xs(t0)).attr('x2', xs(t0)).attr('y1', m.t - 8).attr('y2', H - m.b).style('stroke', 'var(--color-fg)').style('stroke-dasharray', '3 3');
+    svg.append('text').attr('x', xs(t0)).attr('y', m.t - 10).attr('text-anchor', 'middle').style('font-weight', 600).text('Today ' + fmtp(r.price));
+    svg.append('circle').attr('cx', xs(t0)).attr('cy', ys(r.price)).attr('r', 4.5).style('fill', 'var(--color-fg)');
+    const xr = W - m.r;
+    if (r.target_mean != null) {
+      svg.append('line').attr('x1', xr - 6).attr('x2', xr - 6).attr('y1', ys(r.target_low)).attr('y2', ys(r.target_high)).style('stroke', 'var(--color-ok)').style('stroke-width', 4).style('opacity', 0.45);
+      svg.append('rect').attr('x', xr - 11).attr('y', ys(r.target_mean) - 5).attr('width', 10).attr('height', 10).attr('transform', `rotate(45 ${xr - 6} ${ys(r.target_mean)})`).style('fill', 'var(--color-ok)');
+    }
+    const last = cone[cone.length - 1];
+    const labs = [[r.promote_level, 'Confirms ' + fmtp(r.promote_level), 'var(--color-ok)'], [r.invalid_level, 'Invalid ' + fmtp(r.invalid_level), 'var(--color-bad)'],
+      [last.history_path, 'History ' + fmtp(last.history_path), 'var(--color-warn)'], [last.p84, 'Likely hi ' + fmtp(last.p84), dash.colors[0]], [last.p16, 'Likely lo ' + fmtp(last.p16), dash.colors[0]]];
+    if (r.target_mean != null) labs.push([r.target_mean, 'Analysts ' + fmtp(r.target_mean), 'var(--color-ok)']);
+    let prev = -1e9;
+    labs.map((l) => ({ v: l[0], t: l[1], c: l[2], y: ys(l[0]) })).sort((a, b) => a.y - b.y).forEach((l) => {
+      const y = Math.max(l.y, prev + 13); prev = y;
+      svg.append('line').attr('x1', xr).attr('x2', xr + 5).attr('y1', l.y).attr('y2', y).style('stroke', l.c);
+      svg.append('text').attr('x', xr + 8).attr('y', y).attr('dy', '0.35em').style('fill', l.c).style('font-size', '11px').style('font-weight', 600).text(l.t);
+    });
+    const tip = P().tip(el), guide = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)').style('opacity', 0);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', xr - m.l).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev); const at = xs.invert(px);
+        if (at <= t0) { const x = h[Math.min(h.length - 1, d3.bisector((q) => dt(q.date)).left(h, at))];
+          guide.attr('x1', xs(dt(x.date))).attr('x2', xs(dt(x.date))).style('opacity', 1);
+          tip.show([[d3.utcFormat('%b %-d, %Y')(dt(x.date)), ''], ['Close:', fmtp(x.close)], ['50-day:', fmtp(x.ma50)], ['200-day:', x.ma200 == null ? '—' : fmtp(x.ma200)]], xs(dt(x.date)), m.t);
+        } else { const x = cone[Math.min(cone.length - 1, d3.bisector((q) => dt(q.date)).left(cone, at))];
+          guide.attr('x1', xs(dt(x.date))).attr('x2', xs(dt(x.date))).style('opacity', 1);
+          tip.show([[d3.utcFormat('%b %-d, %Y')(dt(x.date)) + ' · ' + x.step + ' trading days', ''], ['Likely (2 in 3):', fmtp(x.p16) + ' – ' + fmtp(x.p84)], ['Possible (9 in 10):', fmtp(x.p05) + ' – ' + fmtp(x.p95)], ['If S&P repeats history:', fmtp(x.history_path)]], xs(dt(x.date)), m.t);
+        }
+      })
+      .on('pointerleave', () => { tip.hide(); guide.style('opacity', 0); });
   });
 
   dash.draw('strip', (el) => {
@@ -1274,20 +1332,20 @@
     const c0 = cur(), tip = P().tip(el);
     const g = svg.selectAll('g.row').data(rows).join('g').attr('class', 'row');
     g.append('rect').attr('x', m.l - 50).attr('width', W - m.l + 50 - m.r).attr('y', (r) => ys(r.symbol) - 3).attr('height', ys.bandwidth() + 6).style('fill', (r) => (c0 && r.symbol === c0.symbol ? 'var(--cds-chart-grid)' : 'transparent'));
-    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-weight', (r) => (r.held ? 600 : null)).text((r) => r.symbol);
+    g.append('text').attr('x', m.l - 8).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-weight', (r) => (r.held ? 600 : null)).style('fill', (r) => actColor(r.action)).text((r) => r.symbol);
     g.append('rect').attr('x', (r) => xs(r.lo)).attr('width', (r) => Math.max(2, xs(Math.min(r.hi, CAP)) - xs(r.lo))).attr('y', (r) => ys(r.symbol)).attr('height', ys.bandwidth()).attr('rx', 3).style('fill', dash.colors[0]).style('opacity', 0.8);
     const dg = g.filter((r) => r.up != null);
     dg.append('rect').attr('x', (r) => xs(Math.min(r.up, CAP)) - 4.5).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2 - 4.5).attr('width', 9).attr('height', 9)
       .attr('transform', (r) => `rotate(45 ${xs(Math.min(r.up, CAP))} ${ys(r.symbol) + ys.bandwidth() / 2})`).style('fill', 'var(--color-ok)');
     dg.filter((r) => r.up > CAP).append('text').attr('x', (r) => xs(CAP) - 10).attr('y', (r) => ys(r.symbol) + ys.bandwidth() / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('font-size', '10px').text((r) => '+' + Math.round(r.up) + '% →');
     g.on('click', (ev, r) => { choose(r.symbol); document.getElementById('fan')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); })
-      .on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + ' at ' + fmtp(r.price), ''], ['Likely in 3 months:', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi)], ['Analyst average:', r.up == null ? 'none' : fmtp(r.target_mean) + ' (' + P().pct(r.up) + ')']], px, py); })
+      .on('pointermove', (ev, r) => { const [px, py] = d3.pointer(ev, el); tip.show([[r.symbol + ' at ' + fmtp(r.price), ''], ['Action state:', r.action || '—'], ['Likely in 3 months:', fmtp(r.m3_lo) + ' – ' + fmtp(r.m3_hi)], ['Analyst average:', r.up == null ? 'none' : fmtp(r.target_mean) + ' (' + P().pct(r.up) + ')']], px, py); })
       .on('pointerleave', () => tip.hide());
   });
 
   dash.draw('oltbody', (tb) => {
     const d = dash.data('outlook_summary'); tb.replaceChildren();
-    if (d.status !== 'ok') { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = 9; c.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
+    if (d.status !== 'ok') { const tr = tb.insertRow(); const c = tr.insertCell(); c.colSpan = 13; c.textContent = d.status === 'error' ? 'Outlook failed to load.' : '—'; return; }
     d.data.forEach((r) => {
       const tr = tb.insertRow(); tr.dataset.key = encodeURIComponent(r.symbol);
       const cell = (t, c) => { const x = tr.insertCell(); x.textContent = t; if (c) x.className = c; };
@@ -1295,6 +1353,8 @@
       cell(fmtp(r.history_3m)); cell(r.target_mean == null ? '—' : fmtp(r.target_mean));
       cell(r.upside_to_mean_pct == null ? '—' : P().pct(r.upside_to_mean_pct), r.upside_to_mean_pct == null ? '' : P().cls(r.upside_to_mean_pct));
       cell(r.buy_pct == null ? '—' : r.buy_pct + '% of ' + r.analysts);
+      cell(r.action || '—', 'l'); cell(r.own_f12_up_pct == null ? 'too few' : r.own_f12_up_pct + '% vs ' + r.base_f12_up_pct + '% normal');
+      cell(fmtp(r.promote_level)); cell(fmtp(r.invalid_level));
     });
   });
 })();

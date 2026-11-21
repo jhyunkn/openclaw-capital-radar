@@ -58,7 +58,10 @@ lvl = brief["leaders_vs_laggards"]
 write("sectors_after", [{**r, "median_excess_3m_pct": round(r["median_excess_3m_pct"], 1), "beat_spx_pct": round(r["beat_spx_pct"])} for r in brief["sectors_after"]],
       f"Sector ETF return minus the S&P 500 over the 3 months after each past setup since 1999. This month's leading vs lagging sectors: laggards did better {lvl['laggards_won_pct']:.0f}% of the time.")
 
-summ = sorted((dict((k, v) for k, v in r.items() if k != "held") for r in rows("outlook_summary") if r["symbol"] not in DROP), key=lambda r: r["symbol"])
+summ = sorted(({**{k: v for k, v in r.items() if k not in ("held", "leveraged", "action_market")},
+                 "action": r.get("action_market", r.get("action")),
+                 "action_why": (r.get("action_why") or "").replace("; it is a leveraged daily-reset fund, which loses value in choppy markets", "")}
+                for r in rows("outlook_summary") if r["symbol"] not in DROP), key=lambda r: r["symbol"])
 keep = {r["symbol"] for r in summ}
 write("outlook_summary", summ, "68% (2-in-3) ranges with no assumed drift; volatility starts at today's level and fades toward its 1-year average. History path = median S&P path after past setups like today × the stock's beta. Analyst σ = distance to the mean 12-month target in 12-month standard deviations.")
 write("outlook_cone", [r for r in rows("outlook_cone") if r["symbol"] in keep], "Percentile bands by trading day ahead.")

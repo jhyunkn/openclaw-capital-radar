@@ -6,6 +6,10 @@ mean-reverts toward the stock's 1-year average with a 3-month half-life, because
 History path: the median S&P 500 path over the year after the 23 past setups like today
 (VIX 30+, S&P 8-20% below its high), scaled by the stock's 1-year beta to SPY.
 Analyst targets: Robinhood's consensus 12-month low / mean / high.
+Decision layer (per stock): trend (price vs 200-day, 50-day slope), the stock's own record after
+past days in the same state (same distance below its 52-week high, same side of its 200-day,
+episodes counted once), key levels, and an action state (Watch / Probe / Add / Hold / Trim review)
+with a promotion level and an invalidation level. Rules, not advice.
 """
 import json, math, os, sys, datetime as dt, urllib.request
 import numpy as np
@@ -38,6 +42,10 @@ def yahoo(sym, start=-631152000):
 
 AN = json.load(open(paths.ANALYST))
 POS = json.load(open(paths.POSITIONS))
+try:
+    LEV = set(json.load(open(os.path.join(paths.PRIVATE, "overrides.json"))).get("leveraged_symbols", []))
+except Exception:
+    LEV = set()
 HELD = [p["yahoo"] for p in POS["positions"] if p["yahoo"] and not p["yahoo"].endswith("-USD")]
 SYMS = list(dict.fromkeys(HELD + ["QQQ"] + list(AN["targets"])))
 
@@ -77,8 +85,11 @@ for s in SYMS:
     spr = np.diff(np.log(np.array([spy[d] for d in ds])))
     beta = float(np.cov(r[-252:], spr[-252:])[0, 1] / np.var(spr[-252:]))
     p0 = float(c[-1]); ma50 = np.convolve(c, np.ones(50) / 50, "full")[:len(c)]
-    for d, v, m in zip(ds[-126:], c[-126:], ma50[-126:]):
-        hist_rows.append({"symbol": s, "date": d.isoformat(), "close": round(float(v), 4), "ma50": round(float(m), 4), "key": f"{s}|{d.isoformat()}"})
+    ma200h = np.convolve(c, np.ones(200) / 200, "full")[:len(c)]
+    for i, (d, v, m) in enumerate(zip(ds[-126:], c[-126:], ma50[-126:])):
+        m2 = float(ma200h[len(c) - 126 + i]) if len(c) - 126 + i >= 199 else None
+        hist_rows.append({"symbol": s, "date": d.isoformat(), "close": round(float(v), 4), "ma50": round(float(m), 4),
+                          "ma200": round(m2, 4) if m2 else None, "key": f"{s}|{d.isoformat()}"})
     cumvar = np.cumsum([sig_long ** 2 + (sig_now ** 2 - sig_long ** 2) * math.exp(-k * math.log(2) / 63) for k in range(H + 1)])
     sd = lambda t: math.sqrt(cumvar[t - 1]) if t > 0 else 0.0
     d0 = ds[-1]
@@ -101,6 +112,63 @@ for s in SYMS:
         row.update({"target_mean": mean, "target_low": lo, "target_high": hi, "analysts": n, "buy_pct": round(b / n * 100),
                     "upside_to_mean_pct": round((mean / p0 - 1) * 100, 1),
                     "target_sigmas_12m": round(math.log(mean / p0) / sd(H), 2)})
+    # ---- decision layer ----
+    ma200 = np.convolve(c, np.ones(200) / 200, "full")[:len(c)]; ma200[:199] = np.nan
+    hi252 = np.array([c[max(0, i - 251):i + 1].max() for i in range(len(c))]); dd52 = c / hi252 - 1
+    m50, m50_20, m200 = float(ma50[-1]), float(ma50[-21]), float(ma200[-1])
+    above200 = p0 > m200; slope_up = m50 >= m50_20
+    trend = "Uptrend" if above200 and slope_up else "Downtrend" if (not above200 and not slope_up) else "Turning" if not above200 else "Pullback in uptrend"
+    n = len(c); f3 = np.full(n, np.nan); f12 = np.full(n, np.nan)
+    f3[:-63] = c[63:] / c[:-63] - 1; f12[:-252] = c[252:] / c[:-252] - 1
+    ok_ = np.arange(n) >= 252
+    same = ok_ & (np.abs(dd52 - dd52[-1]) <= 0.05) & ((c > ma200) == above200) & ~np.isnan(ma200)
+    i12 = np.flatnonzero(same & ~np.isnan(f12)); i3 = np.flatnonzero(same & ~np.isnan(f3))
+    eps = (1 + int(np.sum(np.diff(i12) > 21))) if len(i12) else 0
+    base12 = f12[ok_ & ~np.isnan(f12)]
+    own = {"own_days": int(len(i12)), "own_episodes": eps, "own_since": ds[252].year,
+           "base_f12_up_pct": round(float((base12 > 0).mean()) * 100) if len(base12) else None}
+    if len(i12) >= 40 and eps >= 4:
+        own.update({"own_f12_median": round(float(np.median(f12[i12])) * 100, 1), "own_f12_up_pct": round(float((f12[i12] > 0).mean()) * 100),
+                    "own_f3_median": round(float(np.median(f3[i3])) * 100, 1), "own_f3_up_pct": round(float((f3[i3] > 0).mean()) * 100),
+                    "own_f3_p10": round(float(np.percentile(f3[i3], 10)) * 100, 1)})
+    swing_lo = float(c[-63:].min()); p16_3m = p0 * math.exp(-sd(63))
+    one_m = p0 * math.exp(-sd(21))  # about one normal month of downside
+    invalid = max(swing_lo if swing_lo < p0 * 0.985 else 0.0, one_m)
+    invalid_basis = "3-month low" if invalid == swing_lo else "one normal month down"
+    above = sorted([(x, n_) for x, n_ in ((m50, "50-day average"), (m200, "200-day average")) if x > p0])
+    promote, promote_basis = above[0] if above else (float(c[-21:].max()), "1-month high")
+    pts, why = 0, []
+    up12, base = own.get("own_f12_up_pct"), own.get("base_f12_up_pct")
+    own["own_edge_pts"] = (up12 - base) if up12 is not None and base is not None else None
+    if up12 is not None:
+        e = own["own_edge_pts"]
+        if e >= 10: pts += 1; why.append(f"in past setups like this it was higher a year later {up12}% of the time, above its normal {base}%")
+        elif e <= -10: pts -= 1; why.append(f"in past setups like this it was higher a year later only {up12}% of the time, below its normal {base}%")
+        else: why.append(f"past setups like this ({up12}% higher a year later) were no better than its normal {base}%")
+    else:
+        why.append(f"too few past setups like this since {own['own_since']} to judge")
+    if trend == "Uptrend": pts += 1; why.append("the trend is up")
+    elif trend == "Downtrend": pts -= 1; why.append("the trend is down (below the 200-day, 50-day falling)")
+    elif trend == "Pullback in uptrend": why.append("it is pulling back inside an uptrend (above the 200-day, 50-day falling)")
+    else: why.append("it is below its 200-day but the 50-day is turning up")
+    if row["history_12m"] > p0 * 1.05: pts += 1; why.append("the S&P's typical path after setups like today lifts it")
+    if t_ and 0.2 <= row["target_sigmas_12m"] <= 1.2 and row["buy_pct"] >= 70: pts += 1; why.append(f"{row['buy_pct']}% of analysts rate it a buy, with a reachable average target")
+    held = s in HELD; lev = s in LEV
+    if lev: why.append("it is a leveraged daily-reset fund, which loses value in choppy markets")
+    if held:
+        state = ("Trim review" if lev and trend == "Downtrend" else "Hold, wait for trend" if lev else
+                 "Add review" if pts >= 2 and trend == "Uptrend" else "Hold" if pts >= 1 else
+                 "Hold, wait for trend" if pts == 0 else "Trim review")
+    mstate = ("Probe" if pts >= 2 and trend in ("Uptrend", "Pullback in uptrend") else "Watch: odds good, trend not yet" if pts >= 2
+              else "Watch" if pts >= 0 else "Avoid for now")
+    if not held:
+        state = mstate
+    if False:
+        state = "Probe" if pts >= 2 and trend in ("Uptrend", "Pullback in uptrend") else "Watch: odds good, trend not yet" if pts >= 2 else "Watch" if pts >= 0 else "Avoid for now"
+    row.update({"ma50": round(m50, 2), "ma200": round(m200, 2), "vs_ma200_pct": round((p0 / m200 - 1) * 100, 1), "dd_52w_pct": round(float(dd52[-1]) * 100, 1),
+                "trend": trend, "swing_low_3m": round(swing_lo, 2), "promote_level": round(promote, 2), "invalid_level": round(invalid, 2),
+                "promote_basis": promote_basis, "invalid_basis": invalid_basis,
+                "evidence_score": pts, "action": state, "action_market": mstate, "action_why": (lambda t: t[:1].upper() + t[1:])("; ".join(why[:5])) + ".", "leveraged": lev, **own})
     summ.append(row)
 
 meta = lambda note: [{"label": "price_outlook.py", "value": SRC, "type": "code", "lang": "python"}, {"label": "Computed", "value": NOW},
@@ -109,5 +177,7 @@ json.dump({"rows": summ, "meta": meta("Ranges are 68% bands (about 2 in 3 outcom
 json.dump({"rows": cone_rows, "meta": meta("Fan percentiles by trading day ahead: p05/p95 bound 90% of outcomes, p16/p84 bound 68%.")}, open(os.path.join(OUT, "outlook_cone.json"), "w"), allow_nan=False)
 json.dump({"rows": hist_rows, "meta": meta("Last 6 months of closes with the 50-day average.")}, open(os.path.join(OUT, "outlook_history.json"), "w"), allow_nan=False)
 print(len(summ), len(cone_rows), len(hist_rows), "S&P history median path: 3m %+.1f%%, 12m %+.1f%%" % (spx_med[63] * 100, spx_med[H] * 100))
-for x in summ[:16]:
+for x in summ:
+    print(f"{x['symbol']:6} {x['action']:30} {x['trend']:20} own {x.get('own_f12_up_pct','—')}% ({x['own_episodes']} eps) promote {x['promote_level']} invalid {x['invalid_level']} | {x['action_why'][:110]}")
+    continue
     print(f"{x['symbol']:6} {x['price']:9.2f} vol {x['vol_now_pct']:3}%/{x['vol_1y_pct']:3}% 3m {x['m3_lo']:8.2f}-{x['m3_hi']:8.2f} hist3m {x['history_3m']:8.2f} 12m {x['m12_lo']:8.2f}-{x['m12_hi']:8.2f} target {x.get('target_mean','—')} ({x.get('upside_to_mean_pct','')}%, {x.get('target_sigmas_12m','')}σ)")

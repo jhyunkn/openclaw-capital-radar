@@ -4,7 +4,7 @@ Run: python3 price_outlook.py OUT_DIR   (shares market_brief.py's price cache)
 Fan: lognormal bands with zero expected return. Volatility starts at today's EWMA level and
 mean-reverts toward the stock's 1-year average with a 3-month half-life, because spikes fade.
 History path: the median S&P 500 path over the year after the 23 past setups like today
-(VIX 30+, S&P 8-20% below its high), scaled by the stock's 1-year beta to SPY.
+(VIX 30+, S&P 8-20% below its high), scaled by the stock's 5-year beta to SPY (since listing if shorter).
 Analyst targets: Robinhood's consensus 12-month low / mean / high.
 Decision layer (per stock): trend (price vs 200-day, 50-day slope), the stock's own record after
 past days in the same state (same distance below its 52-week high, same side of its 200-day,
@@ -12,6 +12,7 @@ episodes counted once), key levels, and an action state (Watch / Probe / Add / H
 with a promotion level and an invalidation level. Rules, not advice.
 """
 import json, math, os, sys, datetime as dt, urllib.request
+from zoneinfo import ZoneInfo
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import paths
@@ -21,10 +22,25 @@ SRC = open(os.path.abspath(__file__)).read(); NOW = dt.datetime.now(dt.timezone.
 CACHE = paths.CACHE
 
 
+def last_settled_close():
+    """The most recent weekday 16:15 ET: bars after this are still trading and are not closes."""
+    now = dt.datetime.now(ZoneInfo("America/New_York"))
+    cut = now.replace(hour=16, minute=15, second=0, microsecond=0)
+    if now < cut: cut -= dt.timedelta(days=1)
+    while cut.weekday() >= 5: cut -= dt.timedelta(days=1)
+    return cut
+
+
+def settled(bars):
+    last = last_settled_close().date()
+    return {d: v for d, v in bars.items() if d <= last}
+
+
 def yahoo(sym, start=-631152000):
     path = os.path.join(CACHE, "brief_" + sym.replace("^", "_").replace("=", "_") + ".json")
-    if os.path.exists(path) and dt.datetime.now().timestamp() - os.path.getmtime(path) < 6 * 3600:
-        return {dt.date.fromisoformat(k): v for k, v in json.load(open(path)).items()}
+    if (os.path.exists(path) and dt.datetime.now().timestamp() - os.path.getmtime(path) < 6 * 3600
+            and os.path.getmtime(path) >= last_settled_close().timestamp()):
+        return settled({dt.date.fromisoformat(k): v for k, v in json.load(open(path)).items()})
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.request.quote(sym)}"
            f"?period1={start}&period2={int(dt.datetime.now().timestamp())}&interval=1d")
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=30) as r:
@@ -36,6 +52,21 @@ def yahoo(sym, start=-631152000):
             c = a = d["meta"].get("regularMarketPrice")
         if a is None: a = c
         if a: out[dt.datetime.fromtimestamp(t, dt.timezone.utc).date()] = a
+    json.dump({k.isoformat(): v for k, v in out.items()}, open(path, "w"))
+    return settled(out)
+
+
+def ylong(sym):
+    """Full daily history (adjusted) since 1985 or listing, cached separately from the 2018+ series."""
+    path = os.path.join(CACHE, "long_" + sym.replace("^", "_").replace("=", "_") + ".json")
+    if os.path.exists(path) and dt.datetime.now().timestamp() - os.path.getmtime(path) < 6 * 3600:
+        return {dt.date.fromisoformat(k): v for k, v in json.load(open(path)).items()}
+    url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.request.quote(sym)}"
+           f"?period1=473385600&period2={int(dt.datetime.now().timestamp())}&interval=1d")
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=45) as r:
+        d = json.load(r)["chart"]["result"][0]
+    q = d["indicators"]["quote"][0]; adj = d["indicators"].get("adjclose", [{}])[0].get("adjclose") or q["close"]
+    out = {dt.datetime.fromtimestamp(t, dt.timezone.utc).date(): a for t, a in zip(d["timestamp"], adj) if a}
     json.dump({k.isoformat(): v for k, v in out.items()}, open(path, "w"))
     return out
 
@@ -59,6 +90,29 @@ vix = np.array([vixd.get(d, np.nan) for d in cal]); dd = px / np.maximum.accumul
 idx = np.flatnonzero((vix >= 30) & (dd <= -0.08) & (dd >= -0.20))
 starts = [idx[0]] + [b for a, b in zip(idx, idx[1:]) if b - a > 21]
 H = 252
+EP_DATES = [cal[i] for i in starts]  # first day of each past sell-off like today (VIX 30+, S&P 8-20% off its high)
+
+
+def crash_replay(sym):
+    """How the stock did after each past S&P sell-off start: next-year return and worst drop within 3 months."""
+    try:
+        h = ylong(sym)
+    except Exception:
+        return {}
+    ds_ = sorted(h); v = np.array([h[d] for d in ds_]); f12s, dds = [], []
+    for e in EP_DATES:
+        i = next((k for k, d in enumerate(ds_) if d >= e), None)
+        if i is None or i + 252 >= len(v) or (ds_[i] - e).days > 5:
+            continue
+        f12s.append(v[i + 252] / v[i] - 1); dds.append(v[i:i + 64].min() / v[i] - 1)
+    if not f12s:
+        return {"crash_n": 0, "crash_since": ds_[0].year}
+    return {"crash_n": len(f12s), "crash_since": ds_[0].year, "crash_f12_median": round(float(np.median(f12s)) * 100, 1),
+            "crash_f12_worst": round(float(min(f12s)) * 100, 1), "crash_f12_up_pct": round(float(np.mean(np.array(f12s) > 0)) * 100),
+            "crash_dd3_median": round(float(np.median(dds)) * 100, 1), "crash_dd3_worst": round(float(min(dds)) * 100, 1)}
+
+
+SPY_CRASH = crash_replay("SPY")
 paths = np.array([px[s:s + H + 1] / px[s] - 1 for s in starts if s + H < T])
 spx_med = np.median(paths, axis=0)
 
@@ -87,7 +141,7 @@ for s in SYMS:
         s2 = 0.94 * s2 + 0.06 * x * x
     sig_now, sig_long = math.sqrt(s2), float(np.std(r[-252:]))
     spr = np.diff(np.log(np.array([spy[d] for d in ds])))
-    beta = float(np.cov(r[-252:], spr[-252:])[0, 1] / np.var(spr[-252:]))
+    beta = float(np.cov(r[-1260:], spr[-1260:])[0, 1] / np.var(spr[-1260:], ddof=1))
     p0 = float(c[-1]); ma50 = np.convolve(c, np.ones(50) / 50, "full")[:len(c)]
     ma200h = np.convolve(c, np.ones(200) / 200, "full")[:len(c)]
     for i, (d, v, m) in enumerate(zip(ds[-126:], c[-126:], ma50[-126:])):
@@ -174,10 +228,27 @@ for s in SYMS:
                 "trend": trend, "swing_low_3m": round(swing_lo, 2), "promote_level": round(promote, 2), "invalid_level": round(invalid, 2),
                 "promote_basis": promote_basis, "invalid_basis": invalid_basis,
                 "evidence_score": pts, "action": state, "action_market": mstate, "action_why": (lambda t: t[:1].upper() + t[1:])("; ".join(why[:5])) + ".", "leveraged": lev, **own})
+    # ---- how it's doing ----
+    def back(n): return round((p0 / float(c[-1 - n]) - 1) * 100, 1) if len(c) > n else None
+    ystart = next((i for i, d in enumerate(ds) if d.year == ds[-1].year), None)
+    row.update({"ret_1d": back(1), "ret_1w": back(5), "ret_1m": back(21), "ret_3m": back(63), "ret_1y": back(252),
+                "ret_ytd": round((p0 / float(c[ystart - 1]) - 1) * 100, 1) if ystart else None})
+    # ---- crash replay and risk-matched size ----
+    cr = crash_replay(s); row.update(cr)
+    if cr.get("crash_n", 0) >= 3 and SPY_CRASH.get("crash_dd3_median") and cr["crash_dd3_median"] < 0:
+        row["size_vs_spy"] = round(max(0.1, min(1.5, SPY_CRASH["crash_dd3_median"] / cr["crash_dd3_median"])), 2)
+    else:
+        row["size_vs_spy"] = round(max(0.1, min(1.5, 0.16 / max(1e-6, sig_long * math.sqrt(252)))), 2)
+        row["size_basis"] = "volatility"
+    # ---- entry plan levels ----
+    row.update({"plan_limit": round(lo3, 2), "plan_stop": round(p0 * math.exp(-1.645 * sd(63)), 2), "plan_confirm": round(promote, 2),
+                "plan_warning": round(invalid, 2)})
     summ.append(row)
 
 meta = lambda note: [{"label": "price_outlook.py", "value": SRC, "type": "code", "lang": "python"}, {"label": "Computed", "value": NOW},
                      {"label": "Inputs", "value": "Yahoo Finance daily closes; " + AN["source"] + " synced " + AN["syncedAt"]}, {"label": "Method", "value": note}]
+SPY_ROW = {"spy_" + k: v for k, v in SPY_CRASH.items()}
+for r_ in summ: r_.update(SPY_ROW)
 json.dump({"rows": summ, "meta": meta("Ranges are 68% bands (about 2 in 3 outcomes) with no assumed drift. 'Analyst σ' = how many 12-month standard deviations the mean analyst target sits above today's price.")}, open(os.path.join(OUT, "outlook_summary.json"), "w"), allow_nan=False)
 json.dump({"rows": cone_rows, "meta": meta("Fan percentiles by trading day ahead: p05/p95 bound 90% of outcomes, p16/p84 bound 68%.")}, open(os.path.join(OUT, "outlook_cone.json"), "w"), allow_nan=False)
 json.dump({"rows": hist_rows, "meta": meta("Last 6 months of closes with the 50-day average.")}, open(os.path.join(OUT, "outlook_history.json"), "w"), allow_nan=False)

@@ -195,7 +195,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: 14p
 <div class="wrap">
   <header class="page-head">
     <h1>Price outlook</h1>
-    <p>Capital Radar · risk lab. Where each stock has been, where it could go over the next year, and what would confirm or invalidate the call. Prices as of the last close the pipeline saw; rebuilt every 4 hours. Analysis, not investment advice. <a href="../">Back to Capital Radar</a></p>
+    <p>Capital Radar · risk lab. Where each stock has been, where it could go over the next year, and what would confirm or invalidate the call. Prices are daily closes; the last update time is shown on the board. Analysis, not investment advice. <a href="../">Back to Capital Radar</a></p>
   </header>
   <div class="pwr" style="margin-top: 20px">
   <div class="tabpage" id="outlook">
@@ -232,7 +232,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: 14p
         <span><i style="background: var(--color-ok); transform: rotate(45deg); width:9px; height:9px"></i>Analyst target (range)</span>
       </div>
       <div class="chart olchart" data-draw="olchart" data-source="outlook_history outlook_cone outlook_summary"></div>
-      <details class="info"><summary>How to read</summary><p>Left of "Today" is the last six months of closing prices with the 50- and 200-day averages. Right of it is the next twelve months: the dark band is where the price lands about 2 times in 3, the light band about 9 times in 10, from the stock's own volatility with no up or down drift assumed. The orange line is where it would go if the S&amp;P repeats its median path after the 23 past sell-offs like this one, scaled by how much the stock moves with the market. The green dashed line is the level that would confirm a turn (reclaiming the nearer moving average above the price); the red dashed line is where the setup is wrong (its 3-month low, or one normal month down if that is closer). At the right edge: analysts' 12-month targets, low to high, with the average as a diamond; many were set before this sell-off.</p></details>
+      <details class="info"><summary>How to read</summary><p>Left of "Today" is the last six months of closing prices with the 50- and 200-day averages. Right of it is the next twelve months: the dark band is where the price lands about 2 times in 3, the light band about 9 times in 10, from the stock's own volatility with no up or down drift assumed. The orange line is where it would go if the S&amp;P repeats its median path after the 23 past sell-offs like this one, scaled by how much the stock moves with the market. The green dashed line is the level that would confirm a turn (reclaiming the nearer moving average above the price, or the 1-month high when the price is above both); the red dashed line is where the setup is wrong (its 3-month low, or one normal month down if that is closer). At the right edge: analysts' 12-month targets, low to high, with the average as a diamond; many were set before this sell-off.</p></details>
     </section>
 
     <section id="oltable" class="card">
@@ -257,9 +257,9 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: 14p
       <h2>What this is based on</h2>
       <p class="sub">Every number on this tab comes from five inputs. None of them is a forecast; each has a known weakness, listed under it.</p>
       <ul class="basis">
-        <li><b>Prices</b>Daily closes from Yahoo Finance since 2018, adjusted for splits and dividends, through Friday's close.<span class="lim">Eight years is one long bull market with two sharp breaks (2020, 2022), so "normal" here is a good era.</span></li>
+        <li><b>Prices</b>Daily closes from Yahoo Finance since 2018, adjusted for splits and dividends, through the latest close.<span class="lim">Eight years is one long bull market with two sharp breaks (2020, 2022), so "normal" here is a good era.</span></li>
         <li><b>Likely and possible ranges</b>Each stock's own volatility: today's level (exponentially weighted, recent days count most) fading toward its 1-year average with a 3-month half-life. Bands are 2-in-3 and 9-in-10 outcomes with no up or down drift.<span class="lim">Real moves have fatter tails than these bands; a crash can land outside the light band.</span></li>
-        <li><b>If the S&amp;P repeats history</b>The median S&amp;P 500 path over the year after the past sell-offs like today (VIX 30 or higher with the S&amp;P 8–20% below its high, since 1990, each episode counted once), scaled by the stock's 1-year beta to SPY.<span class="lim">A median across few episodes; any single year can be far from it, and beta drifts.</span></li>
+        <li><b>If the S&amp;P repeats history</b>The median S&amp;P 500 path over the year after the past sell-offs like today (VIX 30 or higher with the S&amp;P 8–20% below its high, since 1990, each episode counted once), scaled by the stock's 5-year beta to SPY (since listing if shorter).<span class="lim">A median across few episodes; any single year can be far from it, and beta drifts.</span></li>
         <li><b>Setups like this, for each stock</b>Past days since 2019 when the stock sat within 5 points of today's distance below its 52-week high and on the same side of its 200-day average. It shows how often it was higher a year later, against how often it was higher in any year, and counts episodes, not days. It counts only with 4 or more episodes.<span class="lim">Small samples, and overlapping days inside one episode are not independent. Survivorship: these are stocks that are big today.</span></li>
         <li><b>Analyst targets</b>Robinhood's consensus: buy/hold/sell counts and the low, average and high 12-month target, with the date it last changed when available.<span class="lim">Targets lag prices; many were set before this sell-off and tend to be optimistic.</span></li>
         <li><b>Action state and levels</b>Four checks score the stock: trend (price vs 200-day, 50-day slope), setups-like-this edge of 10+ points over its normal year, the S&amp;P history path lifting it 5%+, and a reachable analyst target with 70%+ buy ratings. "Confirms above" is the nearer moving average above the price (or the 1-month high when above both). "Invalidates below" is the 3-month low, or one normal month down if closer.<span class="lim">Rules written in advance, not a backtested strategy. Not advice.</span></li>
@@ -345,11 +345,14 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: 14p
     if (!pick || !rows.find((r) => r.symbol === pick)) pick = (rows.find((r) => r.held) || rows.find((r) => r.symbol === 'SPY') || rows[0]).symbol;
     return rows.find((r) => r.symbol === pick); }
   function choose(sym) { pick = sym; ['olsel', 'olaction', 'oltrend', 'olwhy', 'olcards', 'olchart', 'olboard', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }
+  function builtLabel() { const m = (dash.data('outlook_summary').meta || []).find((x) => x.label === 'Built'); if (!m) return '';
+    const t = new Date(String(m.value).replace(' UTC', 'Z').replace(' ', 'T')); if (isNaN(t)) return '';
+    return ' · updated ' + t.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET'; }
   let grp = '';
   const inGrp = (r) => !grp || (grp === 'Your holdings' ? r.held : r.group === grp);
   document.querySelectorAll('.pwr select.olgroup').forEach((g) => g.addEventListener('change', () => { grp = g.value; ['olboard', 'olcount', 'strip', 'oltbody'].forEach((n) => dash.draw(n)); }));
   dash.draw('olcount', (el) => { const rows = S(); if (!rows.length) { el.textContent = '—'; return; } const n = rows.filter(inGrp).length;
-    el.textContent = n + ' of ' + rows.length + ' stocks and ETFs · prices as of ' + d3.utcFormat('%b %-d, %Y')(new Date(rows[0].asof + 'T00:00:00Z')); });
+    el.textContent = n + ' of ' + rows.length + ' stocks and ETFs · prices as of ' + d3.utcFormat('%b %-d, %Y')(new Date(rows[0].asof + 'T00:00:00Z')) + builtLabel(); });
   const ACTS = ['Add review', 'Probe', 'Hold', 'Hold, wait for trend', 'Watch: odds good, trend not yet', 'Watch', 'Trim review', 'Avoid for now'];
   const actColor = (a) => (a === 'Add review' || a === 'Probe' ? 'var(--color-ok)' : a === 'Trim review' || a === 'Avoid for now' ? 'var(--color-bad)' : a === 'Hold' ? 'var(--color-fg)' : 'var(--color-warn)');
   const pctTo = (v, p) => P().pct((v / p - 1) * 100);
@@ -371,7 +374,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: 14p
   dash.draw('olcards', (el) => {
     const r = cur(); el.replaceChildren(); if (!r) { el.textContent = '—'; return; }
     const card = (k, v, sub, cls) => { const c = mk('div', 'olc' + (cls ? ' ' + cls : '')); const a = mk('small'); a.textContent = k; const b = mk('b'); b.textContent = v; const s = mk('span'); s.textContent = sub; c.append(a, b, s); el.appendChild(c); };
-    card('Today', fmtp(r.price), 'Friday close · ' + r.vol_now_pct + '% volatility now vs ' + r.vol_1y_pct + '% normal');
+    card('Today', fmtp(r.price), d3.utcFormat('%A')(new Date(r.asof + 'T00:00:00Z')) + ' close · ' + r.vol_now_pct + '% volatility now vs ' + r.vol_1y_pct + '% normal');
     card('Confirms above', fmtp(r.promote_level), r.promote_basis + ' · ' + pctTo(r.promote_level, r.price) + ' away', 'good');
     card('Invalidates below', fmtp(r.invalid_level), r.invalid_basis + ' · ' + pctTo(r.invalid_level, r.price) + ' away', 'bad');
     if (r.own_f12_up_pct != null) card('Setups like this', r.own_f12_up_pct + '% higher', 'a year later, vs ' + r.base_f12_up_pct + '% in a normal year · ' + r.own_episodes + ' episodes since ' + r.own_since + ' · median ' + P().pct(r.own_f12_median));

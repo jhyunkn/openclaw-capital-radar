@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T13:46:36.173Z",
+  "generatedAt": "2026-11-23T19:17:41.702Z",
   "policy": "Each mandate owns its capital, positions, orders, risk limits, freshness requirements, and action state. No mandate may inherit permission or balances from another mandate.",
   "defaultMandate": "core",
   "mandates": [
@@ -16,20 +16,20 @@
           "id": "positions",
           "label": "Positions",
           "required": true,
-          "status": "OK",
+          "status": "STALE",
           "asOf": "2026-11-20T17:02:00.647Z",
-          "ageMinutes": 4124.6,
+          "ageMinutes": 4455.7,
           "maxMinutes": 4320,
           "source": "portfolio-live-state.BROKER_SYNC",
-          "reason": null
+          "reason": "Positions is 4456 minutes old; maximum is 4320."
         },
         {
           "id": "quotes",
           "label": "Holding prices",
           "required": true,
           "status": "OK",
-          "asOf": "2026-11-20T17:02:00.647Z",
-          "ageMinutes": 238,
+          "asOf": "2026-11-23T18:57:03.000Z",
+          "ageMinutes": 20.6,
           "maxMinutes": 1440,
           "source": "portfolio-live-state.positions",
           "reason": null
@@ -38,12 +38,12 @@
           "id": "data_health",
           "label": "Data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-11-23T13:46:09.881Z",
-          "ageMinutes": 0.4,
+          "status": "OK",
+          "asOf": "2026-11-23T19:17:24.381Z",
+          "ageMinutes": 0.3,
           "maxMinutes": 1440,
           "source": "data-health",
-          "reason": "Data health reports STALE."
+          "reason": null
         },
         {
           "id": "calendar",
@@ -51,7 +51,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-11-23",
-          "ageMinutes": 826.6,
+          "ageMinutes": 1157.7,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -59,16 +59,16 @@
       ],
       "blockers": [
         {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports STALE."
+          "id": "positions",
+          "status": "STALE",
+          "reason": "Positions is 4456 minutes old; maximum is 4320."
         }
       ],
       "portfolio": {
         "totalValue": 78796.7,
         "buyingPower": 3153.65,
         "positionCount": 13,
-        "dayChange": -1586.3
+        "dayChange": 4498.95
       }
     },
     {
@@ -139,12 +139,12 @@
           "id": "data_health",
           "label": "Market data health",
           "required": true,
-          "status": "INVALID",
-          "asOf": "2026-11-23T13:46:09.881Z",
-          "ageMinutes": 0.4,
+          "status": "OK",
+          "asOf": "2026-11-23T19:17:24.381Z",
+          "ageMinutes": 0.3,
           "maxMinutes": 15,
           "source": "data-health",
-          "reason": "Data health reports STALE."
+          "reason": null
         },
         {
           "id": "calendar",
@@ -152,7 +152,7 @@
           "required": true,
           "status": "OK",
           "asOf": "2026-11-23",
-          "ageMinutes": 826.6,
+          "ageMinutes": 1157.7,
           "maxMinutes": 10080,
           "source": "market-events",
           "reason": null
@@ -183,11 +183,6 @@
           "id": "gate_observations",
           "status": "MISSING",
           "reason": "No timestamped gate observation set is available."
-        },
-        {
-          "id": "data_health",
-          "status": "INVALID",
-          "reason": "Data health reports STALE."
         }
       ],
       "riskPolicy": {

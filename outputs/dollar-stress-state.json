@@ -1,17 +1,17 @@
 {
   "artifact": "dollar-stress-state",
   "version": 1,
-  "generatedAt": "2026-11-22T19:21:23.147Z",
+  "generatedAt": "2026-11-23T13:45:15.862Z",
   "generatedBy": "scripts/generate-dollar-stress-state.cjs",
-  "anchorDate": "2026-11-20",
+  "anchorDate": "2026-11-23",
   "coverage": "FULL",
   "partial": false,
   "staleInputs": [],
-  "verdict": "DOLLAR_LIQUIDITY_STRESS",
-  "verdictLabel": "Dollar liquidity stress — forced selling",
-  "dollarHaven": "WORKING_EXTREME",
-  "implication": "Extreme forced dollar demand. Do not deploy dry powder yet: wait for the dollar spike to stall or a Fed liquidity response — that dollar peak has historically marked the deploy window.",
-  "whatWouldChange": "Steps down to NORMAL_RISK_OFF when the extremes clear: DXY 5d spike below +2.0%, VIX below 35, and HY OAS 5d widening below +50bp.",
+  "verdict": "NORMAL_RISK_OFF",
+  "verdictLabel": "Equity stress — dollar bid not confirmed",
+  "dollarHaven": "NOT_CONFIRMED",
+  "implication": "Equities are selling off but the dollar is not bid and yields are not rising — this is equity stress first, not a dollar-liquidity event and not a Sell-America pattern.",
+  "whatWouldChange": "A dollar bid (DXY 5d >= +0.3%) confirms NORMAL_RISK_OFF; a falling dollar with yields up >= +10bp flips it to SELL_AMERICA_STRESS.",
   "thresholds": {
     "spyDown5": -1,
     "spyDown20": -3,
@@ -24,30 +24,30 @@
   },
   "inputs": {
     "dxy": {
-      "level": 103.81,
-      "asOf": "2026-11-20",
-      "change5dPct": 0.387,
-      "change20dPct": 1.894,
+      "level": 104.031,
+      "asOf": "2026-11-23",
+      "change5dPct": 0.165,
+      "change20dPct": 2.121,
       "window5d": {
-        "fromDate": "2026-11-13",
-        "fromValue": 103.41,
-        "toDate": "2026-11-20",
-        "toValue": 103.81,
-        "pctChange": 0.387,
-        "delta": 0.4,
-        "deltaBp": 40,
-        "spanDays": 7,
+        "fromDate": "2026-11-18",
+        "fromValue": 103.86,
+        "toDate": "2026-11-23",
+        "toValue": 104.031,
+        "pctChange": 0.165,
+        "delta": 0.171,
+        "deltaBp": 17.1,
+        "spanDays": 5,
         "windowDays": 5
       },
       "window20d": {
-        "fromDate": "2026-10-30",
-        "fromValue": 101.88,
-        "toDate": "2026-11-20",
-        "toValue": 103.81,
-        "pctChange": 1.894,
-        "delta": 1.93,
-        "deltaBp": 193,
-        "spanDays": 21,
+        "fromDate": "2026-11-03",
+        "fromValue": 101.87,
+        "toDate": "2026-11-23",
+        "toValue": 104.031,
+        "pctChange": 2.121,
+        "delta": 2.161,
+        "deltaBp": 216.1,
+        "spanDays": 20,
         "windowDays": 20
       }
     },
@@ -80,25 +80,25 @@
       }
     },
     "vix": {
-      "level": 35.89,
-      "asOf": "2026-11-20",
-      "change5dDelta": 16.59,
+      "level": 30.99,
+      "asOf": "2026-11-23",
+      "change5dDelta": 6.43,
       "window5d": {
-        "fromDate": "2026-11-13",
-        "fromValue": 19.3,
-        "toDate": "2026-11-20",
-        "toValue": 35.89,
-        "pctChange": 85.959,
-        "delta": 16.59,
-        "deltaBp": 1659,
-        "spanDays": 7,
+        "fromDate": "2026-11-18",
+        "fromValue": 24.56,
+        "toDate": "2026-11-23",
+        "toValue": 30.99,
+        "pctChange": 26.181,
+        "delta": 6.43,
+        "deltaBp": 643,
+        "spanDays": 5,
         "windowDays": 5
       }
     },
     "dgs10": {
       "levelPct": 5.04,
       "asOf": "2026-11-19",
-      "lagDays": 1,
+      "lagDays": 4,
       "cacheStatus": "PUBLIC_REFRESHED",
       "change5dBp": -11,
       "change20dBp": 10,
@@ -128,7 +128,7 @@
     "hyOas": {
       "levelPct": 3.52,
       "asOf": "2026-11-19",
-      "lagDays": 1,
+      "lagDays": 4,
       "cacheStatus": "PUBLIC_REFRESHED",
       "change5dBp": 29,
       "change20dBp": 8,
@@ -156,9 +156,9 @@
       }
     },
     "gold": {
-      "level": 3515.4,
-      "asOf": "2026-11-20",
-      "change5dPct": -9.544
+      "level": 3625,
+      "asOf": "2026-11-23",
+      "change5dPct": -3.124
     }
   },
   "rules": [

@@ -1,6 +1,6 @@
 # Capital Radar Architecture Audit
 
-Generated: 2026-11-24T22:21:52.317Z
+Generated: 2026-11-24T23:16:41.678Z
 
 ## Layer Coverage
 
@@ -31,10 +31,10 @@ Generated: 2026-11-24T22:21:52.317Z
 ### Opportunity Research Engine
 
 - Status: rebuild
-- Coverage: 50%
+- Coverage: 75%
 - Role: Rebuild Opportunity from ranking table into evidence-backed research dossiers.
 - Visual authority: opportunity cards should show evidence gates, thesis, blockers, and upgrade/reject logic
-- Missing evidence: opportunity dossiers exist; SEC/company evidence exists
+- Missing evidence: opportunity dossiers exist
 
 ### Evidence / Source / Trust Engine
 
@@ -58,5 +58,4 @@ Generated: 2026-11-24T22:21:52.317Z
 - Collect or validate evidence for Portfolio / Price Zone Radar: ticker gate audit exists.
 - Collect or validate evidence for Portfolio / Price Zone Radar: portfolio exposure exists.
 - Collect or validate evidence for Opportunity Research Engine: opportunity dossiers exist.
-- Collect or validate evidence for Opportunity Research Engine: SEC/company evidence exists.
 - Collect or validate evidence for Evidence / Source / Trust Engine: native source registry exists.
